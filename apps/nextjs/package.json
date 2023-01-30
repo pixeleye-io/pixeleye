@@ -1,5 +1,5 @@
 {
-  "name": "@acme/nextjs",
+  "name": "@pixeleye/nextjs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,10 +11,10 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@acme/api": "*",
-    "@acme/auth": "*",
-    "@acme/db": "*",
-    "@acme/tailwind-config": "*",
+    "@pixeleye/api": "*",
+    "@pixeleye/auth": "*",
+    "@pixeleye/db": "*",
+    "@pixeleye/tailwind-config": "*",
     "@tanstack/react-query": "^4.23.0",
     "@trpc/client": "^10.9.0",
     "@trpc/next": "^10.9.0",

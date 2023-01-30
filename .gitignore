@@ -17,10 +17,6 @@ prisma/db.sqlite-journal
 out/
 next-env.d.ts
 
-# expo
-.expo/
-dist/
-
 # production
 build
 

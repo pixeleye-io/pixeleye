@@ -13,12 +13,9 @@ module.exports = {
   ],
   tailwindConfig: "./packages/config/tailwind",
   importOrder: [
-    "^(react/(.*)$)|^(react$)|^(react-native(.*)$)",
+    "^(react/(.*)$)|^(react$)",
     "^(next/(.*)$)|^(next$)",
-    "^(expo(.*)$)|^(expo$)",
     "<THIRD_PARTY_MODULES>",
-    "^@acme/(.*)$",
-    "",
     "^~/utils/(.*)$",
     "^~/components/(.*)$",
     "^~/styles/(.*)$",

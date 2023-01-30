@@ -1,5 +1,5 @@
 {
-  "name": "@acme/auth",
+  "name": "@pixeleye/auth",
   "version": "0.1.0",
   "main": "./index.ts",
   "types": "./index.ts",
@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@acme/db": "*",
+    "@pixeleye/db": "*",
     "@next-auth/prisma-adapter": "^1.0.5",
     "next": "^13.1.6",
     "next-auth": "^4.19.0",
