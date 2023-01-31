@@ -13,6 +13,8 @@ const config = {
     "@pixeleye/api",
     "@pixeleye/auth",
     "@pixeleye/db",
+    "@pixeleye/utils",
+    "@pixeleye/hooks",
     "@pixeleye/ui",
   ],
   /** We already do linting and typechecking as separate tasks in CI */

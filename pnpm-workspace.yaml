@@ -1,5 +1,7 @@
 packages:
   - apps/client
+  - packages/hooks
+  - packages/utils
   - packages/api
   - packages/auth
   - packages/db

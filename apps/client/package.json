@@ -14,8 +14,10 @@
     "@pixeleye/api": "*",
     "@pixeleye/auth": "*",
     "@pixeleye/db": "*",
-    "@pixeleye/ui": "*",
     "@pixeleye/tailwind-config": "*",
+    "@pixeleye/ui": "*",
+    "@pixeleye/utils": "*",
+    "@pixeleye/hooks": "*",
     "@tanstack/react-query": "^4.23.0",
     "@trpc/client": "^10.9.0",
     "@trpc/next": "^10.9.0",
@@ -25,7 +27,8 @@
     "next-auth": "^4.19.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "zod": "^3.20.2"
+    "zod": "^3.20.2",
+    "zustand": "^4.3.2"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

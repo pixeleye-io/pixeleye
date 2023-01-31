@@ -31,8 +31,10 @@ importers:
       '@pixeleye/api': '*'
       '@pixeleye/auth': '*'
       '@pixeleye/db': '*'
+      '@pixeleye/hooks': '*'
       '@pixeleye/tailwind-config': '*'
       '@pixeleye/ui': '*'
+      '@pixeleye/utils': '*'
       '@tanstack/react-query': ^4.23.0
       '@trpc/client': ^10.9.0
       '@trpc/next': ^10.9.0
@@ -53,12 +55,15 @@ importers:
       tailwindcss: ^3.2.4
       typescript: ^4.9.4
       zod: ^3.20.2
+      zustand: ^4.3.2
     dependencies:
       '@pixeleye/api': link:../../packages/api
       '@pixeleye/auth': link:../../packages/auth
       '@pixeleye/db': link:../../packages/db
+      '@pixeleye/hooks': link:../../packages/hooks
       '@pixeleye/tailwind-config': link:../../packages/config/tailwind
       '@pixeleye/ui': link:../../packages/ui
+      '@pixeleye/utils': link:../../packages/utils
       '@tanstack/react-query': 4.23.0_biqbaboplfbrettd7655fr4n2y
       '@trpc/client': 10.9.0_@trpc+server@10.9.0
       '@trpc/next': 10.9.0_o4vjr5433zf4lxe7zgyoyoztjm
@@ -69,6 +74,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       zod: 3.20.2
+      zustand: 4.3.2_react@18.2.0
     devDependencies:
       '@types/node': 18.11.18
       '@types/react': 18.0.27
@@ -146,6 +152,27 @@ importers:
       prisma: 4.9.0
       typescript: 4.9.4
 
+  packages/hooks:
+    specifiers:
+      '@pixeleye/utils': '*'
+      '@types/react': ^18.0.27
+      '@types/react-dom': ^18.0.10
+      eslint: ^8.32.0
+      react: ^18.2.0
+      react-dom: 18.2.0
+      typescript: ^4.9.4
+      zustand: ^4.3.2
+    dependencies:
+      '@pixeleye/utils': link:../utils
+      zustand: 4.3.2_react@18.2.0
+    devDependencies:
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      typescript: 4.9.4
+
   packages/ui:
     specifiers:
       '@babel/preset-env': ^7.20.2
@@ -199,6 +226,22 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       storybook: 7.0.0-beta.36
       tailwindcss: 3.2.4_postcss@8.4.21
+      typescript: 4.9.4
+
+  packages/utils:
+    specifiers:
+      '@types/react': ^18.0.27
+      '@types/react-dom': ^18.0.10
+      eslint: ^8.32.0
+      react: ^18.2.0
+      react-dom: 18.2.0
+      typescript: ^4.9.4
+    devDependencies:
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
       typescript: 4.9.4
 
 packages:
@@ -11507,4 +11550,20 @@ packages:
 
   /zod/3.20.2:
     resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: false
+
+  /zustand/4.3.2_react@18.2.0:
+    resolution: {integrity: sha512-rd4haDmlwMTVWVqwvgy00ny8rtti/klRoZjFbL/MAcDnmD5qSw/RZc+Vddstdv90M5Lv6RPgWvm1Hivyn0QgJw==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      immer: '>=9.0'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      immer:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
