@@ -1,5 +1,5 @@
 {
-  "name": "@pixeleye/nextjs",
+  "name": "@pixeleye/client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -14,6 +14,7 @@
     "@pixeleye/api": "*",
     "@pixeleye/auth": "*",
     "@pixeleye/db": "*",
+    "@pixeleye/ui": "*",
     "@pixeleye/tailwind-config": "*",
     "@tanstack/react-query": "^4.23.0",
     "@trpc/client": "^10.9.0",

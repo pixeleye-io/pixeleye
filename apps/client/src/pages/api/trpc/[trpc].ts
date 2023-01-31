@@ -1,5 +1,5 @@
+import { appRouter, createTRPCContext } from "@pixeleye/api";
 import { createNextApiHandler } from "@trpc/server/adapters/next";
-import { appRouter, createTRPCContext } from "@acme/api";
 
 // export API handler
 export default createNextApiHandler({

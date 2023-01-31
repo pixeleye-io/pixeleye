@@ -1,7 +1,7 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { prisma } from "@pixeleye/db";
 import { type DefaultSession, type NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
-import { prisma } from "@acme/db";
 
 /**
  * Module augmentation for `next-auth` types
