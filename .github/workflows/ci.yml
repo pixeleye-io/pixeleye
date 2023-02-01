@@ -28,6 +28,8 @@ jobs:
           package-manager: "pnpm"
           version-mismatches: "lint"
           format-mismatches: "ignore"
+          lockfile-mismatches: "ignore"
+          semver-range-mismatches: "lint"
         env:
           # If any options are set to 'fix' then
           # env.GITHUB_TOKEN is needed to push to PRs
