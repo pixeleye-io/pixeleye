@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: 18
       - uses: JamieMason/syncpack-github-action@0.2.2
+        with:
+          package-manager: "pnpm"
         env:
           # If any options are set to 'fix' then
           # env.GITHUB_TOKEN is needed to push to PRs
