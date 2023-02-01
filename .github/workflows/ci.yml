@@ -19,6 +19,7 @@ jobs:
     steps:
       # Check out the branch so we can read/write its files
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.4
       # Use Node.js as syncpack is written in that
       - uses: actions/setup-node@v3
         with:
