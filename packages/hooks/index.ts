@@ -1,2 +1,2 @@
-export * from "./src/theme";
-export { default as useThemeStore } from "./src/theme";
+export * from "./src/useTheme";
+export { default as useThemeStore } from "./src/useTheme";

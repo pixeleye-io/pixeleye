@@ -48,12 +48,15 @@ interface Props {
   shape?: ButtonVariants["shape"];
 }
 
-export type ButtonProps = Slottable<"button", Props, true>;
+export type ButtonProps = Slottable<"button", Props>;
 
 const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
-  function Button({ asChild, className, variant, size, ...rest }, ref) {
+  function Button({ asChild, variant, size, shape, className, ...rest }, ref) {
     const Component = asChild ? Slot : "button";
-    const classes = cx(buttonVariants({ intent: variant, size }), className);
+    const classes = cx(
+      buttonVariants({ intent: variant, size, shape }),
+      className,
+    );
     return <Component className={classes} {...rest} ref={ref} />;
   },
 );

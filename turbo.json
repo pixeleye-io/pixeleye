@@ -27,6 +27,10 @@
     "type-check": {
       "dependsOn": ["^db:generate"],
       "cache": false
+    },
+    "storybook": {
+      "cache": false,
+      "persistent": true
     }
   },
   "globalEnv": [
@@ -34,7 +38,7 @@
     "NEXTAUTH_SECRET",
     "NEXTAUTH_URL",
     "NODE_ENV",
-    "DISCORD_CLIENT_ID",
-    "DISCORD_CLIENT_SECRET"
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET"
   ]
 }

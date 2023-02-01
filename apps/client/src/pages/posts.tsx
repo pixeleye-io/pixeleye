@@ -41,6 +41,10 @@ const CreatePostForm: React.FC = () => {
     },
   });
 
+  const secretMessage = api.auth.getSecretMessage.useQuery();
+
+  console.log(secretMessage.data);
+
   return (
     <div className="flex w-[80vw] flex-col p-4 md:w-[60vw] xl:w-[35vw]">
       <input
