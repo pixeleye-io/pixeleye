@@ -1,15 +1,15 @@
 {
   "name": "@pixeleye/tailwind-config",
   "version": "0.1.0",
-  "main": "index.js",
-  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer": "10.4.13",
+    "postcss": "8.4.21",
+    "tailwindcss": "3.2.4"
+  },
   "files": [
     "index.js",
     "postcss.js"
   ],
-  "devDependencies": {
-    "autoprefixer": "^10.4.13",
-    "postcss": "^8.4.21",
-    "tailwindcss": "^3.2.4"
-  }
+  "license": "MIT",
+  "main": "index.js"
 }

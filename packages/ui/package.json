@@ -1,22 +1,15 @@
 {
   "name": "@pixeleye/ui",
   "version": "0.0.0",
-  "main": "./index.tsx",
-  "types": "./index.tsx",
-  "license": "MIT",
-  "scripts": {
-    "lint": "TIMING=1 eslint \"**/*.ts*\"",
-    "storybook": "concurrently \"pnpm:watch:*\"",
-    "build-storybook": "concurrently \"pnpm:build:*\"",
-    "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css",
-    "build:storybook": "storybook build",
-    "watch:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css --watch",
-    "watch:storybook": "storybook dev -p 6006"
+  "dependencies": {
+    "@radix-ui/react-slot": "1.0.1",
+    "class-variance-authority": "0.4.0",
+    "framer-motion": "8.5.5"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.20.2",
-    "@babel/preset-react": "^7.18.6",
-    "@babel/preset-typescript": "^7.18.6",
+    "@babel/preset-env": "7.20.2",
+    "@babel/preset-react": "7.18.6",
+    "@babel/preset-typescript": "7.18.6",
     "@pixeleye/tailwind-config": "*",
     "@storybook/addon-essentials": "7.0.0-beta.36",
     "@storybook/addon-interactions": "7.0.0-beta.36",
@@ -25,22 +18,31 @@
     "@storybook/react": "7.0.0-beta.36",
     "@storybook/react-webpack5": "7.0.0-beta.36",
     "@storybook/testing-library": "0.0.13",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
-    "autoprefixer": "^10.4.13",
-    "concurrently": "^7.6.0",
-    "eslint": "^8.32.0",
-    "postcss": "^8.4.21",
+    "@types/react": "18.0.27",
+    "@types/react-dom": "18.0.10",
+    "autoprefixer": "10.4.13",
+    "concurrently": "7.6.0",
+    "eslint": "8.32.0",
+    "postcss": "8.4.21",
     "prop-types": "15.8.1",
-    "react": "^18.2.0",
+    "react": "18.2.0",
     "react-dom": "18.2.0",
     "storybook": "7.0.0-beta.36",
-    "tailwindcss": "^3.2.4",
-    "typescript": "^4.9.4"
+    "tailwindcss": "3.2.4",
+    "typescript": "4.9.4"
   },
-  "dependencies": {
-    "@radix-ui/react-slot": "^1.0.1",
-    "class-variance-authority": "^0.4.0",
-    "framer-motion": "^8.5.5"
-  }
+  "license": "MIT",
+  "main": "./index.tsx",
+  "scripts": {
+    "build-storybook": "concurrently \"pnpm:build:*\"",
+    "build:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css",
+    "build:storybook": "storybook build",
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint",
+    "storybook": "concurrently \"pnpm:watch:*\"",
+    "type-check": "tsc --noEmit",
+    "watch:css": "npx tailwindcss -i ./styles/tailwind.css -o ./public/tailwind.css --watch",
+    "watch:storybook": "storybook dev -p 6006"
+  },
+  "types": "./index.tsx"
 }
