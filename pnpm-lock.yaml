@@ -31,6 +31,7 @@ importers:
       '@pixeleye/api': '*'
       '@pixeleye/auth': '*'
       '@pixeleye/db': '*'
+      '@pixeleye/hooks': '*'
       '@pixeleye/tailwind-config': '*'
       '@pixeleye/ui': '*'
       '@pixeleye/utils': '*'
@@ -62,6 +63,7 @@ importers:
       '@pixeleye/api': link:../../packages/api
       '@pixeleye/auth': link:../../packages/auth
       '@pixeleye/db': link:../../packages/db
+      '@pixeleye/hooks': link:../../packages/hooks
       '@pixeleye/tailwind-config': link:../../packages/config/tailwind
       '@pixeleye/ui': link:../../packages/ui
       '@pixeleye/utils': link:../../packages/utils
