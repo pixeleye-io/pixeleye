@@ -18,7 +18,12 @@
     "resolutions",
     "scripts"
   ],
-  "sortFirst": ["name", "description", "version", "author"],
+  "sortFirst": [
+    "name",
+    "description",
+    "version",
+    "author"
+  ],
   "source": [],
   "versionGroups": []
 }
