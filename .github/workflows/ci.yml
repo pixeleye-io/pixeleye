@@ -26,11 +26,13 @@ jobs:
       - uses: JamieMason/syncpack-github-action@0.2.2
         with:
           package-manager: "pnpm"
+          version-mismatches: "lint"
         env:
           # If any options are set to 'fix' then
           # env.GITHUB_TOKEN is needed to push to PRs
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   build-lint:
+    needs: syncpack
     env:
       DATABASE_URL: file:./db.sqlite
     runs-on: ubuntu-latest
