@@ -1,9 +1,16 @@
 {
   "name": "@pixeleye/db",
   "version": "0.1.0",
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "dependencies": {
+    "@prisma/client": "4.9.0"
+  },
+  "devDependencies": {
+    "dotenv-cli": "7.0.0",
+    "prisma": "4.9.0",
+    "typescript": "4.9.4"
+  },
   "license": "MIT",
+  "main": "./index.ts",
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "db:generate": "pnpm with-env prisma generate",
@@ -11,12 +18,5 @@
     "dev": "pnpm with-env prisma studio --port 5556",
     "with-env": "dotenv -e ../../.env --"
   },
-  "dependencies": {
-    "@prisma/client": "^4.9.0"
-  },
-  "devDependencies": {
-    "dotenv-cli": "^7.0.0",
-    "prisma": "^4.9.0",
-    "typescript": "^4.9.4"
-  }
+  "types": "./index.ts"
 }
