@@ -31,44 +31,48 @@ importers:
       '@pixeleye/api': '*'
       '@pixeleye/auth': '*'
       '@pixeleye/db': '*'
-      '@pixeleye/hooks': '*'
       '@pixeleye/tailwind-config': '*'
       '@pixeleye/ui': '*'
       '@pixeleye/utils': '*'
-      '@tanstack/react-query': ^4.23.0
-      '@trpc/client': ^10.9.0
-      '@trpc/next': ^10.9.0
-      '@trpc/react-query': ^10.9.0
-      '@trpc/server': ^10.9.0
-      '@types/node': ^18.0.0
-      '@types/react': ^18.0.25
-      '@types/react-dom': ^18.0.9
-      autoprefixer: ^10.4.13
-      dotenv-cli: ^7.0.0
-      eslint: ^8.32.0
-      eslint-config-next: ^13.1.6
-      next: ^13.1.6
-      next-auth: ^4.19.0
-      postcss: ^8.4.21
+      '@radix-ui/react-avatar': ^1.0.1
+      '@tanstack/react-query': 4.23.0
+      '@trpc/client': 10.9.0
+      '@trpc/next': 10.9.0
+      '@trpc/react-query': 10.9.0
+      '@trpc/server': 10.9.0
+      '@types/node': 18.0.0
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      autoprefixer: 10.4.13
+      classix: ^2.1.21
+      dotenv-cli: 7.0.0
+      eslint: 8.32.0
+      eslint-config-next: 13.1.6
+      framer-motion: 8.5.5
+      next: 13.1.6
+      next-auth: 4.19.0
+      postcss: 8.4.21
       react: 18.2.0
       react-dom: 18.2.0
-      tailwindcss: ^3.2.4
-      typescript: ^4.9.4
+      tailwindcss: 3.2.4
+      typescript: 4.9.4
       zod: ^3.20.2
       zustand: ^4.3.2
     dependencies:
       '@pixeleye/api': link:../../packages/api
       '@pixeleye/auth': link:../../packages/auth
       '@pixeleye/db': link:../../packages/db
-      '@pixeleye/hooks': link:../../packages/hooks
       '@pixeleye/tailwind-config': link:../../packages/config/tailwind
       '@pixeleye/ui': link:../../packages/ui
       '@pixeleye/utils': link:../../packages/utils
+      '@radix-ui/react-avatar': 1.0.1_biqbaboplfbrettd7655fr4n2y
       '@tanstack/react-query': 4.23.0_biqbaboplfbrettd7655fr4n2y
       '@trpc/client': 10.9.0_@trpc+server@10.9.0
       '@trpc/next': 10.9.0_o4vjr5433zf4lxe7zgyoyoztjm
       '@trpc/react-query': 10.9.0_22wgxldzdfxutowffn2dykkd3i
       '@trpc/server': 10.9.0
+      classix: 2.1.21
+      framer-motion: 8.5.5_biqbaboplfbrettd7655fr4n2y
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       next-auth: 4.19.0_3vryta7zmbcsw4rrqf4axjqggm
       react: 18.2.0
@@ -76,7 +80,7 @@ importers:
       zod: 3.20.2
       zustand: 4.3.2_react@18.2.0
     devDependencies:
-      '@types/node': 18.11.18
+      '@types/node': 18.0.0
       '@types/react': 18.0.27
       '@types/react-dom': 18.0.10
       autoprefixer: 10.4.13_postcss@8.4.21
@@ -3177,6 +3181,21 @@ packages:
     resolution: {integrity: sha512-t1pt0Gsp+HcgPJrHFc+d/ZSAaKKWar2G/iakrE07yeKPNavDP3iVKPpfXP22OTCHZUWf7OelwKJxQgKAm5hkgw==}
     requiresBuild: true
 
+  /@radix-ui/react-avatar/1.0.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-GfUgw4i/OWmb76bmM9qLnedYOsXhPvRXL6xaxyZzhiIVEwo2KbmxTaSQv5r1Oh8nNqBs1vfYPGuVmhEfpxpnvw==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    dependencies:
+      '@babel/runtime': 7.20.7
+      '@radix-ui/react-context': 1.0.0_react@18.2.0
+      '@radix-ui/react-primitive': 1.0.1_biqbaboplfbrettd7655fr4n2y
+      '@radix-ui/react-use-callback-ref': 1.0.0_react@18.2.0
+      '@radix-ui/react-use-layout-effect': 1.0.0_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@radix-ui/react-compose-refs/1.0.0_react@18.2.0:
     resolution: {integrity: sha512-0KaSv6sx787/hK3eF53iOkiSLwAGlFMx5lotrqD2pTjB18KbybKoEIgkNZTKC60YECDQTKGTRcDBILwZVqVKvA==}
     peerDependencies:
@@ -3186,6 +3205,27 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@radix-ui/react-context/1.0.0_react@18.2.0:
+    resolution: {integrity: sha512-1pVM9RfOQ+n/N5PJK33kRSKsr1glNxomxONs5c49MliinBY6Yw2Q995qfBUUo0/Mbg05B/sGA0gkgPI7kmSHBg==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0
+    dependencies:
+      '@babel/runtime': 7.20.7
+      react: 18.2.0
+    dev: false
+
+  /@radix-ui/react-primitive/1.0.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-fHbmislWVkZaIdeF6GZxF0A/NH/3BjrGIYj+Ae6eTmTCr7EB0RQAAVEiqsXK6p3/JcRqVSBQoceZroj30Jj3XA==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    dependencies:
+      '@babel/runtime': 7.20.7
+      '@radix-ui/react-slot': 1.0.1_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@radix-ui/react-slot/1.0.1_react@18.2.0:
     resolution: {integrity: sha512-avutXAFL1ehGvAXtPquu0YK5oz6ctS474iM3vNGQIkswrVhdrS52e3uoMQBzZhNRAIE0jBnUyXWNmSjGHhCFcw==}
     peerDependencies:
@@ -3193,6 +3233,24 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.7
       '@radix-ui/react-compose-refs': 1.0.0_react@18.2.0
+      react: 18.2.0
+    dev: false
+
+  /@radix-ui/react-use-callback-ref/1.0.0_react@18.2.0:
+    resolution: {integrity: sha512-GZtyzoHz95Rhs6S63D2t/eqvdFCm7I+yHMLVQheKM7nBD8mbZIt+ct1jz4536MDnaOGKIxynJ8eHTkVGVVkoTg==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0
+    dependencies:
+      '@babel/runtime': 7.20.7
+      react: 18.2.0
+    dev: false
+
+  /@radix-ui/react-use-layout-effect/1.0.0_react@18.2.0:
+    resolution: {integrity: sha512-6Tpkq+R6LOlmQb1R5NNETLG0B4YP0wc+klfXafpUCj6JGyaUc8il7/kUZ7m59rGbXGczE9Bs+iz2qloqsZBduQ==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0
+    dependencies:
+      '@babel/runtime': 7.20.7
       react: 18.2.0
     dev: false
 
@@ -4669,6 +4727,10 @@ packages:
     resolution: {integrity: sha512-3oJbGBUWuS6ahSnEq1eN2XrCyf4YsWI8OyCvo7c64zQJNplk3mO84t53o8lfTk+2ji59g5ycfc6qQ3fdHliHuA==}
     dev: true
 
+  /@types/node/18.0.0:
+    resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
+    dev: true
+
   /@types/node/18.11.18:
     resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
 
@@ -5800,6 +5862,10 @@ packages:
         optional: true
     dependencies:
       typescript: 4.9.4
+    dev: false
+
+  /classix/2.1.21:
+    resolution: {integrity: sha512-vI6fRGXOcfBgvI6J/50msPUlBPP8LV4Gy3rwesiRe+0tPOsgNYOst9So6wMJNJKpZq1jq9HjBA/Fwu126ebOtA==}
     dev: false
 
   /clean-css/5.3.2:

@@ -17,11 +17,15 @@ const config = {
     "@pixeleye/hooks",
     "@pixeleye/ui",
   ],
+  images: {
+    domains: ["images.unsplash.com"],
+  },
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: !!process.env.CI },
   typescript: { ignoreBuildErrors: !!process.env.CI },
   experimental: {
     appDir: true,
+    scrollRestoration: true,
   },
 };
 

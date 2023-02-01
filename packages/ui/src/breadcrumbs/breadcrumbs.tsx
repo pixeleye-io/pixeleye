@@ -43,7 +43,7 @@ const Item: FC<ItemProps> = ({
         </svg>
       )}
       <Component
-        className="ml-4 text-sm font-medium text-neutral-700 hover:text-black dark:text-neutral-400 dark:hover:text-white"
+        className="ml-4 text-sm font-medium text-neutral-800 hover:text-black dark:text-neutral-300 dark:hover:text-white"
         {...rest}
       />
     </li>
