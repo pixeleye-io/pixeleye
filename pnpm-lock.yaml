@@ -4,16 +4,16 @@ importers:
 
   .:
     specifiers:
-      '@ianvs/prettier-plugin-sort-imports': ^3.7.1
-      '@manypkg/cli': ^0.20.0
-      '@typescript-eslint/eslint-plugin': ^5.49.0
-      '@typescript-eslint/parser': ^5.49.0
-      eslint: ^8.32.0
-      eslint-config-prettier: ^8.6.0
-      prettier: ^2.8.3
-      prettier-plugin-tailwindcss: ^0.2.2
-      turbo: ^1.7.0
-      typescript: ^4.9.4
+      '@ianvs/prettier-plugin-sort-imports': 3.7.1
+      '@manypkg/cli': 0.20.0
+      '@typescript-eslint/eslint-plugin': 5.49.0
+      '@typescript-eslint/parser': 5.49.0
+      eslint: 8.32.0
+      eslint-config-prettier: 8.6.0
+      prettier: 2.8.3
+      prettier-plugin-tailwindcss: 0.2.2
+      turbo: 1.7.0
+      typescript: 4.9.4
     dependencies:
       '@ianvs/prettier-plugin-sort-imports': 3.7.1_prettier@2.8.3
       '@manypkg/cli': 0.20.0
@@ -35,27 +35,27 @@ importers:
       '@pixeleye/tailwind-config': '*'
       '@pixeleye/ui': '*'
       '@pixeleye/utils': '*'
-      '@tanstack/react-query': ^4.23.0
-      '@trpc/client': ^10.9.0
-      '@trpc/next': ^10.9.0
-      '@trpc/react-query': ^10.9.0
-      '@trpc/server': ^10.9.0
-      '@types/node': ^18.0.0
-      '@types/react': ^18.0.25
-      '@types/react-dom': ^18.0.9
-      autoprefixer: ^10.4.13
-      dotenv-cli: ^7.0.0
-      eslint: ^8.32.0
-      eslint-config-next: ^13.1.6
-      next: ^13.1.6
-      next-auth: ^4.19.0
-      postcss: ^8.4.21
+      '@tanstack/react-query': 4.23.0
+      '@trpc/client': 10.9.0
+      '@trpc/next': 10.9.0
+      '@trpc/react-query': 10.9.0
+      '@trpc/server': 10.9.0
+      '@types/node': 18.0.0
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      autoprefixer: 10.4.13
+      dotenv-cli: 7.0.0
+      eslint: 8.32.0
+      eslint-config-next: 13.1.6
+      next: 13.1.6
+      next-auth: 4.19.0
+      postcss: 8.4.21
       react: 18.2.0
       react-dom: 18.2.0
-      tailwindcss: ^3.2.4
-      typescript: ^4.9.4
-      zod: ^3.20.2
-      zustand: ^4.3.2
+      tailwindcss: 3.2.4
+      typescript: 4.9.4
+      zod: 3.20.2
+      zustand: 4.3.2
     dependencies:
       '@pixeleye/api': link:../../packages/api
       '@pixeleye/auth': link:../../packages/auth
@@ -76,7 +76,7 @@ importers:
       zod: 3.20.2
       zustand: 4.3.2_react@18.2.0
     devDependencies:
-      '@types/node': 18.11.18
+      '@types/node': 18.0.0
       '@types/react': 18.0.27
       '@types/react-dom': 18.0.10
       autoprefixer: 10.4.13_postcss@8.4.21
@@ -91,12 +91,12 @@ importers:
     specifiers:
       '@pixeleye/auth': '*'
       '@pixeleye/db': '*'
-      '@trpc/client': ^10.9.0
-      '@trpc/server': ^10.9.0
-      eslint: ^8.32.0
+      '@trpc/client': 10.9.0
+      '@trpc/server': 10.9.0
+      eslint: 8.32.0
       superjson: 1.9.1
-      typescript: ^4.9.4
-      zod: ^3.20.2
+      typescript: 4.9.4
+      zod: 3.20.2
     dependencies:
       '@pixeleye/auth': link:../auth
       '@pixeleye/db': link:../db
@@ -110,14 +110,14 @@ importers:
 
   packages/auth:
     specifiers:
-      '@next-auth/prisma-adapter': ^1.0.5
+      '@next-auth/prisma-adapter': 1.0.5
       '@pixeleye/db': '*'
-      eslint: ^8.32.0
-      next: ^13.1.6
-      next-auth: ^4.19.0
+      eslint: 8.32.0
+      next: 13.1.6
+      next-auth: 4.19.0
       react: 18.2.0
       react-dom: 18.2.0
-      typescript: ^4.9.4
+      typescript: 4.9.4
     dependencies:
       '@next-auth/prisma-adapter': 1.0.5_next-auth@4.19.0
       '@pixeleye/db': link:../db
@@ -131,9 +131,9 @@ importers:
 
   packages/config/tailwind:
     specifiers:
-      autoprefixer: ^10.4.13
-      postcss: ^8.4.21
-      tailwindcss: ^3.2.4
+      autoprefixer: 10.4.13
+      postcss: 8.4.21
+      tailwindcss: 3.2.4
     devDependencies:
       autoprefixer: 10.4.13_postcss@8.4.21
       postcss: 8.4.21
@@ -141,10 +141,10 @@ importers:
 
   packages/db:
     specifiers:
-      '@prisma/client': ^4.9.0
-      dotenv-cli: ^7.0.0
-      prisma: ^4.9.0
-      typescript: ^4.9.4
+      '@prisma/client': 4.9.0
+      dotenv-cli: 7.0.0
+      prisma: 4.9.0
+      typescript: 4.9.4
     dependencies:
       '@prisma/client': 4.9.0_prisma@4.9.0
     devDependencies:
@@ -155,13 +155,13 @@ importers:
   packages/hooks:
     specifiers:
       '@pixeleye/utils': '*'
-      '@types/react': ^18.0.27
-      '@types/react-dom': ^18.0.10
-      eslint: ^8.32.0
-      react: ^18.2.0
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      react: 18.2.0
       react-dom: 18.2.0
-      typescript: ^4.9.4
-      zustand: ^4.3.2
+      typescript: 4.9.4
+      zustand: 4.3.2
     dependencies:
       '@pixeleye/utils': link:../utils
       zustand: 4.3.2_react@18.2.0
@@ -175,11 +175,11 @@ importers:
 
   packages/ui:
     specifiers:
-      '@babel/preset-env': ^7.20.2
-      '@babel/preset-react': ^7.18.6
-      '@babel/preset-typescript': ^7.18.6
+      '@babel/preset-env': 7.20.2
+      '@babel/preset-react': 7.18.6
+      '@babel/preset-typescript': 7.18.6
       '@pixeleye/tailwind-config': '*'
-      '@radix-ui/react-slot': ^1.0.1
+      '@radix-ui/react-slot': 1.0.1
       '@storybook/addon-essentials': 7.0.0-beta.36
       '@storybook/addon-interactions': 7.0.0-beta.36
       '@storybook/addon-links': 7.0.0-beta.36
@@ -187,20 +187,20 @@ importers:
       '@storybook/react': 7.0.0-beta.36
       '@storybook/react-webpack5': 7.0.0-beta.36
       '@storybook/testing-library': 0.0.13
-      '@types/react': ^18.0.27
-      '@types/react-dom': ^18.0.10
-      autoprefixer: ^10.4.13
-      class-variance-authority: ^0.4.0
-      concurrently: ^7.6.0
-      eslint: ^8.32.0
-      framer-motion: ^8.5.5
-      postcss: ^8.4.21
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      autoprefixer: 10.4.13
+      class-variance-authority: 0.4.0
+      concurrently: 7.6.0
+      eslint: 8.32.0
+      framer-motion: 8.5.5
+      postcss: 8.4.21
       prop-types: 15.8.1
-      react: ^18.2.0
+      react: 18.2.0
       react-dom: 18.2.0
       storybook: 7.0.0-beta.36
-      tailwindcss: ^3.2.4
-      typescript: ^4.9.4
+      tailwindcss: 3.2.4
+      typescript: 4.9.4
     dependencies:
       '@radix-ui/react-slot': 1.0.1_react@18.2.0
       class-variance-authority: 0.4.0_typescript@4.9.4
@@ -232,12 +232,12 @@ importers:
 
   packages/utils:
     specifiers:
-      '@types/react': ^18.0.27
-      '@types/react-dom': ^18.0.10
-      eslint: ^8.32.0
-      react: ^18.2.0
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      react: 18.2.0
       react-dom: 18.2.0
-      typescript: ^4.9.4
+      typescript: 4.9.4
     devDependencies:
       '@types/react': 18.0.27
       '@types/react-dom': 18.0.10
@@ -4667,6 +4667,10 @@ packages:
 
   /@types/node/16.18.11:
     resolution: {integrity: sha512-3oJbGBUWuS6ahSnEq1eN2XrCyf4YsWI8OyCvo7c64zQJNplk3mO84t53o8lfTk+2ji59g5ycfc6qQ3fdHliHuA==}
+    dev: true
+
+  /@types/node/18.0.0:
+    resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
     dev: true
 
   /@types/node/18.11.18:
