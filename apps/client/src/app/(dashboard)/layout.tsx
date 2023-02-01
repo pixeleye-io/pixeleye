@@ -17,8 +17,10 @@ export default async function DashboardLayout({
   return (
     <>
       <NavBar />
-      <header></header>
-      <main>{children}</main>
+      <header className="sticky top-0 z-40 py-4 bg-black/50 backdrop-blur-sm">
+        Testing header
+      </header>
+      <main className="h-[200vh]">{children}</main>
     </>
   );
 }

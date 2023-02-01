@@ -1,12 +1,12 @@
 "use client";
 
 import { useSelectedLayoutSegments } from "next/navigation";
-import { Breadcrumbs } from "@pixeleye/ui";
+import { Breadcrumbs, NavLink } from "@pixeleye/ui";
 
 export function NavBar() {
   const segments = useSelectedLayoutSegments();
   return (
-    <nav className="bg-white dark:bg-black">
+    <nav className="flex justify-between py-4 mx-4 bg-white dark:bg-black">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash href="/">
           Home
@@ -20,6 +20,12 @@ export function NavBar() {
           );
         })}
       </Breadcrumbs>
+      <div className="">
+        <div className="space-x-4">
+          <NavLink href="/login">Changelog</NavLink>
+          <NavLink href="/login">Docs</NavLink>
+        </div>
+      </div>
     </nav>
   );
 }

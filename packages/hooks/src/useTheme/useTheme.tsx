@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 
 export const themeScript =
-  "!function(){var e=JSON.parse(localStorage.getItem('theme')).state.theme||'system';e==='system'&&(e=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.add(e);document.documentElement.style.colorScheme=e;}();";
+  "!function(){var e;try{e=JSON.parse(localStorage.getItem('theme')).state.theme}catch{}e=e||'system';e==='system'&&(e=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.add(e);document.documentElement.style.colorScheme=e;}();";
 
 export type Theme = "dark" | "light" | "system";
 
