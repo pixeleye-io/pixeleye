@@ -1,5 +1,5 @@
 import { createContext, useContext, useId, useState } from "react";
-import { cx } from "classix";
+import { cx } from "class-variance-authority";
 import { m } from "framer-motion";
 import NavLink from "../navLink";
 import { Slottable } from "../types";

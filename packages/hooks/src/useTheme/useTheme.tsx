@@ -1,9 +1,9 @@
 import { isBrowser } from "@pixeleye/utils";
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 
 export const themeScript =
-  "!function(){var e;try{e=JSON.parse(localStorage.getItem('theme')).state.theme}catch{}e=e||'system';e==='system'&&(e=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.add(e);document.documentElement.style.colorScheme=e;}();";
+  "!function(){var e=localStorage.getItem('theme')||'system';e==='system'&&(e=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.classList.add(e);document.documentElement.style.colorScheme=e;}();";
 
 export type Theme = "dark" | "light" | "system";
 
@@ -32,38 +32,35 @@ function toggleTheme(theme: Omit<Theme, "system">) {
   }
 }
 
+const initialTheme =
+  (isBrowser && (localStorage.getItem("theme") as Theme)) || "system";
+
 const useThemeStore = create<ThemeState>()(
-  devtools(
-    persist(
-      (set) => ({
-        theme: "system",
-        resolvedTheme:
-          isBrowser && document.documentElement.classList.contains("dark")
-            ? "dark"
-            : "light" || "light",
-        toggleTheme: () =>
-          set((state) => {
-            const newTheme = state.resolvedTheme === "dark" ? "light" : "dark";
-            toggleTheme(newTheme);
-            return { theme: newTheme, resolvedTheme: newTheme };
-          }),
-        setTheme: (theme) => {
-          const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-            ? "dark"
-            : "light";
-          const resolvedTheme = theme === "system" ? systemTheme : theme;
-          toggleTheme(resolvedTheme);
-          set({ theme, resolvedTheme });
-        },
+  devtools((set) => ({
+    theme: ["dark", "light", "system"].includes(initialTheme)
+      ? initialTheme
+      : "system",
+    resolvedTheme:
+      isBrowser && document.documentElement.classList.contains("dark")
+        ? "dark"
+        : "light" || "light",
+    toggleTheme: () =>
+      set((state) => {
+        const newTheme = state.resolvedTheme === "dark" ? "light" : "dark";
+        localStorage.setItem("theme", newTheme);
+        toggleTheme(newTheme);
+        return { theme: newTheme, resolvedTheme: newTheme };
       }),
-      {
-        name: "theme",
-        partialize: (state) => ({
-          theme: state.theme,
-        }),
-      },
-    ),
-  ),
+    setTheme: (theme) => {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        ? "dark"
+        : "light";
+      const resolvedTheme = theme === "system" ? systemTheme : theme;
+      localStorage.setItem("theme", theme);
+      toggleTheme(resolvedTheme);
+      set({ theme, resolvedTheme });
+    },
+  })),
 );
 
 export default useThemeStore;

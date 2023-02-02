@@ -6,3 +6,5 @@ export * from "./src/navLink";
 export { default as NavLink } from "./src/navLink";
 export * from "./src/navTab";
 export { default as NavTab } from "./src/navTab";
+export * from "./src/container";
+export { default as Container } from "./src/container";
