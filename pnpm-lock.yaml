@@ -28,6 +28,7 @@ importers:
 
   apps/client:
     specifiers:
+      '@heroicons/react': ^2.0.14
       '@pixeleye/api': '*'
       '@pixeleye/auth': '*'
       '@pixeleye/db': '*'
@@ -37,6 +38,7 @@ importers:
       '@pixeleye/utils': '*'
       '@radix-ui/react-avatar': ^1.0.1
       '@radix-ui/react-dropdown-menu': ^2.0.2
+      '@radix-ui/react-label': ^2.0.0
       '@radix-ui/react-select': ^1.2.0
       '@tanstack/react-query': 4.23.0
       '@trpc/client': 10.9.0
@@ -62,6 +64,7 @@ importers:
       zod: ^3.20.2
       zustand: ^4.3.2
     dependencies:
+      '@heroicons/react': 2.0.14_react@18.2.0
       '@pixeleye/api': link:../../packages/api
       '@pixeleye/auth': link:../../packages/auth
       '@pixeleye/db': link:../../packages/db
@@ -71,6 +74,7 @@ importers:
       '@pixeleye/utils': link:../../packages/utils
       '@radix-ui/react-avatar': 1.0.1_biqbaboplfbrettd7655fr4n2y
       '@radix-ui/react-dropdown-menu': 2.0.2_5ndqzdd6t4rivxsukjv3i3ak2q
+      '@radix-ui/react-label': 2.0.0_biqbaboplfbrettd7655fr4n2y
       '@radix-ui/react-select': 1.2.0_5ndqzdd6t4rivxsukjv3i3ak2q
       '@tanstack/react-query': 4.23.0_biqbaboplfbrettd7655fr4n2y
       '@trpc/client': 10.9.0_@trpc+server@10.9.0
@@ -2718,8 +2722,8 @@ packages:
   /@floating-ui/react-dom/0.7.2_5ndqzdd6t4rivxsukjv3i3ak2q:
     resolution: {integrity: sha512-1T0sJcpHgX/u4I1OzIEhlcrvkUN8ln39nz7fMoE/2HDHrPiMFoOGR7++GYyfUmIQHkkrTinaeQsO3XWubjSvGg==}
     peerDependencies:
-      react: '>=16.8.0 || ^17'
-      react-dom: '>=16.8.0 || ^17'
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
     dependencies:
       '@floating-ui/dom': 0.5.4
       react: 18.2.0
@@ -2727,6 +2731,14 @@ packages:
       use-isomorphic-layout-effect: 1.1.2_3stiutgnnbnfnf3uowm5cip22i
     transitivePeerDependencies:
       - '@types/react'
+    dev: false
+
+  /@heroicons/react/2.0.14_react@18.2.0:
+    resolution: {integrity: sha512-eFL4if6L7woL1fUvk/jjXx4z9NxVESHHrQnEd2qKVelTFTIr/3VLGWdPb0biia9ZVe26P0JSs/xmOlRNur3SrQ==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /@humanwhocodes/config-array/0.11.8:
@@ -3361,6 +3373,18 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@radix-ui/react-label/2.0.0_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-7qCcZ3j2VQspWjy+gKR4W+V/z0XueQjeiZnlPOtsyiP9HaS8bfSU7ECoI3bvvdYntQj7NElW7OAYsYRW4MQvCg==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    dependencies:
+      '@babel/runtime': 7.20.7
+      '@radix-ui/react-primitive': 1.0.1_biqbaboplfbrettd7655fr4n2y
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@radix-ui/react-menu/2.0.2_5ndqzdd6t4rivxsukjv3i3ak2q:
     resolution: {integrity: sha512-H5dtBi/k3tc45IMd2Pu+Q2PyONFlsYJ5sWUlflSs8BQRghh5GhJHLRuB1yb88VOywuzzvGkaR/HUJJ65Jf2POA==}
     peerDependencies:
@@ -3519,7 +3543,7 @@ packages:
   /@radix-ui/react-use-callback-ref/1.0.0_react@18.2.0:
     resolution: {integrity: sha512-GZtyzoHz95Rhs6S63D2t/eqvdFCm7I+yHMLVQheKM7nBD8mbZIt+ct1jz4536MDnaOGKIxynJ8eHTkVGVVkoTg==}
     peerDependencies:
-      react: ^16.8 || ^17.0 || ^18.0 || ^17
+      react: ^16.8 || ^17.0 || ^18.0
     dependencies:
       '@babel/runtime': 7.20.7
       react: 18.2.0
@@ -3548,7 +3572,7 @@ packages:
   /@radix-ui/react-use-layout-effect/1.0.0_react@18.2.0:
     resolution: {integrity: sha512-6Tpkq+R6LOlmQb1R5NNETLG0B4YP0wc+klfXafpUCj6JGyaUc8il7/kUZ7m59rGbXGczE9Bs+iz2qloqsZBduQ==}
     peerDependencies:
-      react: ^16.8 || ^17.0 || ^18.0 || ^17
+      react: ^16.8 || ^17.0 || ^18.0
     dependencies:
       '@babel/runtime': 7.20.7
       react: 18.2.0
