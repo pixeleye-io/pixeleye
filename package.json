@@ -1,5 +1,5 @@
 {
-  "name": "create-t3-turbo",
+  "name": "pixeleye",
   "dependencies": {
     "@ianvs/prettier-plugin-sort-imports": "3.7.1",
     "@manypkg/cli": "0.20.0",

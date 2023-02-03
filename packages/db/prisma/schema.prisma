@@ -10,15 +10,39 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id      String @id @default(cuid())
-    title   String
-    content String
+enum Role {
+  OWNER
+  REVIEWER
+  VIEWER
 }
 
-// NextAuth.js Models
-// NOTE: When using postgresql, mysql or sqlserver, 
-// uncomment the @db.Text annotations below
+enum Source {
+    GITHUB
+    GITLAB
+    BITBUCKET
+    OTHER
+}
+
+model Project {
+    id          String   @id @default(cuid())
+    name        String
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    tokenHash   String   @unique
+    users       UserOnProject[]
+}
+
+model UserOnProject {
+    project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId String
+    user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    role      Role
+
+    @@id([projectId, userId])
+}
+
 // @see https://next-auth.js.org/schemas/models
 model Account {
     id                       String  @id @default(cuid())
@@ -56,6 +80,7 @@ model User {
     password      String?
     accounts      Account[]
     sessions      Session[]
+    projects      UserOnProject[]
 }
 
 model VerificationToken {
