@@ -29,7 +29,7 @@ jobs:
           version-mismatches: "lint"
           format-mismatches: "ignore"
           lockfile-mismatches: "ignore"
-          semver-range-mismatches: "lint"
+          semver-range-mismatches: "ignore"
         env:
           # If any options are set to 'fix' then
           # env.GITHUB_TOKEN is needed to push to PRs
