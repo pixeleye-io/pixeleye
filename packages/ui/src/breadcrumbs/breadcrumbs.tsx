@@ -10,7 +10,7 @@ export interface BreadcrumbsProps {
 
 const Breadcrumbs: FC<BreadcrumbsProps> = ({ className, children }) => {
   return (
-    <ol role="list" className={cx("flex items-center space-x-4", className)}>
+    <ol role="list" className={cx("flex items-center space-x-3", className)}>
       {children}
     </ol>
   );
@@ -33,7 +33,7 @@ const Item: FC<ItemProps> = ({
     <li className={cx("flex items-center", className)}>
       {!hideLeadingSlash && (
         <svg
-          className="flex-shrink-0 w-5 h-5 text-neutral-500 dark:text-neutral-500"
+          className="flex-shrink-0 w-6 h-6 text-neutral-500 dark:text-neutral-400"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
           viewBox="0 0 20 20"
@@ -43,7 +43,7 @@ const Item: FC<ItemProps> = ({
         </svg>
       )}
       <Component
-        className="ml-4 text-sm font-medium text-neutral-800 hover:text-black dark:text-neutral-300 dark:hover:text-white"
+        className="ml-3 text-base font-medium text-neutral-800 hover:text-black dark:text-neutral-300 dark:hover:text-white"
         {...rest}
       />
     </li>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
 import { Breadcrumbs, NavLink } from "@pixeleye/ui";
 import { useSession } from "next-auth/react";
@@ -46,12 +47,12 @@ export function NavBar() {
           Home
         </Breadcrumbs.Item>
         {segments &&
-          segments[0] === "project" &&
+          ["project", "add"].includes(segments[0] || "") &&
           segments.map((segment, i, array) => {
             const href = array.slice(0, i + 1).join("/");
             return (
-              <Breadcrumbs.Item key={segment} href={href}>
-                {segment}
+              <Breadcrumbs.Item key={segment} asChild>
+                <Link href={href}>{segment}</Link>
               </Breadcrumbs.Item>
             );
           })}

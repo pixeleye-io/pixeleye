@@ -7,7 +7,7 @@ export type Slottable<T extends ElementType, Props> = Props &
     | ({
         asChild?: true;
         children?: React.ReactNode;
-      } & Never<Omit<ComponentProps<T>, "ref" | "children">>)
+      } & Never<Omit<ComponentProps<T>, "ref" | "children" | "key">>)
     | ({
         asChild?: false;
       } & Omit<ComponentProps<T>, "ref">)

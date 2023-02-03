@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { authOptions } from "@pixeleye/auth";
 import { getServerSession } from "next-auth";
-import { Header } from "./header";
 import { NavBar } from "./navbar";
 
 export default async function DashboardLayout({
@@ -18,8 +17,7 @@ export default async function DashboardLayout({
   return (
     <>
       <NavBar />
-      <Header />
-      <main className="h-[200vh]">{children}</main>
+      {children}
     </>
   );
 }
