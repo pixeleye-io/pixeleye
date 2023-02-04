@@ -1,6 +1,6 @@
 import { App } from "@octokit/app";
 
-export const githubApp = new App({
+const app = new App({
   appId: process.env.APP_ID!,
   privateKey: process.env.PRIVATE_KEY!,
   oauth: {
@@ -8,3 +8,6 @@ export const githubApp = new App({
     clientSecret: process.env.GITHUB_APP_CLIENT_SECRET!,
   },
 });
+
+export const octokit = (installationId: number) =>
+  app.getInstallationOctokit(installationId);
