@@ -16,7 +16,7 @@ enum Role {
     VIEWER
 }
 
-enum ProjectSource {
+enum SourceEnum {
     GITHUB
     GITLAB
     BITBUCKET
@@ -47,6 +47,13 @@ model UserOnTeam {
     @@id([teamId, userId])
 }
 
+model Source {
+    id        String     @id @default(cuid())
+    Project   Project[]
+    type      SourceEnum
+    installId String?
+}
+
 model Project {
     id          String          @id @default(cuid())
     name        String
@@ -55,7 +62,8 @@ model Project {
     updatedAt   DateTime        @updatedAt
     tokenHash   String          @unique
     users       UserOnProject[]
-    source      ProjectSource
+    source      Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+    sourceId    String
     Team        Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId      String?
 }
