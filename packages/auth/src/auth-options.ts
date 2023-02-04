@@ -2,7 +2,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@pixeleye/db";
 import { type DefaultSession, type NextAuthOptions } from "next-auth";
 // import CredentialsProvider from "next-auth/providers/credentials";
-import GithubProvider from "next-auth/providers/github";
+import GithubProvider from "./providers/github";
 
 /**
  * Module augmentation for `next-auth` types
@@ -43,8 +43,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID as string,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+      clientId: process.env.GITHUB_APP_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_APP_CLIENT_SECRET as string,
     }),
 
     // CredentialsProvider({

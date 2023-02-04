@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { octokit } from "@pixeleye/github";
+import { eachInstallation, octokit } from "@pixeleye/github";
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,5 +13,8 @@ export default async function handler(
     }),
   );
 
+  await eachInstallation((installation) => {
+    console.log(installation);
+  });
   res.status(200).json({ name: "John Doe" });
 }

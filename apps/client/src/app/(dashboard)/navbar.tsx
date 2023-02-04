@@ -74,7 +74,7 @@ export function NavBar() {
               <Avatar />
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content className="p-4 bg-white border rounded dark:bg-black border-neutral-300 dark:border-neutral-700">
+              <DropdownMenu.Content className="z-50 p-4 bg-white border rounded dark:bg-black border-neutral-300 dark:border-neutral-700">
                 <DropdownMenu.Item>
                   <Label className="flex items-center">
                     Theme

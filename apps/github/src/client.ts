@@ -11,3 +11,5 @@ const app = new App({
 
 export const octokit = (installationId: number) =>
   app.getInstallationOctokit(installationId);
+
+export const eachInstallation = app.eachInstallation;
