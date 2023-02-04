@@ -11,26 +11,53 @@ datasource db {
 }
 
 enum Role {
-  OWNER
-  REVIEWER
-  VIEWER
+    OWNER
+    REVIEWER
+    VIEWER
 }
 
-enum Source {
+enum ProjectSource {
     GITHUB
     GITLAB
     BITBUCKET
     OTHER
 }
 
+enum TeamType {
+    GITHUB
+    GITLAB
+    BITBUCKET
+}
+
+model Team {
+    id       String       @id @default(cuid())
+    name     String
+    type     TeamType
+    users    UserOnTeam[]
+    projects Project[]
+}
+
+model UserOnTeam {
+    team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    teamId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    role   Role
+
+    @@id([teamId, userId])
+}
+
 model Project {
-    id          String   @id @default(cuid())
+    id          String          @id @default(cuid())
     name        String
     description String?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    tokenHash   String   @unique
+    createdAt   DateTime        @default(now())
+    updatedAt   DateTime        @updatedAt
+    tokenHash   String          @unique
     users       UserOnProject[]
+    source      ProjectSource
+    Team        Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    teamId      String?
 }
 
 model UserOnProject {
@@ -72,15 +99,16 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String          @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?         @unique
     emailVerified DateTime?
     image         String?
     password      String?
     accounts      Account[]
     sessions      Session[]
     projects      UserOnProject[]
+    UserOnTeam    UserOnTeam[]
 }
 
 model VerificationToken {

@@ -5,7 +5,7 @@ import { Container } from "@pixeleye/ui";
 export default function AddPage() {
   return (
     <>
-      <Container>
+      <Container className="py-12">
         <h1 className="text-4xl">Add project</h1>
         <p>setup a new project by selecting an option below</p>
       </Container>

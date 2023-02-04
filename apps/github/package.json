@@ -1,16 +1,11 @@
 {
-  "name": "@pixeleye/hooks",
+  "name": "@pixeleye/github",
   "version": "0.0.0",
   "dependencies": {
-    "@pixeleye/utils": "*",
-    "zustand": "4.3.2"
+    "@octokit/app": "^13.1.2"
   },
   "devDependencies": {
-    "@types/react": "18.0.27",
-    "@types/react-dom": "18.0.10",
     "eslint": "8.32.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
     "typescript": "4.9.4"
   },
   "license": "MIT",

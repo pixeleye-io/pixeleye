@@ -13,6 +13,7 @@
   "dependencies": {
     "@heroicons/react": "^2.0.14",
     "@pixeleye/api": "*",
+    "@pixeleye/github": "*",
     "@pixeleye/auth": "*",
     "@pixeleye/db": "*",
     "@pixeleye/hooks": "*",

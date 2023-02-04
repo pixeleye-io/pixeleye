@@ -14,7 +14,7 @@ export function Header() {
   return (
     <m.header
       style={{ boxShadow }}
-      className="sticky top-0 z-40 px-4 border-b bg-neutral-200/50 dark:bg-neutral-900/50 backdrop-blur-sm border-neutral-300 dark:border-neutral-700"
+      className="sticky top-0 z-40 px-4 border-b bg-white/50 dark:bg-black/50 backdrop-blur-sm border-neutral-300 dark:border-neutral-700"
     >
       <NavTab.Tabs>
         <NavTab asChild active={pathName === "/"}>

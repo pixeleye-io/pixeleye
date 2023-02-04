@@ -4,7 +4,12 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, NavLink } from "@pixeleye/ui";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { Label } from "@radix-ui/react-label";
+import * as Select from "@radix-ui/react-select";
 import { useSession } from "next-auth/react";
 
 function Avatar() {
@@ -40,8 +45,11 @@ function Avatar() {
 export function NavBar() {
   const segments = useSelectedLayoutSegments();
 
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
+
   return (
-    <nav className="flex justify-between px-4 py-4 bg-neutral-200/50 dark:bg-neutral-900/50">
+    <nav className="flex justify-between px-4 py-4 bg-white/50 dark:bg-black/50">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash href="/">
           Home
@@ -61,7 +69,64 @@ export function NavBar() {
         <div className="flex items-center space-x-4">
           <NavLink href="#">Changelog</NavLink>
           <NavLink href="#">Docs</NavLink>
-          <Avatar />
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <Avatar />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="p-4 bg-white border rounded dark:bg-black border-neutral-300 dark:border-neutral-700">
+                <DropdownMenu.Item>
+                  <Label className="flex items-center">
+                    Theme
+                    <Select.Root
+                      value={theme}
+                      onValueChange={(value: Theme) => setTheme(value)}
+                    >
+                      <Select.Trigger className="flex items-center justify-between w-full max-w-xs px-4 py-2 ml-2 border rounded h-9 dark:border-neutral-700 border-neutral-300">
+                        <Select.Value />
+                        <Select.Icon>
+                          <ChevronDownIcon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
+                        </Select.Icon>
+                      </Select.Trigger>
+                      <Select.Portal>
+                        <Select.Content
+                          className="w-[var(--radix-select-trigger-width)] max-h-[var(--radix-select-content-available-height)] overflow-auto bg-neutral-100 rounded-md shadow-lg dark:bg-neutral-900"
+                          position="popper"
+                          sideOffset={5}
+                        >
+                          <Select.Item
+                            value="system"
+                            className="p-2 rounded-md cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-800"
+                          >
+                            <Select.ItemText>System</Select.ItemText>
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                          <Select.Item
+                            value="dark"
+                            className="p-2 rounded-md cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-800"
+                          >
+                            <Select.ItemText>Dark</Select.ItemText>
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                          <Select.Item
+                            value="light"
+                            className="p-2 rounded-md cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-800"
+                          >
+                            <Select.ItemText>Light</Select.ItemText>
+                            <Select.ItemIndicator />
+                          </Select.Item>
+                        </Select.Content>
+                      </Select.Portal>
+                    </Select.Root>
+                  </Label>
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item>…</DropdownMenu.Item>
+                <DropdownMenu.Separator />
+                <DropdownMenu.Item>…</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
       </div>
     </nav>
