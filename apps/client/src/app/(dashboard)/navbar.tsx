@@ -51,8 +51,8 @@ export function NavBar() {
   return (
     <nav className="flex justify-between px-4 py-4 bg-white/50 dark:bg-black/50">
       <Breadcrumbs>
-        <Breadcrumbs.Item hideLeadingSlash href="/">
-          Home
+        <Breadcrumbs.Item hideLeadingSlash asChild>
+          <Link href="/">Home</Link>
         </Breadcrumbs.Item>
         {segments &&
           ["project", "add"].includes(segments[0] || "") &&

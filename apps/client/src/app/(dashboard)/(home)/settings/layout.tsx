@@ -8,7 +8,7 @@ import { m } from "framer-motion";
 
 const navigation = [
   { name: "General", href: "" },
-  { name: "Teams", href: "/teams" },
+  { name: "Connections", href: "/connections" },
   { name: "Billing", href: "/billing" },
   { name: "Notifications", href: "/notifications" },
 ];

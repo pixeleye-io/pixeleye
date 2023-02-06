@@ -12,4 +12,9 @@ const app = new App({
 export const octokit = (installationId: number) =>
   app.getInstallationOctokit(installationId);
 
+export const getUesr = (userName: string) =>
+  app.octokit.request("GET /users/{username}/installation", {
+    username: userName,
+  });
+
 export const eachInstallation = app.eachInstallation;
