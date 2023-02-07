@@ -9,6 +9,7 @@
 
 import { getServerSession, type Session } from "@pixeleye/auth";
 import { prisma } from "@pixeleye/db";
+import { getUserOctokit } from "@pixeleye/github";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
@@ -109,16 +110,6 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   });
 });
 
-const enforceTokenIsValid = (token: string, key: string) =>
-  t.middleware((all) => {
-    console.log(all);
-    return all.next();
-  });
-
-export const protectedGithubWebhook = t.procedure.use(
-  enforceTokenIsValid("token", "key"),
-);
-
 /**
  * Protected (authed) procedure
  *
@@ -129,3 +120,37 @@ export const protectedGithubWebhook = t.procedure.use(
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+const enforceUserIsAuthedGithub = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  const githubAccount = await ctx.prisma.account.findFirst({
+    where: {
+      userId: ctx.session.user.id,
+      provider: "github",
+    },
+  });
+
+  if (!githubAccount) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  const userOctokit = await getUserOctokit({
+    refreshToken: githubAccount.refresh_token!,
+    refreshTokenExpiresAt: githubAccount.refresh_token_expires_in!.toString(),
+    token: githubAccount.access_token!,
+    expiresAt: githubAccount.expires_at!.toString(),
+  });
+
+  return next({
+    ctx: {
+      userOctokit,
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+export const protectedProcedureGithub = t.procedure.use(
+  enforceUserIsAuthedGithub,
+);

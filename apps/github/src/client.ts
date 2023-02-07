@@ -9,13 +9,19 @@ const app = new App({
   },
 });
 
-export const octokit = (installationId: number) =>
+export const getOctokit = (installationId: number) =>
   app.getInstallationOctokit(installationId);
 
 export const getUesr = (userName: string) =>
   app.octokit.request("GET /users/{username}/installation", {
     username: userName,
   });
+export const getUserOctokit = (options: {
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
+  token: string;
+  expiresAt: string;
+}) => app.oauth.getUserOctokit(options);
 
 export const getRepos = (userName: string) =>
   app.octokit.request(

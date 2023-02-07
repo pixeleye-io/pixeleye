@@ -50,14 +50,14 @@ model UserOnTeam {
 }
 
 model Source {
-    id        String     @id @default(cuid())
-    type      SourceEnum
-    installId String?
+    id              String     @id @default(cuid())
+    type            SourceEnum
+    githubInstallId Int?       @unique
     // Either one of these is populated depending on if it's a user space or team space
-    Team      Team?      @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    teamId    String?
-    User      User?      @relation(fields: [userId], references: [id])
-    userId    String?
+    Team            Team?      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    teamId          String?
+    User            User?      @relation(fields: [userId], references: [id])
+    userId          String?
 }
 
 model Project {

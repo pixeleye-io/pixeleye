@@ -124,6 +124,7 @@ importers:
     specifiers:
       '@pixeleye/auth': '*'
       '@pixeleye/db': '*'
+      '@pixeleye/github': '*'
       '@trpc/client': 10.9.0
       '@trpc/server': 10.9.0
       eslint: 8.32.0
@@ -133,6 +134,7 @@ importers:
     dependencies:
       '@pixeleye/auth': link:../auth
       '@pixeleye/db': link:../db
+      '@pixeleye/github': link:../../apps/github
       '@trpc/client': 10.9.0_@trpc+server@10.9.0
       '@trpc/server': 10.9.0
       superjson: 1.9.1
