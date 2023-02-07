@@ -213,7 +213,10 @@ importers:
       '@babel/preset-env': 7.20.2
       '@babel/preset-react': 7.18.6
       '@babel/preset-typescript': 7.18.6
+      '@heroicons/react': ^2.0.14
       '@pixeleye/tailwind-config': '*'
+      '@radix-ui/react-label': ^2.0.0
+      '@radix-ui/react-select': ^1.2.0
       '@radix-ui/react-slot': 1.0.1
       '@storybook/addon-essentials': 7.0.0-beta.36
       '@storybook/addon-interactions': 7.0.0-beta.36
@@ -237,6 +240,9 @@ importers:
       tailwindcss: 3.2.4
       typescript: 4.9.4
     dependencies:
+      '@heroicons/react': 2.0.14_react@18.2.0
+      '@radix-ui/react-label': 2.0.0_biqbaboplfbrettd7655fr4n2y
+      '@radix-ui/react-select': 1.2.0_5ndqzdd6t4rivxsukjv3i3ak2q
       '@radix-ui/react-slot': 1.0.1_react@18.2.0
       class-variance-authority: 0.4.0_typescript@4.9.4
       framer-motion: 8.5.5_biqbaboplfbrettd7655fr4n2y

@@ -8,3 +8,5 @@ export * from "./src/navTab";
 export { default as NavTab } from "./src/navTab";
 export * from "./src/container";
 export { default as Container } from "./src/container";
+export * from "./src/select";
+export { default as Select } from "./src/select";

@@ -1,9 +1,7 @@
 "use client";
 
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Theme, useThemeStore } from "@pixeleye/hooks";
-import { Label } from "@radix-ui/react-label";
-import * as Select from "@radix-ui/react-select";
+import { Select } from "@pixeleye/ui";
 
 export default function SettingsPage() {
   const setTheme = useThemeStore((state) => state.setTheme);
@@ -14,11 +12,21 @@ export default function SettingsPage() {
       <p className="mb-4 text-base">Customise how Pixeleye looks and feels</p>
       <div>
         <div>
+          <Select
+            label="Theme"
+            value={theme}
+            onValueChange={(value: string) => setTheme(value as Theme)}
+          >
+            <Select.Item value="system">System</Select.Item>
+            <Select.Item value="dark">Dark</Select.Item>
+            <Select.Item value="light">Light</Select.Item>
+          </Select>
+        </div>
+        {/* <div>
           <Label>
             Theme
             <Select.Root
-              value={theme}
-              onValueChange={(value: Theme) => setTheme(value)}
+
             >
               <Select.Trigger className="flex items-center justify-between w-full max-w-xs px-4 py-2 border rounded h-9 dark:border-neutral-700 border-neutral-300">
                 <Select.Value />
@@ -74,8 +82,8 @@ export default function SettingsPage() {
             <option value="light" className="cursor-pointer">
               Light
             </option>
-          </select> */}
-        </div>
+          </select> 
+        </div> */}
       </div>
     </>
   );
