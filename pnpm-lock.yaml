@@ -215,6 +215,7 @@ importers:
       '@babel/preset-typescript': 7.18.6
       '@heroicons/react': ^2.0.14
       '@pixeleye/tailwind-config': '*'
+      '@radix-ui/react-dialog': ^1.0.2
       '@radix-ui/react-label': ^2.0.0
       '@radix-ui/react-select': ^1.2.0
       '@radix-ui/react-slot': 1.0.1
@@ -241,6 +242,7 @@ importers:
       typescript: 4.9.4
     dependencies:
       '@heroicons/react': 2.0.14_react@18.2.0
+      '@radix-ui/react-dialog': 1.0.2_5ndqzdd6t4rivxsukjv3i3ak2q
       '@radix-ui/react-label': 2.0.0_biqbaboplfbrettd7655fr4n2y
       '@radix-ui/react-select': 1.2.0_5ndqzdd6t4rivxsukjv3i3ak2q
       '@radix-ui/react-slot': 1.0.1_react@18.2.0
@@ -3818,7 +3820,7 @@ packages:
   /@radix-ui/react-use-callback-ref/1.0.0_react@18.2.0:
     resolution: {integrity: sha512-GZtyzoHz95Rhs6S63D2t/eqvdFCm7I+yHMLVQheKM7nBD8mbZIt+ct1jz4536MDnaOGKIxynJ8eHTkVGVVkoTg==}
     peerDependencies:
-      react: ^16.8 || ^17.0 || ^18.0
+      react: ^16.8 || ^17.0 || ^18.0 || ^17
     dependencies:
       '@babel/runtime': 7.20.7
       react: 18.2.0
@@ -3847,7 +3849,7 @@ packages:
   /@radix-ui/react-use-layout-effect/1.0.0_react@18.2.0:
     resolution: {integrity: sha512-6Tpkq+R6LOlmQb1R5NNETLG0B4YP0wc+klfXafpUCj6JGyaUc8il7/kUZ7m59rGbXGczE9Bs+iz2qloqsZBduQ==}
     peerDependencies:
-      react: ^16.8 || ^17.0 || ^18.0
+      react: ^16.8 || ^17.0 || ^18.0 || ^17
     dependencies:
       '@babel/runtime': 7.20.7
       react: 18.2.0

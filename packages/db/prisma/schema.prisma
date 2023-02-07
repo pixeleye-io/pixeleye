@@ -20,6 +20,7 @@ enum SourceEnum {
     GITHUB
     GITLAB
     BITBUCKET
+    OTHER
 }
 
 enum TeamType {
@@ -58,21 +59,22 @@ model Source {
     teamId          String?
     User            User?      @relation(fields: [userId], references: [id])
     userId          String?
+    Project         Project[]
 }
 
 model Project {
-    id          String          @id @default(cuid())
-    name        String
-    description String?
-    createdAt   DateTime        @default(now())
-    updatedAt   DateTime        @updatedAt
-    tokenHash   String          @unique
+    id        String          @id @default(cuid())
+    name      String
+    tokenHash String          @unique @default(cuid())
+    url       String?
+    source    Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+    sourceId  String
     // Either one of these is populated depending on if it's a user space or team space
-    users       UserOnProject[]
-    Team        Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    teamId      String?
-    User        User?           @relation(fields: [userId], references: [id])
-    userId      String?
+    users     UserOnProject[]
+    Team      Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    teamId    String?
+    User      User?           @relation(fields: [userId], references: [id])
+    userId    String?
 }
 
 model UserOnProject {

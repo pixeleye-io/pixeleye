@@ -1,33 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import { XMarkIcon } from "@heroicons/react/24/solid";
-import { Button, Container } from "@pixeleye/ui";
-import * as Dialog from "@radix-ui/react-dialog";
+import { useSearchParams } from "next/navigation";
+import { Button, Container, Modal } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
 import { api } from "~/utils/api";
 
 interface ImportCardProps {
-  name: string;
+  name: SourceName;
+  onClick?: () => void;
   connected?: boolean;
   imageUrl: {
     light: string;
     dark: string;
   };
 }
-function ImportCard({ name, connected, imageUrl }: ImportCardProps) {
-  const { data: installs } = api.github.getInstallations.useQuery();
-
-  const installationId = (installs && installs[0]?.id) || 0;
-
-  const { data: repos } = api.github.getRepositories.useQuery(
-    {
-      installationId,
-    },
-    { enabled: Boolean(installationId) },
-  );
-
-  if (connected) console.log("repos", repos);
+function ImportCard({ name, connected, imageUrl, onClick }: ImportCardProps) {
   return (
     <div className="relative w-56 p-4 text-center border rounded-lg shadow border-neutral-300 dark:border-neutral-700">
       <Image
@@ -56,66 +45,68 @@ function ImportCard({ name, connected, imageUrl }: ImportCardProps) {
       >
         {connected ? "Connected" : "Not connected"}
       </span>
-
-      <Dialog.Root>
-        <Dialog.Trigger asChild>
-          <button disabled={!connected}>
-            <span className="absolute inset-0" />
-            <span className="sr-only">Open {name}</span>
-          </button>
-        </Dialog.Trigger>
-
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/25 backdrop-blur-sm " />
-          <Dialog.Content className="fixed p-4 -translate-x-1/2 -translate-y-1/2 bg-white border rounded-md dark:bg-black top-1/2 left-1/2 border-neutral-300 dark:border-neutral-700">
-            <Dialog.Title className="DialogTitle">Select Repo</Dialog.Title>
-            <Dialog.Description className="DialogDescription">
-              Select a repo to import
-            </Dialog.Description>
-            <ul
-              role="list"
-              className="overflow-y-auto divide-y divide-neutral-200 dark:divide-neutral-800  max-h-[30rem]"
-            >
-              {repos?.map((repo) => (
-                <li key={repo.name} className="flex justify-between py-4">
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-black dark:text-white">
-                      {repo.name}
-                    </p>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-300">
-                      {repo.url}
-                    </p>
-                  </div>
-                  <Button>Import</Button>
-                </li>
-              ))}
-            </ul>
-            <div
-              style={{
-                display: "flex",
-                marginTop: 25,
-                justifyContent: "flex-end",
-              }}
-            >
-              <Dialog.Close asChild>
-                <button className="Button green">Save changes</button>
-              </Dialog.Close>
-            </div>
-            <Dialog.Close asChild>
-              <button className="IconButton" aria-label="Close">
-                <XMarkIcon />
-              </button>
-            </Dialog.Close>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+      <button onClick={onClick} className="absolute inset-0 w-full h-full">
+        <span className="sr-only">Import project from {name}</span>
+        <span className="inset-0 w-full h-full" />
+      </button>
     </div>
   );
 }
 
-const sources: ImportCardProps[] = [
+function GithubModal() {
+  const { data: installs } = api.github.getInstallations.useQuery();
+
+  const installationId = (installs && installs[0]?.id) || 0;
+
+  const { data: repos } = api.github.getRepositories.useQuery(
+    {
+      installationId,
+    },
+    { enabled: Boolean(installationId) },
+  );
+
+  const { mutateAsync: createProject, isLoading } =
+    api.project.createUserProject.useMutation();
+
+  console.log(isLoading);
+
+  return (
+    <ul
+      role="list"
+      className="overflow-y-auto divide-y divide-neutral-200 dark:divide-neutral-800  max-h-[30rem]"
+    >
+      {repos?.map((repo) => (
+        <li key={repo.name} className="flex justify-between py-4">
+          <div className="ml-3">
+            <p className="text-sm font-medium text-black dark:text-white">
+              {repo.name}
+            </p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-300">
+              {repo.url}
+            </p>
+          </div>
+          <Button
+            disabled={isLoading}
+            onClick={() =>
+              createProject({
+                name: repo.name,
+                url: repo.html_url,
+                type: "GITHUB",
+                githubInstallId: installationId,
+              })
+            }
+          >
+            Import
+          </Button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const sources: Omit<ImportCardProps, "onClick">[] = [
   {
-    name: "Github",
+    name: "github",
     connected: true,
     imageUrl: {
       light: "/github-mark.svg",
@@ -123,7 +114,7 @@ const sources: ImportCardProps[] = [
     },
   },
   {
-    name: "Gitlab",
+    name: "gitlab",
     connected: false,
     imageUrl: {
       light: "/gitlab-logo.svg",
@@ -131,7 +122,7 @@ const sources: ImportCardProps[] = [
     },
   },
   {
-    name: "Bitbucket",
+    name: "bitbucket",
     connected: false,
     imageUrl: {
       light: "/github-mark.svg",
@@ -139,7 +130,7 @@ const sources: ImportCardProps[] = [
     },
   },
   {
-    name: "Other",
+    name: "other",
     connected: false,
     imageUrl: {
       light: "/github-mark.svg",
@@ -148,7 +139,17 @@ const sources: ImportCardProps[] = [
   },
 ];
 
+type SourceName = "github" | "gitlab" | "bitbucket" | "other";
+
+const sourceNames = ["github", "gitlab", "bitbucket", "other"] as SourceName[];
+
 export default function AddPage() {
+  const query = useSearchParams().get("source") || "";
+  const [selected, setSelected] = useState<SourceName | undefined>(
+    sourceNames.includes(query as SourceName)
+      ? (query as SourceName)
+      : undefined,
+  );
   const sourcesGrouped = sources.reduce(
     (accumulator, currentValue, currentIndex, array) => {
       if (currentIndex % 2 === 0) {
@@ -171,11 +172,28 @@ export default function AddPage() {
             className="flex flex-wrap items-center justify-center gap-8"
           >
             {source.map((source) => (
-              <ImportCard key={source.name} {...source} />
+              <ImportCard
+                onClick={() => setSelected(source.name)}
+                key={source.name}
+                {...source}
+              />
             ))}
           </div>
         ))}
       </Container>
+      <Modal
+        onOpenChange={(open) => {
+          if (!open) setSelected(undefined);
+        }}
+        open={Boolean(selected)}
+        title="Import project"
+        description="Select repo to import from"
+      >
+        {selected === "github" && <GithubModal />}
+        <Modal.Footer>
+          <Modal.Button close>Close</Modal.Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

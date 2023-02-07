@@ -11,11 +11,21 @@ export const githubRouter = createTRPCRouter({
         .optional(),
     )
     .query(({ ctx, input }) => {
-      return ctx.userOctokit
-        .request("GET /user/installations", {
-          page: input?.page,
-        })
-        .then(({ data }) => data.installations);
+      return (
+        ctx.userOctokit
+          .request("GET /user/installations", {
+            page: input?.page,
+          })
+          // .catch((err) => {
+          //   console.log("err", err);
+          //   return err;
+          // })
+          // .then((data) => {
+          //   console.log("data", data);
+          //   return data;
+          // })
+          .then(({ data }) => data.installations)
+      );
     }),
   getRepositories: protectedProcedureGithub
     .input(
