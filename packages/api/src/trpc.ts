@@ -109,6 +109,16 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   });
 });
 
+const enforceTokenIsValid = (token: string, key: string) =>
+  t.middleware((all) => {
+    console.log(all);
+    return all.next();
+  });
+
+export const protectedGithubWebhook = t.procedure.use(
+  enforceTokenIsValid("token", "key"),
+);
+
 /**
  * Protected (authed) procedure
  *

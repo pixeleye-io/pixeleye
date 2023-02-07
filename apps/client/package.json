@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "build": "pnpm with-env next build",
+    "dev": "concurrently \"pnpm:dev:*\"",
     "clean": "rm -rf .next .turbo node_modules",
-    "dev": "pnpm with-env next dev -p 3000",
+    "dev:start": "pnpm with-env next dev -p 3000",
+    "dev:forward": "pnpm smee -u https://smee.io/No0KVHCmvP2CmoZ --port 3000 --path /api/webhooks/github",
     "lint": "SKIP_ENV_VALIDATION=1 next lint",
     "type-check": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
@@ -44,6 +46,7 @@
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "autoprefixer": "10.4.13",
+    "concurrently": "7.6.0",
     "dotenv-cli": "7.0.0",
     "eslint": "8.32.0",
     "eslint-config-next": "13.1.6",

@@ -7,7 +7,7 @@ import { cx } from "class-variance-authority";
 import { m } from "framer-motion";
 
 const navigation = [
-  { name: "General", href: "" },
+  { name: "General", href: "/" },
   { name: "Connections", href: "/connections" },
   { name: "Billing", href: "/billing" },
   { name: "Notifications", href: "/notifications" },
@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <div className="px-4 py-12 border-b border-neutral-300 dark:border-neutral-700">
         <Container>
-          <h1 className="text-4xl">General user settings</h1>
+          <h1 className="text-4xl">User account settings</h1>
         </Container>
       </div>
       <Container className="flex flex-col pt-8 space-y-8 md:space-x-8 md:space-y-0 md:flex-row">
@@ -42,7 +42,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 pathName === "/settings" + item.href ? "page" : undefined
               }
             >
-              {pathName === "/settings" + item.href && (
+              {pathName ===
+                "/settings" + (item.href === "/" ? "" : item.href) && (
                 <m.span
                   layoutId="settingsNav"
                   className="absolute inset-0 rounded bg-black/10 dark:bg-white/10"

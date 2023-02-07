@@ -17,4 +17,17 @@ export const getUesr = (userName: string) =>
     username: userName,
   });
 
+export const getRepos = (userName: string) =>
+  app.octokit.request(
+    "GET /user/installations/{installation_id}/repositories",
+    {
+      installation_id: Number(process.env.APP_ID!),
+    },
+  );
+
+export const userConnected = (userName: string) =>
+  app.octokit.request("GET /users/{username}/installation", {
+    username: userName,
+  });
+
 export const eachInstallation = app.eachInstallation;
