@@ -37,8 +37,10 @@ model Team {
     users    UserOnTeam[]
     projects Project[]
     User     User?        @relation(fields: [userId], references: [id])
-    userId   String?
+    userId   String?      @unique
     Source   Source[]
+
+    @@index([userId])
 }
 
 model UserOnTeam {
@@ -49,6 +51,8 @@ model UserOnTeam {
     role   Role
 
     @@id([teamId, userId])
+    @@index([teamId])
+    @@index([userId])
 }
 
 model Source {
@@ -61,6 +65,9 @@ model Source {
     User            User?      @relation(fields: [userId], references: [id])
     userId          String?
     Project         Project[]
+
+    @@index([teamId])
+    @@index([userId])
 }
 
 model Project {
@@ -78,6 +85,10 @@ model Project {
 
     User   User?   @relation(fields: [userId], references: [id])
     userId String?
+
+    @@index([sourceId])
+    @@index([teamId])
+    @@index([userId])
 }
 
 model UserOnProject {
@@ -88,6 +99,8 @@ model UserOnProject {
     role      Role
 
     @@id([projectId, userId])
+    @@index([projectId])
+    @@index([userId])
 }
 
 // @see https://next-auth.js.org/schemas/models
@@ -108,6 +121,7 @@ model Account {
     user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -116,6 +130,8 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
 }
 
 model User {

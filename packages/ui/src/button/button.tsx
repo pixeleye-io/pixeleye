@@ -1,3 +1,5 @@
+"use client";
+
 import { forwardRef } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, cx, type VariantProps } from "class-variance-authority";

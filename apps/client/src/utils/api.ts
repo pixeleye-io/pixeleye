@@ -1,4 +1,4 @@
-import type { AppRouter } from "@pixeleye/api";
+import { AppRouter } from "@pixeleye/api";
 import { transformer } from "@pixeleye/api/transformer";
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";

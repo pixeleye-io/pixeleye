@@ -1,24 +1,34 @@
-"use client";
+import { authOptions } from "@pixeleye/auth";
+import { getServerSession } from "next-auth";
+import { serverApi } from "~/utils/server";
+import { RegisterSegment } from "../../navbar";
 
-import { api } from "~/utils/api";
-import { useRegisterSegment } from "../../navbar";
+export default async function ProjectPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const session = await getServerSession(authOptions);
+  const data = await serverApi(session).project.getProject({ id: params.id });
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
-  const { data } = api.project.getProject.useQuery({ id: params.id });
+  if (!data) return <>Project not found</>;
 
-  useRegisterSegment(
-    params.id,
-    2,
-    data
-      ? {
-          name: data.name,
-          value: params.id,
-        }
-      : undefined,
-  );
   return (
-    <div>
-      <h1>Project {params.id}</h1>
-    </div>
+    <RegisterSegment
+      reference={params.id}
+      order={2}
+      segment={
+        data
+          ? {
+              name: data.name,
+              value: `/project/${params.id}`,
+            }
+          : undefined
+      }
+    >
+      <div>
+        <h1>Project {data.id}</h1>
+      </div>
+    </RegisterSegment>
   );
 }

@@ -1,15 +1,12 @@
-"use client";
-
 import Link from "next/link";
+import { authOptions } from "@pixeleye/auth";
 import { Button, Container } from "@pixeleye/ui";
-import { api } from "~/utils/api";
+import { getServerSession } from "next-auth";
+import { serverApi } from "~/utils/server";
 
-export default function IndexPage() {
-  const { data } = api.github.getInstallations.useQuery();
-
-  console.log(data);
-
-  const { data: projects } = api.project.getUserProjects.useQuery();
+export default async function IndexPage() {
+  const session = await getServerSession(authOptions);
+  const projects = await serverApi(session).project.getUserProjects();
 
   return (
     <Container className="py-12">

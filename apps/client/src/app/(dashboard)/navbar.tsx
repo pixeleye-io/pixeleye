@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
+import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, NavLink, Select } from "@pixeleye/ui";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import * as Popover from "@radix-ui/react-popover";
+import { cx } from "class-variance-authority";
 import { useSession } from "next-auth/react";
 import { create } from "zustand";
 
@@ -40,6 +43,63 @@ function Avatar() {
   );
 }
 
+interface TeamType {
+  name: string;
+  id: string;
+  img: string;
+}
+
+interface TeamToggleProps {
+  name: string;
+  href: string;
+  className?: string;
+  teams: TeamType[];
+}
+function TeamToggle({ name, href, teams, className }: TeamToggleProps) {
+  const session = useSession();
+
+  return (
+    <Popover.Root>
+      <Popover.Anchor>
+        <div className={cx("flex items-center", className)}>
+          <Link href={href}>{name}</Link>
+          <Popover.Trigger className="px-0.5 py-1 ml-2 rounded hover:bg-gray-800">
+            <ChevronUpDownIcon className="w-6 h-6" />
+          </Popover.Trigger>
+        </div>
+      </Popover.Anchor>
+
+      <Popover.Portal>
+        <Popover.Content className="z-50 px-4 py-2 bg-gray-900 border border-gray-300 divide-y divide-gray-300 rounded dark:border-gray-700 dark:divide-gray-700">
+          <h5 className="pb-2">Accounts</h5>
+          <div className="py-2">
+            <p className="text-sm text-gray-700 dark:text-gray-300">Personal</p>
+            <Popover.Close asChild>
+              <Link href="#" className="flex items-center">
+                {session.data?.user.name}
+              </Link>
+            </Popover.Close>
+          </div>
+
+          {teams.length > 0 && <p>Teams</p>}
+          {teams.map((team) => (
+            <div className="flex items-center" key={team.id}>
+              <Image
+                className="object-cover w-8 h-8 rounded-full"
+                width="64"
+                height="64"
+                src={team.img}
+                alt="Team logo"
+              />
+              <span className="ml-2">{team.name}</span>
+            </div>
+          ))}
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+
 interface Segment {
   name: string;
   value: string;
@@ -54,7 +114,7 @@ interface BreadcrumStore {
 export const useRegisterSegment = (
   key: string,
   order: number,
-  segment?: Segment,
+  segment?: Segment | false,
 ) => {
   const setSegment = useBreadcrumStore((state) => state.setSegment);
   const deleteSegment = useBreadcrumStore((state) => state.deleteSegment);
@@ -82,7 +142,28 @@ export const useBreadcrumStore = create<BreadcrumStore>((set) => ({
     }),
 }));
 
-export function NavBar() {
+interface RegisterSegmentProps {
+  children: React.ReactNode;
+  reference: string;
+  order: number;
+  segment?: Segment | false;
+}
+export function RegisterSegment({
+  children,
+  reference,
+  order,
+  segment,
+}: RegisterSegmentProps) {
+  console.log(reference, order);
+  useRegisterSegment(reference, order, segment);
+  return <>{children}</>;
+}
+
+interface NavBarProps {
+  teams: TeamType[];
+}
+
+export function NavBar({ teams }: NavBarProps) {
   const segmentRepo = useBreadcrumStore((state) => state.segmentRepo);
   const selectedSegments = useSelectedLayoutSegments();
 
@@ -114,8 +195,10 @@ export function NavBar() {
               width={32}
               height={32}
             />
-            Home
           </Link>
+        </Breadcrumbs.Item>
+        <Breadcrumbs.Item asChild>
+          <TeamToggle href="#" name="AlfieJones" teams={teams} />
         </Breadcrumbs.Item>
         {segments.map((segment, i, array) => {
           const value = segment;

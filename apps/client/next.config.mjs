@@ -17,8 +17,13 @@ const config = {
     "@pixeleye/hooks",
     "@pixeleye/ui",
   ],
+  modularizeImports: {
+    "@pixeleye/ui": {
+      transform: "@pixeleye/ui/src/{{member}}/index.ts",
+    },
+  },
   images: {
-    domains: ["images.unsplash.com", "avatars.githubusercontent.com"],
+    domains: ["avatars.githubusercontent.com"],
   },
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: !!process.env.CI },
