@@ -4,11 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
-import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, NavLink, Select } from "@pixeleye/ui";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Label } from "@radix-ui/react-label";
 import { useSession } from "next-auth/react";
 
 function Avatar() {
@@ -48,7 +46,7 @@ export function NavBar() {
   const setTheme = useThemeStore((state) => state.setTheme);
 
   return (
-    <nav className="flex justify-between px-4 py-4 bg-white/50 dark:bg-black/50">
+    <nav className="flex justify-between px-4 py-4 bg-white/50 dark:bg-gray-900">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
           <Link href="/">Home</Link>
