@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
@@ -8,6 +8,7 @@ import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, NavLink, Select } from "@pixeleye/ui";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useSession } from "next-auth/react";
+import { create } from "zustand";
 
 function Avatar() {
   const session = useSession();
@@ -39,8 +40,57 @@ function Avatar() {
   );
 }
 
+interface Segment {
+  name: string;
+  value: string;
+}
+
+interface BreadcrumStore {
+  segmentRepo: Record<string, Segment>;
+  setSegment: (key: string, segment: Segment) => void;
+  deleteSegment: (key: string) => void;
+}
+
+export const useRegisterSegment = (
+  key: string,
+  order: number,
+  segment?: Segment,
+) => {
+  const setSegment = useBreadcrumStore((state) => state.setSegment);
+  const deleteSegment = useBreadcrumStore((state) => state.deleteSegment);
+
+  useEffect(() => {
+    if (!segment) return;
+    setSegment(`${key}-${order}`, segment);
+    return () => deleteSegment(`${key}-${order}`);
+  }, [deleteSegment, key, order, segment, setSegment]);
+};
+
+export const useBreadcrumStore = create<BreadcrumStore>((set) => ({
+  segmentRepo: {},
+  setSegment: (key, segment) =>
+    set((state) => ({
+      segmentRepo: {
+        ...state.segmentRepo,
+        [key]: segment,
+      },
+    })),
+  deleteSegment: (key) =>
+    set((state) => {
+      const { [key]: _, ...segmentRepo } = state.segmentRepo;
+      return { segmentRepo };
+    }),
+}));
+
 export function NavBar() {
-  const segments = useSelectedLayoutSegments();
+  const segmentRepo = useBreadcrumStore((state) => state.segmentRepo);
+  const selectedSegments = useSelectedLayoutSegments();
+
+  const segments: Segment[] = [];
+  selectedSegments.forEach((segment, i) => {
+    const seg = segmentRepo[`${segment}-${i + 1}`];
+    if (seg) segments.push({ value: seg.value, name: seg.name });
+  });
 
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
@@ -53,23 +103,32 @@ export function NavBar() {
             <Image
               src="/logo-dark.svg"
               alt="Pixeleye logo"
-              className="mr-2"
+              className="hidden mr-2 dark:block"
+              width={32}
+              height={32}
+            />
+            <Image
+              src="/logo-light.svg"
+              alt="Pixeleye logo"
+              className="mr-2 dark:hidden"
               width={32}
               height={32}
             />
             Home
           </Link>
         </Breadcrumbs.Item>
-        {segments &&
-          ["project", "add"].includes(segments[0] || "") &&
-          segments.map((segment, i, array) => {
-            const href = array.slice(0, i + 1).join("/");
-            return (
-              <Breadcrumbs.Item key={segment} asChild>
-                <Link href={href}>{segment}</Link>
-              </Breadcrumbs.Item>
-            );
-          })}
+        {segments.map((segment, i, array) => {
+          const value = segment;
+          const href = array
+            .slice(0, i + 1)
+            .map(({ value }) => value)
+            .join("/");
+          return (
+            <Breadcrumbs.Item key={segment.value} asChild>
+              <Link href={href}>{value.name}</Link>
+            </Breadcrumbs.Item>
+          );
+        })}
       </Breadcrumbs>
       <div className="px-4">
         <div className="flex items-center space-x-4">

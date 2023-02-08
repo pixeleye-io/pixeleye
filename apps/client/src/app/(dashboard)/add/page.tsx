@@ -68,8 +68,6 @@ function GithubModal() {
   const { mutateAsync: createProject, isLoading } =
     api.project.createUserProject.useMutation();
 
-  console.log(isLoading);
-
   return (
     <ul
       role="list"

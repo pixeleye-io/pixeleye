@@ -1,4 +1,5 @@
 /* eslint-disable no-case-declarations */
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -52,4 +53,28 @@ export const projectRouter = createTRPCRouter({
       },
     });
   }),
+  getProject: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.prisma.project.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+      if (project && project.userId === ctx.session.user.id) {
+        return project;
+      }
+      const projectUsers = await ctx.prisma.userOnProject.findUnique({
+        where: {
+          projectId_userId: {
+            projectId: input.id,
+            userId: ctx.session.user.id,
+          },
+        },
+      });
+      if (projectUsers) {
+        return project;
+      }
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }),
 });
