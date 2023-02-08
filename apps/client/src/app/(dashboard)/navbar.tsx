@@ -49,7 +49,16 @@ export function NavBar() {
     <nav className="flex justify-between px-4 py-4 bg-white/50 dark:bg-gray-900">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
-          <Link href="/">Home</Link>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo-dark.svg"
+              alt="Pixeleye logo"
+              className="mr-2"
+              width={32}
+              height={32}
+            />
+            Home
+          </Link>
         </Breadcrumbs.Item>
         {segments &&
           ["project", "add"].includes(segments[0] || "") &&

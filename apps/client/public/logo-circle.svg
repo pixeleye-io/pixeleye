@@ -1,0 +1,10 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="12" fill="black" />
+    <path
+        d="M9.906 4.307Q17.441 3.447 23.368 11.474 23.765 11.987 23.406 12.507q-5.506 8.114-12.175 4.509Q10.987 16.84 11.221 16.819c11.5-.7 6.252-11.414-1.279-12.37Q9.577 4.362 9.906 4.307Z"
+        stroke="white" stroke-width="0.1" fill="white" stroke-linejoin="round" />
+    <path
+        d="M14.094 19.693Q6.559 20.553.632 12.526.235 12.013.594 11.493q5.506-8.114 12.175-4.509Q13.013 7.16 12.779 7.181c-11.5.7-6.252 11.414 1.279 12.37Q14.423 19.638 14.094 19.693Z"
+        stroke="white" stroke-width="0.1" fill="white" stroke-linejoin="round" />
+    <circle cx="12" cy="12" r="3" fill="white" />
+</svg>
