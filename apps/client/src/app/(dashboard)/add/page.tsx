@@ -87,14 +87,15 @@ function GithubModal() {
           </div>
           <Button
             disabled={isLoading}
-            onClick={() =>
-              createProject({
+            onClick={() => {
+              void createProject({
                 name: repo.name,
                 url: repo.html_url,
+                gitId: repo.id.toString(),
                 type: "GITHUB",
                 githubInstallId: installationId,
-              })
-            }
+              });
+            }}
           >
             Import
           </Button>

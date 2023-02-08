@@ -8,6 +8,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         type: z.enum(["GITHUB", "GITLAB", "BITBUCKET", "OTHER"]),
+        gitId: z.string(),
         url: z.string().optional(),
         githubInstallId: z.number().optional(),
       }),
@@ -36,6 +37,7 @@ export const projectRouter = createTRPCRouter({
               url: input.url,
               sourceId: source.id,
               userId: ctx.session.user.id,
+              gitId: input.gitId,
             },
           });
 
@@ -43,4 +45,11 @@ export const projectRouter = createTRPCRouter({
           return;
       }
     }),
+  getUserProjects: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.project.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+    });
+  }),
 });

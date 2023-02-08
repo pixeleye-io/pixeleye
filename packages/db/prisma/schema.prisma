@@ -64,6 +64,7 @@ model Source {
 
 model Project {
     id        String          @id @default(cuid())
+    gitId     String          @unique
     name      String
     tokenHash String          @unique @default(cuid())
     url       String?
@@ -73,8 +74,9 @@ model Project {
     users     UserOnProject[]
     Team      Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId    String?
-    User      User?           @relation(fields: [userId], references: [id])
-    userId    String?
+
+    User   User?   @relation(fields: [userId], references: [id])
+    userId String?
 }
 
 model UserOnProject {
@@ -128,7 +130,7 @@ model User {
     UserOnTeam    UserOnTeam[]
     Team          Team[]
     sources       Source[]
-    Project       Project[]
+    userProjects  Project[]
 }
 
 model VerificationToken {
