@@ -184,14 +184,14 @@ export function NavBar({ teams }: NavBarProps) {
             <Image
               src="/logo-dark.svg"
               alt="Pixeleye logo"
-              className="hidden mr-2 dark:block"
+              className="hidden mr-1 dark:block"
               width={32}
               height={32}
             />
             <Image
               src="/logo-light.svg"
               alt="Pixeleye logo"
-              className="mr-2 dark:hidden"
+              className="mr-1 dark:hidden"
               width={32}
               height={32}
             />
@@ -223,11 +223,13 @@ export function NavBar({ teams }: NavBarProps) {
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content className="relative z-40 p-4 bg-white border rounded dark:bg-black border-neutral-300 dark:border-neutral-700">
-                <DropdownMenu.Item>
+                <DropdownMenu.Item asChild>
                   <Select
                     label="Theme"
                     value={theme}
-                    onValueChange={(value: string) => setTheme(value as Theme)}
+                    onChange={(event) =>
+                      setTheme(event.currentTarget.value as Theme)
+                    }
                   >
                     <Select.Item value="system">System</Select.Item>
                     <Select.Item value="dark">Dark</Select.Item>

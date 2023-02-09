@@ -12,3 +12,7 @@ export * from "./src/select";
 export { default as Select } from "./src/select";
 export * from "./src/modal";
 export { default as Modal } from "./src/modal";
+export * from "./src/divider";
+export { default as Divider } from "./src/divider";
+export * from "./src/header";
+export { default as Header } from "./src/header";

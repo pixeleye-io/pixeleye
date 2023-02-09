@@ -1,7 +1,11 @@
-import { FC, forwardRef } from "react";
+import {
+  DetailedHTMLProps,
+  FC,
+  HTMLAttributes,
+  forwardRef,
+  useId,
+} from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { Label } from "@radix-ui/react-label";
-import * as RadixSelect from "@radix-ui/react-select";
 import { cx } from "class-variance-authority";
 
 export interface SelectItemProps {
@@ -10,64 +14,57 @@ export interface SelectItemProps {
   children: React.ReactNode;
 }
 
-const Item = forwardRef<HTMLDivElement, SelectItemProps>(
+const Item = forwardRef<HTMLOptionElement, SelectItemProps>(
   ({ value, children, className }, ref) => {
     return (
-      <RadixSelect.Item
+      <option
         ref={ref}
         value={value}
-        className={cx(
-          "p-2 rounded-md cursor-pointer hover:bg-neutral-200 dark:hover:bg-neutral-800",
-          className,
-        )}
+        className={cx("p-2 rounded-md cursor-pointer", className)}
       >
-        <RadixSelect.ItemText>{children}</RadixSelect.ItemText>
-        <RadixSelect.ItemIndicator />
-      </RadixSelect.Item>
+        {children}
+      </option>
     );
   },
 );
 
-export interface SelectProps {
+export interface SelectProps
+  extends DetailedHTMLProps<
+    HTMLAttributes<HTMLSelectElement>,
+    HTMLSelectElement
+  > {
   label: string;
   children: React.ReactNode;
-  defaultValue?: string;
   value?: string;
-  onValueChange?: (value: string) => void;
 }
 
 const Select: FC<SelectProps> = ({
   label,
   children,
-  defaultValue,
+  className,
   value,
-  onValueChange,
+  ...rest
 }) => {
+  const id = useId();
   return (
-    <Label>
-      {label}
-      <RadixSelect.Root
-        defaultValue={defaultValue}
+    <div className={cx(className, "relative flex flex-col-reverse")}>
+      <select
         value={value}
-        onValueChange={onValueChange}
+        id={id}
+        name="location"
+        className="relative block w-full py-2 pl-3 pr-10 mt-1 text-base bg-white border border-gray-300 rounded-md cursor-pointer dark:bg-gray-900 peer dark:border-gray-700 focus:outline-none dark:focus:border-white sm:text-sm"
+        {...rest}
       >
-        <RadixSelect.Trigger className="flex items-center justify-between w-full max-w-xs px-4 py-2 border rounded h-9 dark:border-neutral-700 border-neutral-300">
-          <RadixSelect.Value />
-          <RadixSelect.Icon>
-            <ChevronDownIcon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
-          </RadixSelect.Icon>
-        </RadixSelect.Trigger>
-        <RadixSelect.Portal>
-          <RadixSelect.Content
-            className="w-[var(--radix-select-trigger-width)] z-50 max-h-[var(--radix-select-content-available-height)] overflow-auto bg-neutral-100 rounded-md shadow-lg dark:bg-neutral-900"
-            position="popper"
-            sideOffset={5}
-          >
-            <RadixSelect.Viewport>{children}</RadixSelect.Viewport>
-          </RadixSelect.Content>
-        </RadixSelect.Portal>
-      </RadixSelect.Root>
-    </Label>
+        {children}
+      </select>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 peer-focus:text-gray-900 dark:text-gray-300 dark:peer-focus:text-white"
+      >
+        {label}
+      </label>
+      <ChevronDownIcon className="absolute w-5 h-5 text-white right-2 bottom-2" />
+    </div>
   );
 };
 

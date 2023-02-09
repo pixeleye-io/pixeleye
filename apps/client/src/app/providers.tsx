@@ -56,7 +56,7 @@ export default function Proiders({ children }: { children: React.ReactNode }) {
     <LazyMotion features={loadFeatures}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient} contextSharing={true}>
-          <SessionProvider>{children}</SessionProvider>{" "}
+          <SessionProvider>{children}</SessionProvider>
         </QueryClientProvider>
       </trpc.Provider>
     </LazyMotion>

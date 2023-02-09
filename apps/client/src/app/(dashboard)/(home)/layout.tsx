@@ -1,9 +1,9 @@
-import { Header } from "./header";
+import { HomeHeader } from "./homeHeader";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header />
+      <HomeHeader />
       {children}
     </>
   );
