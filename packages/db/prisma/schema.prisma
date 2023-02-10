@@ -11,10 +11,16 @@ datasource db {
     relationMode = "prisma"
 }
 
-enum Role {
+enum ProjectRole {
     OWNER
     REVIEWER
     VIEWER
+}
+
+enum TeamRole {
+    OWNER
+    ADMIN
+    MEMBER
 }
 
 enum SourceEnum {
@@ -28,6 +34,15 @@ enum TeamType {
     GITHUB
     GITLAB
     BITBUCKET
+    USER
+}
+
+model Build {
+    id        String  @id @default(cuid())
+    Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId String
+
+    @@index([projectId])
 }
 
 model Team {
@@ -36,19 +51,15 @@ model Team {
     type     TeamType
     users    UserOnTeam[]
     projects Project[]
-    User     User?        @relation(fields: [userId], references: [id])
-    userId   String?      @unique
     Source   Source[]
-
-    @@index([userId])
 }
 
 model UserOnTeam {
-    team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    team   Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId String
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
-    role   Role
+    role   TeamRole
 
     @@id([teamId, userId])
     @@index([teamId])
@@ -72,31 +83,27 @@ model Source {
 
 model Project {
     id        String          @id @default(cuid())
-    gitId     String          @unique
+    gitId     String
     name      String
     tokenHash String          @unique @default(cuid())
     url       String?
     source    Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
     sourceId  String
-    // Either one of these is populated depending on if it's a user space or team space
+    builds    Build[]
     users     UserOnProject[]
     Team      Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId    String?
 
-    User   User?   @relation(fields: [userId], references: [id])
-    userId String?
-
     @@index([sourceId])
     @@index([teamId])
-    @@index([userId])
 }
 
 model UserOnProject {
-    project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId String
-    user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    String
-    role      Role
+    role      ProjectRole
 
     @@id([projectId, userId])
     @@index([projectId])
@@ -142,13 +149,12 @@ model User {
     nickName      String?
     image         String?
     password      String?
+    salt          String?
     accounts      Account[]
     sessions      Session[]
-    projects      UserOnProject[]
     UserOnTeam    UserOnTeam[]
-    Team          Team[]
     sources       Source[]
-    userProjects  Project[]
+    UserOnProject UserOnProject[]
 }
 
 model VerificationToken {

@@ -7,7 +7,12 @@ import { serverApi } from "~/utils/server";
 
 export default async function IndexPage() {
   const session = await getServerSession(authOptions);
-  const projects = await serverApi(session).project.getUserProjects();
+  const team = await serverApi(session).team.getUserTeam();
+  const projects = team?.id
+    ? await serverApi(session).project.getTeamProjects({
+        teamId: team.id,
+      })
+    : [];
 
   return (
     <Container className="py-12">
@@ -32,6 +37,8 @@ export default async function IndexPage() {
             </Link>
             {project.url && (
               <a
+                rel="noopener noreferrer"
+                target="_blank"
                 href={project.url}
                 className="absolute top-0 right-0 p-2 transition transform group/link bg-black border border-black rounded-full opacity-0 dark:hover:!bg-gray-900 hover:!bg-white dark:border-white group-hover/card:opacity-100 dark:bg-white group-hover/card:translate-x-3 group-hover/card:-translate-y-3"
               >

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppRouter } from "@pixeleye/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { LazyMotion } from "framer-motion";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, signIn, useSession } from "next-auth/react";
 import superjson from "superjson";
 
 export const trpc = createTRPCReact<AppRouter>({
@@ -52,13 +52,27 @@ export default function Proiders({ children }: { children: React.ReactNode }) {
       transformer: superjson,
     }),
   );
+
   return (
     <LazyMotion features={loadFeatures}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient} contextSharing={true}>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <CheckSession>{children}</CheckSession>
+          </SessionProvider>
         </QueryClientProvider>
       </trpc.Provider>
     </LazyMotion>
   );
+}
+
+function CheckSession({ children }: { children: React.ReactNode }) {
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if ((session as any)?.error === "RefreshAccessTokenError") {
+      signIn(); // Force sign in to hopefully resolve error
+    }
+  }, [session]);
+  return <>{children}</>;
 }

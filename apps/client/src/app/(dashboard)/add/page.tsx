@@ -66,7 +66,7 @@ function GithubModal() {
   );
 
   const { mutateAsync: createProject, isLoading } =
-    api.project.createUserProject.useMutation();
+    api.project.createProject.useMutation();
 
   return (
     <ul
@@ -89,9 +89,11 @@ function GithubModal() {
               void createProject({
                 name: repo.name,
                 url: repo.html_url,
-                gitId: repo.id.toString(),
+                github: {
+                  gitId: repo.id.toString(),
+                  installId: installationId,
+                },
                 type: "GITHUB",
-                githubInstallId: installationId,
               });
             }}
           >

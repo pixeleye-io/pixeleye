@@ -1,80 +1,146 @@
-/* eslint-disable no-case-declarations */
+import { PrismaClient } from "@pixeleye/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
+const createProjectInput = z.object({
+  name: z.string(),
+  type: z.enum(["GITHUB", "GITLAB", "BITBUCKET", "OTHER"]),
+  url: z.string().optional(),
+  teamId: z.string().optional(),
+  github: z
+    .object({
+      gitId: z.string(),
+      installId: z.number(),
+    })
+    .optional(),
+});
+
+async function createGithubProject(
+  prisma: PrismaClient,
+  userId: string,
+  input: z.infer<typeof createProjectInput>,
+) {
+  return prisma.project.create({
+    data: {
+      name: input.name,
+      url: input.url,
+      source: {
+        connectOrCreate: {
+          where: {
+            githubInstallId: input.github!.installId,
+          },
+          create: {
+            githubInstallId: input.github!.installId,
+            type: input.type,
+            userId,
+          },
+        },
+      },
+      Team: {
+        connect: {
+          id: input.teamId,
+        },
+      },
+      gitId: input.github!.gitId,
+      users: {
+        create: {
+          userId,
+          role: "OWNER",
+        },
+      },
+    },
+  });
+}
+
 export const projectRouter = createTRPCRouter({
-  createUserProject: protectedProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        type: z.enum(["GITHUB", "GITLAB", "BITBUCKET", "OTHER"]),
-        gitId: z.string(),
-        url: z.string().optional(),
-        githubInstallId: z.number().optional(),
-      }),
-    )
+  createProject: protectedProcedure
+    .input(createProjectInput)
     .mutation(async ({ ctx, input }) => {
+      if (!input.teamId) {
+        input.teamId = await ctx.prisma.userOnTeam
+          .findFirst({
+            where: {
+              userId: ctx.session.user.id,
+              team: {
+                type: "USER",
+              },
+            },
+            include: {
+              team: true,
+            },
+          })
+          .then((u) => u?.teamId);
+      }
       switch (input.type) {
         case "GITHUB":
-          let source = await ctx.prisma.source.findUnique({
-            where: {
-              githubInstallId: input.githubInstallId,
-            },
-          });
-          if (!source) {
-            source = await ctx.prisma.source.create({
-              data: {
-                githubInstallId: input.githubInstallId,
-                type: input.type,
-                userId: ctx.session.user.id,
-              },
-            });
-          }
-
-          return ctx.prisma.project.create({
-            data: {
-              name: input.name,
-              url: input.url,
-              sourceId: source.id,
-              userId: ctx.session.user.id,
-              gitId: input.gitId,
-            },
-          });
-
+          return createGithubProject(ctx.prisma, ctx.session.user.id, input);
         default:
           return;
       }
     }),
-  getUserProjects: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.project.findMany({
-      where: {
-        userId: ctx.session.user.id,
-      },
-    });
-  }),
+  getTeamProjects: protectedProcedure
+    .input(
+      z.object({
+        teamId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.userOnProject
+        .findMany({
+          where: {
+            userId: ctx.session.user.id,
+            project: {
+              teamId: input.teamId,
+            },
+          },
+          include: {
+            project: true,
+          },
+        })
+        .then((projects) => projects.map((p) => p.project));
+    }),
+  getBuilds: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const userOnPoject = await ctx.prisma.userOnProject.findUnique({
+        where: {
+          projectId_userId: {
+            projectId: input.projectId,
+            userId: ctx.session.user.id,
+          },
+        },
+      });
+
+      if (!userOnPoject) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      const builds = await ctx.prisma.build.findMany({
+        where: {
+          projectId: input.projectId,
+        },
+      });
+      return builds;
+    }),
   getProject: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const project = await ctx.prisma.project.findUnique({
-        where: {
-          id: input.id,
-        },
-      });
-      if (project && project.userId === ctx.session.user.id) {
-        return project;
-      }
-      const projectUsers = await ctx.prisma.userOnProject.findUnique({
+      const project = await ctx.prisma.userOnProject.findUnique({
         where: {
           projectId_userId: {
             projectId: input.id,
             userId: ctx.session.user.id,
           },
         },
+        include: {
+          project: true,
+        },
       });
-      if (projectUsers) {
-        return project;
-      }
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+      if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });
+      return project.project;
     }),
 });

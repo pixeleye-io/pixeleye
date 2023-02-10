@@ -13,6 +13,7 @@ export default async function ProjectLayout({
 }) {
   const session = await getServerSession(authOptions);
   const data = await serverApi(session).project.getProject({ id: params.id });
+
   return (
     <RegisterSegment
       reference={params.id}

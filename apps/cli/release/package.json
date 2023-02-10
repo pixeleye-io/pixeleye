@@ -1,0 +1,8 @@
+{
+  "name": "pixeleye",
+  "version": "0.0.0",
+  "dependencies": {},
+  "license": "MIT",
+  "main": "./index.ts",
+  "types": "./index.tsx"
+}

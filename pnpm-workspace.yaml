@@ -1,6 +1,7 @@
 packages:
   - apps/client
   - apps/github
+  - apps/cli
   - packages/hooks
   - packages/utils
   - packages/api

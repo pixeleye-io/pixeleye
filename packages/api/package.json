@@ -2,11 +2,13 @@
   "name": "@pixeleye/api",
   "version": "0.1.0",
   "dependencies": {
+    "@octokit/oauth-methods": "^2.0.5",
     "@pixeleye/auth": "*",
     "@pixeleye/db": "*",
     "@pixeleye/github": "*",
     "@trpc/client": "10.9.0",
     "@trpc/server": "10.9.0",
+    "stepci": "^2.6.4",
     "superjson": "1.9.1",
     "zod": "3.20.2"
   },
