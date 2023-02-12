@@ -4,10 +4,17 @@ import { useConfig } from "nextra-theme-docs";
 export default {
   logo: <span>Pixeleye</span>,
   project: {
-    link: "https://github.com/pixleye-io/pixleye",
+    link: "https://github.com/pixeleye-io/pixeleye",
   },
-  docsRepositoryBase: "https://github.com/pixleye-io/pixleye/docs/pages",
-
+  docsRepositoryBase: "https://github.com/pixeleye-io/pixeleye/docs/pages",
+  banner: {
+    key: "development",
+    text: (
+      <a href="https://github.com/pixeleye-io/pixeleye" target="_blank">
+        Pixeleye is currently in development, contribute →
+      </a>
+    ),
+  },
   useNextSeoProps() {
     const { asPath } = useRouter();
     if (asPath !== "/") {
@@ -21,11 +28,13 @@ export default {
     const { frontMatter } = useConfig();
     return (
       <>
-        <meta property="og:url" content={`https://my-app.com${asPath}`} />
-        <meta property="og:title" content={frontMatter.title || "Nextra"} />
+        <meta property="og:url" content={`https://pixeleye.io/${asPath}`} />
+        <meta property="og:title" content={frontMatter.title || "Pixeleye"} />
         <meta
           property="og:description"
-          content={frontMatter.description || "The next site builder"}
+          content={
+            frontMatter.description || "Open source Visual Regression Testing."
+          }
         />
       </>
     );
@@ -34,7 +43,7 @@ export default {
     text: (
       <span>
         AGPL-3.0-or-later {new Date().getFullYear()} ©{" "}
-        <a href="https://nextra.site" target="_blank">
+        <a href="https://pixeleye.io" target="_blank">
           Pixeleye
         </a>
         .
