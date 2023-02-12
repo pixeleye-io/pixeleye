@@ -151,17 +151,36 @@ importers:
 
   docs:
     specifiers:
+      '@pixeleye/tailwind-config': '*'
+      '@types/node': 18.0.0
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      class-variance-authority: 0.4.0
+      eslint: 8.32.0
       next: 13.1.6
       nextra: ^2.2.14
       nextra-theme-docs: ^2.2.14
+      postcss: 8.4.21
       react: 18.2.0
       react-dom: 18.2.0
+      tailwindcss: 3.2.4
+      typescript: 4.9.4
     dependencies:
+      '@pixeleye/tailwind-config': link:../packages/config/tailwind
+      class-variance-authority: 0.4.0_typescript@4.9.4
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       nextra: 2.2.14_3vryta7zmbcsw4rrqf4axjqggm
       nextra-theme-docs: 2.2.14_u6qwm625rg3t7ll2t4ybomvrai
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      '@types/node': 18.0.0
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      postcss: 8.4.21
+      tailwindcss: 3.2.4_postcss@8.4.21
+      typescript: 4.9.4
 
   packages/api:
     specifiers:

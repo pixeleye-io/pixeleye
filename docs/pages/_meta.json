@@ -1,3 +1,10 @@
 {
-  "index": "Getting Started"
+  "index": {
+    "display": "hidden",
+    "theme": {
+      "layout": "raw",
+      "sidebar": false,
+      "toc": true
+    }
+  }
 }
