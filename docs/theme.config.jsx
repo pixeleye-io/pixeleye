@@ -28,7 +28,10 @@ export default {
     const { frontMatter } = useConfig();
     return (
       <>
-        <meta property="og:url" content={`https://pixeleye.io/${asPath}`} />
+        <meta
+          property="og:url"
+          content={`https://docs.pixeleye.io/${asPath}`}
+        />
         <meta property="og:title" content={frontMatter.title || "Pixeleye"} />
         <meta
           property="og:description"
