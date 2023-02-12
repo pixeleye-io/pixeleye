@@ -11,7 +11,7 @@ export default {
     key: "development",
     text: (
       <a href="https://github.com/pixeleye-io/pixeleye" target="_blank">
-        Pixeleye is currently in development, contribute →
+        Pixeleye is currently in development. Click to Contribute →
       </a>
     ),
   },
