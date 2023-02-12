@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-    provider     = "mysql"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 enum ProjectRole {
@@ -41,8 +40,6 @@ model Build {
     id        String  @id @default(cuid())
     Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId String
-
-    @@index([projectId])
 }
 
 model Team {
@@ -62,8 +59,6 @@ model UserOnTeam {
     role   TeamRole
 
     @@id([teamId, userId])
-    @@index([teamId])
-    @@index([userId])
 }
 
 model Source {
@@ -76,9 +71,6 @@ model Source {
     User            User?      @relation(fields: [userId], references: [id])
     userId          String?
     Project         Project[]
-
-    @@index([teamId])
-    @@index([userId])
 }
 
 model Project {
@@ -93,9 +85,6 @@ model Project {
     users     UserOnProject[]
     Team      Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId    String?
-
-    @@index([sourceId])
-    @@index([teamId])
 }
 
 model UserOnProject {
@@ -106,8 +95,6 @@ model UserOnProject {
     role      ProjectRole
 
     @@id([projectId, userId])
-    @@index([projectId])
-    @@index([userId])
 }
 
 // @see https://next-auth.js.org/schemas/models
@@ -128,7 +115,6 @@ model Account {
     user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
-    @@index([userId])
 }
 
 model Session {
@@ -137,8 +123,6 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
 }
 
 model User {

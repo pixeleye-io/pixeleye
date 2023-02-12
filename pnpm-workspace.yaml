@@ -2,6 +2,7 @@ packages:
   - apps/client
   - apps/github
   - apps/cli
+  - apps/node
   - packages/hooks
   - packages/utils
   - packages/api
@@ -9,3 +10,4 @@ packages:
   - packages/db
   - packages/ui
   - packages/config/*
+  - docs

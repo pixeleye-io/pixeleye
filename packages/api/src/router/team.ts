@@ -5,7 +5,11 @@ export const teamRouter = createTRPCRouter({
   getUserTeams: protectedProcedure.query(async ({ ctx }) => {
     return ctx.prisma.team.findMany({
       where: {
-        userId: ctx.session.user.id,
+        users: {
+          some: {
+            userId: ctx.session.user.id,
+          },
+        },
       },
     });
   }),

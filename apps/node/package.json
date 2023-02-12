@@ -1,19 +1,22 @@
 {
-  "name": "@pixeleye/github",
-  "version": "0.0.0",
+  "name": "@pixeleye/node",
+  "version": "0.0.1",
   "dependencies": {
-    "@octokit/app": "^13.1.2"
+    "@pixeleye/api": "*",
+    "@trpc/client": "10.9.0",
+    "@types/node": "18.0.0",
+    "sharp": "^0.31.3"
   },
   "devDependencies": {
     "eslint": "8.32.0",
     "typescript": "4.9.4"
   },
-  "license": "AGPL-3.0-or-later",
+  "license": "MIT",
   "main": "./index.ts",
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
-  "types": "./index.tsx"
+  "types": "./index.ts"
 }

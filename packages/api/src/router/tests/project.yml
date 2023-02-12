@@ -1,0 +1,40 @@
+version: "1.1"
+name: tRPC
+tests:
+  getTeamProjects-unauthorised:
+    steps:
+      - name: Query
+        http:
+          url: http://localhost:3000/api/trpc
+          trpc:
+            query:
+              project/getTeamProjects: Foo
+          check:
+            status: 401
+  getTeamProjects-authorised:
+    steps:
+      - name: getTeamQuery
+        http:
+          url: http://localhost:3000/api/trpc
+          cookies:
+            next-auth.session-token: sessionToken
+          trpc:
+            query:
+              team/getUserTeam: {}
+          check:
+            status: /^20/
+          captures:
+            teamId:
+              jsonpath: $.id
+      - name: Query
+        http:
+          url: http://localhost:3000/api/trpc
+          cookies:
+            next-auth.session-token: sessionToken
+          trpc:
+            query:
+              project/getTeamProjects:
+                json:
+                  teamId: ${{captures.teamId}}}
+          check:
+            status: 200

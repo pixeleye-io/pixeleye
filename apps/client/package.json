@@ -2,6 +2,7 @@
   "name": "@pixeleye/client",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "build": "pnpm with-env next build",
     "dev": "concurrently \"pnpm:dev:*\"",

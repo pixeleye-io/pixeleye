@@ -1,6 +1,7 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { refreshToken } from "@octokit/oauth-methods";
 import { prisma } from "@pixeleye/db";
-import { TokenSet, type DefaultSession, type NextAuthOptions } from "next-auth";
+import { DefaultSession, type NextAuthOptions } from "next-auth";
 import Email from "next-auth/providers/email";
 // import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
@@ -33,53 +34,43 @@ declare module "next-auth" {
  **/
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    async session({ session, user, token }) {
+    async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
         // session.user.role = user.role; <-- put other properties on the session here
       }
       // console.log(user, session, token);
 
-      const [github] = await prisma.account.findMany({
-        where: { userId: user.id, provider: "github" },
+      const github = await prisma.account.findFirst({
+        where: {
+          userId: user.id,
+          provider: "github",
+        },
       });
 
-      if (github?.expires_at! < Date.now() / 1000) {
+      if (github?.expires_at && github.expires_at < Date.now() / 1000) {
         // If the access token has expired, try to refresh it
         try {
-          // https://accounts.google.com/.well-known/openid-configuration
-          // We need the `token_endpoint`.
-          const response = await fetch(
-            "https://github.com/login/oauth/access_token",
-            {
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                Accept: "application/json",
-              },
-              body: new URLSearchParams({
-                grant_type: "refresh_token",
-                client_id: process.env.GITHUB_APP_CLIENT_ID!,
-                client_secret: process.env.GITHUB_APP_CLIENT_SECRET!,
-                refresh_token: github?.refresh_token!,
-              }),
-              method: "POST",
-            },
-          );
-
-          const tokens: TokenSet = await response.json();
-
-          if (!response.ok || tokens.error) throw tokens;
+          const { data } = await refreshToken({
+            clientType: "github-app",
+            clientId: process.env.GITHUB_APP_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_APP_CLIENT_SECRET!,
+            refreshToken: github.refresh_token!,
+          });
 
           await prisma.account.update({
             data: {
-              access_token: tokens.access_token,
-              expires_at: Date.now() / 1000 + (tokens as any).expires_in,
-              refresh_token: tokens.refresh_token ?? github!.refresh_token,
+              access_token: data.access_token,
+              expires_at: Date.now() / 1000 + data.expires_in,
+              refresh_token: data.refresh_token ?? github.refresh_token,
+              refresh_token_expires_in:
+                data.refresh_token_expires_in ??
+                github.refresh_token_expires_in,
             },
             where: {
               provider_providerAccountId: {
                 provider: "github",
-                providerAccountId: github!.providerAccountId,
+                providerAccountId: github.providerAccountId,
               },
             },
           });

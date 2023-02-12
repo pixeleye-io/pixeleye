@@ -7,7 +7,6 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 
-import { refreshToken } from "@octokit/oauth-methods";
 import { getServerSession, type Session } from "@pixeleye/auth";
 import { prisma } from "@pixeleye/db";
 import { getUserOctokit } from "@pixeleye/github";
@@ -162,53 +161,3 @@ const enforceUserIsAuthedGithub = t.middleware(async ({ ctx, next }) => {
 export const protectedProcedureGithub = t.procedure.use(
   enforceUserIsAuthedGithub,
 );
-
-const refreshGitHubAccessToken = async (
-  userId: string,
-  refresh_token: string,
-) => {
-  const params = new URLSearchParams({
-    refresh_token,
-    grant_type: "refresh_token",
-    client_id: process.env.GITHUB_APP_CLIENT_ID!,
-    client_secret: process.env.GITHUB_APP_CLIENT_SECRET!,
-  });
-  try {
-    const response = await fetch(
-      `https://github.com/login/oauth/access_token?${params}`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-        method: "POST",
-      },
-    );
-
-    const data = await response.json();
-
-    if (data.error) {
-      throw new Error(data.error_description);
-    }
-
-    const accessTokenExpires = Date.now() / 1000 + data.expires_in; // seconds
-
-    await prisma.account.updateMany({
-      where: {
-        userId,
-      },
-      data: {
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-        refresh_token_expires_in: data.refresh_token_expires_in,
-        expires_at: accessTokenExpires,
-        token_type: data.token_type,
-        scope: data.scope,
-      },
-    });
-
-    return accessTokenExpires;
-  } catch (error: any) {
-    console.error(error);
-    throw new Error(error?.message);
-  }
-};

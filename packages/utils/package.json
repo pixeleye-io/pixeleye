@@ -9,7 +9,7 @@
     "react-dom": "18.2.0",
     "typescript": "4.9.4"
   },
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "main": "./index.tsx",
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
