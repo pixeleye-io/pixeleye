@@ -33,7 +33,7 @@ export default {
         <meta
           property="og:description"
           content={
-            frontMatter.description || "Open source Visual Regression Testing."
+            frontMatter.description || "Open source Visual Regression Testing"
           }
         />
       </>
