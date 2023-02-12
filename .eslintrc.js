@@ -14,6 +14,7 @@ const config = {
           "./tsconfig.json",
           "./apps/*/tsconfig.json",
           "./packages/*/tsconfig.json",
+          "./docs/tsconfig.json",
         ],
       },
       rules: {
