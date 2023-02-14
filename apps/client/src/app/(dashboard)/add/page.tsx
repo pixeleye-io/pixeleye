@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Container, Modal } from "@pixeleye/ui";
+import { useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { api } from "~/utils/api";
 
@@ -53,6 +54,8 @@ function ImportCard({ name, connected, imageUrl, onClick }: ImportCardProps) {
   );
 }
 
+export const API_SECRET = "API_SECRET";
+
 function GithubModal() {
   const { data: installs } = api.github.getInstallations.useQuery();
 
@@ -65,8 +68,20 @@ function GithubModal() {
     { enabled: Boolean(installationId) },
   );
 
+  const router = useRouter();
+
+  const queryClient = useQueryClient();
+
   const { mutateAsync: createProject, isLoading } =
-    api.project.createProject.useMutation();
+    api.project.createProject.useMutation({
+      onSuccess: (data) => {
+        console.log(data);
+        if (data) {
+          queryClient.setQueryData([API_SECRET, data.id], data.secret);
+          router.push(`/project/${data.id}`);
+        }
+      },
+    });
 
   return (
     <ul

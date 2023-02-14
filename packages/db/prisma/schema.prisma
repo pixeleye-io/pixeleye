@@ -36,10 +36,68 @@ enum TeamType {
     USER
 }
 
+model Image {
+    id                    String             @id @default(cuid())
+    hash                  String             @unique
+    createdAt             DateTime           @default(now())
+    baseVisualDifferences VisualDifference[] @relation("baseImage")
+    visualDiffernces      VisualDifference[] @relation("image")
+    visualSnapshots       VisualSnapshot[]
+}
+
+enum VisualDifferenceStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
+
+enum VisualDifferenceError {
+    BASE_IMAGE_NOT_FOUND
+    IMAGE_NOT_FOUND
+}
+
+model VisualDifference {
+    id          String                  @id @default(cuid())
+    baseImage   Image                   @relation("baseImage", fields: [baseImageId], references: [id], onDelete: Cascade)
+    baseImageId String
+    image       Image                   @relation("image", fields: [imageId], references: [id], onDelete: Cascade)
+    imageId     String
+    status      VisualDifferenceStatus
+    errorr      VisualDifferenceError[]
+
+    createdAt      DateTime         @default(now())
+    visualSnapshot VisualSnapshot[]
+}
+
+model VisualSnapshot {
+    id                 String           @id @default(cuid())
+    builds             Build[]
+    image              Image?           @relation(fields: [imageId], references: [id])
+    imageId            String?
+    visualDifferences  VisualDifference @relation(fields: [visualDifferenceId], references: [id], onDelete: Cascade)
+    createdAt          DateTime         @default(now())
+    visualDifferenceId String
+}
+
+model DomSnapshot {
+    id        String   @id @default(cuid())
+    builds    Build[]
+    createdAt DateTime @default(now())
+}
+
 model Build {
-    id        String  @id @default(cuid())
-    Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId String
+    id               String           @id @default(cuid())
+    sha              String
+    Project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId        String
+    visualSnapshots  VisualSnapshot[]
+    domSnapshots     DomSnapshot[]
+    commitMessage    String?
+    pullRequestTitle String?
+    url              String?
+    createdAt        DateTime         @default(now())
+
+    @@unique([projectId, sha])
 }
 
 model Team {
@@ -74,17 +132,18 @@ model Source {
 }
 
 model Project {
-    id        String          @id @default(cuid())
-    gitId     String
-    name      String
-    tokenHash String          @unique @default(cuid())
-    url       String?
-    source    Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-    sourceId  String
-    builds    Build[]
-    users     UserOnProject[]
-    Team      Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    teamId    String?
+    id       String          @id @default(cuid())
+    gitId    String
+    name     String
+    key      String          @unique @default(cuid())
+    secret   String
+    url      String?
+    source   Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+    sourceId String
+    builds   Build[]
+    users    UserOnProject[]
+    Team     Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    teamId   String?
 }
 
 model UserOnProject {
@@ -132,8 +191,6 @@ model User {
     emailVerified DateTime?
     nickName      String?
     image         String?
-    password      String?
-    salt          String?
     accounts      Account[]
     sessions      Session[]
     UserOnTeam    UserOnTeam[]

@@ -1,10 +1,22 @@
 import type { AppRouter } from "@pixeleye/api";
-import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import { transformer } from "@pixeleye/api/transformer";
+import {
+  createTRPCProxyClient,
+  httpBatchLink,
+  inferRouterProxyClient,
+} from "@trpc/client";
 
 export const api = createTRPCProxyClient<AppRouter>({
+  transformer,
   links: [
     httpBatchLink({
-      url: process.env.PIXELEYE_URL!,
+      url: `${process.env.PIXELEYE_URL!}/api/trpc`,
     }),
   ],
-} as any);
+});
+
+/**
+ * Inference helpers for output types
+ * @example type HelloOutput = RouterOutputs['example']['hello']
+ **/
+export type RouterType = inferRouterProxyClient<AppRouter>;

@@ -1,35 +1,35 @@
 import { authOptions } from "@pixeleye/auth";
 import { getServerSession } from "next-auth";
 import { serverApi } from "~/utils/server";
+import TokenView from "./token";
 
 export default async function ProjectPage({
   params,
 }: {
   params: { id: string };
 }) {
+  const projectId = params.id;
   const session = await getServerSession(authOptions);
-  const data = await serverApi(session).project.getProject({ id: params.id });
-
-  const builds = await serverApi(session).project.getBuilds({
-    projectId: params.id,
+  const data = await serverApi(session).project.getProjectWithBuilds({
+    id: projectId,
   });
 
   return (
     <div>
-      <h1>Project {data.id}</h1>
-      {builds && builds.length > 0 ? (
+      <h1>Project {projectId}</h1>
+      {data.builds && data.builds.length > 0 ? (
         <>
           <p>Builds</p>
           <ul>
-            {builds.map((build) => (
+            {data.builds.map((build) => (
               <li key={build.id}>{build.id}</li>
             ))}
           </ul>
         </>
       ) : (
         <>
-          <p>No builds</p>
-          <p>Token: {data.tokenHash}</p>
+          <p>Get Started</p>
+          <TokenView projectKey={data.key} projectId={projectId} />
         </>
       )}
     </div>

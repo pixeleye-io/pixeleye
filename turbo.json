@@ -18,6 +18,7 @@
       "outputs": [".next/**"]
     },
     "lint": {},
+    "test": {},
     "clean": {
       "cache": false
     },

@@ -58,10 +58,12 @@ export const authOptions: NextAuthOptions = {
             refreshToken: github.refresh_token!,
           });
 
+          console.log(data);
+
           await prisma.account.update({
             data: {
               access_token: data.access_token,
-              expires_at: Date.now() / 1000 + data.expires_in,
+              expires_at: Math.floor(Date.now() / 1000) + data.expires_in,
               refresh_token: data.refresh_token ?? github.refresh_token,
               refresh_token_expires_in:
                 data.refresh_token_expires_in ??

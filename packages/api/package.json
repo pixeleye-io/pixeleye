@@ -6,14 +6,17 @@
     "@pixeleye/auth": "*",
     "@pixeleye/db": "*",
     "@pixeleye/github": "*",
+    "@pixeleye/storage": "*",
     "@trpc/client": "10.9.0",
     "@trpc/server": "10.9.0",
+    "bcryptjs": "^2.4.3",
     "concurrently": "7.6.0",
     "stepci": "^2.6.4",
     "superjson": "1.9.1",
     "zod": "3.20.2"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "eslint": "8.32.0",
     "typescript": "4.9.4"
   },
@@ -23,7 +26,7 @@
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
-    "test": "concurrently \"pnpm:test:*\"",
+    "test-api": "concurrently \"pnpm:test:*\"",
     "test:project": "stepci run ./src/router/tests/project.yml"
   },
   "types": "./index.ts"

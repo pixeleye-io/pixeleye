@@ -1,5 +1,7 @@
+import crypto from "crypto";
 import { PrismaClient } from "@pixeleye/db";
 import { TRPCError } from "@trpc/server";
+import bycrypot from "bcryptjs";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -21,10 +23,13 @@ async function createGithubProject(
   userId: string,
   input: z.infer<typeof createProjectInput>,
 ) {
-  return prisma.project.create({
+  const rawSecret = crypto.randomUUID();
+  const secret = bycrypot.hashSync(rawSecret);
+  const project = await prisma.project.create({
     data: {
       name: input.name,
       url: input.url,
+      secret,
       source: {
         connectOrCreate: {
           where: {
@@ -51,6 +56,12 @@ async function createGithubProject(
       },
     },
   });
+
+  return {
+    secret: rawSecret,
+    key: project.key,
+    id: project.id,
+  };
 }
 
 export const projectRouter = createTRPCRouter({
@@ -137,7 +148,45 @@ export const projectRouter = createTRPCRouter({
           },
         },
         include: {
-          project: true,
+          project: {
+            select: {
+              key: true,
+              id: true,
+              name: true,
+              url: true,
+              gitId: true,
+              sourceId: true,
+              teamId: true,
+            },
+          },
+        },
+      });
+      if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });
+      return project.project;
+    }),
+  getProjectWithBuilds: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.prisma.userOnProject.findUnique({
+        where: {
+          projectId_userId: {
+            projectId: input.id,
+            userId: ctx.session.user.id,
+          },
+        },
+        include: {
+          project: {
+            select: {
+              key: true,
+              id: true,
+              name: true,
+              url: true,
+              gitId: true,
+              sourceId: true,
+              teamId: true,
+              builds: true,
+            },
+          },
         },
       });
       if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });

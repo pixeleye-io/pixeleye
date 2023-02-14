@@ -1,14 +1,29 @@
+import { storage } from "@pixeleye/storage";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const snapshotRouter = createTRPCRouter({
-  getImageUrl: protectedProcedure
+  getImageUploadUrl: publicProcedure
     .input(
       z.object({
         hash: z.string(),
       }),
     )
-    .query(() => {
-      return "you can see this secret message!";
+    .query(async ({ ctx, input }) => {
+      const existing = await ctx.prisma.image.findUnique({
+        where: {
+          hash: input.hash,
+        },
+      });
+      if (existing) {
+        return {
+          exists: true,
+        };
+      }
+      const data = await storage.getUploadUrl(input.hash);
+      return {
+        exists: false,
+        data,
+      };
     }),
 });

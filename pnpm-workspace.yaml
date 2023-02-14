@@ -10,4 +10,5 @@ packages:
   - packages/db
   - packages/ui
   - packages/config/*
+  - packages/storage
   - docs

@@ -12,6 +12,7 @@ import { prisma } from "@pixeleye/db";
 import { getUserOctokit } from "@pixeleye/github";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import bcrypt from "bcryptjs";
 import superjson from "superjson";
 
 /**
@@ -25,6 +26,7 @@ import superjson from "superjson";
  */
 type CreateContextOptions = {
   session: Session | null;
+  projectId?: string;
 };
 
 /**
@@ -40,6 +42,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
+    projectId: opts.projectId,
   };
 };
 
@@ -54,8 +57,33 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
 
+  let projectId: string | undefined;
+
+  if (req.headers.authorization) {
+    const [key, secret] = Buffer.from(req.headers.authorization, "base64")
+      .toString()
+      .split(":");
+
+    if (key && secret) {
+      const project = await prisma.project.findUnique({
+        where: {
+          key,
+        },
+        select: {
+          id: true,
+          secret: true,
+        },
+      });
+
+      if (project && bcrypt.compareSync(secret, project.secret)) {
+        projectId = project?.id;
+      }
+    }
+  }
+
   return createInnerTRPCContext({
     session,
+    projectId,
   });
 };
 
@@ -136,13 +164,6 @@ const enforceUserIsAuthedGithub = t.middleware(async ({ ctx, next }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  // if (githubAccount.expires_at! < Date.now() / 1000) {
-  //   await refreshGitHubAccessToken(
-  //     ctx.session.user.id,
-  //     githubAccount.refresh_token!,
-  //   );
-  // }
-
   const userOctokit = await getUserOctokit({
     refreshToken: githubAccount.refresh_token!,
     refreshTokenExpiresAt: githubAccount.refresh_token_expires_in!.toString(),
@@ -161,3 +182,17 @@ const enforceUserIsAuthedGithub = t.middleware(async ({ ctx, next }) => {
 export const protectedProcedureGithub = t.procedure.use(
   enforceUserIsAuthedGithub,
 );
+
+const enforceProjectAccess = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.projectId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      projectId: ctx.projectId,
+    },
+  });
+});
+
+export const protectedProcedureProject = t.procedure.use(enforceProjectAccess);

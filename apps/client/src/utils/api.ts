@@ -1,6 +1,6 @@
 import { AppRouter } from "@pixeleye/api";
 import { transformer } from "@pixeleye/api/transformer";
-import { httpBatchLink, loggerLink } from "@trpc/client";
+import { createTRPCProxyClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
@@ -28,6 +28,15 @@ export const api = createTRPCNext<AppRouter>({
     };
   },
   ssr: false,
+});
+
+export const apiClient = createTRPCProxyClient<AppRouter>({
+  transformer,
+  links: [
+    httpBatchLink({
+      url: `${getBaseUrl()}/api/trpc`,
+    }),
+  ],
 });
 
 /**

@@ -3,7 +3,7 @@
   "main": "index.js",
   "scripts": {
     "build": "next build && next export",
-    "dev": "next dev -p 3000"
+    "dev": "next dev -p 4000"
   },
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
