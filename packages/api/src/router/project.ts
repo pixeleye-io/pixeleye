@@ -164,6 +164,33 @@ export const projectRouter = createTRPCRouter({
       if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });
       return project.project;
     }),
+  regenerateProjectSecret: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const project = await ctx.prisma.userOnProject.findUnique({
+        where: {
+          projectId_userId: {
+            projectId: input.id,
+            userId: ctx.session.user.id,
+          },
+        },
+        include: {
+          project: true,
+        },
+      });
+      if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });
+      const rawSecret = crypto.randomUUID();
+      const secret = bycrypot.hashSync(rawSecret);
+      await ctx.prisma.project.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          secret,
+        },
+      });
+      return rawSecret;
+    }),
   getProjectWithBuilds: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

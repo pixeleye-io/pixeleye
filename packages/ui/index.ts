@@ -16,3 +16,5 @@ export * from "./src/divider";
 export { default as Divider } from "./src/divider";
 export * from "./src/header";
 export { default as Header } from "./src/header";
+export * from "./src/spinner";
+export { default as Spinner } from "./src/spinner";
