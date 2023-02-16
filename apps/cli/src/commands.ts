@@ -18,7 +18,6 @@ program
   .option("-k, --key <key>", "Pixeleye API key")
   .option("-s, --secret <secret>", "Pixeleye API secret")
   .description("Upload your screenshots to pixeleye")
-  // .setOptionValueWithSource("key", test, "config")
   .hook("preAction", async (hookedCommand, subCommand) => {
     const commands = hookedCommand.opts();
     const configPath = commands.config;
