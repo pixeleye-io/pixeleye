@@ -1,9 +1,9 @@
 import { storage } from "@pixeleye/storage";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedureProject } from "../trpc";
 
 export const snapshotRouter = createTRPCRouter({
-  getImageUploadUrl: publicProcedure
+  getImageUploadUrl: protectedProcedureProject
     .input(
       z.object({
         hash: z.string(),
@@ -21,6 +21,12 @@ export const snapshotRouter = createTRPCRouter({
         };
       }
       const data = await storage.getUploadUrl(input.hash);
+      // TODO - handle image never being uploaded
+      await ctx.prisma.image.create({
+        data: {
+          hash: input.hash,
+        },
+      });
       return {
         exists: false,
         data,

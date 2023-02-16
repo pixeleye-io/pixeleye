@@ -5,8 +5,10 @@
     "@pixeleye/api": "*",
     "@trpc/client": "10.9.0",
     "@types/node": "18.0.0",
+    "node-fetch": "^3.3.0",
     "sharp": "^0.31.3"
   },
+  "type": "module",
   "devDependencies": {
     "@types/sharp": "^0.31.1",
     "eslint": "8.32.0",

@@ -9,3 +9,7 @@ select {
 option:hover {
   background-color: yellow;
 }
+
+.disable-transition * {
+  transition: none !important;
+}

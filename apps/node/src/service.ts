@@ -1,4 +1,5 @@
 import { Blob } from "buffer";
+import fetch from "node-fetch";
 import sharp from "sharp";
 import { RouterType, api } from "./api";
 import { generateHash } from "./image";
@@ -14,7 +15,7 @@ type DataType = Exclude<
   undefined
 >;
 
-export async function upload(file: Buffer, data: DataType, name: string) {
+export function upload(file: Buffer, data: DataType, name: string) {
   const formData = new FormData();
 
   Object.entries(data.fields).forEach(([key, value]) => {
@@ -38,7 +39,7 @@ export async function uploadImage(img: Buffer) {
   const optimisedImg = await optimiseImage(img);
   const hash = generateHash(optimisedImg);
   const { exists, data } = await createUpload(hash);
-  if (exists && data?.url) {
+  if (!exists && data?.url) {
     return upload(optimisedImg, data, hash);
   }
 }

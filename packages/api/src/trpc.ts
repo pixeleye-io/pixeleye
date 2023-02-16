@@ -59,10 +59,20 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   let projectId: string | undefined;
 
-  if (req.headers.authorization) {
-    const [key, secret] = Buffer.from(req.headers.authorization, "base64")
+  console.log("auth dkasjflkdsajf;klds", req.headers.authorization);
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Basic ")
+  ) {
+    const [key, secret] = Buffer.from(
+      req.headers.authorization.replace("Basic ", ""),
+      "base64",
+    )
       .toString()
       .split(":");
+
+    console.log(key, secret);
 
     if (key && secret) {
       const project = await prisma.project.findUnique({

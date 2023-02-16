@@ -24,7 +24,7 @@ function Avatar() {
     .join("");
 
   return (
-    <span className="relative z-0 flex items-center justify-center w-8 h-8 rounded-full select-none bg-neutral-300 dark:bg-neutral-700">
+    <span className="relative z-0 flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full select-none dark:bg-gray-700">
       {session.data?.user.image && !imageFail ? (
         <Image
           onError={() => setImageFail(true)}
@@ -222,24 +222,26 @@ export function NavBar({ teams }: NavBarProps) {
               <Avatar />
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content className="relative z-40 p-4 bg-white border rounded dark:bg-black border-neutral-300 dark:border-neutral-700">
-                <DropdownMenu.Item asChild>
-                  <Select
-                    label="Theme"
-                    value={theme}
-                    onChange={(event) =>
-                      setTheme(event.currentTarget.value as Theme)
-                    }
-                  >
-                    <Select.Item value="system">System</Select.Item>
-                    <Select.Item value="dark">Dark</Select.Item>
-                    <Select.Item value="light">Light</Select.Item>
-                  </Select>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator />
-                <DropdownMenu.Item>…</DropdownMenu.Item>
-                <DropdownMenu.Separator />
-                <DropdownMenu.Item>…</DropdownMenu.Item>
+              <DropdownMenu.Content className="relative z-40 border border-gray-200 rounded bg-gray-50 dark:bg-gray-900 dark:border-gray-800">
+                <DropdownMenu.Group className="px-4 py-2">
+                  <DropdownMenu.Item>…</DropdownMenu.Item>
+                  <DropdownMenu.Item>…</DropdownMenu.Item>
+                </DropdownMenu.Group>
+                <DropdownMenu.Group className="px-4 py-2 border-t border-gray-200 rounded-b bg-gray-50 dark:bg-gray-850 dark:border-gray-800">
+                  <DropdownMenu.Item asChild>
+                    <Select
+                      label="Theme"
+                      value={theme}
+                      onChange={(event) =>
+                        setTheme(event.currentTarget.value as Theme)
+                      }
+                    >
+                      <Select.Item value="system">System</Select.Item>
+                      <Select.Item value="dark">Dark</Select.Item>
+                      <Select.Item value="light">Light</Select.Item>
+                    </Select>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Group>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>

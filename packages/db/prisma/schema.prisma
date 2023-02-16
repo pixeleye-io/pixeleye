@@ -69,6 +69,13 @@ model VisualDifference {
     visualSnapshot VisualSnapshot[]
 }
 
+enum BrowserEnum {
+    CHROME
+    FIREFOX
+    SAFARI
+    EDGE
+}
+
 model VisualSnapshot {
     id                 String           @id @default(cuid())
     builds             Build[]
@@ -77,6 +84,7 @@ model VisualSnapshot {
     visualDifferences  VisualDifference @relation(fields: [visualDifferenceId], references: [id], onDelete: Cascade)
     createdAt          DateTime         @default(now())
     visualDifferenceId String
+    browser            BrowserEnum?
 }
 
 model DomSnapshot {

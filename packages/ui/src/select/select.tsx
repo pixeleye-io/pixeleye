@@ -47,23 +47,29 @@ const Select: FC<SelectProps> = ({
 }) => {
   const id = useId();
   return (
-    <div className={cx(className, "relative flex flex-col-reverse")}>
+    <div
+      className={cx(
+        className,
+        "relative flex focus-within:dark:border-white hover:border-gray-700 transition hover:dark:border-gray-300 group focus-within:border-gray-900 dark:border-gray-700 border border-gray-300 bg-gray-50 rounded-md dark:bg-gray-850 ",
+      )}
+    >
+      <label
+        htmlFor={id}
+        className="px-2 my-auto text-sm font-medium text-gray-700 transition dark:text-gray-300 group-focus-within:text-gray-900 dark:group-focus-within:text-white"
+      >
+        {label}
+      </label>
       <select
         value={value}
         id={id}
         name="location"
-        className="relative block w-full py-2 pl-3 pr-10 mt-1 text-base bg-white border border-gray-300 rounded-md cursor-pointer dark:bg-gray-900 peer dark:border-gray-700 focus:outline-none dark:focus:border-white sm:text-sm"
+        className="relative block w-full py-2 pl-3 pr-10 text-base transition bg-white border-l cursor-pointer dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 focus:text-gray-900 focus:dark:text-white rounded-r-md focus:outline-none sm:text-sm"
         {...rest}
       >
         {children}
       </select>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 peer-focus:text-gray-900 dark:text-gray-300 dark:peer-focus:text-white"
-      >
-        {label}
-      </label>
-      <ChevronDownIcon className="absolute w-5 h-5 text-white right-2 bottom-2" />
+
+      <ChevronDownIcon className="absolute w-5 h-5 text-gray-700 transition pointer-events-none dark:text-gray-300 right-2 bottom-2 group-focus-within:text-gray-900 dark:group-focus-within:text-white" />
     </div>
   );
 };

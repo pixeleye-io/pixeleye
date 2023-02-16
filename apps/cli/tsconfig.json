@@ -4,7 +4,4 @@
     "src",
     "index.ts"
   ],
-  "compilerOptions": {
-    "outDir": "./release/dist",
-  }
 }

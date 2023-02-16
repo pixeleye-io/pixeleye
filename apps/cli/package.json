@@ -2,8 +2,18 @@
   "name": "@pixeleye/cli",
   "private": true,
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "@pixeleye/node": "*",
+    "chalk": "^5.2.0",
+    "commander": "^10.0.0",
+    "esbuild": "^0.17.8",
+    "node-fetch": "^3.3.0",
+    "require-relative": "^0.8.7",
+    "sharp": "^0.31.3"
+  },
+  "type": "module",
   "devDependencies": {
+    "@types/node": "18.0.0",
     "eslint": "8.32.0",
     "typescript": "4.9.4"
   },
@@ -13,7 +23,8 @@
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
-    "build": "tsc"
+    "build": "node ./build.js",
+    "dev": "node ./out.js upload ./test --config ./pixeleye.config.js"
   },
   "types": "./index.tsx"
 }

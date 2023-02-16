@@ -53,8 +53,8 @@ export const authOptions: NextAuthOptions = {
         try {
           const { data } = await refreshToken({
             clientType: "github-app",
-            clientId: process.env.GITHUB_APP_CLIENT_ID!,
-            clientSecret: process.env.GITHUB_APP_CLIENT_SECRET!,
+            clientId: process.env.GITHUB_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
             refreshToken: github.refresh_token!,
           });
 
@@ -89,8 +89,8 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_APP_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_APP_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
     Email({
       server: {
