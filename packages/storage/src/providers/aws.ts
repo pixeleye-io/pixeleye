@@ -12,10 +12,10 @@ const s3Client = new S3Client({
   },
 });
 
-async function getUploadUrl(hash: string) {
+async function getUploadUrl(hash: string, teamId: string) {
   const post = await createPresignedPost(s3Client, {
     Bucket: "pixeleye-images-dev",
-    Key: hash,
+    Key: `teamId/${hash}`,
     Fields: {
       acl: "public-read",
       "Content-Type": "png",

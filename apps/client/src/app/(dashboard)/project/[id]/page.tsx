@@ -1,8 +1,96 @@
+import Link from "next/link";
+import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { authOptions } from "@pixeleye/auth";
 import { Container } from "@pixeleye/ui";
+import Status, { StatusType } from "@pixeleye/ui/src/status";
 import { getServerSession } from "next-auth";
+import { RouterOutputs } from "~/utils/api";
 import { serverApi } from "~/utils/server";
 import TokenView from "./token";
+
+function timeSince(date: Date) {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+  let interval = seconds / 31536000;
+
+  if (interval > 1) {
+    return Math.floor(interval) + " years";
+  }
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return Math.floor(interval) + " months";
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return Math.floor(interval) + " days";
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return Math.floor(interval) + " hours";
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    return Math.floor(interval) + " minutes";
+  }
+  return Math.floor(seconds) + " seconds";
+}
+
+function BuildItem({
+  build,
+}: {
+  build: RouterOutputs["project"]["getProjectWithBuilds"]["builds"][0];
+}) {
+  return (
+    <li>
+      <Link
+        href={`/build/${build.id}`}
+        className="block transition border border-gray-200 rounded-md active:rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+      >
+        <div className="flex items-center px-4 py-4 sm:px-6">
+          <div className="flex-1 min-w-0 sm:flex sm:items-center sm:justify-between">
+            <div className="flex items-center space-x-6">
+              <Status status={build.status} size="lg" />
+              <div className="truncate">
+                <div className="flex text-sm">
+                  <p className="font-medium text-gray-900 truncate dark:text-white">
+                    {build.commitMessage || build.id}
+                  </p>
+                </div>
+                <div className="flex mt-2">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 font-base">
+                    {build.branch}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-shrink-0 mt-4 sm:mt-0 sm:ml-5">
+              <div className="flex -space-x-1 overflow-hidden">
+                <div className="flex items-center text-sm text-gray-500">
+                  <p>
+                    <span>{timeSince(build.createdAt)}</span> ago
+                    {build.author && (
+                      <>
+                        {" "}
+                        by <span>{build.author}</span>
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex-shrink-0 ml-5">
+            <ChevronRightIcon
+              className="w-5 h-5 text-gray-400"
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+      </Link>
+    </li>
+  );
+}
 
 export default async function ProjectPage({
   params,
@@ -19,10 +107,12 @@ export default async function ProjectPage({
     <Container>
       {data.builds && data.builds.length > 0 ? (
         <>
-          <p>Builds</p>
-          <ul>
+          <div className="my-8">
+            <h2 className="text-3xl font-semibold">Builds</h2>
+          </div>
+          <ul className="space-y-4">
             {data.builds.map((build) => (
-              <li key={build.id}>{build.id}</li>
+              <BuildItem build={build} key={build.id} />
             ))}
           </ul>
         </>

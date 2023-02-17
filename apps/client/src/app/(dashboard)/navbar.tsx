@@ -7,6 +7,7 @@ import { useSelectedLayoutSegments } from "next/navigation";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, NavLink, Select } from "@pixeleye/ui";
+import Status, { StatusType } from "@pixeleye/ui/src/status";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Popover from "@radix-ui/react-popover";
 import { cx } from "class-variance-authority";
@@ -103,25 +104,26 @@ function TeamToggle({ name, href, teams, className }: TeamToggleProps) {
 interface Segment {
   name: string;
   value: string;
+  status?: StatusType;
 }
 
 interface BreadcrumStore {
-  segmentRepo: Record<string, Segment>;
-  setSegment: (key: string, segment: Segment) => void;
+  segmentRepo: Record<string, Segment[]>;
+  setSegment: (key: string, segment: Segment[]) => void;
   deleteSegment: (key: string) => void;
 }
 
 export const useRegisterSegment = (
   key: string,
   order: number,
-  segment?: Segment | false,
+  segment?: Segment | Segment[] | false,
 ) => {
   const setSegment = useBreadcrumStore((state) => state.setSegment);
   const deleteSegment = useBreadcrumStore((state) => state.deleteSegment);
 
   useEffect(() => {
     if (!segment) return;
-    setSegment(`${key}-${order}`, segment);
+    setSegment(`${key}-${order}`, Array.isArray(segment) ? segment : [segment]);
     return () => deleteSegment(`${key}-${order}`);
   }, [deleteSegment, key, order, segment, setSegment]);
 };
@@ -146,7 +148,7 @@ interface RegisterSegmentProps {
   children: React.ReactNode;
   reference: string;
   order: number;
-  segment?: Segment | false;
+  segment?: Segment[] | false | Segment;
 }
 export function RegisterSegment({
   children,
@@ -154,7 +156,6 @@ export function RegisterSegment({
   order,
   segment,
 }: RegisterSegmentProps) {
-  console.log(reference, order);
   useRegisterSegment(reference, order, segment);
   return <>{children}</>;
 }
@@ -170,7 +171,7 @@ export function NavBar({ teams }: NavBarProps) {
   const segments: Segment[] = [];
   selectedSegments.forEach((segment, i) => {
     const seg = segmentRepo[`${segment}-${i + 1}`];
-    if (seg) segments.push({ value: seg.value, name: seg.name });
+    if (seg) seg.forEach((s) => segments.push(s));
   });
 
   const theme = useThemeStore((state) => state.theme);
@@ -198,17 +199,18 @@ export function NavBar({ teams }: NavBarProps) {
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
-          <TeamToggle href="#" name="AlfieJones" teams={teams} />
+          <TeamToggle href="/" name="AlfieJones" teams={teams} />
         </Breadcrumbs.Item>
         {segments.map((segment, i, array) => {
-          const value = segment;
-          const href = array
-            .slice(0, i + 1)
-            .map(({ value }) => value)
-            .join("/");
           return (
             <Breadcrumbs.Item key={segment.value} asChild>
-              <Link href={href}>{value.name}</Link>
+              <Link
+                href={segment.value}
+                className="flex items-center space-x-2"
+              >
+                {segment.status && <Status status={segment.status} />}
+                <span>{segment.name}</span>
+              </Link>
             </Breadcrumbs.Item>
           );
         })}

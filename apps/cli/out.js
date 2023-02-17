@@ -6507,6 +6507,7 @@ import { join } from "path";
 
 // ../node/src/service.ts
 import { Blob as Blob2 } from "buffer";
+import crypto2 from "crypto";
 
 // ../../node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
 import http2 from "http";
@@ -7795,6 +7796,60 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 // ../node/src/service.ts
 import sharp from "sharp";
 
+// ../node/src/image.ts
+import crypto from "crypto";
+function generateHash(img) {
+  const hash = crypto.createHash("sha256");
+  return hash.update(img).digest("hex");
+}
+
+// ../node/src/service.ts
+function service(api2) {
+  function createUpload(hash) {
+    return api2.image.getUploadUrl.query({ hash });
+  }
+  function upload2(file, data, name) {
+    const formData = new FormData();
+    Object.entries(data.fields).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    const blob = new Blob2([file], { type: "image/png" });
+    formData.append("file", blob, `${name}.png`);
+    return fetch(data.url, {
+      method: "POST",
+      body: formData
+    });
+  }
+  const optimiseImage = (img) => sharp(img).png({ palette: true }).toBuffer();
+  async function uploadImage(img) {
+    const optimisedImg = await optimiseImage(img);
+    const hash = generateHash(optimisedImg);
+    const { exists, data } = await createUpload(hash);
+    if (!exists && (data == null ? void 0 : data.url)) {
+      upload2(optimisedImg, data, hash);
+    }
+    return hash;
+  }
+  const createSnapshot = (data) => api2.snapshot.createSnapshot.mutate(data);
+  async function createBuild(snapshotIds) {
+    const sha = crypto2.randomUUID();
+    const build = await api2.build.createBuild.mutate({
+      sha,
+      visualSnapshots: snapshotIds,
+      commitMessage: "test" + Math.random(),
+      branch: "test" + Math.random()
+    });
+    return build;
+  }
+  return {
+    uploadImage,
+    upload: upload2,
+    createUpload,
+    createBuild,
+    createSnapshot
+  };
+}
+
 // ../../packages/api/transformer.ts
 var import_superjson = __toESM(require_dist3());
 var transformer = import_superjson.default;
@@ -8535,50 +8590,34 @@ function createTRPCProxyClient(opts) {
 }
 
 // ../node/src/api.ts
-var api = createTRPCProxyClient({
+var api = (url, credentials) => createTRPCProxyClient({
   transformer,
   links: [
     httpBatchLink({
-      url: `http://localhost:3000/api/trpc`,
+      url: `${url}/api/trpc`,
       fetch,
       headers: {
-        Authorization: `Basic Y2xlNzF1NDZ2MDAwN3RnY3NtdmN3MTB1ZjowN2Q4MjhlYS04ZTYwLTQ1NTYtYjZhNi1iMGI2NWZjNjUzYTE=`
+        Authorization: `Basic ${credentials}`
       }
     })
   ]
 });
 
-// ../node/src/image.ts
-import crypto from "crypto";
-function generateHash(img) {
-  const hash = crypto.createHash("sha256");
-  return hash.update(img).digest("hex");
-}
-
-// ../node/src/service.ts
-function createUpload(hash) {
-  return api.snapshot.getImageUploadUrl.query({ hash });
-}
-function upload(file, data, name) {
-  const formData = new FormData();
-  Object.entries(data.fields).forEach(([key, value]) => {
-    formData.append(key, value);
-  });
-  const blob = new Blob2([file], { type: "image/png" });
-  formData.append("file", blob, `${name}.png`);
-  return fetch(data.url, {
-    method: "POST",
-    body: formData
-  });
-}
-var optimiseImage = (img) => sharp(img).png({ palette: true }).toBuffer();
-async function uploadImage(img) {
-  const optimisedImg = await optimiseImage(img);
-  const hash = generateHash(optimisedImg);
-  const { exists, data } = await createUpload(hash);
-  if (!exists && (data == null ? void 0 : data.url)) {
-    return upload(optimisedImg, data, hash);
-  }
+// ../node/src/client.ts
+function createClient({
+  url = "https://pixeleye.io",
+  credentials
+}) {
+  const creds = Buffer.from(
+    `${credentials.key}:${credentials.secret}`
+  ).toString("base64");
+  const api2 = api(url, creds);
+  return Object.assign(
+    {
+      api: api2
+    },
+    service(api2)
+  );
 }
 
 // src/upload.ts
@@ -8590,16 +8629,30 @@ async function readAllFiles(path) {
     (files) => files.filter((file) => file.isFile() && file.name.endsWith(".png"))
   );
 }
-async function upload2(path) {
+async function upload(path, options) {
+  const client = createClient({
+    credentials: {
+      key: options.key,
+      secret: options.secret
+    },
+    url: options.url
+  });
   await readAllFiles(path).then(async (files) => {
     console.log(files);
-    await Promise.all([
+    const snaps = await Promise.all(
       files.map(
-        (file) => fs3.readFile(join(process.cwd(), path, file.name)).then((buffer) => {
-          uploadImage(buffer);
+        (file) => fs3.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => await client.uploadImage(buffer))
+      )
+    );
+    const ids = await Promise.all(
+      snaps.map(
+        (hash) => client.createSnapshot({
+          name: "test" + Math.random(),
+          hash
         })
       )
-    ]);
+    );
+    await client.createBuild(ids);
   }).catch((err) => {
     if ((err == null ? void 0 : err.code) === "ENOENT") {
       commands_default.error(`No such directory: ${path}`, {
@@ -8607,26 +8660,32 @@ async function upload2(path) {
         exitCode: 9
       });
     }
+    commands_default.error(err);
   });
 }
-var upload_default = upload2;
+var upload_default = upload;
 
 // src/commands.ts
 var program = new Command();
+var map = {
+  k: "key",
+  s: "secret",
+  u: "url"
+};
 program.command("upload").argument("<path>", "Path to screenshots, e.g. ./screenshots").option(
   "-c, --config <path>",
   "Path to config file, e.g. ./config/pixeleye.config.js",
   "pixeleye.config.js"
-).option("-k, --key <key>", "Pixeleye API key").option("-s, --secret <secret>", "Pixeleye API secret").description("Upload your screenshots to pixeleye").hook("preAction", async (hookedCommand, subCommand) => {
+).option("-k, --key <key>", "Pixeleye API key").option("-s, --secret <secret>", "Pixeleye API secret").option("-u, --url <url>", "Pixeleye API URL", "https://pixeleye.io").description("Upload your screenshots to pixeleye").hook("preAction", async (hookedCommand, subCommand) => {
   const commands = hookedCommand.opts();
   const configPath = commands.config;
   const config = configPath ? await readConfig(configPath) : {};
   for (const [key, value] of Object.entries(config)) {
-    subCommand.setOptionValue(key, value);
-    commands[key] = value;
+    const mappedKey = Object.keys(map).includes(key) ? map[key] : key;
+    subCommand.setOptionValue(mappedKey, value);
+    commands[mappedKey] = value;
   }
-  console.log(commands);
-  if (!(commands.key || commands.k) || !(commands.secret || commands.s))
+  if (!commands.key || !commands.secret)
     program.error(
       "Pixeleye API key and secret are required. Please provide them via the command line or a config file.",
       {

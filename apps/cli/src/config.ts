@@ -1,11 +1,6 @@
 import fs from "fs";
 
-interface Config {
-  apiKey: string;
-  apiSecret: string;
-}
-
-export async function readConfig(path: string): Promise<Partial<Config>> {
+export async function readConfig(path: string): Promise<Partial<any>> {
   if (fs.existsSync(path) && fs.statSync(path).isFile()) {
     const module = await import(path);
     return module.default;

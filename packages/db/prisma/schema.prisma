@@ -38,11 +38,15 @@ enum TeamType {
 
 model Image {
     id                    String             @id @default(cuid())
-    hash                  String             @unique
+    hash                  String
+    Project               Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId             String
     createdAt             DateTime           @default(now())
     baseVisualDifferences VisualDifference[] @relation("baseImage")
     visualDiffernces      VisualDifference[] @relation("image")
     visualSnapshots       VisualSnapshot[]
+
+    @@unique([projectId, hash])
 }
 
 enum VisualDifferenceStatus {
@@ -63,10 +67,8 @@ model VisualDifference {
     image       Image                   @relation("image", fields: [imageId], references: [id], onDelete: Cascade)
     imageId     String
     status      VisualDifferenceStatus
-    errorr      VisualDifferenceError[]
-
-    createdAt      DateTime         @default(now())
-    visualSnapshot VisualSnapshot[]
+    error       VisualDifferenceError[]
+    createdAt   DateTime                @default(now())
 }
 
 enum BrowserEnum {
@@ -77,33 +79,51 @@ enum BrowserEnum {
 }
 
 model VisualSnapshot {
-    id                 String           @id @default(cuid())
-    builds             Build[]
-    image              Image?           @relation(fields: [imageId], references: [id])
-    imageId            String?
-    visualDifferences  VisualDifference @relation(fields: [visualDifferenceId], references: [id], onDelete: Cascade)
-    createdAt          DateTime         @default(now())
-    visualDifferenceId String
-    browser            BrowserEnum?
+    id        String       @id @default(cuid())
+    image     Image        @relation(fields: [imageId], references: [id])
+    imageId   String
+    createdAt DateTime     @default(now())
+    browser   BrowserEnum?
+    Snapshot  Snapshot[]
+}
+
+model Snapshot {
+    id              String           @id @default(cuid())
+    name            String
+    variant         String
+    createdAt       DateTime         @default(now())
+    visualSnapshots VisualSnapshot[]
+    Build           Build?           @relation(fields: [buildId], references: [id])
+    buildId         String?
+
+    @@unique([name, variant])
 }
 
 model DomSnapshot {
     id        String   @id @default(cuid())
-    builds    Build[]
     createdAt DateTime @default(now())
 }
 
+enum BuildStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    UNREVIEWED
+}
+
 model Build {
-    id               String           @id @default(cuid())
+    id               String      @id @default(cuid())
     sha              String
-    Project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    Project          Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId        String
-    visualSnapshots  VisualSnapshot[]
-    domSnapshots     DomSnapshot[]
-    commitMessage    String?
+    commitMessage    String
     pullRequestTitle String?
+    author           String?
+    status           BuildStatus @default(PENDING)
+    branch           String
     url              String?
-    createdAt        DateTime         @default(now())
+    createdAt        DateTime    @default(now())
+    Snapshots        Snapshot[]
 
     @@unique([projectId, sha])
 }
@@ -152,6 +172,7 @@ model Project {
     users    UserOnProject[]
     Team     Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId   String?
+    Image    Image[]
 }
 
 model UserOnProject {

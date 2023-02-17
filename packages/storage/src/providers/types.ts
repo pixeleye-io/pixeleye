@@ -4,5 +4,5 @@ interface UploadPost {
 }
 
 export interface StorageProvider {
-  getUploadUrl: (hash: string) => Promise<UploadPost>;
+  getUploadUrl: (hash: string, teamId: string) => Promise<UploadPost>;
 }

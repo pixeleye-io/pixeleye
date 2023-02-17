@@ -5,7 +5,11 @@ import upload from "./upload";
 
 const program = new Command();
 
-program;
+const map = {
+  k: "key",
+  s: "secret",
+  u: "url",
+} as const;
 
 program
   .command("upload")
@@ -17,6 +21,7 @@ program
   )
   .option("-k, --key <key>", "Pixeleye API key")
   .option("-s, --secret <secret>", "Pixeleye API secret")
+  .option("-u, --url <url>", "Pixeleye API URL", "https://pixeleye.io")
   .description("Upload your screenshots to pixeleye")
   .hook("preAction", async (hookedCommand, subCommand) => {
     const commands = hookedCommand.opts();
@@ -24,12 +29,15 @@ program
 
     const config = configPath ? await readConfig(configPath) : {};
     for (const [key, value] of Object.entries(config)) {
-      subCommand.setOptionValue(key, value);
-      commands[key] = value;
+      const mappedKey = Object.keys(map).includes(key)
+        ? map[key as keyof typeof map]
+        : key;
+      subCommand.setOptionValue(mappedKey, value);
+      commands[mappedKey] = value;
     }
 
     // Key and secret are required
-    if (!(commands.key || commands.k) || !(commands.secret || commands.s))
+    if (!commands.key || !commands.secret)
       program.error(
         "Pixeleye API key and secret are required. Please provide them via the command line or a config file.",
         {

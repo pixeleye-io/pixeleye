@@ -9,18 +9,21 @@ import nodeFetch from "node-fetch";
 
 //${process.env.PIXELEYE_URL!}
 
-export const api = createTRPCProxyClient<AppRouter>({
-  transformer,
-  links: [
-    httpBatchLink({
-      url: `http://localhost:3000/api/trpc`,
-      fetch: nodeFetch as typeof fetch,
-      headers: {
-        Authorization: `Basic Y2xlNzF1NDZ2MDAwN3RnY3NtdmN3MTB1ZjowN2Q4MjhlYS04ZTYwLTQ1NTYtYjZhNi1iMGI2NWZjNjUzYTE=`,
-      },
-    }),
-  ],
-});
+export const api = (url: string, credentials: string) =>
+  createTRPCProxyClient<AppRouter>({
+    transformer,
+    links: [
+      httpBatchLink({
+        url: `${url}/api/trpc`,
+        fetch: nodeFetch as typeof fetch,
+        headers: {
+          Authorization: `Basic ${credentials}`,
+        },
+      }),
+    ],
+  });
+
+export type Test = ReturnType<typeof api>;
 
 /**
  * Inference helpers for output types

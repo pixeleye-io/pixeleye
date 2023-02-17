@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       reference="add"
       segment={{
         name: "Add",
-        value: "add",
+        value: "/add",
       }}
     >
       <hr className="w-full border-t border-neutral-300 dark:border-neutral-700" />

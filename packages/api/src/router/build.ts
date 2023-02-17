@@ -1,5 +1,10 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedureProject } from "../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  protectedProcedureProject,
+} from "../trpc";
 
 export const buildRouter = createTRPCRouter({
   createBuild: protectedProcedureProject
@@ -10,21 +15,26 @@ export const buildRouter = createTRPCRouter({
         domSnapshots: z.array(z.string()).optional(),
         partial: z.boolean().optional(),
         url: z.string().optional(),
+        author: z.string().optional(),
         pullRequestTitle: z.string().optional(),
-        commitMessage: z.string().optional(),
+        commitMessage: z.string(),
+        branch: z.string(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const projectId = ctx.projectId;
       const {
         sha,
         visualSnapshots,
+        author,
         domSnapshots,
         partial,
         url,
         pullRequestTitle,
         commitMessage,
+        branch,
       } = input;
+
       const build = await ctx.prisma.build.upsert({
         where: {
           projectId_sha: {
@@ -33,33 +43,80 @@ export const buildRouter = createTRPCRouter({
           },
         },
         update: {
-          visualSnapshots: {
-            connect: visualSnapshots.map((id) => ({ id })),
-          },
-          domSnapshots: {
-            connect: domSnapshots?.map((id) => ({ id })),
-          },
-          url,
           commitMessage,
           pullRequestTitle,
+          url,
+          branch,
+          author,
         },
         create: {
+          branch,
           sha,
-          projectId,
-          url,
           commitMessage,
           pullRequestTitle,
-          visualSnapshots: {
-            connect: visualSnapshots.map((visId) => ({ id: visId })),
+          url,
+          author,
+          Snapshots: {
+            connect: visualSnapshots.map((id) => ({
+              id,
+            })),
           },
-          domSnapshots: {
-            connect: domSnapshots?.map((domId) => ({ id: domId })),
+          Project: {
+            connect: {
+              id: projectId,
+            },
           },
         },
       });
 
-      if (partial) {
-        // Kick off image comparisons for this build
+      if (!partial) {
+        // TODO - kick off build
       }
+    }),
+  getWithProject: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+      const userId = ctx.session.user.id;
+      const build = await ctx.prisma.build.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          Project: {
+            select: {
+              users: {
+                where: {
+                  userId,
+                },
+              },
+              id: true,
+              name: true,
+              url: true,
+              teamId: true,
+              gitId: true,
+              sourceId: true,
+            },
+          },
+        },
+      });
+
+      if (!build) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (build.Project.users.length === 0) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return {
+        ...build,
+        Project: {
+          ...build.Project,
+          users: undefined,
+        },
+      };
     }),
 });

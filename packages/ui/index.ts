@@ -18,3 +18,5 @@ export * from "./src/header";
 export { default as Header } from "./src/header";
 export * from "./src/spinner";
 export { default as Spinner } from "./src/spinner";
+export * from "./src/status";
+export { default as Status } from "./src/status";

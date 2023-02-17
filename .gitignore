@@ -17,8 +17,7 @@ prisma/db.sqlite-journal
 out/
 next-env.d.ts
 
-# production
-build
+
 
 # misc
 .DS_Store
