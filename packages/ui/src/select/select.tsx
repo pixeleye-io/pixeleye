@@ -36,12 +36,14 @@ export interface SelectProps
   label: string;
   children: React.ReactNode;
   value?: string;
+  hiddenLabel?: boolean;
 }
 
 const Select: FC<SelectProps> = ({
   label,
   children,
   className,
+  hiddenLabel,
   value,
   ...rest
 }) => {
@@ -55,7 +57,10 @@ const Select: FC<SelectProps> = ({
     >
       <label
         htmlFor={id}
-        className="px-2 my-auto text-sm font-medium text-gray-700 transition dark:text-gray-300 group-focus-within:text-gray-900 dark:group-focus-within:text-white"
+        className={cx(
+          "px-2 my-auto text-sm font-medium text-gray-700 transition dark:text-gray-300 group-focus-within:text-gray-900 dark:group-focus-within:text-white",
+          hiddenLabel && "sr-only",
+        )}
       >
         {label}
       </label>
@@ -63,7 +68,12 @@ const Select: FC<SelectProps> = ({
         value={value}
         id={id}
         name="location"
-        className="relative block w-full py-2 pl-3 pr-10 text-base transition bg-white border-l cursor-pointer dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300 focus:text-gray-900 focus:dark:text-white rounded-r-md focus:outline-none sm:text-sm"
+        className={cx(
+          "relative block w-full py-2 pl-3 pr-10 text-base text-gray-800 transition bg-white cursor-pointer dark:bg-gray-900  dark:text-gray-300 focus:text-gray-900 focus:dark:text-white  focus:outline-none sm:text-sm",
+          hiddenLabel
+            ? "rounded-md"
+            : "border-l dark:border-gray-700 border-gray-300 rounded-r-md",
+        )}
         {...rest}
       >
         {children}

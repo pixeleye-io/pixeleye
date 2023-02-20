@@ -1,6 +1,6 @@
 import { authOptions } from "@pixeleye/auth";
 import { getServerSession } from "next-auth/next";
-import { serverApi } from "~/utils/server";
+import { serverApi } from "~/lib/server";
 import { RegisterSegment } from "../../navbar";
 
 export default async function ProjectLayout({

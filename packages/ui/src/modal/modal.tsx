@@ -48,8 +48,8 @@ const Modal: FC<ModalProps> = ({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger />
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
-        <Dialog.Content className="fixed p-4 -translate-x-1/2 -translate-y-1/2 bg-white border rounded-md dark:bg-black top-1/2 left-1/2 border-neutral-300 dark:border-neutral-700">
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/25 backdrop-blur-sm" />
+        <Dialog.Content className="fixed z-50 p-4 -translate-x-1/2 -translate-y-1/2 bg-white border rounded-md dark:bg-black top-1/2 left-1/2 border-neutral-300 dark:border-neutral-700">
           <Dialog.Title>{title}</Dialog.Title>
           <Dialog.Description>{description}</Dialog.Description>
           {children}

@@ -24,6 +24,14 @@ const config = {
   },
   images: {
     domains: ["avatars.githubusercontent.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "pixeleye-images-dev.s3.eu-west-2.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: !!process.env.CI },

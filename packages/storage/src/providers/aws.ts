@@ -12,10 +12,10 @@ const s3Client = new S3Client({
   },
 });
 
-async function getUploadUrl(hash: string, teamId: string) {
+async function getUploadUrl(hash: string, projectId: string) {
   const post = await createPresignedPost(s3Client, {
     Bucket: "pixeleye-images-dev",
-    Key: `teamId/${hash}`,
+    Key: `${projectId}/${hash}`,
     Fields: {
       acl: "public-read",
       "Content-Type": "png",
@@ -26,7 +26,10 @@ async function getUploadUrl(hash: string, teamId: string) {
     ],
   });
 
-  return post;
+  return {
+    ...post,
+    endpoint: `https://pixeleye-images-dev.s3.eu-west-2.amazonaws.com/${projectId}/${hash}`,
+  };
 }
 
 export default {

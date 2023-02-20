@@ -11,6 +11,13 @@ export const teamRouter = createTRPCRouter({
           },
         },
       },
+      include: {
+        users: {
+          where: {
+            role: "OWNER",
+          },
+        },
+      },
     });
   }),
 

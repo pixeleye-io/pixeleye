@@ -4,7 +4,7 @@ import { ClipboardIcon } from "@heroicons/react/24/outline";
 import { Button } from "@pixeleye/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
-import { api } from "~/utils/api";
+import { api } from "~/lib/api";
 import { API_SECRET } from "../../add/page";
 
 interface TokenViewProps {

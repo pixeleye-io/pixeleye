@@ -23,12 +23,16 @@ export const imageRouter = createTRPCRouter({
           exists: true,
         };
       }
-      const data = await storage.getUploadUrl(input.hash, ctx.projectId);
+      const { endpoint, ...data } = await storage.getUploadUrl(
+        input.hash,
+        ctx.projectId,
+      );
       // TODO - handle image never being uploaded
       await ctx.prisma.image.create({
         data: {
           hash: input.hash,
           projectId: ctx.projectId,
+          url: endpoint,
         },
       });
       return {

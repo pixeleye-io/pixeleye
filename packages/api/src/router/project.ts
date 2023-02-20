@@ -52,6 +52,7 @@ async function createGithubProject(
         create: {
           userId,
           role: "OWNER",
+          type: "ADMIN",
         },
       },
     },
@@ -164,6 +165,39 @@ export const projectRouter = createTRPCRouter({
       if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });
       return project.project;
     }),
+  getProjectWithUsers: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.prisma.userOnProject.findUnique({
+        where: {
+          projectId_userId: {
+            projectId: input.id,
+            userId: ctx.session.user.id,
+          },
+        },
+        include: {
+          project: {
+            select: {
+              name: true,
+              url: true,
+              gitId: true,
+              sourceId: true,
+              teamId: true,
+              users: {
+                select: {
+                  user: true,
+                  role: true,
+                  type: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!project) throw new TRPCError({ code: "UNAUTHORIZED" });
+      return project.project;
+    }),
+
   regenerateProjectSecret: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -211,7 +245,22 @@ export const projectRouter = createTRPCRouter({
               gitId: true,
               sourceId: true,
               teamId: true,
-              builds: true,
+              builds: {
+                select: {
+                  id: true,
+                  status: true,
+                  createdAt: true,
+                  author: true,
+                  branch: true,
+                  commitMessage: true,
+                  pullRequestTitle: true,
+                  sha: true,
+                  url: true,
+                },
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
             },
           },
         },

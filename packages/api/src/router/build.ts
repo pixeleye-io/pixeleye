@@ -73,6 +73,55 @@ export const buildRouter = createTRPCRouter({
         // TODO - kick off build
       }
     }),
+  getWithSnapshots: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { id } = input;
+      const userId = ctx.session.user.id;
+      const build = await ctx.prisma.build.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          Project: {
+            select: {
+              users: {
+                where: {
+                  userId,
+                },
+              },
+            },
+          },
+          Snapshots: {
+            select: {
+              id: true,
+              name: true,
+              variant: true,
+              visualSnapshots: {
+                select: {
+                  image: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!build) throw new TRPCError({ code: "NOT_FOUND" });
+
+      if (build.Project.users.length === 0)
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return {
+        ...build,
+        Project: undefined,
+      };
+    }),
+
   getWithProject: protectedProcedure
     .input(
       z.object({

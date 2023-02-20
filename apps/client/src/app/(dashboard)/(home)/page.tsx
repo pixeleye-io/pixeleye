@@ -3,7 +3,7 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 import { authOptions } from "@pixeleye/auth";
 import { Button, Container } from "@pixeleye/ui";
 import { getServerSession } from "next-auth";
-import { serverApi } from "~/utils/server";
+import { serverApi } from "~/lib/server";
 
 export default async function IndexPage() {
   const session = await getServerSession(authOptions);
@@ -28,8 +28,8 @@ export default async function IndexPage() {
             key={project.id}
             className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition bg-white border border-gray-200 rounded-lg shadow-sm shadow group/card hover:shadow-md dark:hover:border-white hover:border-black dark:bg-gray-900 dark:border-gray-700"
           >
-            <h3 className="text-lg">{project.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="text-lg break-all">{project.name}</h3>
+            <p className="text-sm text-gray-500 break-all dark:text-gray-400 ">
               {project.url}
             </p>
             <Link href={`/project/${project.id}`} className="absolute inset-0">

@@ -4,8 +4,8 @@ import { authOptions } from "@pixeleye/auth";
 import { Container } from "@pixeleye/ui";
 import Status, { StatusType } from "@pixeleye/ui/src/status";
 import { getServerSession } from "next-auth";
-import { RouterOutputs } from "~/utils/api";
-import { serverApi } from "~/utils/server";
+import { RouterOutputs } from "~/lib/api";
+import { serverApi } from "~/lib/server";
 import TokenView from "./token";
 
 function timeSince(date: Date) {

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Container, Modal } from "@pixeleye/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
-import { api } from "~/utils/api";
+import { api } from "~/lib/api";
 
 interface ImportCardProps {
   name: SourceName;
@@ -167,7 +167,7 @@ export default function AddPage() {
       : undefined,
   );
   const sourcesGrouped = sources.reduce(
-    (accumulator, currentValue, currentIndex, array) => {
+    (accumulator, _, currentIndex, array) => {
       if (currentIndex % 2 === 0) {
         accumulator.push(array.slice(currentIndex, currentIndex + 2));
       }

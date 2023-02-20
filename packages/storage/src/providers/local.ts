@@ -1,6 +1,6 @@
 import { StorageProvider } from "./types";
 
-function getUploadUrl(hash: string) {
+function getUploadUrl(hash: string, projectId: string) {
   return Promise.resolve({
     url: `${process.env.PIXELEYE_URL}/api/storage/image/${hash}`,
     fields: {},
