@@ -38,7 +38,6 @@ async function createGithubProject(
           create: {
             githubInstallId: input.github!.installId,
             type: input.type,
-            userId,
           },
         },
       },

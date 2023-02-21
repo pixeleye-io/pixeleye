@@ -53,7 +53,6 @@ interface TeamToggleProps {
   teams: Teams;
 }
 function TeamToggle({ name, teams, className }: TeamToggleProps) {
-  console.log(teams);
   const session = useSession();
   const [personal, other] = teams.reduce(
     (acc, team) => {

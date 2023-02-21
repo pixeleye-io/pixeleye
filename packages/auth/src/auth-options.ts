@@ -1,6 +1,6 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { refreshToken } from "@octokit/oauth-methods";
-import { prisma } from "@pixeleye/db";
+import { PrismaClient, prisma } from "@pixeleye/db";
 import { DefaultSession, type NextAuthOptions } from "next-auth";
 import Email from "next-auth/providers/email";
 // import CredentialsProvider from "next-auth/providers/credentials";
@@ -87,6 +87,62 @@ export const authOptions: NextAuthOptions = {
     },
   },
   adapter: PrismaAdapter(prisma),
+  events: {
+    createUser: async ({ user }) => {
+      // Create a personal team for the user
+      await prisma.userOnTeam.create({
+        data: {
+          team: {
+            create: {
+              name: user.name || "Your Team",
+              type: "USER",
+            },
+          },
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+          role: "OWNER",
+          owner: true,
+        },
+      });
+    },
+    linkAccount: async ({ account, user }) => {
+      // There could already be a github app installed on the user's account
+      // If so, connect the team to the github app
+      if (account.provider === "github" && account.providerAccountId) {
+        console.log("HIIDJDFKL");
+        const teamId = await prisma.userOnTeam
+          .findFirst({
+            where: {
+              userId: user.id,
+              role: "OWNER",
+              owner: true,
+            },
+          })
+          .then((res) => res?.teamId)
+          .catch(() => undefined);
+
+        if (!teamId) return;
+
+        await prisma.team
+          .update({
+            where: {
+              id: teamId,
+            },
+            data: {
+              Source: {
+                connect: {
+                  gitId: account.providerAccountId,
+                },
+              },
+            },
+          })
+          .catch(() => undefined);
+      }
+    },
+  },
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,

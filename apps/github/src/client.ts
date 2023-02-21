@@ -36,4 +36,17 @@ export const userConnected = (userName: string) =>
     username: userName,
   });
 
+export const getOrgUsers = (installation_id: number, org: string) =>
+  getOctokit(installation_id).then((octokit) =>
+    octokit.request("GET /orgs/{org}/members", {
+      org,
+      role: "member",
+    }),
+  );
+// app.octokit.request("GET /app/installations/{installation_id}", {
+//   installation_id,
+// });
+
 export const eachInstallation = app.eachInstallation;
+
+export const githubApp = app;

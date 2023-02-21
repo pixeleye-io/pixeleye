@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "@pixeleye/utils": "*",
-    "zustand": "4.3.2"
+    "zustand": "^4.3.2"
   },
   "devDependencies": {
     "@types/react": "18.0.27",

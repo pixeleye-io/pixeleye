@@ -59,8 +59,6 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 
   let projectId: string | undefined;
 
-  console.log("auth dkasjflkdsajf;klds", req.headers.authorization);
-
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Basic ")

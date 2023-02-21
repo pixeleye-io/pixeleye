@@ -13,7 +13,7 @@
     "concurrently": "7.6.0",
     "stepci": "^2.6.4",
     "superjson": "1.9.1",
-    "zod": "3.20.2"
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

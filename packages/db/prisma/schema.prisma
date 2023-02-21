@@ -130,9 +130,10 @@ model Build {
 }
 
 model Team {
-    id       String       @id @default(cuid())
-    name     String
-    type     TeamType
+    id   String   @id @default(cuid())
+    name String
+    type TeamType
+
     users    UserOnTeam[]
     projects Project[]
     Source   Source[]
@@ -144,6 +145,8 @@ model UserOnTeam {
     user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
     role   TeamRole
+    // Work around while we wait for conditional unique constraints
+    owner  Boolean? @default(false)
 
     @@id([teamId, userId])
 }
@@ -151,13 +154,14 @@ model UserOnTeam {
 model Source {
     id              String     @id @default(cuid())
     type            SourceEnum
-    githubInstallId Int?       @unique
+    githubInstallId String?    @unique
+    gitId           String     @unique
     // Either one of these is populated depending on if it's a user space or team space
     Team            Team?      @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId          String?
-    User            User?      @relation(fields: [userId], references: [id])
-    userId          String?
     Project         Project[]
+
+    @@unique([type, teamId])
 }
 
 model Project {
@@ -231,7 +235,6 @@ model User {
     accounts      Account[]
     sessions      Session[]
     UserOnTeam    UserOnTeam[]
-    sources       Source[]
     UserOnProject UserOnProject[]
 }
 
