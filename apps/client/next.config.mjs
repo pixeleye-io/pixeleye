@@ -16,6 +16,8 @@ const config = {
     "@pixeleye/utils",
     "@pixeleye/hooks",
     "@pixeleye/ui",
+    "@pixeleye/auth-options",
+    "@pixeleye/server-utils",
   ],
   modularizeImports: {
     "@pixeleye/ui": {
@@ -32,6 +34,18 @@ const config = {
         pathname: "/**",
       },
     ],
+  },
+  webpack: (config) => {
+    config.resolve.fallback = {
+      fs: false,
+      net: false,
+      dns: false,
+      child_process: false,
+      tls: false,
+      v8: false,
+    };
+
+    return config;
   },
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: !!process.env.CI },

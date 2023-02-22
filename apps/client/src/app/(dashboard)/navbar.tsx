@@ -93,7 +93,7 @@ function TeamToggle({ name, teams, className }: TeamToggleProps) {
         </Popover.Anchor>
 
         <Popover.Portal>
-          <Popover.Content className="z-40 px-4 pt-2 bg-gray-900 border border-gray-300 divide-y divide-gray-300 rounded dark:border-gray-700 dark:divide-gray-700">
+          <Popover.Content className="z-40 min-w-[10rem] px-4 pt-2 bg-gray-900 border border-gray-300 divide-y divide-gray-300 rounded dark:border-gray-700 dark:divide-gray-700">
             <h5 className="pb-2">Accounts</h5>
             {personal && (
               <div className="py-2">
@@ -115,13 +115,15 @@ function TeamToggle({ name, teams, className }: TeamToggleProps) {
                 <ol className="flex items-center">
                   {other.map((team) => (
                     <li className="ml-2" key={team.id}>
-                      <Link href={`/?team=${team.id}`}>{team.name}</Link>
+                      <Popover.Close asChild>
+                        <Link href={`/?team=${team.id}`}>{team.name}</Link>
+                      </Popover.Close>
                     </li>
                   ))}
                 </ol>
               </div>
             )}
-            <div className="px-4 py-2 -mx-4 bg-gray-850">
+            <div className="flex justify-center px-4 py-2 mt-4 -mx-4 bg-gray-850">
               <Button
                 onClick={() => setModalOpen(true)}
                 size="small"

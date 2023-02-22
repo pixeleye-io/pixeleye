@@ -1,6 +1,6 @@
 import { authRouter } from "./router/auth";
 import { buildRouter } from "./router/build";
-import { githubRouter } from "./router/github";
+import { githubRouter } from "./router/github/route";
 import { imageRouter } from "./router/image";
 import { projectRouter } from "./router/project";
 import { snapshotRouter } from "./router/snapshot";

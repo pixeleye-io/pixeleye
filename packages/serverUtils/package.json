@@ -1,5 +1,5 @@
 {
-  "name": "@pixeleye/utils",
+  "name": "@pixeleye/server-utils",
   "version": "0.0.0",
   "devDependencies": {
     "@types/react": "18.0.27",
@@ -16,6 +16,10 @@
     "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@pixeleye/api": "*",
+    "@pixeleye/auth": "*",
+    "@pixeleye/db": "*"
+  },
   "types": "./index.tsx"
 }

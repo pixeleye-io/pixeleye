@@ -1,13 +1,25 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 import { authOptions } from "@pixeleye/auth";
 import { Button, Container } from "@pixeleye/ui";
 import { getServerSession } from "next-auth";
 import { serverApi } from "~/lib/server";
 
-export default async function IndexPage() {
+export default async function IndexPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string>;
+}) {
+  const teamId = searchParams?.team;
   const session = await getServerSession(authOptions);
-  const team = await serverApi(session).team.getUserTeam();
+  const team = await serverApi(session)
+    .team.getUserTeam({ id: teamId })
+    .catch(() => {
+      // Probably a bad team id, redirect to personal team
+      if (teamId) redirect("/");
+      console.log("akfldslkflkj");
+    });
   const projects = team?.id
     ? await serverApi(session).project.getTeamProjects({
         teamId: team.id,
@@ -19,7 +31,11 @@ export default async function IndexPage() {
       <div className="flex justify-between">
         <h1 className="text-4xl">Projects</h1>
         <Button asChild>
-          <Link href="/add">Add project</Link>
+          <Link
+            href={"/add" + (team?.type !== "USER" ? `?team=${team?.id}` : "")}
+          >
+            Add project
+          </Link>
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

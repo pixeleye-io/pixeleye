@@ -4,6 +4,8 @@ packages:
   - apps/cli
   - apps/node
   - packages/hooks
+  - packages/authOptions
+  - packages/serverUtils
   - packages/utils
   - packages/api
   - packages/auth

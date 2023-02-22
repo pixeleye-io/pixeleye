@@ -1,28 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Header, NavTab } from "@pixeleye/ui";
 
 export function HomeHeader() {
   const pathName = usePathname();
+  const teamId = useSearchParams().get("team");
 
   return (
     <>
       <Header>
         <NavTab.Tabs className="px-4">
           <NavTab asChild active={pathName === "/"}>
-            <Link scroll={false} href="/">
+            <Link
+              scroll={false}
+              href={"/" + ((teamId && `?team=${teamId}`) || "")}
+            >
               Projects
             </Link>
           </NavTab>
           <NavTab asChild active={pathName === "/usage"}>
-            <Link scroll={false} href="/usage">
+            <Link
+              scroll={false}
+              href={"/usage" + ((teamId && `?team=${teamId}`) || "")}
+            >
               Usage
             </Link>
           </NavTab>
           <NavTab asChild active={pathName?.includes("/settings")}>
-            <Link scroll={false} href="/settings">
+            <Link
+              scroll={false}
+              href={"/settings" + ((teamId && `?team=${teamId}`) || "")}
+            >
               Settings
             </Link>
           </NavTab>

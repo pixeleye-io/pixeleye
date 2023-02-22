@@ -1,4 +1,4 @@
-import { authOptions } from "@pixeleye/auth";
+import { options } from "@pixeleye/auth-options";
 import NextAuth from "next-auth";
 
-export default NextAuth(authOptions);
+export default NextAuth(options);

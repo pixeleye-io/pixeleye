@@ -67,6 +67,7 @@ importers:
       '@next/font': ^13.1.6
       '@pixeleye/api': '*'
       '@pixeleye/auth': '*'
+      '@pixeleye/auth-options': '*'
       '@pixeleye/db': '*'
       '@pixeleye/github': '*'
       '@pixeleye/hooks': '*'
@@ -101,6 +102,7 @@ importers:
       lodash-es: ^4.17.21
       next: 13.1.6
       next-auth: 4.19.0
+      nodemailer: ^6.9.1
       postcss: 8.4.21
       react: 18.2.0
       react-dom: 18.2.0
@@ -114,6 +116,7 @@ importers:
       '@next/font': 13.1.6
       '@pixeleye/api': link:../../packages/api
       '@pixeleye/auth': link:../../packages/auth
+      '@pixeleye/auth-options': link:../../packages/authOptions
       '@pixeleye/db': link:../../packages/db
       '@pixeleye/github': link:../github
       '@pixeleye/hooks': link:../../packages/hooks
@@ -137,7 +140,8 @@ importers:
       framer-motion: 8.5.5_biqbaboplfbrettd7655fr4n2y
       lodash-es: 4.17.21
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
-      next-auth: 4.19.0_3vryta7zmbcsw4rrqf4axjqggm
+      next-auth: 4.19.0_phzvn2nhb6zk7o4ds4z4gvqlei
+      nodemailer: 6.9.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       sharp: 0.31.3
@@ -265,6 +269,7 @@ importers:
       '@next-auth/prisma-adapter': 1.0.5
       '@octokit/oauth-methods': ^2.0.5
       '@pixeleye/db': '*'
+      '@pixeleye/github': '*'
       '@sendgrid/mail': ^7.7.0
       eslint: 8.32.0
       next: 13.1.6
@@ -277,12 +282,34 @@ importers:
       '@next-auth/prisma-adapter': 1.0.5_next-auth@4.19.0
       '@octokit/oauth-methods': 2.0.5
       '@pixeleye/db': link:../db
+      '@pixeleye/github': link:../../apps/github
       '@sendgrid/mail': 7.7.0
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       next-auth: 4.19.0_phzvn2nhb6zk7o4ds4z4gvqlei
       nodemailer: 6.9.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    devDependencies:
+      eslint: 8.32.0
+      typescript: 4.9.4
+
+  packages/authOptions:
+    specifiers:
+      '@pixeleye/auth': '*'
+      '@pixeleye/db': '*'
+      '@pixeleye/github': '*'
+      '@pixeleye/server-utils': '*'
+      eslint: 8.32.0
+      next-auth: 4.19.0
+      nodemailer: ^6.9.1
+      typescript: 4.9.4
+    dependencies:
+      '@pixeleye/auth': link:../auth
+      '@pixeleye/db': link:../db
+      '@pixeleye/github': link:../../apps/github
+      '@pixeleye/server-utils': link:../serverUtils
+      next-auth: 4.19.0_nodemailer@6.9.1
+      nodemailer: 6.9.1
     devDependencies:
       eslint: 8.32.0
       typescript: 4.9.4
@@ -327,6 +354,29 @@ importers:
     dependencies:
       '@pixeleye/utils': link:../utils
       zustand: 4.3.2_react@18.2.0
+    devDependencies:
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      typescript: 4.9.4
+
+  packages/serverUtils:
+    specifiers:
+      '@pixeleye/api': '*'
+      '@pixeleye/auth': '*'
+      '@pixeleye/db': '*'
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      eslint: 8.32.0
+      react: 18.2.0
+      react-dom: 18.2.0
+      typescript: 4.9.4
+    dependencies:
+      '@pixeleye/api': link:../api
+      '@pixeleye/auth': link:../auth
+      '@pixeleye/db': link:../db
     devDependencies:
       '@types/react': 18.0.27
       '@types/react-dom': 18.0.10
@@ -13838,7 +13888,7 @@ packages:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
     dev: true
 
-  /next-auth/4.19.0_3vryta7zmbcsw4rrqf4axjqggm:
+  /next-auth/4.19.0_nodemailer@6.9.1:
     resolution: {integrity: sha512-56Pc/Ni0cxfrVDAz2KeWdj+VXvABbHF1grgFR4+ktXbRmKQOiMU9uyMwhasBQkbL+pRrWujO0Ib/bwkP0oZS4g==}
     peerDependencies:
       next: ^12.2.5 || ^13
@@ -13853,13 +13903,11 @@ packages:
       '@panva/hkdf': 1.0.2
       cookie: 0.5.0
       jose: 4.11.2
-      next: 13.1.6_biqbaboplfbrettd7655fr4n2y
+      nodemailer: 6.9.1
       oauth: 0.9.15
       openid-client: 5.3.1
       preact: 10.11.3
       preact-render-to-string: 5.2.6_preact@10.11.3
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
       uuid: 8.3.2
     dev: false
 

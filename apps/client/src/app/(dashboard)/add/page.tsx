@@ -57,16 +57,11 @@ function ImportCard({ name, connected, imageUrl, onClick }: ImportCardProps) {
 export const API_SECRET = "API_SECRET";
 
 function GithubModal() {
-  const { data: installs } = api.github.getInstallations.useQuery();
+  const teamId = useSearchParams().get("team") || "";
 
-  const installationId = (installs && installs[0]?.id) || 0;
-
-  const { data: repos } = api.github.getRepositories.useQuery(
-    {
-      installationId,
-    },
-    { enabled: Boolean(installationId) },
-  );
+  const { data: repos } = api.github.getRepositories.useQuery({
+    teamId,
+  });
 
   const router = useRouter();
 
@@ -101,15 +96,15 @@ function GithubModal() {
           <Button
             disabled={isLoading}
             onClick={() => {
-              void createProject({
-                name: repo.name,
-                url: repo.html_url,
-                github: {
-                  gitId: repo.id.toString(),
-                  installId: installationId,
-                },
-                type: "GITHUB",
-              });
+              // void createProject({
+              //   name: repo.name,
+              //   url: repo.html_url,
+              //   github: {
+              //     gitId: repo.id.toString(),
+              //     installId: installationId,
+              //   },
+              //   type: "GITHUB",
+              // });
             }}
           >
             Import

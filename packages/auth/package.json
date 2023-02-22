@@ -5,6 +5,7 @@
     "@next-auth/prisma-adapter": "1.0.5",
     "@octokit/oauth-methods": "^2.0.5",
     "@pixeleye/db": "*",
+    "@pixeleye/github": "*",
     "@sendgrid/mail": "^7.7.0",
     "next": "13.1.6",
     "next-auth": "4.19.0",

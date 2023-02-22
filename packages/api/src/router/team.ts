@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -50,7 +51,7 @@ export const teamRouter = createTRPCRouter({
           },
         });
       }
-      return ctx.prisma.userOnTeam
+      const team = await ctx.prisma.userOnTeam
         .findUnique({
           where: {
             teamId_userId: {
@@ -63,5 +64,9 @@ export const teamRouter = createTRPCRouter({
           },
         })
         .then((u) => u?.team);
+
+      if (!team) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return team;
     }),
 });

@@ -145,8 +145,6 @@ model UserOnTeam {
     user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
     role   TeamRole
-    // Work around while we wait for conditional unique constraints
-    owner  Boolean? @default(false)
 
     @@id([teamId, userId])
 }
