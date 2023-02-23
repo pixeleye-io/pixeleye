@@ -25,6 +25,7 @@ export const imageRouter = createTRPCRouter({
       }
       const { endpoint, ...data } = await storage.getUploadUrl(
         input.hash,
+        "snap",
         ctx.projectId,
       );
       // TODO - handle image never being uploaded

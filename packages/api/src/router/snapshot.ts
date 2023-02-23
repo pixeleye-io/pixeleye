@@ -1,4 +1,3 @@
-import { storage } from "@pixeleye/storage";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedureProject } from "../trpc";
 
@@ -7,17 +6,21 @@ export const snapshotRouter = createTRPCRouter({
     .input(
       z.object({
         hash: z.string(),
-        browser: z.enum(["CHROME", "FIREFOX", "EDGE", "SAFARI"]).optional(),
+        sha: z.string(),
+        browser: z
+          .enum(["CHROME", "FIREFOX", "EDGE", "SAFARI", "UNKNOWN"])
+          .optional(),
         name: z.string(),
         variant: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const projectId = ctx.projectId;
-      const { hash, browser, name, variant } = input;
+      const { hash, browser, name, variant, sha } = input;
       const snapshot = await ctx.prisma.snapshot.upsert({
         where: {
-          name_variant: {
+          sha_name_variant: {
+            sha,
             name,
             variant: variant || "",
           },
@@ -39,12 +42,13 @@ export const snapshotRouter = createTRPCRouter({
                   },
                 },
               },
-              browser,
+              browser: browser || "UNKNOWN",
             },
           },
         },
         create: {
           name,
+          sha,
           variant: variant || "",
           visualSnapshots: {
             create: {
@@ -62,7 +66,7 @@ export const snapshotRouter = createTRPCRouter({
                   },
                 },
               },
-              browser,
+              browser: browser || "UNKNOWN",
             },
           },
         },

@@ -13,7 +13,7 @@ interface SnapshotItemProps {
 
 function SnapshotItem({ snapshot }: SnapshotItemProps) {
   return (
-    <li className="relative ">
+    <li className="relative">
       <div className="block w-full overflow-hidden bg-gray-100 border border-gray-700 rounded-lg dark:bg-gray-900 group aspect-w-10 aspect-h-7 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
         <Image
           fill
@@ -31,6 +31,15 @@ function SnapshotItem({ snapshot }: SnapshotItemProps) {
       <p className="block text-sm font-medium text-gray-500 pointer-events-none">
         {snapshot.variant}
       </p>
+      {snapshot.visualSnapshots[0]?.VisualDifference?.diffImage?.url && (
+        <a
+          href={snapshot.visualSnapshots[0]?.VisualDifference?.diffImage?.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Diff
+        </a>
+      )}
     </li>
   );
 }
@@ -45,7 +54,6 @@ export default async function BuildPage({
     id: params.id,
   });
 
-  console.log(data);
   return (
     <Container>
       <div className="my-8">

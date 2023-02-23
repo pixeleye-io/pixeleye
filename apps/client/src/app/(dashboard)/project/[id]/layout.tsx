@@ -17,6 +17,7 @@ export default async function ProjectLayout({
   return (
     <RegisterSegment
       reference={params.id}
+      teamId={data.teamId || ""}
       order={2}
       segment={
         data

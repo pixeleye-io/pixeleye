@@ -13,7 +13,13 @@ import { getUserOctokit } from "@pixeleye/github";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import bcrypt from "bcryptjs";
+import { Queue } from "quirrel/next";
 import superjson from "superjson";
+
+interface ImageDiff {
+  visualDifferenceId: string;
+  buildId: string;
+}
 
 /**
  * 1. CONTEXT
@@ -27,6 +33,7 @@ import superjson from "superjson";
 type CreateContextOptions = {
   session: Session | null;
   projectId?: string;
+  qImageDiff?: Queue<ImageDiff>;
 };
 
 /**
@@ -43,6 +50,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
     session: opts.session,
     prisma,
     projectId: opts.projectId,
+    qImageDiff: opts.qImageDiff,
   };
 };
 
@@ -51,49 +59,52 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  * process every request that goes through your tRPC endpoint
  * @link https://trpc.io/docs/context
  */
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
-  const { req, res } = opts;
+export const createTRPCContext =
+  ({ qImageDiff }: { qImageDiff?: Queue<ImageDiff> } = {}) =>
+  async (opts: CreateNextContextOptions) => {
+    const { req, res } = opts;
 
-  // Get the session from the server using the unstable_getServerSession wrapper function
-  const session = await getServerSession({ req, res });
+    // Get the session from the server using the unstable_getServerSession wrapper function
+    const session = await getServerSession({ req, res });
 
-  let projectId: string | undefined;
+    let projectId: string | undefined;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Basic ")
-  ) {
-    const [key, secret] = Buffer.from(
-      req.headers.authorization.replace("Basic ", ""),
-      "base64",
-    )
-      .toString()
-      .split(":");
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Basic ")
+    ) {
+      const [key, secret] = Buffer.from(
+        req.headers.authorization.replace("Basic ", ""),
+        "base64",
+      )
+        .toString()
+        .split(":");
 
-    console.log(key, secret);
+      console.log(key, secret);
 
-    if (key && secret) {
-      const project = await prisma.project.findUnique({
-        where: {
-          key,
-        },
-        select: {
-          id: true,
-          secret: true,
-        },
-      });
+      if (key && secret) {
+        const project = await prisma.project.findUnique({
+          where: {
+            key,
+          },
+          select: {
+            id: true,
+            secret: true,
+          },
+        });
 
-      if (project && bcrypt.compareSync(secret, project.secret)) {
-        projectId = project?.id;
+        if (project && bcrypt.compareSync(secret, project.secret)) {
+          projectId = project?.id;
+        }
       }
     }
-  }
 
-  return createInnerTRPCContext({
-    session,
-    projectId,
-  });
-};
+    return createInnerTRPCContext({
+      session,
+      projectId,
+      qImageDiff,
+    });
+  };
 
 /**
  * 2. INITIALIZATION
@@ -101,7 +112,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
  * This is where the trpc api is initialized, connecting the context and
  * transformer
  */
-const t = initTRPC.context<typeof createTRPCContext>().create({
+const t = initTRPC.context<ReturnType<typeof createTRPCContext>>().create({
   transformer: superjson,
   errorFormatter({ shape }) {
     return shape;
@@ -203,4 +214,14 @@ const enforceProjectAccess = t.middleware(async ({ ctx, next }) => {
   });
 });
 
-export const protectedProcedureProject = t.procedure.use(enforceProjectAccess);
+const injectQuirrelClient = t.middleware(async ({ ctx, next }) => {
+  return next({
+    ctx: {
+      qImageDiff: ctx.qImageDiff!,
+    },
+  });
+});
+
+export const protectedProcedureProject = t.procedure
+  .use(enforceProjectAccess)
+  .use(injectQuirrelClient);

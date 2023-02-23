@@ -3,7 +3,7 @@ import { PrismaClient } from "@pixeleye/db";
 import { TRPCError } from "@trpc/server";
 import bycrypot from "bcryptjs";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 const createProjectInput = z.object({
   name: z.string(),
@@ -13,16 +13,22 @@ const createProjectInput = z.object({
   github: z
     .object({
       gitId: z.string(),
-      installId: z.number(),
+      installId: z.string(),
     })
     .optional(),
 });
+
+interface CreateProjectOutput {
+  secret: string;
+  key: string;
+  id: string;
+}
 
 async function createGithubProject(
   prisma: PrismaClient,
   userId: string,
   input: z.infer<typeof createProjectInput>,
-) {
+): Promise<CreateProjectOutput> {
   const rawSecret = crypto.randomUUID();
   const secret = bycrypot.hashSync(rawSecret);
   const project = await prisma.project.create({
@@ -38,6 +44,7 @@ async function createGithubProject(
           create: {
             githubInstallId: input.github!.installId,
             type: input.type,
+            gitId: input.github!.gitId,
           },
         },
       },
@@ -83,12 +90,37 @@ export const projectRouter = createTRPCRouter({
           })
           .then((u) => u?.teamId);
       }
+      let data: CreateProjectOutput;
       switch (input.type) {
         case "GITHUB":
-          return createGithubProject(ctx.prisma, ctx.session.user.id, input);
+          data = await createGithubProject(
+            ctx.prisma,
+            ctx.session.user.id,
+            input,
+          );
+          break;
         default:
           return;
       }
+      const teamAdmins = await ctx.prisma.userOnTeam.findMany({
+        where: {
+          teamId: input.teamId,
+          role: "ADMIN",
+        },
+        include: {
+          user: true,
+        },
+      });
+      await ctx.prisma.userOnProject.createMany({
+        skipDuplicates: true,
+        data: teamAdmins.map((u) => ({
+          userId: u.userId,
+          projectId: data.id,
+          role: "OWNER",
+          type: "ADMIN",
+        })),
+      });
+      return data;
     }),
   getTeamProjects: protectedProcedure
     .input(

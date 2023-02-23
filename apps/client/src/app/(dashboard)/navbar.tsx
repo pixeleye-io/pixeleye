@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, useSelectedLayoutSegments } from "next/navigation";
+import { useSelectedLayoutSegments } from "next/navigation";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, Button, Modal, NavLink, Select } from "@pixeleye/ui";
@@ -14,6 +14,7 @@ import { cx } from "class-variance-authority";
 import { useSession } from "next-auth/react";
 import { create } from "zustand";
 import { RouterOutputs } from "~/lib/api";
+import { useTeamStore } from "~/lib/stores/team";
 
 function Avatar() {
   const session = useSession();
@@ -66,7 +67,7 @@ function TeamToggle({ name, teams, className }: TeamToggleProps) {
     [undefined, []] as [Teams[0] | undefined, Teams],
   );
 
-  const teamId = useSearchParams().get("team");
+  const teamId = useTeamStore((state) => state.teamId);
 
   const selected = teams.find((team) => team.id === teamId) || personal;
 
@@ -197,14 +198,21 @@ interface RegisterSegmentProps {
   reference: string;
   order: number;
   segment?: Segment[] | false | Segment;
+  teamId?: string;
 }
 export function RegisterSegment({
   children,
   reference,
   order,
+  teamId,
   segment,
 }: RegisterSegmentProps) {
   useRegisterSegment(reference, order, segment);
+  const setTeamId = useTeamStore((state) => state.setTeamId);
+  useEffect(() => {
+    if (teamId) setTeamId(teamId);
+  }, [setTeamId, teamId]);
+
   return <>{children}</>;
 }
 

@@ -7,6 +7,7 @@ import { Button, Container, Modal } from "@pixeleye/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { api } from "~/lib/api";
+import { useTeamStore } from "~/lib/stores/team";
 
 interface ImportCardProps {
   name: SourceName;
@@ -57,7 +58,7 @@ function ImportCard({ name, connected, imageUrl, onClick }: ImportCardProps) {
 export const API_SECRET = "API_SECRET";
 
 function GithubModal() {
-  const teamId = useSearchParams().get("team") || "";
+  const teamId = useTeamStore((state) => state.teamId);
 
   const { data: repos } = api.github.getRepositories.useQuery({
     teamId,
@@ -96,15 +97,16 @@ function GithubModal() {
           <Button
             disabled={isLoading}
             onClick={() => {
-              // void createProject({
-              //   name: repo.name,
-              //   url: repo.html_url,
-              //   github: {
-              //     gitId: repo.id.toString(),
-              //     installId: installationId,
-              //   },
-              //   type: "GITHUB",
-              // });
+              void createProject({
+                name: repo.name,
+                url: repo.url,
+                teamId,
+                github: {
+                  gitId: repo.id.toString(),
+                  installId: repo.installation_id,
+                },
+                type: "GITHUB",
+              });
             }}
           >
             Import

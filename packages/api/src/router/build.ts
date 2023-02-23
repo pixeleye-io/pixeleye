@@ -35,6 +35,22 @@ export const buildRouter = createTRPCRouter({
         branch,
       } = input;
 
+      const predecessorId = await ctx.prisma.build.findFirst({
+        where: {
+          projectId,
+          branch,
+          successor: {
+            is: null,
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+        },
+      });
+
       const build = await ctx.prisma.build.upsert({
         where: {
           projectId_sha: {
@@ -51,6 +67,13 @@ export const buildRouter = createTRPCRouter({
         },
         create: {
           branch,
+          ...(predecessorId && {
+            predecessor: {
+              connect: {
+                id: predecessorId.id,
+              },
+            },
+          }),
           sha,
           commitMessage,
           pullRequestTitle,
@@ -67,10 +90,127 @@ export const buildRouter = createTRPCRouter({
             },
           },
         },
+        select: {
+          id: true,
+          Snapshots: {
+            select: {
+              name: true,
+              variant: true,
+              visualSnapshots: {
+                select: {
+                  id: true,
+                  image: true,
+                  browser: true,
+                },
+              },
+            },
+          },
+          predecessor: {
+            select: {
+              Snapshots: {
+                select: {
+                  name: true,
+                  variant: true,
+                  visualSnapshots: {
+                    select: {
+                      image: true,
+                      browser: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!partial) {
-        // TODO - kick off build
+        const visualDifferences: {
+          visualSnapshot: (typeof build.Snapshots)[0]["visualSnapshots"][0];
+          snapshot: (typeof build.Snapshots)[0];
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          predecessorVisualSnapshot: (typeof build.predecessor.Snapshots)[0]["visualSnapshots"][0];
+        }[] = [];
+        build.Snapshots.forEach((snapshot) => {
+          const predecessorSnapshot = build.predecessor?.Snapshots.find(
+            ({ name, variant }) =>
+              name === snapshot.name && variant === snapshot.variant,
+          );
+
+          if (!predecessorSnapshot) return;
+          snapshot.visualSnapshots.forEach((visualSnapshot) => {
+            const predecessorVisualSnapshot =
+              predecessorSnapshot.visualSnapshots.find(
+                ({ browser }) => browser === visualSnapshot.browser,
+              );
+            if (
+              !predecessorVisualSnapshot ||
+              predecessorVisualSnapshot.image.hash === visualSnapshot.image.hash
+            )
+              return;
+
+            visualDifferences.push({
+              visualSnapshot,
+              snapshot,
+              predecessorVisualSnapshot,
+            });
+          });
+        });
+
+        const visDiffIds = await Promise.all(
+          visualDifferences.map(
+            ({ visualSnapshot, snapshot, predecessorVisualSnapshot }) =>
+              ctx.prisma.visualSnapshot.update({
+                where: {
+                  id: visualSnapshot.id,
+                },
+                select: {
+                  visualDifferenceId: true,
+                },
+                data: {
+                  VisualDifference: {
+                    create: {
+                      status: "PENDING",
+                      baseImage: {
+                        connect: {
+                          id: predecessorVisualSnapshot.image.id,
+                        },
+                      },
+                      image: {
+                        connect: {
+                          id: visualSnapshot.image.id,
+                        },
+                      },
+                    },
+                  },
+                },
+              }),
+          ),
+        ).then((res) => res.filter((r) => Boolean(r.visualDifferenceId)));
+
+        if (visDiffIds.length !== 0) {
+          await ctx.qImageDiff.enqueueMany(
+            visDiffIds.map(({ visualDifferenceId }) => ({
+              payload: {
+                visualDifferenceId: visualDifferenceId || "",
+                buildId: build.id,
+              },
+            })),
+          );
+        } else {
+          await ctx.prisma.build.update({
+            where: {
+              projectId_sha: {
+                projectId,
+                sha,
+              },
+            },
+            data: {
+              status: "COMPLETED",
+            },
+          });
+        }
       }
     }),
   getWithSnapshots: protectedProcedure
@@ -104,6 +244,11 @@ export const buildRouter = createTRPCRouter({
               visualSnapshots: {
                 select: {
                   image: true,
+                  VisualDifference: {
+                    include: {
+                      diffImage: true,
+                    },
+                  },
                 },
               },
             },

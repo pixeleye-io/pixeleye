@@ -1,6 +1,6 @@
 import { S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
-import { StorageProvider } from "./types";
+import { ImageType, StorageProvider } from "./types";
 
 const REGION = "eu-west-2";
 
@@ -12,10 +12,10 @@ const s3Client = new S3Client({
   },
 });
 
-async function getUploadUrl(hash: string, projectId: string) {
+async function getUploadUrl(hash: string, type: ImageType, projectId?: string) {
   const post = await createPresignedPost(s3Client, {
     Bucket: "pixeleye-images-dev",
-    Key: `${projectId}/${hash}`,
+    Key: `${type}/${projectId ? `${projectId}/` : ""}${hash}`,
     Fields: {
       acl: "public-read",
       "Content-Type": "png",
@@ -28,7 +28,9 @@ async function getUploadUrl(hash: string, projectId: string) {
 
   return {
     ...post,
-    endpoint: `https://pixeleye-images-dev.s3.eu-west-2.amazonaws.com/${projectId}/${hash}`,
+    endpoint: `https://pixeleye-images-dev.s3.eu-west-2.amazonaws.com/${type}/${
+      projectId ? `${projectId}/` : ""
+    }${hash}`,
   };
 }
 

@@ -1,5 +1,7 @@
 import { App } from "@octokit/app";
 
+export { composePaginateRest } from "@octokit/plugin-paginate-rest";
+
 const app = new App({
   appId: process.env.GITHUB_APP_ID!,
   privateKey: process.env.GITHUB_PRIVATE_KEY!,
@@ -22,14 +24,6 @@ export const getUserOctokit = (options: {
   token: string;
   expiresAt: string;
 }) => app.oauth.getUserOctokit(options);
-
-export const getRepos = (userName: string) =>
-  app.octokit.request(
-    "GET /user/installations/{installation_id}/repositories",
-    {
-      installation_id: Number(process.env.APP_ID!),
-    },
-  );
 
 export const userConnected = (userName: string) =>
   app.octokit.request("GET /users/{username}/installation", {

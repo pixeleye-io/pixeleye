@@ -4,6 +4,12 @@ interface UploadPost {
   endpoint: string;
 }
 
+export type ImageType = "snap" | "diff";
+
 export interface StorageProvider {
-  getUploadUrl: (hash: string, projectId: string) => Promise<UploadPost>;
+  getUploadUrl: (
+    hash: string,
+    type: ImageType,
+    projectId?: string,
+  ) => Promise<UploadPost>;
 }

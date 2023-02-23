@@ -40,7 +40,7 @@ model Image {
     id                    String             @id @default(cuid())
     hash                  String
     Project               Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    url                   String?            @unique @default(cuid())
+    url                   String?            @unique
     projectId             String
     createdAt             DateTime           @default(now())
     baseVisualDifferences VisualDifference[] @relation("baseImage")
@@ -48,6 +48,14 @@ model Image {
     visualSnapshots       VisualSnapshot[]
 
     @@unique([projectId, hash])
+}
+
+model DiffImage {
+    id               String             @id @default(cuid())
+    hash             String             @unique
+    url              String?            @unique
+    createdAt        DateTime           @default(now())
+    VisualDifference VisualDifference[]
 }
 
 enum VisualDifferenceStatus {
@@ -62,14 +70,19 @@ enum VisualDifferenceError {
 }
 
 model VisualDifference {
-    id          String                  @id @default(cuid())
-    baseImage   Image                   @relation("baseImage", fields: [baseImageId], references: [id], onDelete: Cascade)
-    baseImageId String
-    image       Image                   @relation("image", fields: [imageId], references: [id], onDelete: Cascade)
-    imageId     String
-    status      VisualDifferenceStatus
-    error       VisualDifferenceError[]
-    createdAt   DateTime                @default(now())
+    id             String                  @id @default(cuid())
+    baseImage      Image                   @relation("baseImage", fields: [baseImageId], references: [id], onDelete: Cascade)
+    baseImageId    String
+    image          Image                   @relation("image", fields: [imageId], references: [id], onDelete: Cascade)
+    imageId        String
+    diffImage      DiffImage?              @relation(fields: [diffImageId], references: [id], onDelete: Cascade)
+    diffImageId    String?
+    status         VisualDifferenceStatus
+    error          VisualDifferenceError[]
+    createdAt      DateTime                @default(now())
+    VisualSnapshot VisualSnapshot[]
+
+    @@unique([baseImageId, imageId])
 }
 
 enum BrowserEnum {
@@ -77,19 +90,23 @@ enum BrowserEnum {
     FIREFOX
     SAFARI
     EDGE
+    UNKNOWN
 }
 
 model VisualSnapshot {
-    id        String       @id @default(cuid())
-    image     Image        @relation(fields: [imageId], references: [id])
-    imageId   String
-    createdAt DateTime     @default(now())
-    browser   BrowserEnum?
-    Snapshot  Snapshot[]
+    id                 String            @id @default(cuid())
+    image              Image             @relation(fields: [imageId], references: [id])
+    imageId            String
+    createdAt          DateTime          @default(now())
+    browser            BrowserEnum
+    Snapshot           Snapshot[]
+    visualDifferenceId String?
+    VisualDifference   VisualDifference? @relation(fields: [visualDifferenceId], references: [id])
 }
 
 model Snapshot {
     id              String           @id @default(cuid())
+    sha             String
     name            String
     variant         String
     createdAt       DateTime         @default(now())
@@ -97,7 +114,7 @@ model Snapshot {
     Build           Build?           @relation(fields: [buildId], references: [id])
     buildId         String?
 
-    @@unique([name, variant])
+    @@unique([sha, name, variant])
 }
 
 model DomSnapshot {
@@ -125,6 +142,9 @@ model Build {
     url              String?
     createdAt        DateTime    @default(now())
     Snapshots        Snapshot[]
+    predecessorId    String?     @unique
+    predecessor      Build?      @relation("BuildComparison", fields: [predecessorId], references: [id])
+    successor        Build?      @relation("BuildComparison")
 
     @@unique([projectId, sha])
 }

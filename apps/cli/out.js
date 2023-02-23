@@ -7793,15 +7793,14 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
   });
 }
 
-// ../node/src/service.ts
-import sharp from "sharp";
-
 // ../node/src/image.ts
 import crypto from "crypto";
+import sharp from "sharp";
 function generateHash(img) {
   const hash = crypto.createHash("sha256");
   return hash.update(img).digest("hex");
 }
+var optimiseImage = (img) => sharp(img).png({ palette: true }).toBuffer();
 
 // ../node/src/service.ts
 function service(api2) {
@@ -7820,7 +7819,6 @@ function service(api2) {
       body: formData
     });
   }
-  const optimiseImage = (img) => sharp(img).png({ palette: true }).toBuffer();
   async function uploadImage(img) {
     const optimisedImg = await optimiseImage(img);
     const hash = generateHash(optimisedImg);
@@ -7837,7 +7835,7 @@ function service(api2) {
       sha,
       visualSnapshots: snapshotIds,
       commitMessage: "test" + Math.random(),
-      branch: "test" + Math.random()
+      branch: "main"
     });
     return build;
   }
@@ -8644,11 +8642,13 @@ async function upload(path, options) {
         (file) => fs3.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => await client.uploadImage(buffer))
       )
     );
+    const sha = Math.random().toString(36).substring(7);
     const ids = await Promise.all(
       snaps.map(
-        (hash) => client.createSnapshot({
-          name: "test" + Math.random(),
-          hash
+        (hash, i2) => client.createSnapshot({
+          name: "test" + i2.toString(),
+          hash,
+          sha
         })
       )
     );

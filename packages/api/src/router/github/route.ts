@@ -1,5 +1,5 @@
 import { prisma } from "@pixeleye/db";
-import { getOctokit, githubApp } from "@pixeleye/github";
+import { composePaginateRest, getOctokit, githubApp } from "@pixeleye/github";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -80,24 +80,12 @@ export const githubRouter = createTRPCRouter({
         },
       );
 
-      octokit.hook.wrap("request", async (request, options) => {
-        // add logic before, after, catch errors or replace the request altogether
-        console.log("request", options);
-        // @ts-ignore
-        return request(options).then((res) => {
-          console.log("response", res);
-          return res;
-        });
-      });
+      const repos = await composePaginateRest(
+        octokit,
+        "GET /installation/repositories" as any,
+      );
 
-      const repos = await octokit.request("GET /installation/repositories", {
-        page: input.page,
-        per_page: 100,
-        sort: "updated",
-        direction: "desc",
-      });
-
-      return repos.data.repositories
+      return repos
         .sort((a, b) => {
           return (
             new Date(b.pushed_at || "").getTime() -
@@ -111,7 +99,14 @@ export const githubRouter = createTRPCRouter({
           private: repo.private,
           url: repo.html_url,
           updated: repo.updated_at,
-        }));
+        })) as {
+        id: number;
+        name: string;
+        installation_id: string;
+        private: boolean;
+        url: string;
+        updated: string;
+      }[];
     }),
   getInstallations: protectedProcedureGithub
     .input(

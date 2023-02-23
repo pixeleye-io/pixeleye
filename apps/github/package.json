@@ -2,7 +2,8 @@
   "name": "@pixeleye/github",
   "version": "0.0.0",
   "dependencies": {
-    "@octokit/app": "^13.1.2"
+    "@octokit/app": "^13.1.2",
+    "@octokit/plugin-paginate-rest": "^6.0.0"
   },
   "devDependencies": {
     "eslint": "8.32.0",

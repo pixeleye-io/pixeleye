@@ -41,11 +41,13 @@ async function upload(path: string, options: Config) {
             .then(async (buffer) => await client.uploadImage(buffer)),
         ),
       );
+      const sha = Math.random().toString(36).substring(7);
       const ids = await Promise.all(
-        snaps.map((hash) =>
+        snaps.map((hash, i) =>
           client.createSnapshot({
-            name: "test" + Math.random(),
+            name: "test" + i.toString(),
             hash,
+            sha,
           }),
         ),
       );

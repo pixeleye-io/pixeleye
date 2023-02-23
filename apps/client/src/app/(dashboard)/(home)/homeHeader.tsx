@@ -1,12 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Header, NavTab } from "@pixeleye/ui";
+import { useTeamStore } from "~/lib/stores/team";
 
 export function HomeHeader() {
   const pathName = usePathname();
   const teamId = useSearchParams().get("team");
+
+  const setTeamId = useTeamStore((state) => state.setTeamId);
+
+  useEffect(() => {
+    setTeamId(teamId || "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

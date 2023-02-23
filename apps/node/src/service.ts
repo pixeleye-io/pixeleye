@@ -1,9 +1,8 @@
 import { Blob } from "buffer";
 import crypto from "crypto";
 import fetch from "node-fetch";
-import sharp from "sharp";
 import { RouterType, api } from "./api";
-import { generateHash } from "./image";
+import { generateHash, optimiseImage } from "./image";
 
 type API = ReturnType<typeof api>;
 
@@ -34,9 +33,6 @@ export function service(api: API) {
     });
   }
 
-  const optimiseImage = (img: Buffer) =>
-    sharp(img).png({ palette: true }).toBuffer();
-
   async function uploadImage(img: Buffer) {
     const optimisedImg = await optimiseImage(img);
     const hash = generateHash(optimisedImg);
@@ -51,7 +47,8 @@ export function service(api: API) {
     name: string;
     variant?: string;
     hash: string;
-    browser?: "CHROME" | "FIREFOX" | "SAFARI" | "EDGE";
+    sha: string;
+    browser?: "CHROME" | "FIREFOX" | "SAFARI" | "EDGE" | "UNKNOWN";
   }
 
   const createSnapshot = (data: SnapshotData) =>
@@ -63,7 +60,7 @@ export function service(api: API) {
       sha,
       visualSnapshots: snapshotIds,
       commitMessage: "test" + Math.random(),
-      branch: "test" + Math.random(),
+      branch: "main",
     });
     return build;
   }
