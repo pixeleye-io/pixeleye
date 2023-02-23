@@ -287,6 +287,7 @@ export const projectRouter = createTRPCRouter({
                   pullRequestTitle: true,
                   sha: true,
                   url: true,
+                  name: true,
                 },
                 orderBy: {
                   createdAt: "desc",

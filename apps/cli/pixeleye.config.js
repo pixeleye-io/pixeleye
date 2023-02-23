@@ -1,5 +1,5 @@
 export default {
-  key: "clehc3l7l00attgvgosqiz4au",
-  s: "f95425c6-5f7f-4567-8e14-2e434771eb12",
+  key: "clehio9o7003utg9cmy8wgckc",
+  s: "6730e5d2-4155-4865-bf3a-dca790c338b2",
   url: "http://localhost:3000",
 };

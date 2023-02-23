@@ -53,7 +53,7 @@ function BuildItem({
               <div className="truncate">
                 <div className="flex text-sm">
                   <p className="font-medium text-gray-900 truncate dark:text-white">
-                    {build.commitMessage || build.id}
+                    {build.commitMessage || build.name}
                   </p>
                 </div>
                 <div className="flex mt-2">
@@ -110,7 +110,7 @@ export default async function ProjectPage({
           <div className="my-8">
             <h2 className="text-3xl font-semibold">Builds</h2>
           </div>
-          <ul className="space-y-4">
+          <ul className="mb-12 space-y-4">
             {data.builds.map((build) => (
               <BuildItem build={build} key={build.id} />
             ))}

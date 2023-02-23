@@ -35,21 +35,28 @@ export const buildRouter = createTRPCRouter({
         branch,
       } = input;
 
-      const predecessorId = await ctx.prisma.build.findFirst({
-        where: {
-          projectId,
-          branch,
-          successor: {
-            is: null,
+      const [predecessorId, buildCount] = await Promise.all([
+        ctx.prisma.build.findFirst({
+          where: {
+            projectId,
+            branch,
+            successor: {
+              is: null,
+            },
           },
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        select: {
-          id: true,
-        },
-      });
+          orderBy: {
+            createdAt: "desc",
+          },
+          select: {
+            id: true,
+          },
+        }),
+        ctx.prisma.build.count({
+          where: {
+            projectId,
+          },
+        }),
+      ]);
 
       const build = await ctx.prisma.build.upsert({
         where: {
@@ -75,6 +82,7 @@ export const buildRouter = createTRPCRouter({
             },
           }),
           sha,
+          name: `build ${buildCount + 1}`,
           commitMessage,
           pullRequestTitle,
           url,

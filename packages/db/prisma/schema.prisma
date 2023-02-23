@@ -93,6 +93,12 @@ enum BrowserEnum {
     UNKNOWN
 }
 
+enum ReviewStatus {
+    UNREVIEWED
+    APPROVED
+    DENIED
+}
+
 model VisualSnapshot {
     id                 String            @id @default(cuid())
     image              Image             @relation(fields: [imageId], references: [id])
@@ -100,6 +106,7 @@ model VisualSnapshot {
     createdAt          DateTime          @default(now())
     browser            BrowserEnum
     Snapshot           Snapshot[]
+    reviewStatus       ReviewStatus      @default(UNREVIEWED)
     visualDifferenceId String?
     VisualDifference   VisualDifference? @relation(fields: [visualDifferenceId], references: [id])
 }
@@ -134,6 +141,7 @@ model Build {
     sha              String
     Project          Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId        String
+    name             String      @default("Unnamed Build")
     commitMessage    String
     pullRequestTitle String?
     author           String?
