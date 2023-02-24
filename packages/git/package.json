@@ -1,0 +1,22 @@
+{
+  "name": "@pixeleye/git",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@types/node": "18.14.1",
+    "eslint": "8.34.0",
+    "typescript": "4.9.5"
+  },
+  "private": true,
+  "main": "./index.ts",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
+  },
+  "types": "./index.tsx",
+  "dependencies": {
+    "octokit": "^2.0.14",
+    "@pixeleye/db": "*"
+  }
+}

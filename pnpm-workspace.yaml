@@ -6,6 +6,7 @@ packages:
   - packages/hooks
   - packages/authOptions
   - packages/serverUtils
+  - packages/git
   - packages/utils
   - packages/api
   - packages/auth

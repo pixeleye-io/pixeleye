@@ -10,79 +10,22 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-enum ProjectRole {
-    OWNER
-    REVIEWER
-    VIEWER
-}
+model SnapImage {
+    id        String @id @default(cuid())
+    hash      String
+    projectId String
+    url       String @unique
 
-enum TeamRole {
-    OWNER
-    ADMIN
-    MEMBER
-}
-
-enum SourceEnum {
-    GITHUB
-    GITLAB
-    BITBUCKET
-    OTHER
-}
-
-enum TeamType {
-    GITHUB
-    GITLAB
-    BITBUCKET
-    USER
-}
-
-model Image {
-    id                    String             @id @default(cuid())
-    hash                  String
-    Project               Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    url                   String?            @unique
-    projectId             String
-    createdAt             DateTime           @default(now())
-    baseVisualDifferences VisualDifference[] @relation("baseImage")
-    visualDiffernces      VisualDifference[] @relation("image")
-    visualSnapshots       VisualSnapshot[]
+    project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    ImageSnapshot ImageSnapshot[]
 
     @@unique([projectId, hash])
 }
 
 model DiffImage {
-    id               String             @id @default(cuid())
-    hash             String             @unique
-    url              String?            @unique
-    createdAt        DateTime           @default(now())
-    VisualDifference VisualDifference[]
-}
-
-enum VisualDifferenceStatus {
-    PENDING
-    COMPLETED
-    FAILED
-}
-
-enum VisualDifferenceError {
-    BASE_IMAGE_NOT_FOUND
-    IMAGE_NOT_FOUND
-}
-
-model VisualDifference {
-    id             String                  @id @default(cuid())
-    baseImage      Image                   @relation("baseImage", fields: [baseImageId], references: [id], onDelete: Cascade)
-    baseImageId    String
-    image          Image                   @relation("image", fields: [imageId], references: [id], onDelete: Cascade)
-    imageId        String
-    diffImage      DiffImage?              @relation(fields: [diffImageId], references: [id], onDelete: Cascade)
-    diffImageId    String?
-    status         VisualDifferenceStatus
-    error          VisualDifferenceError[]
-    createdAt      DateTime                @default(now())
-    VisualSnapshot VisualSnapshot[]
-
-    @@unique([baseImageId, imageId])
+    id   String  @id @default(cuid())
+    hash String  @unique
+    url  String? @unique
 }
 
 enum BrowserEnum {
@@ -90,43 +33,66 @@ enum BrowserEnum {
     FIREFOX
     SAFARI
     EDGE
-    UNKNOWN
 }
 
-enum ReviewStatus {
-    UNREVIEWED
-    APPROVED
-    DENIED
-}
+model ImageSnapshot {
+    id        String       @id @default(cuid())
+    browser   BrowserEnum?
+    viewport  String?
+    imageId   String
+    projectId String
 
-model VisualSnapshot {
-    id                 String            @id @default(cuid())
-    image              Image             @relation(fields: [imageId], references: [id])
-    imageId            String
-    createdAt          DateTime          @default(now())
-    browser            BrowserEnum
-    Snapshot           Snapshot[]
-    reviewStatus       ReviewStatus      @default(UNREVIEWED)
-    visualDifferenceId String?
-    VisualDifference   VisualDifference? @relation(fields: [visualDifferenceId], references: [id])
+    image      SnapImage @relation(fields: [imageId], references: [id], onDelete: Cascade)
+    project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    Snapshot   Snapshot? @relation(fields: [snapshotId], references: [id])
+    snapshotId String?
+
+    @@unique([projectId, browser, viewport])
+    @@unique([imageId, browser, viewport])
 }
 
 model Snapshot {
-    id              String           @id @default(cuid())
-    sha             String
-    name            String
-    variant         String
-    createdAt       DateTime         @default(now())
-    visualSnapshots VisualSnapshot[]
-    Build           Build?           @relation(fields: [buildId], references: [id])
-    buildId         String?
+    id             String          @id @default(cuid())
+    sha            String
+    name           String
+    variant        String
+    projectId      String
+    imageSnapshots ImageSnapshot[]
+
+    project           Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    Report            Report?             @relation(fields: [reportSha, reportProjectId], references: [sha, projectId])
+    reportSha         String?
+    reportProjectId   String?
+    BaselineSnapshots BaselineSnapshots[]
 
     @@unique([sha, name, variant])
 }
 
-model DomSnapshot {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
+model Report {
+    sha       String
+    projectId String
+    message   String? // e.g. commit message
+    createdAt DateTime   @default(now())
+    snapshots Snapshot[]
+
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    Build   Build[]
+
+    @@id([sha, projectId])
+}
+
+model BaselineSnapshots {
+    snapshotId String
+    projectId  String
+    name       String
+    variant    String
+    updatedAt  DateTime @default(now())
+    branch     String
+
+    project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    snapshot Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+    @@id([projectId, name, variant])
 }
 
 enum BuildStatus {
@@ -137,25 +103,29 @@ enum BuildStatus {
 }
 
 model Build {
-    id               String      @id @default(cuid())
-    sha              String
-    Project          Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId        String
-    name             String      @default("Unnamed Build")
-    commitMessage    String
-    pullRequestTitle String?
-    author           String?
-    status           BuildStatus @default(PENDING)
-    branch           String
-    target           String?
-    url              String?
-    createdAt        DateTime    @default(now())
-    Snapshots        Snapshot[]
-    predecessorId    String?     @unique
-    predecessor      Build?      @relation("BuildComparison", fields: [predecessorId], references: [id])
-    successor        Build?      @relation("BuildComparison")
+    id            String      @id @default(nanoid())
+    projectId     String
+    branch        String
+    sha           String
+    title         String? // e.g. pull request title
+    url           String? // e.g. pull request url
+    createdAt     DateTime    @default(now())
+    predecessorId String?     @unique
+    status        BuildStatus @default(PENDING)
+
+    predecessor Build?  @relation("BuildComparison", fields: [predecessorId], references: [id])
+    successor   Build?  @relation("BuildComparison")
+    project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    report      Report  @relation(fields: [sha, projectId], references: [sha, projectId])
 
     @@unique([projectId, sha])
+}
+
+enum TeamType {
+    GITHUB
+    GITLAB
+    BITBUCKET
+    USER
 }
 
 model Team {
@@ -168,6 +138,12 @@ model Team {
     Source   Source[]
 }
 
+enum TeamRole {
+    OWNER
+    ADMIN
+    MEMBER
+}
+
 model UserOnTeam {
     team   Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId String
@@ -176,6 +152,13 @@ model UserOnTeam {
     role   TeamRole
 
     @@id([teamId, userId])
+}
+
+enum SourceEnum {
+    GITHUB
+    GITLAB
+    BITBUCKET
+    OTHER
 }
 
 model Source {
@@ -192,25 +175,37 @@ model Source {
 }
 
 model Project {
-    id       String          @id @default(cuid())
+    id       String  @id @default(nanoid())
     gitId    String
     name     String
-    key      String          @unique @default(cuid())
+    key      String  @unique @default(cuid())
     secret   String
     url      String?
-    source   Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
-    sourceId String
-    builds   Build[]
-    users    UserOnProject[]
-    Team     Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     teamId   String?
-    Image    Image[]
+    sourceId String
+
+    users  UserOnProject[]
+    Team   Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+    source Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+    builds            Build[]
+    SnapImage         SnapImage[]
+    ImageSnapshot     ImageSnapshot[]
+    Snapshot          Snapshot[]
+    Report            Report[]
+    BaselineSnapshots BaselineSnapshots[]
 }
 
 enum UserOnProjectType {
     ADMIN
     CONTRIBUTOR
     EXTERNAL
+}
+
+enum ProjectRole {
+    OWNER
+    REVIEWER
+    VIEWER
 }
 
 model UserOnProject {
