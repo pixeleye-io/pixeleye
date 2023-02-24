@@ -19,6 +19,7 @@ export const buildRouter = createTRPCRouter({
         pullRequestTitle: z.string().optional(),
         commitMessage: z.string(),
         branch: z.string(),
+        target: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -28,6 +29,7 @@ export const buildRouter = createTRPCRouter({
         visualSnapshots,
         author,
         domSnapshots,
+        target,
         partial,
         url,
         pullRequestTitle,
@@ -71,6 +73,7 @@ export const buildRouter = createTRPCRouter({
           url,
           branch,
           author,
+          target,
         },
         create: {
           branch,
@@ -81,6 +84,7 @@ export const buildRouter = createTRPCRouter({
               },
             },
           }),
+          target,
           sha,
           name: `build ${buildCount + 1}`,
           commitMessage,

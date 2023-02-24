@@ -147,6 +147,7 @@ model Build {
     author           String?
     status           BuildStatus @default(PENDING)
     branch           String
+    target           String?
     url              String?
     createdAt        DateTime    @default(now())
     Snapshots        Snapshot[]
