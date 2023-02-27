@@ -1,5 +1,5 @@
 import "~/styles/globals.css";
-import { Inter } from "@next/font/google";
+import { Inter } from "next/font/google";
 import { themeScript } from "@pixeleye/hooks";
 import Providers from "./providers";
 

@@ -8,7 +8,7 @@ import { useTeamStore } from "~/lib/stores/team";
 
 export function HomeHeader() {
   const pathName = usePathname();
-  const teamId = useSearchParams().get("team");
+  const teamId = useSearchParams()?.get("team");
 
   const setTeamId = useTeamStore((state) => state.setTeamId);
 

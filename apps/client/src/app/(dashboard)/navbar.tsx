@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSelectedLayoutSegments } from "next/navigation";
+import { useSearchParams, useSelectedLayoutSegments } from "next/navigation";
 import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 import { Theme, useThemeStore } from "@pixeleye/hooks";
 import { Breadcrumbs, Button, Modal, NavLink, Select } from "@pixeleye/ui";
@@ -13,36 +13,19 @@ import * as Popover from "@radix-ui/react-popover";
 import { cx } from "class-variance-authority";
 import { useSession } from "next-auth/react";
 import { create } from "zustand";
+import AvatarPic from "~/components/avatar";
 import { RouterOutputs } from "~/lib/api";
 import { useTeamStore } from "~/lib/stores/team";
 
 function Avatar() {
   const session = useSession();
-  const [imageFail, setImageFail] = useState(false);
-
-  const initials = session.data?.user.name
-    ?.split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("");
 
   return (
-    <span className="relative z-0 flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full select-none dark:bg-gray-700">
-      {session.data?.user.image && !imageFail ? (
-        <Image
-          onError={() => setImageFail(true)}
-          className="z-10 object-cover w-8 h-8 rounded-full"
-          width="64"
-          height="64"
-          src={session.data.user.image}
-          alt="Profile picture"
-        />
-      ) : (
-        <span className="text-sm font-semibold text-black dark:text-white">
-          {initials}
-        </span>
-      )}
-    </span>
+    <AvatarPic
+      name={session.data?.user.name || ""}
+      src={session.data?.user.image}
+      alt="Profile Picture"
+    />
   );
 }
 
@@ -67,7 +50,15 @@ function TeamToggle({ name, teams, className }: TeamToggleProps) {
     [undefined, []] as [Teams[0] | undefined, Teams],
   );
 
-  const teamId = useTeamStore((state) => state.teamId);
+  const storeTeamId = useTeamStore((state) => state.teamId);
+  const setStoreTeamId = useTeamStore((state) => state.setTeamId);
+
+  const paramsTeamId = useSearchParams()?.get("team");
+
+  const teamId = paramsTeamId || storeTeamId;
+
+  if (paramsTeamId !== storeTeamId && paramsTeamId)
+    setStoreTeamId(paramsTeamId);
 
   const selected = teams.find((team) => team.id === teamId) || personal;
 

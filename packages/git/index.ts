@@ -1,1 +1,1 @@
-export { default as storage } from "./src/interface";
+export * from "./src/interface";

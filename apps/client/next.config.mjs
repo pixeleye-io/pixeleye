@@ -34,6 +34,7 @@ const config = {
         pathname: "/**",
       },
     ],
+    unoptimized: true,
   },
   webpack: (config) => {
     config.resolve.fallback = {

@@ -22,6 +22,7 @@
     "@pixeleye/auth-options": "*",
     "@pixeleye/db": "*",
     "@pixeleye/github": "*",
+    "@pixeleye/git": "*",
     "@pixeleye/hooks": "*",
     "@pixeleye/node": "*",
     "@pixeleye/storage": "*",

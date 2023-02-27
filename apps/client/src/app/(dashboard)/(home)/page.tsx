@@ -18,7 +18,6 @@ export default async function IndexPage({
     .catch(() => {
       // Probably a bad team id, redirect to personal team
       if (teamId) redirect("/");
-      console.log("akfldslkflkj");
     });
   const projects = team?.id
     ? await serverApi(session).project.getTeamProjects({
@@ -32,7 +31,9 @@ export default async function IndexPage({
         <h1 className="text-4xl">Projects</h1>
         <Button asChild>
           <Link
-            href={"/add" + (team?.type !== "USER" ? `?team=${team?.id}` : "")}
+            href={
+              "/add/github" + (team?.type !== "USER" ? `?team=${team?.id}` : "")
+            }
           >
             Add project
           </Link>

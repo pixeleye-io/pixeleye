@@ -5,7 +5,7 @@ import { Button } from "@pixeleye/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { api } from "~/lib/api";
-import { API_SECRET } from "../../add/page";
+import { API_SECRET } from "../../add/page2";
 
 interface TokenViewProps {
   projectId: string;
