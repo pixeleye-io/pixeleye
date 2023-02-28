@@ -7,8 +7,10 @@
     "@pixeleye/db": "*",
     "@pixeleye/github": "*",
     "@sendgrid/mail": "^7.7.0",
+    "encoding": "^0.1.13",
     "next": "13.2.1",
     "next-auth": "4.19.2",
+    "node-fetch": "^3.3.0",
     "nodemailer": "^6.9.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"

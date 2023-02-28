@@ -285,21 +285,25 @@ importers:
       '@pixeleye/db': '*'
       '@pixeleye/github': '*'
       '@sendgrid/mail': ^7.7.0
+      encoding: ^0.1.13
       eslint: 8.34.0
       next: 13.2.1
       next-auth: 4.19.2
+      node-fetch: ^3.3.0
       nodemailer: ^6.9.1
       react: 18.2.0
       react-dom: 18.2.0
       typescript: 4.9.5
     dependencies:
       '@next-auth/prisma-adapter': 1.0.5_next-auth@4.19.2
-      '@octokit/oauth-methods': 2.0.5
+      '@octokit/oauth-methods': 2.0.5_encoding@0.1.13
       '@pixeleye/db': link:../db
       '@pixeleye/github': link:../../apps/github
       '@sendgrid/mail': 7.7.0
+      encoding: 0.1.13
       next: 13.2.1_biqbaboplfbrettd7655fr4n2y
       next-auth: 4.19.2_klmjkk7frv5rhqq6c6vl6v2ahm
+      node-fetch: 3.3.0
       nodemailer: 6.9.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -5642,6 +5646,19 @@ packages:
       - encoding
     dev: false
 
+  /@octokit/oauth-methods/2.0.5_encoding@0.1.13:
+    resolution: {integrity: sha512-yQP6B5gE3axNxuM3U9KqWs/ErAQ+WLPaPgC/7EjsZsQibkf8sjdAfF8/y/EJW+Dd05XQvadX4WhQZPMnO1SE1A==}
+    engines: {node: '>= 14'}
+    dependencies:
+      '@octokit/oauth-authorization-url': 5.0.0
+      '@octokit/request': 6.2.3_encoding@0.1.13
+      '@octokit/request-error': 3.0.3
+      '@octokit/types': 9.0.0
+      btoa-lite: 1.0.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@octokit/openapi-types/16.0.0:
     resolution: {integrity: sha512-JbFWOqTJVLHZSUUoF4FzAZKYtqdxWu9Z5m2QQnOyEa04fOFljvyh7D3GYKbfuaSWisqehImiVIMG4eyJeP5VEA==}
     dev: false
@@ -5716,6 +5733,20 @@ packages:
       '@octokit/types': 9.0.0
       is-plain-object: 5.0.0
       node-fetch: 2.6.8
+      universal-user-agent: 6.0.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
+  /@octokit/request/6.2.3_encoding@0.1.13:
+    resolution: {integrity: sha512-TNAodj5yNzrrZ/VxP+H5HiYaZep0H3GU0O7PaF+fhDrt8FPrnkei9Aal/txsN/1P7V3CPiThG0tIvpPDYUsyAA==}
+    engines: {node: '>= 14'}
+    dependencies:
+      '@octokit/endpoint': 7.0.5
+      '@octokit/request-error': 3.0.3
+      '@octokit/types': 9.0.0
+      is-plain-object: 5.0.0
+      node-fetch: 2.6.8_encoding@0.1.13
       universal-user-agent: 6.0.0
     transitivePeerDependencies:
       - encoding
@@ -10755,6 +10786,12 @@ packages:
     resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
     engines: {node: '>= 0.8'}
 
+  /encoding/0.1.13:
+    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+    dependencies:
+      iconv-lite: 0.6.3
+    dev: false
+
   /end-of-stream/1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
     dependencies:
@@ -12690,6 +12727,13 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       safer-buffer: 2.1.2
+
+  /iconv-lite/0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      safer-buffer: 2.1.2
+    dev: false
 
   /icss-utils/5.1.0_postcss@8.4.21:
     resolution: {integrity: sha512-soFhflCVWLfRNOPU3iv5Z9VUdT44xFRbzjLsEzSr5AQmgqPMTHdU3PMT1Cf1ssx8fLNJDA1juftYl+PUcv3MqA==}
@@ -15650,6 +15694,19 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
+
+  /node-fetch/2.6.8_encoding@0.1.13:
+    resolution: {integrity: sha512-RZ6dBYuj8dRSfxpUSu+NsdF1dpPpluJxwOp+6IoDp/sH2QNDSvurYsAa+F1WxY2RjA1iP93xhcsUoYbF2XBqVg==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+    dependencies:
+      encoding: 0.1.13
+      whatwg-url: 5.0.0
+    dev: false
 
   /node-fetch/3.3.0:
     resolution: {integrity: sha512-BKwRP/O0UvoMKp7GNdwPlObhYGB5DQqwhEDQlNKuoqwVYSxkSZCSbHjnFFmUEtwSKRPU4kNK8PbDYYitwaE3QA==}
