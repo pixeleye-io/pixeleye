@@ -7,11 +7,13 @@ import { cx } from "class-variance-authority";
 const sizeMap = {
   sm: 24,
   md: 32,
+  xl: 208,
 };
 
 const classSizeMap = {
   sm: "w-6 h-6",
   md: "w-8 h-8",
+  xl: "w-52 h-52",
 };
 
 export interface AvatarProps {

@@ -29,15 +29,13 @@ export default async function IndexPage({
     <Container className="py-12">
       <div className="flex justify-between">
         <h1 className="text-4xl">Projects</h1>
-        <Button asChild>
-          <Link
-            href={
-              "/add/github" + (team?.type !== "USER" ? `?team=${team?.id}` : "")
-            }
-          >
-            Add project
-          </Link>
-        </Button>
+        <Link
+          href={
+            "/add/github" + (team?.type !== "USER" ? `?team=${team?.id}` : "")
+          }
+        >
+          <Button asChild>Add project</Button>
+        </Link>
       </div>
       <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {projects?.map((project) => (

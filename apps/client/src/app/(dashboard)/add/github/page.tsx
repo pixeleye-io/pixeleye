@@ -5,6 +5,7 @@ import { getGitProvider } from "@pixeleye/git";
 import { Container } from "@pixeleye/ui";
 import { getSession } from "next-auth/react";
 import Avatar from "~/components/avatar";
+import timeSince from "~/lib/utils/dateSince";
 
 async function getGithubRepos(teamId?: string) {
   if (!teamId) {
@@ -41,65 +42,82 @@ export default async function AddGithubPage({
 }) {
   const teamId = searchParams?.team;
 
-  const repos = await getGithubRepos(teamId);
+  const repoData = await getGithubRepos(teamId);
 
   return (
-    <Container className="!max-w-3xl">
-      <div>
-        <h1 className="py-12 text-2xl font-bold">Add Github</h1>
-      </div>
-      <ul
-        role="list"
-        className="relative mx-auto overflow-hidden border border-gray-200 divide-y divide-gray-200 rounded-lg dark:border-gray-800 dark:divide-gray-800"
-      >
-        {repos?.map((repo) => (
-          <li key={repo.id}>
-            <a
-              href="#"
-              className="block hover:bg-gray-50 dark:hover:bg-gray-850"
-            >
-              <div className="flex items-center px-4 py-4 sm:px-6">
-                <div className="flex-1 min-w-0 sm:flex sm:items-center sm:justify-between">
-                  <div className="truncate">
-                    <div className="flex text-sm">
-                      <p className="font-medium text-gray-900 truncate dark:text-white">
-                        {repo.name}
-                      </p>
-                      <p className="flex-shrink-0 ml-1 font-normal text-gray-500">
-                        in {repo.name}
-                      </p>
-                    </div>
-                    <div className="flex mt-2">
-                      <div className="flex items-center text-sm text-gray-500">
-                        Test
+    <Container>
+      <div className="flex mx-8 mt-12 space-x-8">
+        <aside className="sticky top-4 w-80 h-min">
+          <Avatar
+            size="xl"
+            src={repoData.owner.avatar}
+            name={repoData.owner.name}
+          />
+          <h3 className="mt-4 text-xl font-semibold">{repoData.owner.name}</h3>
+          <a
+            rel="noopener"
+            target="_blank"
+            className="text-xs text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            href={repoData.owner.url}
+          >
+            {repoData.owner.url}
+          </a>
+        </aside>
+        <div className="w-full overflow-hidden grow">
+          <ul
+            role="list"
+            className="border border-gray-200 divide-y divide-gray-200 rounded-lg dark:border-gray-800 dark:divide-gray-800"
+          >
+            {repoData.repos?.map((repo) => (
+              <li key={repo.id}>
+                <a
+                  href="#"
+                  className="block hover:bg-gray-50 dark:hover:bg-gray-850"
+                >
+                  <div className="flex items-center px-4 py-4 sm:px-6">
+                    <div className="flex-1 min-w-0 sm:flex sm:items-center sm:justify-between">
+                      <div className="truncate">
+                        <div className="flex text-sm">
+                          <p className="font-medium text-gray-900 truncate dark:text-white">
+                            {repo.name}
+                          </p>
+                          <p className="flex-shrink-0 ml-1 font-normal text-gray-500">
+                            last updated {repo.lastUpdated}
+                          </p>
+                        </div>
+                        <div className="flex mt-2">
+                          <div className="flex items-center text-sm text-gray-500">
+                            {repo.description}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 mt-4 sm:mt-0 sm:ml-5">
+                        <div className="flex -space-x-1 overflow-hidden">
+                          {repo.contributors.map((contributor) => (
+                            <Avatar
+                              key={contributor.id}
+                              name={contributor.name}
+                              src={contributor.avatar}
+                              className="ring ring-white dark:ring-gray-900"
+                              size="sm"
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex-shrink-0 mt-4 sm:mt-0 sm:ml-5">
-                    <div className="flex -space-x-1 overflow-hidden">
-                      {repo.contributors.map((contributor) => (
-                        <Avatar
-                          key={contributor.id}
-                          name={contributor.name}
-                          src={contributor.avatar}
-                          className="ring ring-white dark:ring-gray-900"
-                          size="sm"
-                        />
-                      ))}
+                    <div className="flex-shrink-0 ml-5">
+                      <ChevronRightIcon
+                        className="w-5 h-5 text-gray-400"
+                        aria-hidden="true"
+                      />
                     </div>
                   </div>
-                </div>
-                <div className="flex-shrink-0 ml-5">
-                  <ChevronRightIcon
-                    className="w-5 h-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
-            </a>
-          </li>
-        ))}
-      </ul>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </Container>
   );
 }

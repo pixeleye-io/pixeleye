@@ -16,7 +16,9 @@
   },
   "types": "./index.tsx",
   "dependencies": {
-    "octokit": "^2.0.14",
-    "@pixeleye/db": "*"
+    "@pixeleye/db": "*",
+    "@pixeleye/utils": "*",
+    "dayjs": "^1.11.7",
+    "octokit": "^2.0.14"
   }
 }
