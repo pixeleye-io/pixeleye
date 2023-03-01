@@ -2,7 +2,7 @@
   "headers": [
     {
       "title": "Getting started",
-      "path": "/getting-started/introduction.md",
+      "path": "/getting-started",
       "routes": [
         {
           "title": "Introduction",
@@ -26,7 +26,7 @@
     },
     {
       "title": "Usage",
-      "path": "/getting-started/introduction.md",
+      "path": "/usage,
       "routes": [
         {
           "title": "Basic usage",
