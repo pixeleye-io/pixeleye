@@ -6,7 +6,7 @@
       "routes": [
         {
           "title": "Introduction",
-          "path": "/getting-started/introduction.md"
+          "path": "/getting-started/introduction"
         },
         {
           "title": "Installation",
@@ -14,11 +14,11 @@
           "routes": [
             {
               "title": "NPM",
-              "path": "/getting-started/installation/npm.md"
+              "path": "/getting-started/installation/npm"
             },
             {
               "title": "CDN",
-              "path": "/getting-started/installation/cdn.md"
+              "path": "/getting-started/installation/cdn"
             }
           ]
         }
@@ -30,11 +30,11 @@
       "routes": [
         {
           "title": "Basic usage",
-          "path": "/usage/basic-usage.md"
+          "path": "/usage/basic-usage"
         },
         {
           "title": "Advanced usage",
-          "path": "/usage/advanced-usage.md"
+          "path": "/usage/advanced-usage"
         }
       ]
     }
