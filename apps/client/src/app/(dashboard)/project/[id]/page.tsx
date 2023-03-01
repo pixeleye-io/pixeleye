@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import { authOptions } from "@pixeleye/auth";
 import { Container } from "@pixeleye/ui";
-import Status, { StatusType } from "@pixeleye/ui/src/status";
+import Status from "@pixeleye/ui/src/status";
 import { getServerSession } from "next-auth";
 import { RouterOutputs } from "~/lib/api";
 import { serverApi } from "~/lib/server";
@@ -27,7 +27,7 @@ function BuildItem({
               <div className="truncate">
                 <div className="flex text-sm">
                   <p className="font-medium text-gray-900 truncate dark:text-white">
-                    {build.commitMessage || build.name}
+                    {build.title || build.id}
                   </p>
                 </div>
                 <div className="flex mt-2">
@@ -43,12 +43,12 @@ function BuildItem({
                 <div className="flex items-center text-sm text-gray-500">
                   <p>
                     <span>{timeSince(build.createdAt)}</span> ago
-                    {build.author && (
+                    {/* {build.author && (
                       <>
                         {" "}
                         by <span>{build.author}</span>
                       </>
-                    )}
+                    )} */}
                   </p>
                 </div>
               </div>

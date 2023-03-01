@@ -1,8 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { authOptions, getServerSession } from "@pixeleye/auth";
-import { prisma } from "@pixeleye/db";
-import { getOctokit, getUserOctokit } from "@pixeleye/github";
-import { useSession } from "next-auth/react";
 import { z } from "zod";
 import { serverApi } from "~/lib/server";
 

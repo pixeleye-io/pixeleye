@@ -12,6 +12,7 @@ const options: AuthOptions["events"] = {
           create: {
             name: user.name || "Your Team",
             type: "USER",
+            image: user.image,
           },
         },
         user: {

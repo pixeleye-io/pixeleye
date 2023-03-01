@@ -1,22 +1,38 @@
+import { prisma } from "@pixeleye/db";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { App, Octokit } from "octokit";
 import { GitProvider } from "./types";
 
-const relativeTime = require("dayjs/plugin/relativeTime");
-
 dayjs.extend(relativeTime);
 
-const getListRepos = (octokit: Octokit) => () => {
-  return octokit
-    .paginate("GET /installation/repositories")
-    .then(async (res) => ({
-      owner: {
-        name: res[0]?.owner.name || res[0]?.owner.login || "",
-        avatar: res[0]?.owner.avatar_url || "",
-        url: res[0]?.owner.html_url || "",
-      },
-      repos: await Promise.all(
-        res?.map(async (repo) => {
+const getListRepos = (octokit: Octokit, installId: string) => async () => {
+  const [existingRepos, repos] = await Promise.all([
+    prisma.project
+      .findMany({
+        where: {
+          source: {
+            githubInstallId: installId,
+          },
+        },
+        select: {
+          gitId: true,
+        },
+      })
+      .then((res) => res.map((repo) => repo.gitId)),
+    octokit.paginate("GET /installation/repositories"),
+  ]);
+
+  return {
+    owner: {
+      name: repos[0]?.owner.name || repos[0]?.owner.login || "",
+      avatar: repos[0]?.owner.avatar_url || "",
+      url: repos[0]?.owner.html_url || "",
+    },
+    repos: await Promise.all(
+      repos
+        .sort((a, b) => Date.parse(b.updated_at!) - Date.parse(a.updated_at!))
+        .map(async (repo) => {
           const contributors = await octokit.paginate(
             "GET /repos/{owner}/{repo}/contributors",
             {
@@ -25,8 +41,7 @@ const getListRepos = (octokit: Octokit) => () => {
             },
           );
           const lastUpdated = repo.updated_at
-            ? // @ts-ignore
-              dayjs().to(dayjs(repo.updated_at))
+            ? dayjs().to(dayjs(repo.updated_at))
             : "unknown";
           return {
             name: repo.name,
@@ -34,6 +49,9 @@ const getListRepos = (octokit: Octokit) => () => {
             id: repo.id.toString(),
             description: repo.description || "",
             lastUpdated,
+            private: repo.private,
+            exists: existingRepos.includes(repo.id.toString()),
+            contributorsCount: contributors.length,
             contributors: contributors.slice(0, 5).map((c) => ({
               name: c.name || c.login!,
               avatar: c.avatar_url,
@@ -41,8 +59,8 @@ const getListRepos = (octokit: Octokit) => () => {
             })),
           };
         }),
-      ),
-    }));
+    ),
+  };
 };
 
 export async function getGithubProvider(
@@ -58,6 +76,6 @@ export async function getGithubProvider(
   });
   const octokit = await app.getInstallationOctokit(Number.parseInt(installId));
   return {
-    listRepos: getListRepos(octokit),
+    listRepos: getListRepos(octokit, installId),
   };
 }

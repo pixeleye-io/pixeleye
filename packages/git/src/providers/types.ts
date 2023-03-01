@@ -15,8 +15,11 @@ interface Repo {
   url: string;
   id: string;
   contributors: Contributor[];
+  contributorsCount: number;
   description: string;
   lastUpdated: string;
+  private?: boolean;
+  exists: boolean;
 }
 
 export interface GitProvider {

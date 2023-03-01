@@ -1,5 +1,5 @@
 import { prisma } from "@pixeleye/db";
-import { composePaginateRest, getOctokit, githubApp } from "@pixeleye/github";
+import { getOctokit, githubApp } from "@pixeleye/github";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -11,103 +11,6 @@ import {
 import { refreshMembers } from "./services";
 
 export const githubRouter = createTRPCRouter({
-  getRepositories: protectedProcedure
-    .input(
-      z
-        .object({
-          teamId: z.string().optional(),
-          page: z.number().optional(),
-        })
-        .optional(),
-    )
-    .query(async ({ ctx, input = {} }) => {
-      if (!input.teamId) {
-        input.teamId = await ctx.prisma.userOnTeam
-          .findFirst({
-            where: {
-              userId: ctx.session.user.id,
-              team: {
-                type: "USER",
-              },
-            },
-            select: {
-              team: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-          })
-          .then((u) => u?.team.id);
-      }
-      const installation_id = await prisma.team
-        .findFirst({
-          where: {
-            id: input.teamId,
-            users: {
-              some: {
-                userId: {
-                  equals: ctx.session.user.id,
-                },
-              },
-            },
-            Source: {
-              some: {
-                type: "GITHUB",
-                teamId: input.teamId,
-              },
-            },
-          },
-          select: {
-            Source: {
-              select: {
-                githubInstallId: true,
-              },
-            },
-          },
-        })
-        .then((data) => data?.Source[0]?.githubInstallId);
-
-      console.log("team ID adsklfjdaslkfjdaklsflkdsfl;k", installation_id);
-
-      if (!installation_id) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const octokit = await getOctokit(Number.parseInt(installation_id)).catch(
-        () => {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-          });
-        },
-      );
-
-      const repos = await composePaginateRest(
-        octokit,
-        "GET /installation/repositories" as any,
-      );
-
-      return repos
-        .sort((a, b) => {
-          return (
-            new Date(b.pushed_at || "").getTime() -
-            new Date(a.pushed_at || "").getTime()
-          );
-        })
-        .map((repo: any) => ({
-          id: repo.id,
-          name: repo.name,
-          installation_id,
-          private: repo.private,
-          url: repo.html_url,
-          updated: repo.updated_at,
-        })) as {
-        id: number;
-        name: string;
-        installation_id: string;
-        private: boolean;
-        url: string;
-        updated: string;
-      }[];
-    }),
   getInstallations: protectedProcedureGithub
     .input(
       z
@@ -232,6 +135,7 @@ export const githubRouter = createTRPCRouter({
             create: {
               name: installation.account.login || "New Team",
               type: "GITHUB",
+              image: installation.account.avatar_url,
             },
           },
         },
@@ -293,19 +197,4 @@ export const githubRouter = createTRPCRouter({
 
       return [members, admins];
     }),
-  // getRepositories: protectedProcedureGithub
-  //   .input(
-  //     z.object({
-  //       installationId: z.number(),
-  //       page: z.number().optional(),
-  //     }),
-  //   )
-  //   .query(({ ctx, input }) => {
-  //     return ctx.userOctokit
-  //       .request("GET /user/installations/{installation_id}/repositories", {
-  //         installation_id: input.installationId,
-  //         page: input.page,
-  //       })
-  //       .then(({ data }) => data.repositories);
-  //   }),
 });

@@ -22,6 +22,7 @@ export interface AvatarProps {
   className?: string;
   name: string;
   alt?: string;
+  title?: string;
 }
 
 export default function Avatar({
@@ -30,6 +31,7 @@ export default function Avatar({
   size = "md",
   alt,
   className,
+  title,
 }: AvatarProps) {
   const [imageFail, setImageFail] = useState(false);
 
@@ -41,6 +43,7 @@ export default function Avatar({
 
   return (
     <span
+      title={title}
       className={cx(
         "relative z-0 flex items-center justify-center bg-gray-300 rounded-full select-none dark:bg-gray-700",
         classSizeMap[size],
@@ -57,7 +60,7 @@ export default function Avatar({
           alt={alt || name}
         />
       ) : (
-        <span className="text-sm font-semibold text-black dark:text-white">
+        <span className="text-sm font-semibold text-black uppercase dark:text-white">
           {initials}
         </span>
       )}

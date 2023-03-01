@@ -136,6 +136,7 @@ model Team {
     users    UserOnTeam[]
     projects Project[]
     Source   Source[]
+    image    String?
 }
 
 enum TeamRole {
