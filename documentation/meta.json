@@ -10,15 +10,15 @@
         },
         {
           "title": "Installation",
-          "path": "/getting-started/installation.md",
+          "path": "/getting-started/installation",
           "routes": [
             {
               "title": "NPM",
-              "path": "/getting-started/npm.md"
+              "path": "/getting-started/installation/npm.md"
             },
             {
               "title": "CDN",
-              "path": "/getting-started/cdn.md"
+              "path": "/getting-started/installation/cdn.md"
             }
           ]
         }
