@@ -14,11 +14,11 @@
           "routes": [
             {
               "title": "NPM",
-              "path": "/getting-started/npm.md""
+              "path": "/getting-started/npm.md"
             },
             {
               "title": "CDN",
-              "path": "/getting-started/cdn.md""
+              "path": "/getting-started/cdn.md"
             }
           ]
         }
