@@ -1,0 +1,42 @@
+{
+  "headers": [
+    {
+      "title": "Getting started",
+      "path": "/getting-started",
+      "routes": [
+        {
+          "title": "Introduction",
+          "path": "/getting-started/introduction.md"
+        },
+        {
+          "title": "Installation",
+          "path": "/getting-started/installation",
+          "routes": [
+            {
+              "title": "NPM",
+              "path": "/getting-started/installation/npm.md"
+            },
+            {
+              "title": "CDN",
+              "path": "/getting-started/installation/cdn.md"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Usage",
+      "path": "/usage",
+      "routes": [
+        {
+          "title": "Basic usage",
+          "path": "/usage/basic-usage.md"
+        },
+        {
+          "title": "Advanced usage",
+          "path": "/usage/advanced-usage.md"
+        }
+      ]
+    }
+  ]
+}

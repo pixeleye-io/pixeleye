@@ -2,7 +2,7 @@ import { authRouter } from "./router/auth";
 import { buildRouter } from "./router/build";
 import { githubRouter } from "./router/github/route";
 import { imageRouter } from "./router/image";
-import { projectRouter } from "./router/project";
+import { projectRouter } from "./router/project/project.route";
 import { snapshotRouter } from "./router/snapshot";
 import { teamRouter } from "./router/team";
 import { createTRPCRouter } from "./trpc";
