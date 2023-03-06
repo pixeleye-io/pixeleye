@@ -29,6 +29,7 @@ model DiffImage {
 }
 
 enum BrowserEnum {
+    UNKNOWN
     CHROME
     FIREFOX
     SAFARI
@@ -36,9 +37,9 @@ enum BrowserEnum {
 }
 
 model ImageSnapshot {
-    id        String       @id @default(cuid())
-    browser   BrowserEnum?
-    viewport  String?
+    id        String      @id @default(cuid())
+    browser   BrowserEnum @default(UNKNOWN)
+    viewport  String      @default("")
     imageId   String
     projectId String
 
@@ -47,7 +48,6 @@ model ImageSnapshot {
     Snapshot   Snapshot? @relation(fields: [snapshotId], references: [id])
     snapshotId String?
 
-    @@unique([projectId, browser, viewport])
     @@unique([imageId, browser, viewport])
 }
 
@@ -59,11 +59,14 @@ model Snapshot {
     projectId      String
     imageSnapshots ImageSnapshot[]
 
-    project           Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    Report            Report?             @relation(fields: [reportSha, reportProjectId], references: [sha, projectId])
-    reportSha         String?
-    reportProjectId   String?
-    BaselineSnapshots BaselineSnapshots[]
+    project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    report      Report?    @relation(fields: [reportSha, reportProjectId], references: [sha, projectId])
+    baseline    Snapshot?  @relation("BaselineSnapshot", fields: [baselineId], references: [id])
+    baselineFor Snapshot[] @relation("BaselineSnapshot")
+
+    reportSha       String?
+    reportProjectId String?
+    baselineId      String?
 
     @@unique([sha, name, variant])
 }
@@ -71,7 +74,6 @@ model Snapshot {
 model Report {
     sha       String
     projectId String
-    message   String? // e.g. commit message
     createdAt DateTime   @default(now())
     snapshots Snapshot[]
 
@@ -81,21 +83,15 @@ model Report {
     @@id([sha, projectId])
 }
 
-model BaselineSnapshots {
-    snapshotId String
-    projectId  String
-    name       String
-    variant    String
-    updatedAt  DateTime @default(now())
-    branch     String
+model BuildCounts {
+    projectId String @id
+    count     Int    @default(0)
 
-    project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    snapshot Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
-
-    @@id([projectId, name, variant])
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 enum BuildStatus {
+    ORPHANED
     PENDING
     COMPLETED
     FAILED
@@ -103,20 +99,21 @@ enum BuildStatus {
 }
 
 model Build {
-    id            String      @id @default(nanoid())
-    projectId     String
-    branch        String
-    sha           String
-    title         String? // e.g. pull request title
-    url           String? // e.g. pull request url
-    createdAt     DateTime    @default(now())
-    predecessorId String?     @unique
-    status        BuildStatus @default(PENDING)
+    id        String      @id @default(nanoid())
+    projectId String
+    branch    String
+    sha       String
+    name      String
+    message   String? // e.g. commit message
+    title     String? // e.g. pull request title
+    url       String? // e.g. pull request url
+    createdAt DateTime    @default(now())
+    status    BuildStatus
 
-    predecessor Build?  @relation("BuildComparison", fields: [predecessorId], references: [id])
-    successor   Build?  @relation("BuildComparison")
-    project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    report      Report  @relation(fields: [sha, projectId], references: [sha, projectId])
+    parent  Build[] @relation("BuildHistory")
+    child   Build[] @relation("BuildHistory")
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    report  Report  @relation(fields: [sha, projectId], references: [sha, projectId])
 
     @@unique([projectId, sha])
 }
@@ -189,12 +186,12 @@ model Project {
     Team   Team?           @relation(fields: [teamId], references: [id], onDelete: Cascade)
     source Source          @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
-    builds            Build[]
-    SnapImage         SnapImage[]
-    ImageSnapshot     ImageSnapshot[]
-    Snapshot          Snapshot[]
-    Report            Report[]
-    BaselineSnapshots BaselineSnapshots[]
+    builds        Build[]
+    SnapImage     SnapImage[]
+    ImageSnapshot ImageSnapshot[]
+    Snapshot      Snapshot[]
+    Report        Report[]
+    BuildCounts   BuildCounts[]
 }
 
 enum UserOnProjectType {

@@ -1,7 +1,10 @@
+import { redirect } from "next/navigation";
 import { authOptions } from "@pixeleye/auth";
 import { Select } from "@pixeleye/ui";
 import { getServerSession } from "next-auth";
-import { serverApi } from "~/lib/server";
+import Avatar from "~/components/avatar";
+import { RoleSelect } from "./components";
+import { getProjectUsers } from "./services";
 
 function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -13,9 +16,13 @@ export default async function AccessProjectPage({
   params: { id: string };
 }) {
   const session = await getServerSession(authOptions);
-  const data = serverApi(session).project.getProjectWithUsers({
-    id: params.id,
-  });
+
+  if (!session) redirect("/login");
+
+  const users = await getProjectUsers(params.id, session.user.id);
+
+  if (!users) redirect("/");
+
   return (
     <div>
       <section>
@@ -51,17 +58,15 @@ export default async function AccessProjectPage({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                  {(await data).users.map((person) => (
+                  {users.map((person) => (
                     <tr key={person.user.id}>
                       <td className="py-4 pl-6 pr-3 text-sm whitespace-nowrap sm:pl-0">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 w-10 h-10">
-                            <img
-                              className="w-10 h-10 rounded-full"
-                              src={person.user.image || ""}
-                              alt=""
-                            />
-                          </div>
+                          <Avatar
+                            name={person.user.name || ""}
+                            size="lg"
+                            src={person.user.image}
+                          />
                           <div className="ml-4">
                             <div className="font-medium text-gray-800 dark:text-gray-200">
                               {person.user.name}
@@ -76,16 +81,7 @@ export default async function AccessProjectPage({
                         {capitalizeFirstLetter(person.type)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        <Select
-                          className="max-w-[10rem]"
-                          hiddenLabel
-                          label="Role"
-                          value={person.role}
-                        >
-                          <Select.Item value="owner">Owner</Select.Item>
-                          <Select.Item value="reviewer">Reviewer</Select.Item>
-                          <Select.Item value="viewer">Viewer</Select.Item>
-                        </Select>
+                        <RoleSelect role={person.role} />
                       </td>
                     </tr>
                   ))}

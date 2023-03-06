@@ -19,11 +19,7 @@ const config = {
     "@pixeleye/auth-options",
     "@pixeleye/server-utils",
   ],
-  modularizeImports: {
-    "@pixeleye/ui": {
-      transform: "@pixeleye/ui/src/{{member}}/index.ts",
-    },
-  },
+  modularizeImports: {},
   images: {
     domains: ["avatars.githubusercontent.com"],
     remotePatterns: [

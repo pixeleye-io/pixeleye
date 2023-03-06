@@ -1,74 +1,60 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedureProject } from "../trpc";
 
+const viewport = "";
+
 export const snapshotRouter = createTRPCRouter({
   createSnapshot: protectedProcedureProject
     .input(
       z.object({
-        hash: z.string(),
+        imageId: z.string(),
         sha: z.string(),
         browser: z
           .enum(["CHROME", "FIREFOX", "EDGE", "SAFARI", "UNKNOWN"])
-          .optional(),
+          .default("UNKNOWN"),
         name: z.string(),
-        variant: z.string().optional(),
+        variant: z.string().default(""),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const projectId = ctx.projectId;
-      const { hash, browser, name, variant, sha } = input;
+      const { imageId, browser, name, variant, sha } = input;
+
+      const imageSnapshots = {
+        connectOrCreate: {
+          where: {
+            imageId_browser_viewport: {
+              imageId,
+              browser,
+              viewport,
+            },
+          },
+          create: {
+            imageId,
+            browser,
+            viewport,
+            projectId,
+          },
+        },
+      };
+
       const snapshot = await ctx.prisma.snapshot.upsert({
         where: {
           sha_name_variant: {
             sha,
             name,
-            variant: variant || "",
+            variant,
           },
         },
         update: {
-          visualSnapshots: {
-            create: {
-              image: {
-                connectOrCreate: {
-                  where: {
-                    projectId_hash: {
-                      projectId,
-                      hash,
-                    },
-                  },
-                  create: {
-                    hash,
-                    projectId,
-                  },
-                },
-              },
-              browser: browser || "UNKNOWN",
-            },
-          },
+          imageSnapshots,
         },
         create: {
-          name,
           sha,
-          variant: variant || "",
-          visualSnapshots: {
-            create: {
-              image: {
-                connectOrCreate: {
-                  where: {
-                    projectId_hash: {
-                      projectId,
-                      hash,
-                    },
-                  },
-                  create: {
-                    hash,
-                    projectId,
-                  },
-                },
-              },
-              browser: browser || "UNKNOWN",
-            },
-          },
+          name,
+          variant,
+          projectId,
+          imageSnapshots,
         },
       });
       return snapshot.id;

@@ -4693,9 +4693,9 @@ var init_multipart_parser = __esm({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/double-indexed-kv.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/double-indexed-kv.js
 var require_double_indexed_kv = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/double-indexed-kv.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/double-indexed-kv.js"(exports) {
     "use strict";
     exports.__esModule = true;
     exports.DoubleIndexedKV = void 0;
@@ -4727,9 +4727,9 @@ var require_double_indexed_kv = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/registry.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/registry.js
 var require_registry = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/registry.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/registry.js"(exports) {
     "use strict";
     exports.__esModule = true;
     exports.Registry = void 0;
@@ -4747,12 +4747,6 @@ var require_registry = __commonJS({
           }
           if (!identifier) {
             identifier = this.generateIdentifier(value);
-          }
-          if (process.env.NODE_ENV !== "production") {
-            var alreadyRegistered = this.kv.getByKey(identifier);
-            if (alreadyRegistered && alreadyRegistered !== value) {
-              console.debug('Ambiguous class "' + identifier + '", provide a unique identifier.');
-            }
           }
           this.kv.set(identifier, value);
         };
@@ -4772,9 +4766,9 @@ var require_registry = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/class-registry.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/class-registry.js
 var require_class_registry = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/class-registry.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/class-registry.js"(exports) {
     "use strict";
     var __extends = exports && exports.__extends || function() {
       var extendStatics = function(d, b) {
@@ -4800,18 +4794,18 @@ var require_class_registry = __commonJS({
     exports.__esModule = true;
     exports.ClassRegistry = void 0;
     var registry_1 = require_registry();
-    var _ClassRegistry = (
+    var ClassRegistry = (
       /** @class */
       function(_super) {
-        __extends(_ClassRegistry2, _super);
-        function _ClassRegistry2() {
+        __extends(ClassRegistry2, _super);
+        function ClassRegistry2() {
           var _this = _super.call(this, function(c) {
             return c.name;
           }) || this;
           _this.classToAllowedProps = /* @__PURE__ */ new Map();
           return _this;
         }
-        _ClassRegistry2.prototype.register = function(value, options) {
+        ClassRegistry2.prototype.register = function(value, options) {
           if (typeof options === "object") {
             if (options.allowProps) {
               this.classToAllowedProps.set(value, options.allowProps);
@@ -4821,33 +4815,19 @@ var require_class_registry = __commonJS({
             _super.prototype.register.call(this, value, options);
           }
         };
-        _ClassRegistry2.prototype.getAllowedProps = function(value) {
+        ClassRegistry2.prototype.getAllowedProps = function(value) {
           return this.classToAllowedProps.get(value);
         };
-        return _ClassRegistry2;
+        return ClassRegistry2;
       }(registry_1.Registry)
     );
-    exports.ClassRegistry = new _ClassRegistry();
+    exports.ClassRegistry = ClassRegistry;
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/symbol-registry.js
-var require_symbol_registry = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/symbol-registry.js"(exports) {
-    "use strict";
-    exports.__esModule = true;
-    exports.SymbolRegistry = void 0;
-    var registry_1 = require_registry();
-    exports.SymbolRegistry = new registry_1.Registry(function(s2) {
-      var _a4;
-      return (_a4 = s2.description) !== null && _a4 !== void 0 ? _a4 : "";
-    });
-  }
-});
-
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/util.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/util.js
 var require_util = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/util.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/util.js"(exports) {
     "use strict";
     var __read = exports && exports.__read || function(o, n) {
       var m2 = typeof Symbol === "function" && o[Symbol.iterator];
@@ -4923,80 +4903,43 @@ var require_util = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/custom-transformer-registry.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/custom-transformer-registry.js
 var require_custom_transformer_registry = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/custom-transformer-registry.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/custom-transformer-registry.js"(exports) {
     "use strict";
     exports.__esModule = true;
     exports.CustomTransformerRegistry = void 0;
     var util_1 = require_util();
-    var transfomers = {};
-    exports.CustomTransformerRegistry = {
-      register: function(transformer2) {
-        transfomers[transformer2.name] = transformer2;
-      },
-      findApplicable: function(v) {
-        return util_1.find(transfomers, function(transformer2) {
-          return transformer2.isApplicable(v);
-        });
-      },
-      findByName: function(name) {
-        return transfomers[name];
-      }
-    };
-  }
-});
-
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/error-props.js
-var require_error_props = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/error-props.js"(exports) {
-    "use strict";
-    var __read = exports && exports.__read || function(o, n) {
-      var m2 = typeof Symbol === "function" && o[Symbol.iterator];
-      if (!m2)
-        return o;
-      var i2 = m2.call(o), r2, ar = [], e2;
-      try {
-        while ((n === void 0 || n-- > 0) && !(r2 = i2.next()).done)
-          ar.push(r2.value);
-      } catch (error) {
-        e2 = { error };
-      } finally {
-        try {
-          if (r2 && !r2.done && (m2 = i2["return"]))
-            m2.call(i2);
-        } finally {
-          if (e2)
-            throw e2.error;
+    var CustomTransformerRegistry = (
+      /** @class */
+      function() {
+        function CustomTransformerRegistry2() {
+          this.transfomers = {};
         }
-      }
-      return ar;
-    };
-    var __spreadArray = exports && exports.__spreadArray || function(to, from) {
-      for (var i2 = 0, il = from.length, j = to.length; i2 < il; i2++, j++)
-        to[j] = from[i2];
-      return to;
-    };
-    exports.__esModule = true;
-    exports.allowErrorProps = exports.allowedErrorProps = void 0;
-    exports.allowedErrorProps = [];
-    var allowErrorProps = function() {
-      var props = [];
-      for (var _i = 0; _i < arguments.length; _i++) {
-        props[_i] = arguments[_i];
-      }
-      exports.allowedErrorProps.push.apply(exports.allowedErrorProps, __spreadArray([], __read(props)));
-    };
-    exports.allowErrorProps = allowErrorProps;
+        CustomTransformerRegistry2.prototype.register = function(transformer2) {
+          this.transfomers[transformer2.name] = transformer2;
+        };
+        CustomTransformerRegistry2.prototype.findApplicable = function(v) {
+          return util_1.find(this.transfomers, function(transformer2) {
+            return transformer2.isApplicable(v);
+          });
+        };
+        CustomTransformerRegistry2.prototype.findByName = function(name) {
+          return this.transfomers[name];
+        };
+        return CustomTransformerRegistry2;
+      }()
+    );
+    exports.CustomTransformerRegistry = CustomTransformerRegistry;
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/is.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/is.js
 var require_is = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/is.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/is.js"(exports) {
     "use strict";
     exports.__esModule = true;
-    exports.isTypedArray = exports.isInfinite = exports.isBigint = exports.isPrimitive = exports.isNaNValue = exports.isError = exports.isDate = exports.isSymbol = exports.isSet = exports.isMap = exports.isRegExp = exports.isBoolean = exports.isNumber = exports.isString = exports.isArray = exports.isEmptyObject = exports.isPlainObject = exports.isNull = exports.isUndefined = void 0;
+    exports.isURL = exports.isTypedArray = exports.isInfinite = exports.isBigint = exports.isPrimitive = exports.isNaNValue = exports.isError = exports.isDate = exports.isSymbol = exports.isSet = exports.isMap = exports.isRegExp = exports.isBoolean = exports.isNumber = exports.isString = exports.isArray = exports.isEmptyObject = exports.isPlainObject = exports.isNull = exports.isUndefined = void 0;
     var getType = function(payload) {
       return Object.prototype.toString.call(payload).slice(8, -1);
     };
@@ -5009,12 +4952,12 @@ var require_is = __commonJS({
     };
     exports.isNull = isNull;
     var isPlainObject = function(payload) {
-      if (getType(payload) !== "Object")
+      if (typeof payload !== "object" || payload === null)
+        return false;
+      if (payload === Object.prototype)
         return false;
       if (Object.getPrototypeOf(payload) === null)
         return true;
-      if (payload === Object.prototype)
-        return false;
       return payload.constructor === Object && Object.getPrototypeOf(payload) === Object.prototype;
     };
     exports.isPlainObject = isPlainObject;
@@ -5082,12 +5025,16 @@ var require_is = __commonJS({
       return ArrayBuffer.isView(payload) && !(payload instanceof DataView);
     };
     exports.isTypedArray = isTypedArray;
+    var isURL = function(payload) {
+      return payload instanceof URL;
+    };
+    exports.isURL = isURL;
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/pathstringifier.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/pathstringifier.js
 var require_pathstringifier = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/pathstringifier.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/pathstringifier.js"(exports) {
     "use strict";
     exports.__esModule = true;
     exports.parsePath = exports.stringifyPath = exports.escapeKey = void 0;
@@ -5126,9 +5073,9 @@ var require_pathstringifier = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/transformer.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/transformer.js
 var require_transformer = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/transformer.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/transformer.js"(exports) {
     "use strict";
     var __assign = exports && exports.__assign || function() {
       __assign = Object.assign || function(t2) {
@@ -5171,10 +5118,6 @@ var require_transformer = __commonJS({
     exports.__esModule = true;
     exports.untransformValue = exports.transformValue = exports.isInstanceOfRegisteredClass = void 0;
     var is_1 = require_is();
-    var class_registry_1 = require_class_registry();
-    var symbol_registry_1 = require_symbol_registry();
-    var custom_transformer_registry_1 = require_custom_transformer_registry();
-    var error_props_1 = require_error_props();
     var util_1 = require_util();
     function simpleTransformation(isApplicable, annotation, transform, untransform) {
       return {
@@ -5204,20 +5147,20 @@ var require_transformer = __commonJS({
       }, function(v) {
         return new Date(v);
       }),
-      simpleTransformation(is_1.isError, "Error", function(v) {
+      simpleTransformation(is_1.isError, "Error", function(v, superJson) {
         var baseError = {
           name: v.name,
           message: v.message
         };
-        error_props_1.allowedErrorProps.forEach(function(prop) {
+        superJson.allowedErrorProps.forEach(function(prop) {
           baseError[prop] = v[prop];
         });
         return baseError;
-      }, function(v) {
+      }, function(v, superJson) {
         var e2 = new Error(v.message);
         e2.name = v.name;
         e2.stack = v.stack;
-        error_props_1.allowedErrorProps.forEach(function(prop) {
+        superJson.allowedErrorProps.forEach(function(prop) {
           e2[prop] = v[prop];
         });
         return e2;
@@ -5262,7 +5205,12 @@ var require_transformer = __commonJS({
         return v === 0 && 1 / v === -Infinity;
       }, "number", function() {
         return "-0";
-      }, Number)
+      }, Number),
+      simpleTransformation(is_1.isURL, "URL", function(v) {
+        return v.toString();
+      }, function(v) {
+        return new URL(v);
+      })
     ];
     function compositeTransformation(isApplicable, annotation, transform, untransform) {
       return {
@@ -5272,19 +5220,19 @@ var require_transformer = __commonJS({
         untransform
       };
     }
-    var symbolRule = compositeTransformation(function(s2) {
+    var symbolRule = compositeTransformation(function(s2, superJson) {
       if (is_1.isSymbol(s2)) {
-        var isRegistered = !!symbol_registry_1.SymbolRegistry.getIdentifier(s2);
+        var isRegistered = !!superJson.symbolRegistry.getIdentifier(s2);
         return isRegistered;
       }
       return false;
-    }, function(s2) {
-      var identifier = symbol_registry_1.SymbolRegistry.getIdentifier(s2);
+    }, function(s2, superJson) {
+      var identifier = superJson.symbolRegistry.getIdentifier(s2);
       return ["symbol", identifier];
     }, function(v) {
       return v.description;
-    }, function(_, a) {
-      var value = symbol_registry_1.SymbolRegistry.getValue(a[1]);
+    }, function(_, a, superJson) {
+      var value = superJson.symbolRegistry.getValue(a[1]);
       if (!value) {
         throw new Error("Trying to deserialize unknown symbol");
       }
@@ -5315,19 +5263,19 @@ var require_transformer = __commonJS({
       }
       return new ctor(v);
     });
-    function isInstanceOfRegisteredClass(potentialClass) {
+    function isInstanceOfRegisteredClass(potentialClass, superJson) {
       if (potentialClass === null || potentialClass === void 0 ? void 0 : potentialClass.constructor) {
-        var isRegistered = !!class_registry_1.ClassRegistry.getIdentifier(potentialClass.constructor);
+        var isRegistered = !!superJson.classRegistry.getIdentifier(potentialClass.constructor);
         return isRegistered;
       }
       return false;
     }
     exports.isInstanceOfRegisteredClass = isInstanceOfRegisteredClass;
-    var classRule = compositeTransformation(isInstanceOfRegisteredClass, function(clazz) {
-      var identifier = class_registry_1.ClassRegistry.getIdentifier(clazz.constructor);
+    var classRule = compositeTransformation(isInstanceOfRegisteredClass, function(clazz, superJson) {
+      var identifier = superJson.classRegistry.getIdentifier(clazz.constructor);
       return ["class", identifier];
-    }, function(clazz) {
-      var allowedProps = class_registry_1.ClassRegistry.getAllowedProps(clazz.constructor);
+    }, function(clazz, superJson) {
+      var allowedProps = superJson.classRegistry.getAllowedProps(clazz.constructor);
       if (!allowedProps) {
         return __assign({}, clazz);
       }
@@ -5336,45 +5284,45 @@ var require_transformer = __commonJS({
         result[prop] = clazz[prop];
       });
       return result;
-    }, function(v, a) {
-      var clazz = class_registry_1.ClassRegistry.getValue(a[1]);
+    }, function(v, a, superJson) {
+      var clazz = superJson.classRegistry.getValue(a[1]);
       if (!clazz) {
         throw new Error("Trying to deserialize unknown class - check https://github.com/blitz-js/superjson/issues/116#issuecomment-773996564");
       }
       return Object.assign(Object.create(clazz.prototype), v);
     });
-    var customRule = compositeTransformation(function(value) {
-      return !!custom_transformer_registry_1.CustomTransformerRegistry.findApplicable(value);
-    }, function(value) {
-      var transformer2 = custom_transformer_registry_1.CustomTransformerRegistry.findApplicable(value);
+    var customRule = compositeTransformation(function(value, superJson) {
+      return !!superJson.customTransformerRegistry.findApplicable(value);
+    }, function(value, superJson) {
+      var transformer2 = superJson.customTransformerRegistry.findApplicable(value);
       return ["custom", transformer2.name];
-    }, function(value) {
-      var transformer2 = custom_transformer_registry_1.CustomTransformerRegistry.findApplicable(value);
+    }, function(value, superJson) {
+      var transformer2 = superJson.customTransformerRegistry.findApplicable(value);
       return transformer2.serialize(value);
-    }, function(v, a) {
-      var transformer2 = custom_transformer_registry_1.CustomTransformerRegistry.findByName(a[1]);
+    }, function(v, a, superJson) {
+      var transformer2 = superJson.customTransformerRegistry.findByName(a[1]);
       if (!transformer2) {
         throw new Error("Trying to deserialize unknown custom value");
       }
       return transformer2.deserialize(v);
     });
     var compositeRules = [classRule, symbolRule, customRule, typedArrayRule];
-    var transformValue = function(value) {
+    var transformValue = function(value, superJson) {
       var applicableCompositeRule = util_1.findArr(compositeRules, function(rule) {
-        return rule.isApplicable(value);
+        return rule.isApplicable(value, superJson);
       });
       if (applicableCompositeRule) {
         return {
-          value: applicableCompositeRule.transform(value),
-          type: applicableCompositeRule.annotation(value)
+          value: applicableCompositeRule.transform(value, superJson),
+          type: applicableCompositeRule.annotation(value, superJson)
         };
       }
       var applicableSimpleRule = util_1.findArr(simpleRules, function(rule) {
-        return rule.isApplicable(value);
+        return rule.isApplicable(value, superJson);
       });
       if (applicableSimpleRule) {
         return {
-          value: applicableSimpleRule.transform(value),
+          value: applicableSimpleRule.transform(value, superJson),
           type: applicableSimpleRule.annotation
         };
       }
@@ -5385,17 +5333,17 @@ var require_transformer = __commonJS({
     simpleRules.forEach(function(rule) {
       simpleRulesByAnnotation[rule.annotation] = rule;
     });
-    var untransformValue = function(json, type) {
+    var untransformValue = function(json, type, superJson) {
       if (is_1.isArray(type)) {
         switch (type[0]) {
           case "symbol":
-            return symbolRule.untransform(json, type);
+            return symbolRule.untransform(json, type, superJson);
           case "class":
-            return classRule.untransform(json, type);
+            return classRule.untransform(json, type, superJson);
           case "custom":
-            return customRule.untransform(json, type);
+            return customRule.untransform(json, type, superJson);
           case "typed-array":
-            return typedArrayRule.untransform(json, type);
+            return typedArrayRule.untransform(json, type, superJson);
           default:
             throw new Error("Unknown transformation: " + type);
         }
@@ -5404,16 +5352,16 @@ var require_transformer = __commonJS({
         if (!transformation) {
           throw new Error("Unknown transformation: " + type);
         }
-        return transformation.untransform(json);
+        return transformation.untransform(json, superJson);
       }
     };
     exports.untransformValue = untransformValue;
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/accessDeep.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/accessDeep.js
 var require_accessDeep = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/accessDeep.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/accessDeep.js"(exports) {
     "use strict";
     exports.__esModule = true;
     exports.setDeep = exports.getDeep = void 0;
@@ -5440,9 +5388,26 @@ var require_accessDeep = __commonJS({
     }
     var getDeep = function(object, path) {
       validatePath(path);
-      path.forEach(function(key) {
-        object = object[key];
-      });
+      for (var i2 = 0; i2 < path.length; i2++) {
+        var key = path[i2];
+        if (is_1.isSet(object)) {
+          object = getNthKey(object, +key);
+        } else if (is_1.isMap(object)) {
+          var row = +key;
+          var type = +path[++i2] === 0 ? "key" : "value";
+          var keyOfRow = getNthKey(object, row);
+          switch (type) {
+            case "key":
+              object = keyOfRow;
+              break;
+            case "value":
+              object = object.get(keyOfRow);
+              break;
+          }
+        } else {
+          object = object[key];
+        }
+      }
       return object;
     };
     exports.getDeep = getDeep;
@@ -5517,9 +5482,9 @@ var require_accessDeep = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/plainer.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/plainer.js
 var require_plainer = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/plainer.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/plainer.js"(exports) {
     "use strict";
     var __read = exports && exports.__read || function(o, n) {
       var m2 = typeof Symbol === "function" && o[Symbol.iterator];
@@ -5576,10 +5541,10 @@ var require_plainer = __commonJS({
       }
       walker2(nodeValue, origin);
     }
-    function applyValueAnnotations(plain, annotations) {
+    function applyValueAnnotations(plain, annotations, superJson) {
       traverse(annotations, function(type, path) {
         plain = accessDeep_1.setDeep(plain, path, function(v) {
-          return transformer_1.untransformValue(v, type);
+          return transformer_1.untransformValue(v, type, superJson);
         });
       });
       return plain;
@@ -5610,8 +5575,8 @@ var require_plainer = __commonJS({
       return plain;
     }
     exports.applyReferentialEqualityAnnotations = applyReferentialEqualityAnnotations;
-    var isDeep = function(object) {
-      return is_1.isPlainObject(object) || is_1.isArray(object) || is_1.isMap(object) || is_1.isSet(object) || transformer_1.isInstanceOfRegisteredClass(object);
+    var isDeep = function(object, superJson) {
+      return is_1.isPlainObject(object) || is_1.isArray(object) || is_1.isMap(object) || is_1.isSet(object) || transformer_1.isInstanceOfRegisteredClass(object, superJson);
     };
     function addIdentity(object, path, identities) {
       var existingSet = identities.get(object);
@@ -5650,7 +5615,7 @@ var require_plainer = __commonJS({
       }
     }
     exports.generateReferentialEqualityAnnotations = generateReferentialEqualityAnnotations;
-    var walker = function(object, identities, path, objectsInThisPath) {
+    var walker = function(object, identities, superJson, path, objectsInThisPath) {
       var _a4;
       if (path === void 0) {
         path = [];
@@ -5661,8 +5626,8 @@ var require_plainer = __commonJS({
       if (!is_1.isPrimitive(object)) {
         addIdentity(object, path, identities);
       }
-      if (!isDeep(object)) {
-        var transformed_1 = transformer_1.transformValue(object);
+      if (!isDeep(object, superJson)) {
+        var transformed_1 = transformer_1.transformValue(object, superJson);
         if (transformed_1) {
           return {
             transformedValue: transformed_1.value,
@@ -5679,7 +5644,7 @@ var require_plainer = __commonJS({
           transformedValue: null
         };
       }
-      var transformationResult = transformer_1.transformValue(object);
+      var transformationResult = transformer_1.transformValue(object, superJson);
       var transformed = (_a4 = transformationResult === null || transformationResult === void 0 ? void 0 : transformationResult.value) !== null && _a4 !== void 0 ? _a4 : object;
       if (!is_1.isPrimitive(object)) {
         objectsInThisPath = __spreadArray(__spreadArray([], __read(objectsInThisPath)), [object]);
@@ -5687,7 +5652,7 @@ var require_plainer = __commonJS({
       var transformedValue = is_1.isArray(transformed) ? [] : {};
       var innerAnnotations = {};
       util_1.forEach(transformed, function(value, index) {
-        var recursiveResult = exports.walker(value, identities, __spreadArray(__spreadArray([], __read(path)), [index]), objectsInThisPath);
+        var recursiveResult = exports.walker(value, identities, superJson, __spreadArray(__spreadArray([], __read(path)), [index]), objectsInThisPath);
         transformedValue[index] = recursiveResult.transformedValue;
         if (is_1.isArray(recursiveResult.annotations)) {
           innerAnnotations[index] = recursiveResult.annotations;
@@ -5913,9 +5878,9 @@ var require_dist2 = __commonJS({
   }
 });
 
-// ../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/index.js
+// ../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/index.js
 var require_dist3 = __commonJS({
-  "../../node_modules/.pnpm/superjson@1.9.1/node_modules/superjson/dist/index.js"(exports) {
+  "../../node_modules/.pnpm/superjson@1.12.2/node_modules/superjson/dist/index.js"(exports) {
     "use strict";
     var __assign = exports && exports.__assign || function() {
       __assign = Object.assign || function(t2) {
@@ -5929,72 +5894,121 @@ var require_dist3 = __commonJS({
       };
       return __assign.apply(this, arguments);
     };
+    var __read = exports && exports.__read || function(o, n) {
+      var m2 = typeof Symbol === "function" && o[Symbol.iterator];
+      if (!m2)
+        return o;
+      var i2 = m2.call(o), r2, ar = [], e2;
+      try {
+        while ((n === void 0 || n-- > 0) && !(r2 = i2.next()).done)
+          ar.push(r2.value);
+      } catch (error) {
+        e2 = { error };
+      } finally {
+        try {
+          if (r2 && !r2.done && (m2 = i2["return"]))
+            m2.call(i2);
+        } finally {
+          if (e2)
+            throw e2.error;
+        }
+      }
+      return ar;
+    };
+    var __spreadArray = exports && exports.__spreadArray || function(to, from) {
+      for (var i2 = 0, il = from.length, j = to.length; i2 < il; i2++, j++)
+        to[j] = from[i2];
+      return to;
+    };
     exports.__esModule = true;
-    exports.registerCustom = exports.registerSymbol = exports.registerClass = exports.parse = exports.stringify = exports.deserialize = exports.serialize = void 0;
+    exports.allowErrorProps = exports.registerSymbol = exports.registerCustom = exports.registerClass = exports.parse = exports.stringify = exports.deserialize = exports.serialize = void 0;
     var class_registry_1 = require_class_registry();
-    var symbol_registry_1 = require_symbol_registry();
+    var registry_1 = require_registry();
     var custom_transformer_registry_1 = require_custom_transformer_registry();
-    var error_props_1 = require_error_props();
     var plainer_1 = require_plainer();
     var copy_anything_1 = require_dist2();
-    var serialize = function(object) {
-      var identities = /* @__PURE__ */ new Map();
-      var output = plainer_1.walker(object, identities);
-      var res = {
-        json: output.transformedValue
-      };
-      if (output.annotations) {
-        res.meta = __assign(__assign({}, res.meta), { values: output.annotations });
-      }
-      var equalityAnnotations = plainer_1.generateReferentialEqualityAnnotations(identities);
-      if (equalityAnnotations) {
-        res.meta = __assign(__assign({}, res.meta), { referentialEqualities: equalityAnnotations });
-      }
-      return res;
-    };
-    exports.serialize = serialize;
-    var deserialize = function(payload) {
-      var json = payload.json, meta = payload.meta;
-      var result = copy_anything_1.copy(json);
-      if (meta === null || meta === void 0 ? void 0 : meta.values) {
-        result = plainer_1.applyValueAnnotations(result, meta.values);
-      }
-      if (meta === null || meta === void 0 ? void 0 : meta.referentialEqualities) {
-        result = plainer_1.applyReferentialEqualityAnnotations(result, meta.referentialEqualities);
-      }
-      return result;
-    };
-    exports.deserialize = deserialize;
-    var stringify = function(object) {
-      return JSON.stringify(exports.serialize(object));
-    };
-    exports.stringify = stringify;
-    var parse = function(string) {
-      return exports.deserialize(JSON.parse(string));
-    };
-    exports.parse = parse;
-    var registerClass = function(v, options) {
-      return class_registry_1.ClassRegistry.register(v, options);
-    };
-    exports.registerClass = registerClass;
-    var registerSymbol = function(v, identifier) {
-      return symbol_registry_1.SymbolRegistry.register(v, identifier);
-    };
-    exports.registerSymbol = registerSymbol;
-    var registerCustom = function(transformer2, name) {
-      return custom_transformer_registry_1.CustomTransformerRegistry.register(__assign({ name }, transformer2));
-    };
-    exports.registerCustom = registerCustom;
-    exports["default"] = {
-      stringify: exports.stringify,
-      parse: exports.parse,
-      serialize: exports.serialize,
-      deserialize: exports.deserialize,
-      registerClass: exports.registerClass,
-      registerSymbol: exports.registerSymbol,
-      registerCustom: exports.registerCustom,
-      allowErrorProps: error_props_1.allowErrorProps
-    };
+    var SuperJSON = (
+      /** @class */
+      function() {
+        function SuperJSON2() {
+          this.classRegistry = new class_registry_1.ClassRegistry();
+          this.symbolRegistry = new registry_1.Registry(function(s2) {
+            var _a4;
+            return (_a4 = s2.description) !== null && _a4 !== void 0 ? _a4 : "";
+          });
+          this.customTransformerRegistry = new custom_transformer_registry_1.CustomTransformerRegistry();
+          this.allowedErrorProps = [];
+        }
+        SuperJSON2.prototype.serialize = function(object) {
+          var identities = /* @__PURE__ */ new Map();
+          var output = plainer_1.walker(object, identities, this);
+          var res = {
+            json: output.transformedValue
+          };
+          if (output.annotations) {
+            res.meta = __assign(__assign({}, res.meta), { values: output.annotations });
+          }
+          var equalityAnnotations = plainer_1.generateReferentialEqualityAnnotations(identities);
+          if (equalityAnnotations) {
+            res.meta = __assign(__assign({}, res.meta), { referentialEqualities: equalityAnnotations });
+          }
+          return res;
+        };
+        SuperJSON2.prototype.deserialize = function(payload) {
+          var json = payload.json, meta = payload.meta;
+          var result = copy_anything_1.copy(json);
+          if (meta === null || meta === void 0 ? void 0 : meta.values) {
+            result = plainer_1.applyValueAnnotations(result, meta.values, this);
+          }
+          if (meta === null || meta === void 0 ? void 0 : meta.referentialEqualities) {
+            result = plainer_1.applyReferentialEqualityAnnotations(result, meta.referentialEqualities);
+          }
+          return result;
+        };
+        SuperJSON2.prototype.stringify = function(object) {
+          return JSON.stringify(this.serialize(object));
+        };
+        SuperJSON2.prototype.parse = function(string) {
+          return this.deserialize(JSON.parse(string));
+        };
+        SuperJSON2.prototype.registerClass = function(v, options) {
+          this.classRegistry.register(v, options);
+        };
+        SuperJSON2.prototype.registerSymbol = function(v, identifier) {
+          this.symbolRegistry.register(v, identifier);
+        };
+        SuperJSON2.prototype.registerCustom = function(transformer2, name) {
+          this.customTransformerRegistry.register(__assign({ name }, transformer2));
+        };
+        SuperJSON2.prototype.allowErrorProps = function() {
+          var _a4;
+          var props = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+            props[_i] = arguments[_i];
+          }
+          (_a4 = this.allowedErrorProps).push.apply(_a4, __spreadArray([], __read(props)));
+        };
+        SuperJSON2.defaultInstance = new SuperJSON2();
+        SuperJSON2.serialize = SuperJSON2.defaultInstance.serialize.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.deserialize = SuperJSON2.defaultInstance.deserialize.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.stringify = SuperJSON2.defaultInstance.stringify.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.parse = SuperJSON2.defaultInstance.parse.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.registerClass = SuperJSON2.defaultInstance.registerClass.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.registerSymbol = SuperJSON2.defaultInstance.registerSymbol.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.registerCustom = SuperJSON2.defaultInstance.registerCustom.bind(SuperJSON2.defaultInstance);
+        SuperJSON2.allowErrorProps = SuperJSON2.defaultInstance.allowErrorProps.bind(SuperJSON2.defaultInstance);
+        return SuperJSON2;
+      }()
+    );
+    exports["default"] = SuperJSON;
+    exports.serialize = SuperJSON.serialize;
+    exports.deserialize = SuperJSON.deserialize;
+    exports.stringify = SuperJSON.stringify;
+    exports.parse = SuperJSON.parse;
+    exports.registerClass = SuperJSON.registerClass;
+    exports.registerCustom = SuperJSON.registerCustom;
+    exports.registerSymbol = SuperJSON.registerSymbol;
+    exports.allowErrorProps = SuperJSON.allowErrorProps;
   }
 });
 
@@ -6507,7 +6521,6 @@ import { join } from "path";
 
 // ../node/src/service.ts
 import { Blob as Blob2 } from "buffer";
-import crypto2 from "crypto";
 
 // ../../node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
 import http2 from "http";
@@ -7822,29 +7835,22 @@ function service(api2) {
   async function uploadImage(img) {
     const optimisedImg = await optimiseImage(img);
     const hash = generateHash(optimisedImg);
-    const { exists, data } = await createUpload(hash);
+    const { exists, data, imageId } = await createUpload(hash);
     if (!exists && (data == null ? void 0 : data.url)) {
-      upload2(optimisedImg, data, hash);
+      await upload2(optimisedImg, data, hash);
     }
-    return hash;
+    return imageId;
   }
   const createSnapshot = (data) => api2.snapshot.createSnapshot.mutate(data);
-  async function createBuild(snapshotIds) {
-    const sha = crypto2.randomUUID();
-    const build = await api2.build.createBuild.mutate({
-      sha,
-      visualSnapshots: snapshotIds,
-      commitMessage: "test" + Math.random(),
-      branch: "main"
-    });
-    return build;
-  }
+  const createBuild = (data) => api2.build.createBuild.mutate(data);
+  const createReport = (data) => api2.build.createReport.mutate(data);
   return {
     uploadImage,
     upload: upload2,
+    createSnapshot,
     createUpload,
     createBuild,
-    createSnapshot
+    createReport
   };
 }
 
@@ -7852,7 +7858,7 @@ function service(api2) {
 var import_superjson = __toESM(require_dist3());
 var transformer = import_superjson.default;
 
-// ../../node_modules/.pnpm/@trpc+server@10.9.0/node_modules/@trpc/server/dist/observable-ade1bad8.mjs
+// ../../node_modules/.pnpm/@trpc+server@10.12.0/node_modules/@trpc/server/dist/observable-ade1bad8.mjs
 function identity(x2) {
   return x2;
 }
@@ -7930,7 +7936,7 @@ function observable(subscribe) {
   return self2;
 }
 
-// ../../node_modules/.pnpm/@trpc+server@10.9.0/node_modules/@trpc/server/dist/observable/index.mjs
+// ../../node_modules/.pnpm/@trpc+server@10.12.0/node_modules/@trpc/server/dist/observable/index.mjs
 function share(_opts) {
   return (originalObserver) => {
     let refCount = 0;
@@ -8031,7 +8037,7 @@ function observableToPromise(observable2) {
   };
 }
 
-// ../../node_modules/.pnpm/@trpc+client@10.9.0/node_modules/@trpc/client/dist/transformResult-6fb67924.mjs
+// ../../node_modules/.pnpm/@trpc+client@10.12.0_@trpc+server@10.12.0/node_modules/@trpc/client/dist/transformResult-6fb67924.mjs
 var TRPCClientError = class extends Error {
   static from(cause, opts = {}) {
     if (!(cause instanceof Error)) {
@@ -8106,7 +8112,7 @@ function transformResult(response, runtime) {
   return result;
 }
 
-// ../../node_modules/.pnpm/@trpc+client@10.9.0/node_modules/@trpc/client/dist/splitLink-4c75f7be.mjs
+// ../../node_modules/.pnpm/@trpc+client@10.12.0_@trpc+server@10.12.0/node_modules/@trpc/client/dist/splitLink-4c75f7be.mjs
 function createChain(opts) {
   return observable((observer) => {
     function execute(index = 0, op = opts.op) {
@@ -8128,7 +8134,7 @@ function createChain(opts) {
   });
 }
 
-// ../../node_modules/.pnpm/@trpc+server@10.9.0/node_modules/@trpc/server/dist/index-972002da.mjs
+// ../../node_modules/.pnpm/@trpc+server@10.12.0/node_modules/@trpc/server/dist/index-972002da.mjs
 var noop2 = () => {
 };
 function createInnerProxy(callback, path) {
@@ -8163,7 +8169,7 @@ var createFlatProxy = (callback) => {
   });
 };
 
-// ../../node_modules/.pnpm/@trpc+client@10.9.0/node_modules/@trpc/client/dist/httpUtils-939364d7.mjs
+// ../../node_modules/.pnpm/@trpc+client@10.12.0_@trpc+server@10.12.0/node_modules/@trpc/client/dist/httpUtils-9322dc79.mjs
 function getWindow() {
   if (typeof window !== "undefined") {
     return window;
@@ -8271,7 +8277,7 @@ function httpRequest(opts) {
   };
 }
 
-// ../../node_modules/.pnpm/@trpc+client@10.9.0/node_modules/@trpc/client/dist/links/httpBatchLink.mjs
+// ../../node_modules/.pnpm/@trpc+client@10.12.0_@trpc+server@10.12.0/node_modules/@trpc/client/dist/links/httpBatchLink.mjs
 var throwFatalError = () => {
   throw new Error("Something went wrong. Please submit an issue at https://github.com/trpc/trpc/issues/new");
 };
@@ -8462,7 +8468,7 @@ function httpBatchLink(opts) {
   };
 }
 
-// ../../node_modules/.pnpm/@trpc+client@10.9.0/node_modules/@trpc/client/dist/index.mjs
+// ../../node_modules/.pnpm/@trpc+client@10.12.0_@trpc+server@10.12.0/node_modules/@trpc/client/dist/index.mjs
 var TRPCUntypedClient = class {
   $request({ type, input, path, context = {} }) {
     const chain$ = createChain({
@@ -8645,14 +8651,27 @@ async function upload(path, options) {
     const sha = Math.random().toString(36).substring(7);
     const ids = await Promise.all(
       snaps.map(
-        (hash, i2) => client.createSnapshot({
+        (imageId, i2) => client.createSnapshot({
           name: "test" + i2.toString(),
-          hash,
+          imageId,
           sha
         })
       )
     );
-    await client.createBuild(ids);
+    await client.createReport({
+      visualSnapshots: ids,
+      sha,
+      branch: "main",
+      message: "test commit message",
+      title: "test title",
+      url: "https://pixeleye.dev"
+    });
+    await client.createBuild({
+      sha,
+      branch: "main",
+      title: "test title",
+      url: "https://pixeleye.dev"
+    });
   }).catch((err) => {
     if ((err == null ? void 0 : err.code) === "ENOENT") {
       commands_default.error(`No such directory: ${path}`, {

@@ -1,8 +1,8 @@
-import { authOptions } from "@pixeleye/auth";
-import { getServerSession } from "next-auth/next";
-import { serverApi } from "~/lib/server";
+import { redirect } from "next/navigation";
+import { getAppSession } from "@pixeleye/auth";
 import { RegisterSegment } from "../../navbar";
 import { ProjectHeader } from "./projectHeader";
+import { getProject } from "./services";
 
 export default async function ProjectLayout({
   children,
@@ -11,18 +11,24 @@ export default async function ProjectLayout({
   children: React.ReactNode;
   params: { id: string };
 }) {
-  const session = await getServerSession(authOptions);
-  const data = await serverApi(session).project.getProject({ id: params.id });
+  const projectId = params.id;
+  const session = await getAppSession();
+
+  if (!session) redirect("/login");
+
+  const project = await getProject(session.user.id, projectId);
+
+  if (!project) redirect("/");
 
   return (
     <RegisterSegment
       reference={params.id}
-      teamId={data.teamId || ""}
+      teamId={project.teamId || ""}
       order={2}
       segment={
-        data
+        project
           ? {
-              name: data.name,
+              name: project.name,
               value: `/project/${params.id}`,
             }
           : undefined

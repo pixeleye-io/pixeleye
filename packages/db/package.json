@@ -2,7 +2,8 @@
   "name": "@pixeleye/db",
   "version": "0.1.0",
   "dependencies": {
-    "@prisma/client": "4.10.1"
+    "@prisma/client": "^4.10.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "18.14.1",

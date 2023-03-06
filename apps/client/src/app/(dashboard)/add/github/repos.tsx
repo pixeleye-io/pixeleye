@@ -12,7 +12,7 @@ import { Modal, Spinner } from "@pixeleye/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import Avatar from "~/components/avatar";
 import { api } from "~/lib/api";
-import { API_SECRET } from "../page2";
+import { API_SECRET } from "../../project/[id]/token";
 import { Repos } from "./services";
 
 type Repo = Repos["repos"][0];

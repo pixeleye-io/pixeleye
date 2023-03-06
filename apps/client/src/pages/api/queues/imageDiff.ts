@@ -1,130 +1,132 @@
-import fs from "fs";
-import https from "https";
-import { prisma } from "@pixeleye/db";
-import { generateHash, optimiseImage } from "@pixeleye/node";
-import { storage } from "@pixeleye/storage";
-import { compare } from "odiff-bin";
-import { Queue } from "quirrel/next";
-import statusQuery from "./checkStatus";
+export const test = "hi";
 
-async function downloadFile(url: string | null, targetFile: string) {
-  return await new Promise((resolve, reject) => {
-    if (!url) {
-      return reject(new Error("No url provided"));
-    }
-    https
-      .get(url, (response) => {
-        const code = response.statusCode ?? 0;
+// import fs from "fs";
+// import https from "https";
+// import { prisma } from "@pixeleye/db";
+// import { generateHash, optimiseImage } from "@pixeleye/node";
+// import { storage } from "@pixeleye/storage";
+// import { compare } from "odiff-bin";
+// import { Queue } from "quirrel/next";
+// import statusQuery from "./checkStatus";
 
-        if (code >= 400) {
-          return reject(new Error(response.statusMessage));
-        }
+// async function downloadFile(url: string | null, targetFile: string) {
+//   return await new Promise((resolve, reject) => {
+//     if (!url) {
+//       return reject(new Error("No url provided"));
+//     }
+//     https
+//       .get(url, (response) => {
+//         const code = response.statusCode ?? 0;
 
-        // handle redirects
-        if (code > 300 && code < 400 && !!response.headers.location) {
-          return resolve(downloadFile(response.headers.location, targetFile));
-        }
+//         if (code >= 400) {
+//           return reject(new Error(response.statusMessage));
+//         }
 
-        // save the file to disk
-        const fileWriter = fs.createWriteStream(targetFile).on("finish", () => {
-          resolve({});
-        });
+//         // handle redirects
+//         if (code > 300 && code < 400 && !!response.headers.location) {
+//           return resolve(downloadFile(response.headers.location, targetFile));
+//         }
 
-        response.pipe(fileWriter);
-      })
-      .on("error", (error) => {
-        reject(error);
-      });
-  });
-}
+//         // save the file to disk
+//         const fileWriter = fs.createWriteStream(targetFile).on("finish", () => {
+//           resolve({});
+//         });
 
-export default Queue<{
-  visualDifferenceId: string;
-  buildId: string;
-}>("api/queues/imageDiff", async ({ visualDifferenceId, buildId }) => {
-  const VisualDifference = await prisma.visualDifference.findUnique({
-    where: {
-      id: visualDifferenceId,
-    },
-    include: {
-      baseImage: true,
-      image: true,
-    },
-  });
+//         response.pipe(fileWriter);
+//       })
+//       .on("error", (error) => {
+//         reject(error);
+//       });
+//   });
+// }
 
-  if (!VisualDifference) {
-    throw new Error("VisualDifference not found");
-  }
+// export default Queue<{
+//   visualDifferenceId: string;
+//   buildId: string;
+// }>("api/queues/imageDiff", async ({ visualDifferenceId, buildId }) => {
+//   const VisualDifference = await prisma.visualDifference.findUnique({
+//     where: {
+//       id: visualDifferenceId,
+//     },
+//     include: {
+//       baseImage: true,
+//       image: true,
+//     },
+//   });
 
-  if (!fs.existsSync("./tmp")) fs.mkdirSync("./tmp");
+//   if (!VisualDifference) {
+//     throw new Error("VisualDifference not found");
+//   }
 
-  const images = [VisualDifference.baseImage, VisualDifference.image];
+//   if (!fs.existsSync("./tmp")) fs.mkdirSync("./tmp");
 
-  await Promise.all(
-    images.map(async ({ url, hash }) => downloadFile(url, `./tmp/${hash}.png`)),
-  );
+//   const images = [VisualDifference.baseImage, VisualDifference.image];
 
-  const diffName = Math.random().toString();
+//   await Promise.all(
+//     images.map(async ({ url, hash }) => downloadFile(url, `./tmp/${hash}.png`)),
+//   );
 
-  await compare(
-    `./tmp/${images[0]!.hash}.png`,
-    `./tmp/${images[1]!.hash}.png`,
-    `./tmp/diff-${diffName}.png`,
-  )
-    .catch((err) => {
-      console.log(err);
-    })
-    .then((res) => {
-      console.log(res);
-    });
+//   const diffName = Math.random().toString();
 
-  //TODO upload diff image to s3
+//   await compare(
+//     `./tmp/${images[0]!.hash}.png`,
+//     `./tmp/${images[1]!.hash}.png`,
+//     `./tmp/diff-${diffName}.png`,
+//   )
+//     .catch((err) => {
+//       console.log(err);
+//     })
+//     .then((res) => {
+//       console.log(res);
+//     });
 
-  const diffImg = fs.readFileSync(`./tmp/diff-${diffName}.png`);
+//   //TODO upload diff image to s3
 
-  const optimised = await optimiseImage(diffImg);
-  const hash = generateHash(optimised);
+//   const diffImg = fs.readFileSync(`./tmp/diff-${diffName}.png`);
 
-  const { endpoint, ...data } = await storage.getUploadUrl(hash, "diff");
+//   const optimised = await optimiseImage(diffImg);
+//   const hash = generateHash(optimised);
 
-  const formData = new FormData();
+//   const { endpoint, ...data } = await storage.getUploadUrl(hash, "diff");
 
-  Object.entries(data.fields).forEach(([key, value]) => {
-    formData.append(key, value as unknown as string);
-  });
+//   const formData = new FormData();
 
-  const blob = new Blob([optimised], { type: "image/png" });
+//   Object.entries(data.fields).forEach(([key, value]) => {
+//     formData.append(key, value as unknown as string);
+//   });
 
-  formData.append("file", blob as any, `${hash}.png`);
+//   const blob = new Blob([optimised], { type: "image/png" });
 
-  await fetch(data.url, {
-    method: "POST",
-    body: formData,
-  });
+//   formData.append("file", blob as any, `${hash}.png`);
 
-  await prisma.visualDifference.update({
-    where: {
-      id: visualDifferenceId,
-    },
-    data: {
-      status: "COMPLETED",
-      diffImage: {
-        connectOrCreate: {
-          where: {
-            hash,
-          },
-          create: {
-            hash,
-            url: endpoint,
-          },
-        },
-      },
-    },
-  });
+//   await fetch(data.url, {
+//     method: "POST",
+//     body: formData,
+//   });
 
-  await statusQuery.enqueue(buildId, {
-    id: buildId,
-    override: true,
-    delay: 5000,
-  });
-});
+//   await prisma.visualDifference.update({
+//     where: {
+//       id: visualDifferenceId,
+//     },
+//     data: {
+//       status: "COMPLETED",
+//       diffImage: {
+//         connectOrCreate: {
+//           where: {
+//             hash,
+//           },
+//           create: {
+//             hash,
+//             url: endpoint,
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   await statusQuery.enqueue(buildId, {
+//     id: buildId,
+//     override: true,
+//     delay: 5000,
+//   });
+// });

@@ -5,7 +5,6 @@ import { Button } from "@pixeleye/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { api } from "~/lib/api";
-import { API_SECRET } from "../../add/page2";
 
 interface TokenViewProps {
   projectId: string;
@@ -13,7 +12,9 @@ interface TokenViewProps {
   className?: string;
 }
 
-const hidden = "********-****-****-****-************";
+const hidden = "***************************************";
+
+export const API_SECRET = "API_SECRET";
 
 interface CopyButtonProps {
   text: string;
@@ -59,13 +60,13 @@ export default function TokenView({
           new one.
         </div>
         <p className="flex inline p-2 mb-4 border border-gray-200 rounded group dark:border-gray-700 bg-gray-white dark:bg-gray-900">
-          Key: <p className="pl-8">{projectKey}</p>
+          Key: <span className="pl-8">{projectKey}</span>
           <CopyButton text={projectKey} />
         </p>
-        <div className="flex inline p-2 border border-gray-200 rounded group dark:border-gray-700 bg-gray-white dark:bg-gray-900">
-          Secret: <p className="pl-2"> {secret || hidden}</p>
+        <p className="flex inline p-2 border border-gray-200 rounded group dark:border-gray-700 bg-gray-white dark:bg-gray-900">
+          Secret: <span className="pl-2"> {secret || hidden}</span>
           {secret && <CopyButton text={secret} />}
-        </div>
+        </p>
         {!secret && (
           <Button
             loading={isLoading}

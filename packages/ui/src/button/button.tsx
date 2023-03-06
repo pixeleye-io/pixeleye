@@ -82,6 +82,7 @@ const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
         ref={ref}
       >
         <div className="relative flex">
+          {/* @ts-ignore */}
           <div className={cx(loading && "opacity-0")}>{children}</div>
           <Spinner
             className="absolute transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"

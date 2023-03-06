@@ -80,8 +80,6 @@ export const createTRPCContext =
         .toString()
         .split(":");
 
-      console.log(key, secret);
-
       if (key && secret) {
         const project = await prisma.project.findUnique({
           where: {

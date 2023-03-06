@@ -1,42 +1,50 @@
-import { authOptions } from "@pixeleye/auth";
-import { getServerSession } from "next-auth/next";
-import { serverApi } from "~/lib/server";
+import { redirect } from "next/navigation";
+import { getAppSession } from "@pixeleye/auth";
 import { RegisterSegment } from "../../navbar";
+import { getBuild } from "./services";
 
-export default async function ProjectLayout({
+export default async function BuildLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: { id: string };
 }) {
-  const session = await getServerSession(authOptions);
-  const data = await serverApi(session).build.getWithProject({ id: params.id });
+  const buildId = params.id;
+  const session = await getAppSession();
+
+  if (!session) redirect("/login");
+
+  const build = await getBuild(buildId, session.user.id);
+
+  if (!build) redirect("/");
 
   return (
-    <RegisterSegment
-      reference={params.id}
-      teamId={data.Project.teamId || ""}
-      order={2}
-      segment={
-        data
-          ? [
-              {
-                name: data.Project.name,
-                value: `/project/${data.Project.id}`,
-              },
-              {
-                name: data.name,
-                value: `/build/${data.id}`,
-                status: data.status,
-              },
-            ]
-          : undefined
-      }
-    >
-      <hr className="w-full border-t border-neutral-300 dark:border-neutral-700" />
+    <>
+      <RegisterSegment
+        reference={params.id}
+        teamId={build.projectId}
+        order={2}
+        segment={
+          build
+            ? [
+                {
+                  name: build.project.name,
+                  value: `/project/${build.projectId}`,
+                },
+                {
+                  name: build.name,
+                  value: `/build/${buildId}`,
+                  status: build.status,
+                },
+              ]
+            : undefined
+        }
+      >
+        <hr className="w-full border-t border-neutral-300 dark:border-neutral-700" />
 
-      {children}
-    </RegisterSegment>
+        {children}
+      </RegisterSegment>
+    </>
   );
 }

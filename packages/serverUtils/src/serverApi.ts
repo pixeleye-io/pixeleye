@@ -7,5 +7,6 @@ export default function serverApi(session: Session | null) {
     session,
     prisma,
     projectId: undefined,
+    qImageDiff: undefined,
   });
 }

@@ -21,7 +21,7 @@ export async function getTeamId(teamId?: string) {
   return teamId;
 }
 
-export async function getGithubRepos(teamId: string) {
+export async function getGithubRepos(teamId: string, userId: string) {
   const source = await prisma.source.findUnique({
     where: {
       type_teamId: {
@@ -29,9 +29,21 @@ export async function getGithubRepos(teamId: string) {
         type: "GITHUB",
       },
     },
+    include: {
+      Team: {
+        select: {
+          users: {
+            where: {
+              userId,
+            },
+          },
+        },
+      },
+    },
   });
 
-  if (!source?.githubInstallId) return redirect("/");
+  if (!source?.githubInstallId || source.Team?.users.length === 0)
+    return redirect("/");
 
   const git = await getGitProvider(source);
 
@@ -41,10 +53,17 @@ export async function getGithubRepos(teamId: string) {
   };
 }
 
-export async function getOtherInstalls(teamId: string) {
+export async function getOtherInstalls(teamId: string, userId: string) {
   const installs = await prisma.source.findMany({
     where: {
       type: "GITHUB",
+      Team: {
+        users: {
+          some: {
+            userId,
+          },
+        },
+      },
       teamId: {
         not: teamId,
       },

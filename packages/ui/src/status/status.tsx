@@ -1,6 +1,11 @@
 import { cx } from "class-variance-authority";
 
-export type StatusType = "PENDING" | "COMPLETED" | "FAILED" | "UNREVIEWED";
+export type StatusType =
+  | "PENDING"
+  | "COMPLETED"
+  | "FAILED"
+  | "UNREVIEWED"
+  | "ORPHANED";
 
 export interface StatusProps {
   status: StatusType;
@@ -12,6 +17,7 @@ const StatusColors = {
   COMPLETED: "bg-green-500",
   FAILED: "bg-red-500",
   UNREVIEWED: "bg-yellow-500",
+  ORPHANED: "bg-gray-500",
 };
 
 const StatusSizes = {

@@ -10,7 +10,7 @@ export const imageRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const existing = await ctx.prisma.image.findUnique({
+      const existing = await ctx.prisma.snapImage.findUnique({
         where: {
           projectId_hash: {
             projectId: ctx.projectId,
@@ -21,6 +21,7 @@ export const imageRouter = createTRPCRouter({
       if (existing) {
         return {
           exists: true,
+          imageId: existing.id,
         };
       }
       const { endpoint, ...data } = await storage.getUploadUrl(
@@ -29,7 +30,7 @@ export const imageRouter = createTRPCRouter({
         ctx.projectId,
       );
       // TODO - handle image never being uploaded
-      await ctx.prisma.image.create({
+      const image = await ctx.prisma.snapImage.create({
         data: {
           hash: input.hash,
           projectId: ctx.projectId,
@@ -39,6 +40,7 @@ export const imageRouter = createTRPCRouter({
       return {
         exists: false,
         data,
+        imageId: image.id,
       };
     }),
 });

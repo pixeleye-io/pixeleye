@@ -199,10 +199,15 @@ export function RegisterSegment({
   segment,
 }: RegisterSegmentProps) {
   useRegisterSegment(reference, order, segment);
+  const searchTeamId = useSearchParams()?.get("team");
   const setTeamId = useTeamStore((state) => state.setTeamId);
   useEffect(() => {
     if (teamId) setTeamId(teamId);
   }, [setTeamId, teamId]);
+
+  useEffect(() => {
+    if (searchTeamId && !teamId) setTeamId(searchTeamId);
+  }, [searchTeamId, setTeamId, teamId]);
 
   return <>{children}</>;
 }
@@ -246,7 +251,9 @@ export function NavBar({ teams }: NavBarProps) {
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
-          <TeamToggle name="AlfieJones" teams={teams} />
+          <div className="flex items-center">
+            <TeamToggle name="AlfieJones" teams={teams} />
+          </div>
         </Breadcrumbs.Item>
         {segments.map((segment) => {
           return (

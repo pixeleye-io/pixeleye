@@ -43,16 +43,30 @@ async function upload(path: string, options: Config) {
       );
       const sha = Math.random().toString(36).substring(7);
       const ids = await Promise.all(
-        snaps.map((hash, i) =>
+        snaps.map((imageId, i) =>
           client.createSnapshot({
             name: "test" + i.toString(),
-            hash,
+            imageId,
             sha,
           }),
         ),
       );
 
-      await client.createBuild(ids);
+      await client.createReport({
+        visualSnapshots: ids,
+        sha,
+        branch: "main",
+        message: "test commit message",
+        title: "test title",
+        url: "https://pixeleye.dev",
+      });
+
+      await client.createBuild({
+        sha,
+        branch: "main",
+        title: "test title",
+        url: "https://pixeleye.dev",
+      });
     })
     .catch((err) => {
       if (err?.code === "ENOENT") {

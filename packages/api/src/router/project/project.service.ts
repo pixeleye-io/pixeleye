@@ -4,7 +4,7 @@ import bcryptjs from "bcryptjs";
 import { z } from "zod";
 
 export function generateSecret() {
-  return crypto.randomBytes(48).toString("hex");
+  return crypto.randomBytes(32).toString("base64");
 }
 
 export const createProjectInput = z.object({

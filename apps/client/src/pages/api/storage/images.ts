@@ -24,7 +24,7 @@ export default async function handle(
     if (!files || Array.isArray(files))
       return res.status(400).json({ error: "Bad upload" });
 
-    await sharp(files.filepath).toFile(
+    await sharp(files.filepath as any).toFile(
       __dirname + "/uploads/" + "testsetest" + ".png",
     );
 

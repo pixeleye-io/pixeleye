@@ -78,7 +78,7 @@ export default async function RootLayout({
   // could be some API route / getServerSideProps / ...
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

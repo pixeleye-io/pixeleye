@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DetailedHTMLProps,
   FC,
@@ -59,6 +61,7 @@ const Select: FC<SelectProps> = ({
         htmlFor={id}
         className={cx(
           "px-2 my-auto text-sm font-medium text-gray-700 transition dark:text-gray-300 group-focus-within:text-gray-900 dark:group-focus-within:text-white",
+          // @ts-ignore
           hiddenLabel && "sr-only",
         )}
       >

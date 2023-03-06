@@ -4,7 +4,7 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 import { authOptions } from "@pixeleye/auth";
 import { Button, Container } from "@pixeleye/ui";
 import { getServerSession } from "next-auth";
-import { serverApi } from "~/lib/server";
+import { getTeam } from "./services";
 
 export default async function IndexPage({
   searchParams,
@@ -13,17 +13,14 @@ export default async function IndexPage({
 }) {
   const teamId = searchParams?.team;
   const session = await getServerSession(authOptions);
-  const team = await serverApi(session)
-    .team.getUserTeam({ id: teamId })
-    .catch(() => {
-      // Probably a bad team id, redirect to personal team
-      if (teamId) redirect("/");
-    });
-  const projects = team?.id
-    ? await serverApi(session).project.getTeamProjects({
-        teamId: team.id,
-      })
-    : [];
+  if (!session) redirect("/login");
+
+  const team = await getTeam(session.user.id, teamId);
+
+  if (!team) {
+    if (teamId) redirect("/");
+    else redirect("/api/auth/signin");
+  }
 
   return (
     <Container className="py-12">
@@ -31,17 +28,17 @@ export default async function IndexPage({
         <h1 className="text-4xl">Projects</h1>
         <Link
           href={
-            "/add/github" + (team?.type !== "USER" ? `?team=${team?.id}` : "")
+            "/add/github" + (team?.type !== "USER" ? `?team=${team.id}` : "")
           }
         >
           <Button asChild>Add project</Button>
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {projects?.map((project) => (
+        {team.projects?.map((project) => (
           <div
             key={project.id}
-            className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition bg-white border border-gray-200 rounded-lg shadow-sm shadow group/card hover:shadow-md dark:hover:border-white hover:border-black dark:bg-gray-900 dark:border-gray-700"
+            className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition bg-white border border-gray-200 rounded-lg shadow-sm shadow hover:bg-gray-50 dark:hover:bg-gray-850 group/card hover:shadow-md dark:hover:border-gray-500 hover:border-gray-400 dark:bg-gray-900 dark:border-gray-700"
           >
             <h3 className="text-lg break-all">{project.name}</h3>
             <p className="text-sm text-gray-500 break-all dark:text-gray-400 ">

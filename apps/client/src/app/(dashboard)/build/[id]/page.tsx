@@ -1,15 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import { authOptions } from "@pixeleye/auth";
+import { redirect } from "next/navigation";
+import { getAppSession } from "@pixeleye/auth";
+import { ImageSnapshot, SnapImage, Snapshot } from "@pixeleye/db";
 import { Container } from "@pixeleye/ui";
-import { getServerSession } from "next-auth";
-import { RouterOutputs } from "~/lib/api";
-import { serverApi } from "~/lib/server";
-
-type Snapshot = RouterOutputs["build"]["getWithSnapshots"]["Snapshots"][0];
+import { getBuildWithScreenShots } from "./services";
 
 interface SnapshotItemProps {
-  snapshot: Snapshot;
+  snapshot: Snapshot & {
+    imageSnapshots: (ImageSnapshot & {
+      image: SnapImage;
+    })[];
+  };
   buildId: string;
 }
 
@@ -20,7 +22,7 @@ function SnapshotItem({ snapshot, buildId }: SnapshotItemProps) {
         <Image
           unoptimized
           fill
-          src={snapshot.visualSnapshots[0]?.image?.url || ""}
+          src={snapshot.imageSnapshots[0]?.image?.url || ""}
           alt=""
           className="object-contain w-full p-1 pointer-events-none group-hover:opacity-75"
         />
@@ -37,15 +39,15 @@ function SnapshotItem({ snapshot, buildId }: SnapshotItemProps) {
       <p className="block text-sm font-medium text-gray-500 pointer-events-none">
         {snapshot.variant}
       </p>
-      {snapshot.visualSnapshots[0]?.VisualDifference?.diffImage?.url && (
+      {/* {snapshot.[0]?.VisualDifference?.diffImage?.url && (
         <a
-          href={snapshot.visualSnapshots[0]?.VisualDifference?.diffImage?.url}
+          href={snapshot.imageSnapshots[0]?.VisualDifference?.diffImage?.url}
           target="_blank"
           rel="noopener noreferrer"
         >
           Diff
         </a>
-      )}
+      )} */}
     </li>
   );
 }
@@ -55,24 +57,18 @@ export default async function BuildPage({
 }: {
   params: { id: string };
 }) {
-  const session = await getServerSession(authOptions);
-  const data = await serverApi(session).build.getWithSnapshots({
-    id: params.id,
-  });
+  const session = await getAppSession();
 
-  const unreviewedSnapshots = data.Snapshots.filter(
-    (snapshot) =>
-      !snapshot.visualSnapshots.some(
-        (vs) => vs.VisualDifference?.status === "PENDING",
-      ),
-  );
+  if (!session) return redirect("/login");
+
+  const build = await getBuildWithScreenShots(params.id, session.user.id);
+
+  if (!build) return redirect("/");
 
   return (
     <Container>
       <div className="my-8">
-        <h2 className="text-3xl font-semibold">
-          {data.pullRequestTitle || data.id}
-        </h2>
+        <h2 className="text-3xl font-semibold">{build.name}</h2>
       </div>
       <section>
         <h3 className="text-lg font-medium">Unreviewed Snapshots</h3>
@@ -80,7 +76,7 @@ export default async function BuildPage({
           role="list"
           className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-5 xl:gap-x-8"
         >
-          {unreviewedSnapshots.map((snapshot) => (
+          {build.report.snapshots.map((snapshot) => (
             <SnapshotItem
               buildId={params.id}
               key={snapshot.id}
@@ -95,7 +91,7 @@ export default async function BuildPage({
           role="list"
           className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-5 xl:gap-x-8"
         >
-          {data.Snapshots.map((snapshot) => (
+          {build.report.snapshots.map((snapshot) => (
             <SnapshotItem
               buildId={params.id}
               key={snapshot.id}

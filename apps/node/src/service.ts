@@ -1,7 +1,6 @@
 import { Blob } from "buffer";
-import crypto from "crypto";
 import fetch from "node-fetch";
-import { RouterType, api } from "./api";
+import { RouterInput, RouterType, api } from "./api";
 import { generateHash, optimiseImage } from "./image";
 
 type API = ReturnType<typeof api>;
@@ -36,40 +35,28 @@ export function service(api: API) {
   async function uploadImage(img: Buffer) {
     const optimisedImg = await optimiseImage(img);
     const hash = generateHash(optimisedImg);
-    const { exists, data } = await createUpload(hash);
+    const { exists, data, imageId } = await createUpload(hash);
     if (!exists && data?.url) {
-      upload(optimisedImg, data, hash);
+      await upload(optimisedImg, data, hash);
     }
-    return hash;
+    return imageId;
   }
 
-  interface SnapshotData {
-    name: string;
-    variant?: string;
-    hash: string;
-    sha: string;
-    browser?: "CHROME" | "FIREFOX" | "SAFARI" | "EDGE" | "UNKNOWN";
-  }
-
-  const createSnapshot = (data: SnapshotData) =>
+  const createSnapshot = (data: RouterInput["snapshot"]["createSnapshot"]) =>
     api.snapshot.createSnapshot.mutate(data);
 
-  async function createBuild(snapshotIds: string[]) {
-    const sha = crypto.randomUUID();
-    const build = await api.build.createBuild.mutate({
-      sha,
-      visualSnapshots: snapshotIds,
-      commitMessage: "test" + Math.random(),
-      branch: "main",
-    });
-    return build;
-  }
+  const createBuild = (data: RouterInput["build"]["createBuild"]) =>
+    api.build.createBuild.mutate(data);
+
+  const createReport = (data: RouterInput["build"]["createReport"]) =>
+    api.build.createReport.mutate(data);
 
   return {
     uploadImage,
     upload,
+    createSnapshot,
     createUpload,
     createBuild,
-    createSnapshot,
+    createReport,
   };
 }

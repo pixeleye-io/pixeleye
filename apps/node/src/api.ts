@@ -5,6 +5,7 @@ import {
   httpBatchLink,
   inferRouterProxyClient,
 } from "@trpc/client";
+import { inferRouterInputs } from "@trpc/server";
 import nodeFetch from "node-fetch";
 
 //${process.env.PIXELEYE_URL!}
@@ -23,10 +24,10 @@ export const api = (url: string, credentials: string) =>
     ],
   });
 
-export type Test = ReturnType<typeof api>;
-
 /**
  * Inference helpers for output types
  * @example type HelloOutput = RouterOutputs['example']['hello']
  **/
 export type RouterType = inferRouterProxyClient<AppRouter>;
+
+export type RouterInput = inferRouterInputs<AppRouter>;

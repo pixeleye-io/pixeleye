@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext, useId, useState } from "react";
 import { cx } from "class-variance-authority";
 import { m } from "framer-motion";

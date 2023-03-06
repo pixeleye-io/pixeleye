@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getAppSession } from "@pixeleye/auth";
 import { Button, Container } from "@pixeleye/ui";
 import Avatar from "~/components/avatar";
 import { RepoList } from "./repos";
@@ -11,9 +13,15 @@ export default async function AddGithubPage({
 }) {
   const teamId = await getTeamId(searchParams?.team);
 
+  const userId = await getAppSession().then((session) => session?.user?.id);
+
+  if (!userId) redirect("/login");
+
+  console.log("user", userId);
+
   const [repoData, otherInstalls] = await Promise.all([
-    getGithubRepos(teamId),
-    getOtherInstalls(teamId),
+    getGithubRepos(teamId, userId),
+    getOtherInstalls(teamId, userId),
   ]);
 
   return (
@@ -51,11 +59,11 @@ export default async function AddGithubPage({
               <h4 className="mb-2 text-gray-700 dark:text-gray-200">
                 Other installs:
               </h4>
-              <ul className="mt-2">
+              <ul className="mt-2 space-y-2">
                 {otherInstalls.map((install) => (
                   <li key={install.name}>
                     <Link
-                      className="flex space-x-2"
+                      className="flex items-center space-x-2"
                       href={`/add/github?team=${install.id!}`}
                     >
                       <Avatar

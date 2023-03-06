@@ -1,12 +1,13 @@
 import { appRouter, createTRPCContext } from "@pixeleye/api";
 import { createNextApiHandler } from "@trpc/server/adapters/next";
-import qImageDiff from "~/pages/api/queues/imageDiff";
+
+// import qImageDiff from "~/pages/api/queues/imageDiff";
 
 // export API handler
 export default createNextApiHandler({
   router: appRouter,
   createContext: createTRPCContext({
-    qImageDiff,
+    qImageDiff: undefined,
   }),
 });
 

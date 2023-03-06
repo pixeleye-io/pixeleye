@@ -7,12 +7,14 @@ import { cx } from "class-variance-authority";
 const sizeMap = {
   sm: 24,
   md: 32,
+  lg: 40,
   xl: 208,
 };
 
 const classSizeMap = {
   sm: "w-6 h-6",
   md: "w-8 h-8",
+  lg: "w-10 h-10",
   xl: "w-52 h-52",
 };
 
@@ -60,7 +62,7 @@ export default function Avatar({
           alt={alt || name}
         />
       ) : (
-        <span className="text-sm font-semibold text-black uppercase dark:text-white">
+        <span className="flex items-center justify-center text-sm font-semibold text-black uppercase dark:text-white grow">
           {initials}
         </span>
       )}
