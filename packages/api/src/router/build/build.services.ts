@@ -1,4 +1,5 @@
 import { prisma } from "@pixeleye/db";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const createBuldInput = z.object({
@@ -148,4 +149,54 @@ export async function getBuildFromShas(shas: string[], projectId: string) {
   return builds.sort((a, b) => {
     return shas.indexOf(a.sha) - shas.indexOf(b.sha);
   })[0];
+}
+
+export async function markBase(buildId: string, userId: string) {
+  const build = await prisma.build.findUnique({
+    where: {
+      id: buildId,
+    },
+    include: {
+      parent: true,
+      project: {
+        select: {
+          users: {
+            where: {
+              userId,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!build)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+    });
+
+  if (build.project.users.length !== 1)
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  if (build.parent.length !== 0)
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Build already has a parent",
+    });
+
+  if (build.base)
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Build is already a base",
+    });
+
+  await prisma.build.update({
+    where: {
+      id: buildId,
+    },
+    data: {
+      base: true,
+      status: "PENDING",
+    },
+  });
 }

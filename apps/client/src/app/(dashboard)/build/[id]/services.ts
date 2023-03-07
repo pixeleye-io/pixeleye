@@ -48,6 +48,13 @@ export async function getBuildWithScreenShots(id: string, userId: string) {
           name: true,
         },
       },
+      parent: {
+        select: {
+          name: true,
+          sha: true,
+          status: true,
+        },
+      },
       report: {
         include: {
           snapshots: {

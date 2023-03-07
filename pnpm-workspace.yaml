@@ -3,6 +3,7 @@ packages:
   - apps/github
   - apps/cli
   - apps/node
+  - apps/ingest
   - packages/hooks
   - packages/authOptions
   - packages/serverUtils

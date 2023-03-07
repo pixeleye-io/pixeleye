@@ -20,3 +20,5 @@ export * from "./src/spinner";
 export { default as Spinner } from "./src/spinner";
 export * from "./src/status";
 export { default as Status } from "./src/status";
+export * from "./src/linkWrapper";
+export { default as LinkWrapper } from "./src/linkWrapper";

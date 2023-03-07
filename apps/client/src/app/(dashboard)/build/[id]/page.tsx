@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getAppSession } from "@pixeleye/auth";
 import { ImageSnapshot, SnapImage, Snapshot } from "@pixeleye/db";
 import { Container } from "@pixeleye/ui";
+import { OrphanedAlert } from "./orphaned";
 import { getBuildWithScreenShots } from "./services";
 
 interface SnapshotItemProps {
@@ -39,15 +40,6 @@ function SnapshotItem({ snapshot, buildId }: SnapshotItemProps) {
       <p className="block text-sm font-medium text-gray-500 pointer-events-none">
         {snapshot.variant}
       </p>
-      {/* {snapshot.[0]?.VisualDifference?.diffImage?.url && (
-        <a
-          href={snapshot.imageSnapshots[0]?.VisualDifference?.diffImage?.url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Diff
-        </a>
-      )} */}
     </li>
   );
 }
@@ -70,23 +62,9 @@ export default async function BuildPage({
       <div className="my-8">
         <h2 className="text-3xl font-semibold">{build.name}</h2>
       </div>
+      {build.status === "ORPHANED" && <OrphanedAlert buildId={build.id} />}
       <section>
-        <h3 className="text-lg font-medium">Unreviewed Snapshots</h3>
-        <ul
-          role="list"
-          className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-5 xl:gap-x-8"
-        >
-          {build.report.snapshots.map((snapshot) => (
-            <SnapshotItem
-              buildId={params.id}
-              key={snapshot.id}
-              snapshot={snapshot}
-            />
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h3 className="text-lg font-medium">Reviewed Snapshots</h3>
+        <h3 className="text-lg font-medium">Snapshots</h3>
         <ul
           role="list"
           className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-5 xl:gap-x-8"

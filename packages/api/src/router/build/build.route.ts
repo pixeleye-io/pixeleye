@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedureProject } from "../../trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  protectedProcedureProject,
+} from "../../trpc";
 import {
   createBuild,
   createBuldInput,
@@ -7,6 +11,7 @@ import {
   createReportInput,
   getBuildFromShas,
   getHeadBuild,
+  markBase,
 } from "./build.services";
 
 export const buildRouter = createTRPCRouter({
@@ -49,5 +54,16 @@ export const buildRouter = createTRPCRouter({
       const { shas } = input;
 
       return getBuildFromShas(shas, projectId);
+    }),
+  markBase: protectedProcedure
+    .input(
+      z.object({
+        buildId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      //TODO kick off build
+      return markBase(input.buildId, userId);
     }),
 });

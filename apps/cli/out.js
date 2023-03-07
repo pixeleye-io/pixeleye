@@ -8662,14 +8662,13 @@ async function upload(path, options) {
       visualSnapshots: ids,
       sha,
       branch: "main",
-      message: "test commit message",
-      title: "test title",
       url: "https://pixeleye.dev"
     });
     await client.createBuild({
       sha,
       branch: "main",
       title: "test title",
+      message: "test commit message",
       url: "https://pixeleye.dev"
     });
   }).catch((err) => {

@@ -107,6 +107,7 @@ model Build {
     message   String? // e.g. commit message
     title     String? // e.g. pull request title
     url       String? // e.g. pull request url
+    base      Boolean     @default(false)
     createdAt DateTime    @default(now())
     status    BuildStatus
 

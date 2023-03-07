@@ -1,0 +1,45 @@
+{
+  "name": "@pixeleye/ingest",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "module": "dist/queue-service.esm.js",
+  "typings": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/node": "18.14.1",
+    "dts-cli": "^1.6.3",
+    "eslint": "8.34.0",
+    "tslib": "^2.5.0",
+    "typescript": "4.9.5"
+  },
+  "files": [
+    "dist",
+    "dist/src",
+    "src"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "type-check": "tsc --noEmit",
+    "build": "node ./build.js",
+    "lint": "dts lint",
+    "watch": "dts watch",
+    "start": "pnpm with-env node dist/out.cjs",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "type": "module",
+  "types": "./index.ts",
+  "dependencies": {
+    "@bull-board/api": "^4.12.2",
+    "@bull-board/fastify": "^4.12.2",
+    "@fastify/basic-auth": "^5.0.0",
+    "@pixeleye/db": "*",
+    "@pixeleye/storage": "*",
+    "@pixeleye/node": "*",
+    "bullmq": "^3.10.1",
+    "dotenv-cli": "7.0.0",
+    "envsafe": "^2.0.3",
+    "esbuild": "^0.17.10",
+    "fastify": "^4.14.1",
+    "odiff-bin": "^2.5.1"
+  }
+}

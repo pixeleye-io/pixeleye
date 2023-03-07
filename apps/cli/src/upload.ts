@@ -56,8 +56,6 @@ async function upload(path: string, options: Config) {
         visualSnapshots: ids,
         sha,
         branch: "main",
-        message: "test commit message",
-        title: "test title",
         url: "https://pixeleye.dev",
       });
 
@@ -65,6 +63,7 @@ async function upload(path: string, options: Config) {
         sha,
         branch: "main",
         title: "test title",
+        message: "test commit message",
         url: "https://pixeleye.dev",
       });
     })
