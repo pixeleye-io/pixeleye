@@ -16,16 +16,22 @@ const baseCreateReportInput = z.object({
   visualSnapshots: z.array(z.string()),
 });
 
+function triggerBuild(buildId: string) {
+  return fetch(`${process.env.INGEST_URL}/ingest/build?buildId=${buildId}`);
+}
+
 export const createReportInput = z.discriminatedUnion("partial", [
   baseCreateReportInput.extend({
-    partial: z.literal(false),
-  }),
-  baseCreateReportInput.extend({
-    partial: z.undefined(),
+    partial: z.literal(true),
   }),
   baseCreateReportInput
     .extend({
-      partial: z.literal(true),
+      partial: z.undefined(),
+    })
+    .merge(createBuldInput),
+  baseCreateReportInput
+    .extend({
+      partial: z.literal(false),
     })
     .merge(createBuldInput),
 ]);
@@ -88,7 +94,23 @@ export async function createBuild(
       })
       .then((res) => res.count);
 
-    await prisma.build.create({
+    return await prisma.build.create({
+      include: {
+        report: {
+          include: {
+            snapshots: true,
+          },
+        },
+        parent: {
+          include: {
+            report: {
+              include: {
+                snapshots: true,
+              },
+            },
+          },
+        },
+      },
       data: {
         sha,
         title,
@@ -104,15 +126,46 @@ export async function createBuild(
                   },
                 },
               },
+              status: "PENDING",
             }
-          : {}),
+          : {
+              status: "ORPHANED",
+            }),
         url,
         projectId,
-        status: "ORPHANED",
         name: `Build ${buildCount}`,
       },
     });
   });
+
+  if (!targetSha) return build;
+
+  await prisma.$transaction(
+    build.report.snapshots.map((snap) => {
+      const parentSnapshot = build.parent[0]?.report.snapshots.find(
+        (pSnap) => snap.name === pSnap.name && snap.variant === pSnap.variant,
+      );
+
+      return prisma.snapshot.update({
+        where: {
+          id: snap.id,
+        },
+        data: {
+          ...(parentSnapshot
+            ? {
+                baseline: {
+                  connect: {
+                    id: parentSnapshot?.id,
+                  },
+                },
+              }
+            : {}),
+        },
+      });
+    }),
+  );
+
+  await triggerBuild(build.id);
 
   return build;
 }
@@ -124,8 +177,15 @@ export async function getHeadBuild(branch: string, projectId: string) {
     where: {
       projectId,
       branch,
-      parent: {
+      child: {
         none: {},
+      },
+    },
+    include: {
+      report: {
+        include: {
+          snapshots: true,
+        },
       },
     },
     orderBy: {
@@ -149,6 +209,99 @@ export async function getBuildFromShas(shas: string[], projectId: string) {
   return builds.sort((a, b) => {
     return shas.indexOf(a.sha) - shas.indexOf(b.sha);
   })[0];
+}
+
+//TODO stop self referencing as parent
+export async function setParentBranch(
+  buildId: string,
+  parentBranch: string,
+  userId: string,
+) {
+  const build = await prisma.build.findUnique({
+    where: {
+      id: buildId,
+    },
+    include: {
+      parent: true,
+      report: {
+        include: {
+          snapshots: true,
+        },
+      },
+      project: {
+        select: {
+          users: {
+            where: {
+              userId,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!build)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+    });
+
+  if (build.project.users.length !== 1)
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+
+  if (build.parent.length !== 0)
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Build already has a parent",
+    });
+
+  const parentBuild = await getHeadBuild(parentBranch, build.projectId);
+
+  if (!parentBuild)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Parent build not found",
+    });
+
+  await prisma.build.update({
+    where: {
+      id: buildId,
+    },
+    data: {
+      parent: {
+        connect: {
+          id: parentBuild.id,
+        },
+      },
+      status: "PENDING",
+    },
+  });
+
+  await prisma.$transaction(
+    build.report.snapshots.map((snap) => {
+      const parentSnapshot = parentBuild.report.snapshots.find(
+        (pSnap) => snap.name === pSnap.name && snap.variant === pSnap.variant,
+      );
+
+      return prisma.snapshot.update({
+        where: {
+          id: snap.id,
+        },
+        data: {
+          ...(parentSnapshot
+            ? {
+                baseline: {
+                  connect: {
+                    id: parentSnapshot?.id,
+                  },
+                },
+              }
+            : {}),
+        },
+      });
+    }),
+  );
+
+  await triggerBuild(buildId);
 }
 
 export async function markBase(buildId: string, userId: string) {
@@ -196,7 +349,7 @@ export async function markBase(buildId: string, userId: string) {
     },
     data: {
       base: true,
-      status: "PENDING",
+      status: "COMPLETED",
     },
   });
 }

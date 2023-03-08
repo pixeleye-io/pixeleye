@@ -6,7 +6,6 @@
   "scripts": {
     "build": "pnpm with-env next build",
     "dev": "concurrently \"pnpm:dev:*\"",
-    "dev:quirrel": "pnpm quirrel",
     "clean": "rm -rf .next .turbo node_modules",
     "dev:start": "pnpm with-env next dev -p 3000",
     "dev:forward": "pnpm smee -u https://smee.io/No0KVHCmvP2CmoZ --port 3000 --path /api/webhooks/github",

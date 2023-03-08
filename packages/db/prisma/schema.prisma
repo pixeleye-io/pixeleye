@@ -23,9 +23,10 @@ model SnapImage {
 }
 
 model DiffImage {
-    id   String  @id @default(cuid())
-    hash String  @unique
-    url  String? @unique
+    id            String          @id @default(cuid())
+    hash          String          @unique
+    url           String?         @unique
+    ImageSnapshot ImageSnapshot[]
 }
 
 enum BrowserEnum {
@@ -37,18 +38,21 @@ enum BrowserEnum {
 }
 
 model ImageSnapshot {
-    id        String      @id @default(cuid())
-    browser   BrowserEnum @default(UNKNOWN)
-    viewport  String      @default("")
-    imageId   String
-    projectId String
+    id          String      @id @default(cuid())
+    browser     BrowserEnum @default(UNKNOWN)
+    viewport    String      @default("")
+    imageId     String
+    sha         String
+    diffImageId String?
+    projectId   String
 
-    image      SnapImage @relation(fields: [imageId], references: [id], onDelete: Cascade)
-    project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    Snapshot   Snapshot? @relation(fields: [snapshotId], references: [id])
+    image      SnapImage  @relation(fields: [imageId], references: [id], onDelete: Cascade)
+    diffImage  DiffImage? @relation(fields: [diffImageId], references: [id], onDelete: Cascade)
+    project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    Snapshot   Snapshot?  @relation(fields: [snapshotId], references: [id])
     snapshotId String?
 
-    @@unique([imageId, browser, viewport])
+    @@unique([imageId, sha, browser, viewport])
 }
 
 model Snapshot {

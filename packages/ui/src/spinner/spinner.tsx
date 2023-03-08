@@ -19,7 +19,6 @@ export interface SpinnerProps
  */
 export default function Spinner({
   loading,
-  "aria-label": ariaLabel,
   ...rest
 }: SpinnerProps) {
   return loading ? (

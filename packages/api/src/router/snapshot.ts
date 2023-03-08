@@ -23,14 +23,16 @@ export const snapshotRouter = createTRPCRouter({
       const imageSnapshots = {
         connectOrCreate: {
           where: {
-            imageId_browser_viewport: {
+            imageId_sha_browser_viewport: {
               imageId,
+              sha,
               browser,
               viewport,
             },
           },
           create: {
             imageId,
+            sha,
             browser,
             viewport,
             projectId,

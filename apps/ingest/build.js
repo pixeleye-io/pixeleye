@@ -12,6 +12,6 @@ build({
   format: "cjs",
   platform: "node",
   target: "node14",
-  external: ["@bull-board/api", "@prisma/client", "odiff-bin"],
+  external: ["@bull-board/api", "@prisma/client", "odiff-bin", "sharp"],
   outfile: "dist/out.cjs",
 });

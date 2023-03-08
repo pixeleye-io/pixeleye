@@ -51,6 +51,9 @@ export function service(api: API) {
   const createReport = (data: RouterInput["build"]["createReport"]) =>
     api.build.createReport.mutate(data);
 
+  const getHeadBuild = (data: RouterInput["build"]["getHeadBuild"]) =>
+    api.build.getHeadBuild.query(data);
+
   return {
     uploadImage,
     upload,
@@ -58,5 +61,6 @@ export function service(api: API) {
     createUpload,
     createBuild,
     createReport,
+    getHeadBuild,
   };
 }

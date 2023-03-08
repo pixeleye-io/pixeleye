@@ -62,6 +62,7 @@ export async function getBuildWithScreenShots(id: string, userId: string) {
               imageSnapshots: {
                 include: {
                   image: true,
+                  diffImage: true,
                 },
               },
             },
@@ -75,3 +76,19 @@ export async function getBuildWithScreenShots(id: string, userId: string) {
 
   return build;
 }
+
+export const getProjectBranches = async (projectId: string) => {
+  return prisma.build
+    .groupBy({
+      by: ["branch"],
+      where: {
+        projectId,
+      },
+      orderBy: {
+        branch: "asc",
+      },
+    })
+    .then((branches) => {
+      return branches.map((branch) => branch.branch);
+    });
+};

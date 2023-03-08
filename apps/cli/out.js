@@ -7844,13 +7844,15 @@ function service(api2) {
   const createSnapshot = (data) => api2.snapshot.createSnapshot.mutate(data);
   const createBuild = (data) => api2.build.createBuild.mutate(data);
   const createReport = (data) => api2.build.createReport.mutate(data);
+  const getHeadBuild = (data) => api2.build.getHeadBuild.query(data);
   return {
     uploadImage,
     upload: upload2,
     createSnapshot,
     createUpload,
     createBuild,
-    createReport
+    createReport,
+    getHeadBuild
   };
 }
 
@@ -8650,23 +8652,23 @@ async function upload(path, options) {
     );
     const sha = Math.random().toString(36).substring(7);
     const ids = await Promise.all(
-      snaps.map(
-        (imageId, i2) => client.createSnapshot({
+      snaps.map((imageId, i2) => {
+        return client.createSnapshot({
           name: "test" + i2.toString(),
           imageId,
           sha
-        })
-      )
+        });
+      })
     );
+    const branch = "main";
+    const targetSha = await client.getHeadBuild({
+      branch
+    });
     await client.createReport({
       visualSnapshots: ids,
       sha,
-      branch: "main",
-      url: "https://pixeleye.dev"
-    });
-    await client.createBuild({
-      sha,
-      branch: "main",
+      targetSha: targetSha == null ? void 0 : targetSha.sha,
+      branch,
       title: "test title",
       message: "test commit message",
       url: "https://pixeleye.dev"

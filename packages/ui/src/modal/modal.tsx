@@ -2,30 +2,43 @@
 
 import { FC, Fragment } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
+import Spinner from "../spinner/spinner";
 
 export interface ModalFooterProps {
   children: React.ReactNode;
 }
 
 const Footer: FC<ModalFooterProps> = ({ children }) => {
-  return <div className="flex justify-end space-x-2">{children}</div>;
+  return (
+    <div className="flex justify-end -mx-4 -mb-4 divide-x">{children}</div>
+  );
 };
 
 export interface ModalButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   close?: boolean;
+  loading?: boolean;
+  disabled?: boolean;
 }
 
-export const Button: FC<ModalButtonProps> = ({ children, onClick, close }) => {
+export const Button: FC<ModalButtonProps> = ({
+  children,
+  onClick,
+  close,
+  loading,
+  disabled,
+}) => {
   const Component = close ? Dialog.Close : Fragment;
   return (
     <Component {...(close && { asChild: true })}>
       <button
+        disabled={disabled || loading}
         onClick={onClick}
-        className="flex items-center justify-center flex-grow h-12 px-4 -mx-4 text-center border-t border-gray-300 dark:border-gray-700"
+        className="flex items-center justify-center w-full h-12 px-4 text-center border-t border-gray-300 shrink dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
       >
         {children}
+        <Spinner className="ml-1" loading={loading} />
       </button>
     </Component>
   );
@@ -63,12 +76,15 @@ const Modal: FC<ModalProps> = ({
           }}
           className="fixed z-50 p-4 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-md dark:bg-gray-900 top-1/2 left-1/2 dark:border-gray-800"
         >
-          <Dialog.Title className="text-lg">{title}</Dialog.Title>
-          {description && (
-            <Dialog.Description className="mt-2 mb-12 text-sm text-gray-700 dark:text-gray-300">
-              {description}
-            </Dialog.Description>
-          )}
+          <div className="mb-2 border-b border-gray-300 dark:border-gray-700">
+            <Dialog.Title className="text-2xl">{title}</Dialog.Title>
+            {description && (
+              <Dialog.Description className="mt-3 mb-5 text-sm text-gray-600 dark:text-gray-400">
+                {description}
+              </Dialog.Description>
+            )}
+          </div>
+
           {children}
         </Dialog.Content>
       </Dialog.Portal>

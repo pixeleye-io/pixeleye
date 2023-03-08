@@ -5,7 +5,18 @@ import { getAppSession } from "@pixeleye/auth";
 import { ImageSnapshot, SnapImage, Snapshot } from "@pixeleye/db";
 import { Container } from "@pixeleye/ui";
 import { OrphanedAlert } from "./orphaned";
-import { getBuildWithScreenShots } from "./services";
+import { getBuildWithScreenShots, getProjectBranches } from "./services";
+
+async function OrphanedWrapper({
+  buildId,
+  projectId,
+}: {
+  buildId: string;
+  projectId: string;
+}) {
+  const branches = await getProjectBranches(projectId);
+  return <OrphanedAlert buildId={buildId} branches={branches} />;
+}
 
 interface SnapshotItemProps {
   snapshot: Snapshot & {
@@ -62,7 +73,10 @@ export default async function BuildPage({
       <div className="my-8">
         <h2 className="text-3xl font-semibold">{build.name}</h2>
       </div>
-      {build.status === "ORPHANED" && <OrphanedAlert buildId={build.id} />}
+      {build.status === "ORPHANED" && (
+        // @ts-ignore
+        <OrphanedWrapper buildId={build.id} projectId={build.projectId} />
+      )}
       <section>
         <h3 className="text-lg font-medium">Snapshots</h3>
         <ul

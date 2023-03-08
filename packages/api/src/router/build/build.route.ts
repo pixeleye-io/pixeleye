@@ -12,6 +12,7 @@ import {
   getBuildFromShas,
   getHeadBuild,
   markBase,
+  setParentBranch,
 } from "./build.services";
 
 export const buildRouter = createTRPCRouter({
@@ -22,7 +23,7 @@ export const buildRouter = createTRPCRouter({
 
       await createReport(input, projectId);
 
-      if (input.partial) return createBuild(input, projectId);
+      if (!input.partial) return createBuild(input, projectId);
     }),
   createBuild: protectedProcedureProject
     .input(createBuldInput)
@@ -65,5 +66,16 @@ export const buildRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
       //TODO kick off build
       return markBase(input.buildId, userId);
+    }),
+  setParentBranch: protectedProcedure
+    .input(
+      z.object({
+        buildId: z.string(),
+        parentBranch: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const userId = ctx.session.user.id;
+      return setParentBranch(input.buildId, input.parentBranch, userId);
     }),
 });

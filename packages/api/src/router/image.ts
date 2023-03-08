@@ -29,7 +29,6 @@ export const imageRouter = createTRPCRouter({
         "snap",
         ctx.projectId,
       );
-      // TODO - handle image never being uploaded
       const image = await ctx.prisma.snapImage.create({
         data: {
           hash: input.hash,
