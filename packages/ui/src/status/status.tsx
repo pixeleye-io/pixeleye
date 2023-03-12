@@ -1,6 +1,7 @@
 import { cx } from "class-variance-authority";
 
 export type StatusType =
+  | "INITIALIZING"
   | "PENDING"
   | "COMPLETED"
   | "FAILED"
@@ -13,6 +14,7 @@ export interface StatusProps {
 }
 
 const StatusColors = {
+  INITIALIZING: "bg-gray-500",
   PENDING: "bg-blue-500",
   COMPLETED: "bg-green-500",
   FAILED: "bg-red-500",

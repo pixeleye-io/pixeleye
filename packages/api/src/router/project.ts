@@ -3,7 +3,7 @@ import { PrismaClient } from "@pixeleye/db";
 import { TRPCError } from "@trpc/server";
 import bycrypot from "bcryptjs";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 const createProjectInput = z.object({
   name: z.string(),
@@ -20,7 +20,6 @@ const createProjectInput = z.object({
 
 interface CreateProjectOutput {
   secret: string;
-  key: string;
   id: string;
 }
 
@@ -66,7 +65,6 @@ async function createGithubProject(
 
   return {
     secret: rawSecret,
-    key: project.key,
     id: project.id,
   };
 }
@@ -182,7 +180,6 @@ export const projectRouter = createTRPCRouter({
         include: {
           project: {
             select: {
-              key: true,
               id: true,
               name: true,
               url: true,
@@ -269,7 +266,6 @@ export const projectRouter = createTRPCRouter({
         include: {
           project: {
             select: {
-              key: true,
               id: true,
               name: true,
               url: true,
@@ -284,7 +280,6 @@ export const projectRouter = createTRPCRouter({
                   branch: true,
                   title: true,
                   sha: true,
-                  url: true,
                 },
                 orderBy: {
                   createdAt: "desc",

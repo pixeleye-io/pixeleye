@@ -31,7 +31,7 @@ const getListRepos = (octokit: Octokit, installId: string) => async () => {
     },
     repos: await Promise.all(
       repos
-        .sort((a, b) => Date.parse(b.updated_at!) - Date.parse(a.updated_at!))
+        .sort((a, b) => Date.parse(b.pushed_at!) - Date.parse(a.pushed_at!))
         .map(async (repo) => {
           const contributors = await octokit.paginate(
             "GET /repos/{owner}/{repo}/contributors",
@@ -40,8 +40,8 @@ const getListRepos = (octokit: Octokit, installId: string) => async () => {
               repo: repo.name,
             },
           );
-          const lastUpdated = repo.updated_at
-            ? dayjs().to(dayjs(repo.updated_at))
+          const lastUpdated = repo.pushed_at
+            ? dayjs().to(dayjs(repo.pushed_at))
             : "unknown";
           return {
             name: repo.name,

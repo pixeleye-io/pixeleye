@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAppSession } from "@pixeleye/auth";
 import { RegisterSegment } from "../../navbar";
+import { BuildHeader } from "./buildHeader";
 import { getBuild } from "./services";
 
 export default async function BuildLayout({
@@ -33,7 +34,7 @@ export default async function BuildLayout({
                   value: `/project/${build.projectId}`,
                 },
                 {
-                  name: build.name,
+                  name: build.name || "Unnamed Build",
                   value: `/build/${buildId}`,
                   status: build.status,
                 },
@@ -41,8 +42,7 @@ export default async function BuildLayout({
             : undefined
         }
       >
-        <hr className="w-full border-t border-neutral-300 dark:border-neutral-700" />
-
+        <BuildHeader buildId={buildId} />
         {children}
       </RegisterSegment>
     </>

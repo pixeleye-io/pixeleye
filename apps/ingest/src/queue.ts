@@ -57,22 +57,18 @@ export const setupBuildQueueProcessor = (queueName: string) => {
           id: job.data.buildId,
         },
         include: {
-          report: {
+          snapshots: {
             include: {
-              snapshots: {
+              imageSnapshots: {
+                include: {
+                  image: true,
+                },
+              },
+              baseline: {
                 include: {
                   imageSnapshots: {
                     include: {
                       image: true,
-                    },
-                  },
-                  baseline: {
-                    include: {
-                      imageSnapshots: {
-                        include: {
-                          image: true,
-                        },
-                      },
                     },
                   },
                 },
@@ -89,7 +85,7 @@ export const setupBuildQueueProcessor = (queueName: string) => {
       let changes = false;
 
       await Promise.all(
-        build.report.snapshots.map((snapshot) => {
+        build.snapshots.map((snapshot) => {
           return Promise.all(
             snapshot.imageSnapshots.map(async (imageSnapshot) => {
               const baseline = snapshot.baseline?.imageSnapshots.find(
@@ -187,6 +183,14 @@ export const setupBuildQueueProcessor = (queueName: string) => {
       );
 
       if (!changes) {
+        await prisma.build.update({
+          where: {
+            id: build.id,
+          },
+          data: {
+            status: "COMPLETED",
+          },
+        });
         return;
       }
 

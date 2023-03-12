@@ -23,7 +23,8 @@ export const snapshotRouter = createTRPCRouter({
       const imageSnapshots = {
         connectOrCreate: {
           where: {
-            imageId_sha_browser_viewport: {
+            projectId_imageId_sha_browser_viewport: {
+              projectId,
               imageId,
               sha,
               browser,
@@ -42,7 +43,8 @@ export const snapshotRouter = createTRPCRouter({
 
       const snapshot = await ctx.prisma.snapshot.upsert({
         where: {
-          sha_name_variant: {
+          projectId_sha_name_variant: {
+            projectId,
             sha,
             name,
             variant,
@@ -52,11 +54,23 @@ export const snapshotRouter = createTRPCRouter({
           imageSnapshots,
         },
         create: {
-          sha,
           name,
           variant,
-          projectId,
           imageSnapshots,
+          Build: {
+            connectOrCreate: {
+              where: {
+                projectId_sha: {
+                  projectId,
+                  sha,
+                },
+              },
+              create: {
+                sha,
+                projectId,
+              },
+            },
+          },
         },
       });
       return snapshot.id;

@@ -17,6 +17,21 @@ async function readAllFiles(path: string) {
     );
 }
 
+function decode(fileName: string) {
+  console.log(fileName);
+  const decoded = decodeURIComponent(fileName);
+
+  const [name, variant] = decoded
+    .split("--")
+    .map((str) => str.trim())
+    .map((str) => str.replaceAll("\\-", "-"));
+
+  return {
+    name: name!,
+    variant: variant?.replace(/\.png$/, ""),
+  };
+}
+
 interface Config {
   secret: string;
   key: string;
@@ -38,19 +53,21 @@ async function upload(path: string, options: Config) {
         files.map((file) =>
           fs
             .readFile(join(process.cwd(), path, file.name))
-            .then(async (buffer) => await client.uploadImage(buffer)),
+            .then(async (buffer) => ({
+              imageId: await client.uploadImage(buffer),
+              name: file.name,
+            })),
         ),
       );
       const sha = Math.random().toString(36).substring(7);
-      const ids = await Promise.all(
-        snaps.map((imageId, i) => {
-          return client.createSnapshot({
-            name: "test" + i.toString(),
-            imageId,
-            sha,
-          });
-        }),
-      );
+      const visualSnapshots = snaps.map((snap) => {
+        const { name, variant } = decode(snap.name);
+        return {
+          name,
+          variant,
+          imageId: snap.imageId,
+        };
+      });
 
       const branch = "main";
 
@@ -58,14 +75,16 @@ async function upload(path: string, options: Config) {
         branch,
       });
 
-      await client.createReport({
-        visualSnapshots: ids,
+      console.log(targetSha, visualSnapshots);
+
+      await client.createBuild({
+        visualSnapshots,
         sha,
         targetSha: targetSha?.sha,
         branch,
         title: "test title",
         message: "test commit message",
-        url: "https://pixeleye.dev",
+        pullRequestURL: "https://pixeleye.dev",
       });
 
       // await client.createBuild({

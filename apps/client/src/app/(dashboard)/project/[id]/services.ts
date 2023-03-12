@@ -15,7 +15,6 @@ export async function getProject(userId: string, projectId: string) {
           createdAt: "desc",
         },
       },
-      key: true,
       users: {
         where: {
           userId,

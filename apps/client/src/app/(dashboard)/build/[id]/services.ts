@@ -55,16 +55,12 @@ export async function getBuildWithScreenShots(id: string, userId: string) {
           status: true,
         },
       },
-      report: {
+      snapshots: {
         include: {
-          snapshots: {
+          imageSnapshots: {
             include: {
-              imageSnapshots: {
-                include: {
-                  image: true,
-                  diffImage: true,
-                },
-              },
+              image: true,
+              diffImage: true,
             },
           },
         },
@@ -77,7 +73,9 @@ export async function getBuildWithScreenShots(id: string, userId: string) {
   return build;
 }
 
-export const getProjectBranches = async (projectId: string) => {
+export const getProjectBranches = async (
+  projectId: string,
+): Promise<string[]> => {
   return prisma.build
     .groupBy({
       by: ["branch"],
@@ -88,7 +86,11 @@ export const getProjectBranches = async (projectId: string) => {
         branch: "asc",
       },
     })
-    .then((branches) => {
-      return branches.map((branch) => branch.branch);
-    });
+    .then(
+      (branches) =>
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        branches
+          .map(({ branch }) => branch)
+          .filter((branch) => branch) as string[],
+    );
 };

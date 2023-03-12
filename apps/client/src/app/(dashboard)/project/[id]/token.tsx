@@ -8,7 +8,6 @@ import { api } from "~/lib/api";
 
 interface TokenViewProps {
   projectId: string;
-  projectKey: string;
   className?: string;
 }
 
@@ -23,7 +22,9 @@ function CopyButton({ text }: CopyButtonProps) {
   return (
     <button
       title="Copy to clipboard"
-      onClick={() => navigator.clipboard.writeText(text)}
+      onClick={() => {
+        void navigator.clipboard.writeText(text);
+      }}
       className="px-2 ml-auto text-gray-600 transition rounded-lg opacity-0 group-hover:opacity-100 bg-gray-50 dark:bg-gray-850 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-200"
     >
       <ClipboardIcon className="w-4 h-4" />
@@ -31,11 +32,7 @@ function CopyButton({ text }: CopyButtonProps) {
   );
 }
 
-export default function TokenView({
-  projectId,
-  projectKey,
-  className,
-}: TokenViewProps) {
+export default function TokenView({ projectId, className }: TokenViewProps) {
   const queryClient = useQueryClient();
   const secret = queryClient.getQueryData([API_SECRET, projectId]) as string;
 
@@ -60,8 +57,8 @@ export default function TokenView({
           new one.
         </div>
         <p className="flex inline p-2 mb-4 border border-gray-200 rounded group dark:border-gray-700 bg-gray-white dark:bg-gray-900">
-          Key: <span className="pl-8">{projectKey}</span>
-          <CopyButton text={projectKey} />
+          Key: <span className="pl-8">{projectId}</span>
+          <CopyButton text={projectId} />
         </p>
         <p className="flex inline p-2 border border-gray-200 rounded group dark:border-gray-700 bg-gray-white dark:bg-gray-900">
           Secret: <span className="pl-2"> {secret || hidden}</span>

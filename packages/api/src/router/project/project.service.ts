@@ -22,7 +22,6 @@ export const createProjectInput = z.object({
 
 export interface CreateProjectOutput {
   secret: string;
-  key: string;
   id: string;
 }
 
@@ -68,7 +67,6 @@ export async function createGithubProject(
 
   return {
     secret: rawSecret,
-    key: project.key,
     id: project.id,
   };
 }

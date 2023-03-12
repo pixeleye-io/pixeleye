@@ -48,9 +48,6 @@ export function service(api: API) {
   const createBuild = (data: RouterInput["build"]["createBuild"]) =>
     api.build.createBuild.mutate(data);
 
-  const createReport = (data: RouterInput["build"]["createReport"]) =>
-    api.build.createReport.mutate(data);
-
   const getHeadBuild = (data: RouterInput["build"]["getHeadBuild"]) =>
     api.build.getHeadBuild.query(data);
 
@@ -60,7 +57,6 @@ export function service(api: API) {
     createSnapshot,
     createUpload,
     createBuild,
-    createReport,
     getHeadBuild,
   };
 }

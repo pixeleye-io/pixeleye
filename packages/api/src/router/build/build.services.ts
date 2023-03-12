@@ -1,51 +1,143 @@
-import { prisma } from "@pixeleye/db";
+import { Prisma, prisma } from "@pixeleye/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-export const createBuldInput = z.object({
+const baseCreatePartialBuildInput = z.object({
   sha: z.string(),
-  title: z.string().optional(),
-  branch: z.string(),
-  targetSha: z.string().optional(),
-  message: z.string().optional(),
-  url: z.string().optional(),
+  visualSnapshots: z
+    .array(
+      z.object({
+        imageId: z.string(),
+        browser: z
+          .enum(["CHROME", "FIREFOX", "EDGE", "SAFARI", "UNKNOWN"])
+          .default("UNKNOWN"),
+        name: z.string(),
+        viewport: z.string().optional(),
+        variant: z.string().default(""),
+      }),
+    )
+    .optional(),
 });
 
-const baseCreateReportInput = z.object({
-  sha: z.string(),
-  visualSnapshots: z.array(z.string()),
-});
+export const baseCreateBuldInput = z
+  .object({
+    sha: z.string(),
+    title: z.string().optional(),
+    branch: z.string(),
+    targetSha: z.string().optional(),
+    message: z.string().optional(),
+    pullRequestURL: z.string().optional(),
+    commitURL: z.string().optional(),
+  })
+  .merge(baseCreatePartialBuildInput);
 
 function triggerBuild(buildId: string) {
-  return fetch(`${process.env.INGEST_URL}/ingest/build?buildId=${buildId}`);
+  return fetch(`${process.env.INGEST_URL!}/build?id=${buildId}`);
 }
 
-export const createReportInput = z.discriminatedUnion("partial", [
-  baseCreateReportInput.extend({
+export const createBuildInput = z.discriminatedUnion("partial", [
+  baseCreatePartialBuildInput.extend({
     partial: z.literal(true),
   }),
-  baseCreateReportInput
-    .extend({
-      partial: z.undefined(),
-    })
-    .merge(createBuldInput),
-  baseCreateReportInput
-    .extend({
-      partial: z.literal(false),
-    })
-    .merge(createBuldInput),
+  baseCreateBuldInput.extend({
+    partial: z.undefined(),
+  }),
+  baseCreateBuldInput.extend({
+    partial: z.literal(false),
+  }),
 ]);
 
+// visualSnapshots?.map( visualSnapshots?.map(
+//   ({ imageId, browser, name, variant, viewport }) => {
+//     const imageSnapshots = {
+//       connectOrCreate: {
+//         where: {
+//           projectId_imageId_sha_browser_viewport: {
+//             projectId,
+//             imageId,
+//             sha,
+//             browser,
+//             viewport,
+//           },
+//         },
+//         create: {
+//           imageId,
+//           sha,
+//           browser,
+//           viewport,
+//           projectId,
+//         },
+//       },
+//     };
+
+//     return {
+//       where: {
+//         projectId_sha_name_variant: {
+//           projectId,
+//           sha,
+//           name,
+//           variant,
+//         },
+//       },
+//       data: {
+//         sha,
+//         projectId,
+//         name,
+//         variant,
+//         imageSnapshots,
+//       },
+//     } as Prisma.SnapshotCreateManyBuildInputEnvelope;
+//   },
+// ),
 // Assumes request is authenticated
-export async function createReport(
-  input: z.infer<typeof createReportInput>,
+export async function createPartialBuild(
+  input: z.infer<typeof baseCreatePartialBuildInput>,
   projectId: string,
 ) {
   const { sha, visualSnapshots } = input;
 
-  await prisma.report.upsert({
+  const snapshots:
+    | Prisma.SnapshotUncheckedCreateNestedManyWithoutBuildInput
+    | undefined =
+    ((visualSnapshots?.length ?? 0) > 0 && {
+      createMany: {
+        data: visualSnapshots!.map(
+          ({ imageId, browser, name, variant, viewport }) => {
+            return {
+              sha,
+              projectId,
+              name,
+              variant,
+              imageSnapshots: {
+                connectOrCreate: {
+                  where: {
+                    projectId_imageId_sha_browser_viewport: {
+                      projectId,
+                      imageId,
+                      sha,
+                      browser,
+                      viewport,
+                    },
+                  },
+                  create: {
+                    imageId,
+                    sha,
+                    browser,
+                    viewport,
+                    projectId,
+                  },
+                },
+              },
+            };
+          },
+        ),
+      },
+    }) ||
+    undefined;
+
+  await prisma.build.upsert({
     where: {
-      sha_projectId: {
+      projectId_sha: {
         projectId,
         sha,
       },
@@ -53,24 +145,68 @@ export async function createReport(
     create: {
       sha,
       projectId,
-      snapshots: {
-        connect: visualSnapshots.map((id) => ({ id })),
-      },
+      snapshots,
     },
     update: {
-      snapshots: {
-        connect: visualSnapshots.map((id) => ({ id })),
-      },
+      snapshots,
     },
   });
 }
 
 // Assumes request is authenticated
 export async function createBuild(
-  input: z.infer<typeof createBuldInput>,
+  input: z.infer<typeof baseCreateBuldInput>,
   projectId: string,
 ) {
-  const { sha, title, branch, message, targetSha, url } = input;
+  const {
+    sha,
+    title,
+    branch,
+    message,
+    targetSha,
+    pullRequestURL,
+    commitURL,
+    visualSnapshots,
+  } = input;
+
+  const snapshots:
+    | Prisma.SnapshotUncheckedCreateNestedManyWithoutBuildInput
+    | undefined =
+    ((visualSnapshots?.length ?? 0) > 0 && {
+      createMany: {
+        data: visualSnapshots!.map(
+          ({ imageId, browser, name, variant, viewport }) => {
+            return {
+              sha,
+              projectId,
+              name,
+              variant,
+              imageSnapshots: {
+                connectOrCreate: {
+                  where: {
+                    projectId_imageId_sha_browser_viewport: {
+                      projectId,
+                      imageId,
+                      sha,
+                      browser,
+                      viewport,
+                    },
+                  },
+                  create: {
+                    imageId,
+                    sha,
+                    browser,
+                    viewport,
+                    projectId,
+                  },
+                },
+              },
+            };
+          },
+        ),
+      },
+    }) ||
+    undefined;
 
   const build = await prisma.$transaction(async (tx) => {
     const buildCount = await tx.buildCounts
@@ -94,24 +230,23 @@ export async function createBuild(
       })
       .then((res) => res.count);
 
-    return await prisma.build.create({
+    return await prisma.build.upsert({
       include: {
-        report: {
+        snapshots: true,
+        parent: {
           include: {
             snapshots: true,
           },
         },
-        parent: {
-          include: {
-            report: {
-              include: {
-                snapshots: true,
-              },
-            },
-          },
+      },
+      where: {
+        projectId_sha: {
+          projectId,
+          sha,
         },
       },
-      data: {
+      create: {
+        snapshots,
         sha,
         title,
         branch,
@@ -131,39 +266,49 @@ export async function createBuild(
           : {
               status: "ORPHANED",
             }),
-        url,
+        pullRequestURL,
+        commitURL,
         projectId,
         name: `Build ${buildCount}`,
+      },
+      update: {
+        title,
+        branch,
+        message,
+        pullRequestURL,
+        commitURL,
+        snapshots,
       },
     });
   });
 
   if (!targetSha) return build;
 
-  await prisma.$transaction(
-    build.report.snapshots.map((snap) => {
-      const parentSnapshot = build.parent[0]?.report.snapshots.find(
-        (pSnap) => snap.name === pSnap.name && snap.variant === pSnap.variant,
-      );
+  // TODO - do this in the transaction above
+  // await prisma.$transaction(
+  //   build.snapshots.map((snap) => {
+  //     const parentSnapshot = build.parent[0]?.snapshots.find(
+  //       (pSnap) => snap.name === pSnap.name && snap.variant === pSnap.variant,
+  //     );
 
-      return prisma.snapshot.update({
-        where: {
-          id: snap.id,
-        },
-        data: {
-          ...(parentSnapshot
-            ? {
-                baseline: {
-                  connect: {
-                    id: parentSnapshot?.id,
-                  },
-                },
-              }
-            : {}),
-        },
-      });
-    }),
-  );
+  //     return prisma.snapshot.update({
+  //       where: {
+  //         id: snap.id,
+  //       },
+  //       data: {
+  //         ...(parentSnapshot
+  //           ? {
+  //               baseline: {
+  //                 connect: {
+  //                   id: parentSnapshot?.id,
+  //                 },
+  //               },
+  //             }
+  //           : {}),
+  //       },
+  //     });
+  //   }),
+  // );
 
   await triggerBuild(build.id);
 
@@ -182,11 +327,7 @@ export async function getHeadBuild(branch: string, projectId: string) {
       },
     },
     include: {
-      report: {
-        include: {
-          snapshots: true,
-        },
-      },
+      snapshots: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -223,11 +364,7 @@ export async function setParentBranch(
     },
     include: {
       parent: true,
-      report: {
-        include: {
-          snapshots: true,
-        },
-      },
+      snapshots: true,
       project: {
         select: {
           users: {
@@ -277,8 +414,8 @@ export async function setParentBranch(
   });
 
   await prisma.$transaction(
-    build.report.snapshots.map((snap) => {
-      const parentSnapshot = parentBuild.report.snapshots.find(
+    build.snapshots.map((snap) => {
+      const parentSnapshot = parentBuild.snapshots.find(
         (pSnap) => snap.name === pSnap.name && snap.variant === pSnap.variant,
       );
 

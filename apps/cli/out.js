@@ -7843,7 +7843,6 @@ function service(api2) {
   }
   const createSnapshot = (data) => api2.snapshot.createSnapshot.mutate(data);
   const createBuild = (data) => api2.build.createBuild.mutate(data);
-  const createReport = (data) => api2.build.createReport.mutate(data);
   const getHeadBuild = (data) => api2.build.getHeadBuild.query(data);
   return {
     uploadImage,
@@ -7851,7 +7850,6 @@ function service(api2) {
     createSnapshot,
     createUpload,
     createBuild,
-    createReport,
     getHeadBuild
   };
 }
@@ -8635,6 +8633,15 @@ async function readAllFiles(path) {
     (files) => files.filter((file) => file.isFile() && file.name.endsWith(".png"))
   );
 }
+function decode(fileName) {
+  console.log(fileName);
+  const decoded = decodeURIComponent(fileName);
+  const [name, variant] = decoded.split("--").map((str) => str.trim()).map((str) => str.replaceAll("\\-", "-"));
+  return {
+    name,
+    variant: variant == null ? void 0 : variant.replace(/\.png$/, "")
+  };
+}
 async function upload(path, options) {
   const client = createClient({
     credentials: {
@@ -8647,31 +8654,34 @@ async function upload(path, options) {
     console.log(files);
     const snaps = await Promise.all(
       files.map(
-        (file) => fs3.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => await client.uploadImage(buffer))
+        (file) => fs3.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => ({
+          imageId: await client.uploadImage(buffer),
+          name: file.name
+        }))
       )
     );
     const sha = Math.random().toString(36).substring(7);
-    const ids = await Promise.all(
-      snaps.map((imageId, i2) => {
-        return client.createSnapshot({
-          name: "test" + i2.toString(),
-          imageId,
-          sha
-        });
-      })
-    );
+    const visualSnapshots = snaps.map((snap) => {
+      const { name, variant } = decode(snap.name);
+      return {
+        name,
+        variant,
+        imageId: snap.imageId
+      };
+    });
     const branch = "main";
     const targetSha = await client.getHeadBuild({
       branch
     });
-    await client.createReport({
-      visualSnapshots: ids,
+    console.log(targetSha, visualSnapshots);
+    await client.createBuild({
+      visualSnapshots,
       sha,
       targetSha: targetSha == null ? void 0 : targetSha.sha,
       branch,
       title: "test title",
       message: "test commit message",
-      url: "https://pixeleye.dev"
+      pullRequestURL: "https://pixeleye.dev"
     });
   }).catch((err) => {
     if ((err == null ? void 0 : err.code) === "ENOENT") {

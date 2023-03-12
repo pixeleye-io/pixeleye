@@ -6,9 +6,8 @@ import {
 } from "../../trpc";
 import {
   createBuild,
-  createBuldInput,
-  createReport,
-  createReportInput,
+  createBuildInput,
+  createPartialBuild,
   getBuildFromShas,
   getHeadBuild,
   markBase,
@@ -16,21 +15,17 @@ import {
 } from "./build.services";
 
 export const buildRouter = createTRPCRouter({
-  createReport: protectedProcedureProject
-    .input(createReportInput)
-    .mutation(async ({ ctx, input }) => {
-      const projectId = ctx.projectId;
-
-      await createReport(input, projectId);
-
-      if (!input.partial) return createBuild(input, projectId);
-    }),
   createBuild: protectedProcedureProject
-    .input(createBuldInput)
+    .input(createBuildInput)
     .mutation(async ({ ctx, input }) => {
       const projectId = ctx.projectId;
 
-      return createBuild(input, projectId);
+      if (input.partial) {
+        await createPartialBuild(input, projectId);
+        return;
+      }
+
+      await createBuild(input, projectId);
     }),
   getHeadBuild: protectedProcedureProject
     .input(

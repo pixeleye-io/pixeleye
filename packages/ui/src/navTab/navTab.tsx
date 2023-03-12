@@ -43,7 +43,12 @@ function NavTab({
         />
       )}
 
-      <NavLink asChild={asChild as any} className={"px-4 py-2"} {...rest}>
+      <NavLink
+        asChild={asChild as any}
+        active={active}
+        className="px-4 py-2"
+        {...rest}
+      >
         {children}
       </NavLink>
     </m.li>

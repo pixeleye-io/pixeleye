@@ -94,7 +94,7 @@ export default async function ProjectPage({
             To get started, you&apos;ll need to add a token to your project.
             This will allow you to securely upload your builds to Pixeleye.
           </p>
-          <TokenView projectKey={project.key} projectId={projectId} />
+          <TokenView projectId={projectId} />
         </div>
       )}
     </Container>

@@ -73,26 +73,25 @@ export const createTRPCContext =
       req.headers.authorization &&
       req.headers.authorization.startsWith("Basic ")
     ) {
-      const [key, secret] = Buffer.from(
+      const [id, secret] = Buffer.from(
         req.headers.authorization.replace("Basic ", ""),
         "base64",
       )
         .toString()
         .split(":");
 
-      if (key && secret) {
+      if (id && secret) {
         const project = await prisma.project.findUnique({
           where: {
-            key,
+            id,
           },
           select: {
-            id: true,
             secret: true,
           },
         });
 
         if (project && bcrypt.compareSync(secret, project.secret)) {
-          projectId = project?.id;
+          projectId = id;
         }
       }
     }
