@@ -2,12 +2,13 @@ package database
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/pixeleye-io/pixeleye/app/queries"
 )
 
 // Queries struct for collect all app queries.
 type Queries struct {
-	// *queries.UserQueries // load queries from User model
-	// *queries.BookQueries // load queries from Book model
+	*queries.BuildQueries    // load queries from Build model
+	*queries.SnapshotQueries // load queries from Snapshot model
 }
 
 // OpenDBConnection func for opening database connection.
@@ -27,7 +28,7 @@ func OpenDBConnection() (*Queries, error) {
 
 	return &Queries{
 		// Set queries from models:
-		// UserQueries: &queries.UserQueries{DB: db}, // from User model
-		// BookQueries: &queries.BookQueries{DB: db}, // from Book model
+		BuildQueries:    &queries.BuildQueries{DB: db},    // from Build model
+		SnapshotQueries: &queries.SnapshotQueries{DB: db}, // from Snapshot model
 	}, nil
 }

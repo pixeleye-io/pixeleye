@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	broker "github.com/pixeleye/pixeleye/platform/broker"
+	broker "github.com/pixeleye-io/pixeleye/platform/broker"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pixeleye/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 
 	"github.com/jmoiron/sqlx"
 

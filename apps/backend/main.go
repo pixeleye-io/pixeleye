@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/pixeleye/pixeleye/pkg/configs"
-	"github.com/pixeleye/pixeleye/pkg/middleware"
-	"github.com/pixeleye/pixeleye/pkg/routes"
-	"github.com/pixeleye/pixeleye/pkg/utils"
-	"github.com/pixeleye/pixeleye/platform/broker"
+	"github.com/pixeleye-io/pixeleye/pkg/configs"
+	"github.com/pixeleye-io/pixeleye/pkg/middleware"
+	"github.com/pixeleye-io/pixeleye/pkg/routes"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/broker"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -58,6 +58,7 @@ func main() {
 	// Routes
 	routes.PingRoute(app)               // Register Ping route
 	routes.QueueRoute(app, ampqChannel) // Register Queue route
+	routes.PrivateRoutes(app)           // Register Private routes
 	routes.NotFoundRoute(app)           // Register 404 Error route
 
 	// Start server (with or without graceful shutdown).

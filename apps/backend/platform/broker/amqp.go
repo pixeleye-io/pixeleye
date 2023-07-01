@@ -3,7 +3,7 @@ package broker
 import (
 	"fmt"
 
-	"github.com/pixeleye/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )

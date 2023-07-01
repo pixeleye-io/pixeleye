@@ -1,0 +1,72 @@
+-- Add UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Set timezone
+-- For more information, please visit:
+-- https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+SET TIMEZONE="Europe/London";
+
+-- Add set timestamp function
+-- https://x-team.com/blog/automatic-timestamps-with-postgresql/
+CREATE OR REPLACE FUNCTION trigger_set_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TYPE status AS ENUM ('pending', 'queued', 'processing', 'success', 'failure', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
+
+-- Create build table
+CREATE TABLE build (
+    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Build information
+    sha VARCHAR(40) NOT NULL,
+    branch VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    status VARCHAR(255) NOT NULL,
+);
+
+-- Automatically set updated_at timestamp
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON build
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+-- Create build_target table
+CREATE TABLE build_target (
+    build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
+    target_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE
+);
+
+-- Create build_source table
+CREATE TABLE build_source (
+    build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
+    source_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE
+);
+
+-- Create snapshot table
+CREATE TABLE snapshot (
+    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Snapshot information
+    build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    variant VARCHAR(255) NOT NULL,
+    target VARCHAR(255) NOT NULL,
+    url TEXT NOT NULL
+);
+
+-- Automatically set updated_at timestamp
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON snapshot
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
