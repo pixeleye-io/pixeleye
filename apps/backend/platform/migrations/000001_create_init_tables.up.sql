@@ -16,7 +16,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TYPE status AS ENUM ('pending', 'queued', 'processing', 'success', 'failure', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
+CREATE TYPE BUILD_STATUS AS ENUM ('uploading', 'processing', 'failure', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 
 -- Create build table
 CREATE TABLE build (
@@ -30,7 +30,7 @@ CREATE TABLE build (
     message TEXT NOT NULL,
     author VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
-    status VARCHAR(255) NOT NULL,
+    status BUILD_STATUS NOT NULL DEFAULT 'uploading'
 );
 
 -- Automatically set updated_at timestamp
@@ -50,6 +50,8 @@ CREATE TABLE build_source (
     build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
     source_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE
 );
+
+CREATE TYPE SNAPSHOT_STATUS AS ENUM ('processing', 'failure', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 
 -- Create snapshot table
 CREATE TABLE snapshot (

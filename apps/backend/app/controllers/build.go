@@ -6,6 +6,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // Create Build method for creating a new build.
@@ -195,9 +196,91 @@ func UploadPartial(c *fiber.Ctx) error {
 // @Tags Build
 // @Accept json
 // @Produce json
+// @Success 200 {object} models.Build
 // @Param build_id path string true "Build ID"
 // @Router /v1/build/{build_id}/complete [post]
-func UploadComplete(c *fiber.Ctx) error {
+func UploadComplete(c *fiber.Ctx, channelRabbitMQ *amqp.Channel) error {
 
-	return nil
+	buildID, err := uuid.Parse(c.Params("build_id"))
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   true,
+			"message": "Invalid build ID",
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to open database connection",
+		})
+	}
+
+	build, err := db.GetBuild(buildID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   true,
+			"message": "Build with given ID not found",
+		})
+	}
+
+	if build.Status != models.BUILD_STATUS_UPLOADING {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   false,
+			"message": "Build already completed",
+		})
+	}
+
+	snapshots, err := db.GetSnapshotsByBuild(buildID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to get build snapshots",
+		})
+	}
+
+	build.Status = models.BUILD_STATUS_PROCESSING
+
+	if len(snapshots) == 0 {
+		// No snapshots were uploaded, so we can skip processing. We can assume that the build is unchanged.
+		build.Status = models.BUILD_STATUS_UNCHANGED
+	} else {
+
+		isProcessing := false
+
+		for _, snapshot := range snapshots {
+			if snapshot.Status == models.SNAPSHOT_STATUS_PROCESSING {
+				isProcessing = true
+				break
+			}
+		}
+
+		if isProcessing {
+			// Some snapshots are still processing, so we can't mark the build as complete yet.
+			build.Status = models.BUILD_STATUS_PROCESSING
+		} else {
+			// All snapshots have been processed, so we can mark the build as complete.
+			for _, snapshot := range snapshots {
+				if snapshot.Status == models.SNAPSHOT_STATUS_UNREVIEWED {
+					build.Status = models.BUILD_STATUS_UNREVIEWED
+					break
+				}
+			}
+		}
+	}
+
+	if err := db.UpdateBuild(&build); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to update build",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"error":   false,
+		"message": "Build completed successfully",
+		"data":    build,
+	})
 }

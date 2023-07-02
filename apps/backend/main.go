@@ -56,10 +56,10 @@ func main() {
 	middleware.FiberMiddleware(app) // Register Fiber's middleware for app
 
 	// Routes
-	routes.PingRoute(app)               // Register Ping route
-	routes.QueueRoute(app, ampqChannel) // Register Queue route
-	routes.PrivateRoutes(app)           // Register Private routes
-	routes.NotFoundRoute(app)           // Register 404 Error route
+	routes.PingRoute(app)                  // Register Ping route
+	routes.QueueRoute(app, ampqChannel)    // Register Queue route
+	routes.PrivateRoutes(app, ampqChannel) // Register Private routes
+	routes.NotFoundRoute(app)              // Register 404 Error route
 
 	// Start server (with or without graceful shutdown).
 	if os.Getenv("STAGE_STATUS") == "dev" {
