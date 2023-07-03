@@ -1,84 +1,73 @@
 package broker
 
 import (
+	"context"
 	"fmt"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func ConnectAMPQ() *amqp.Connection {
+func ConnectAMPQ() (*amqp.Connection, error) {
 	// Define RabbitMQ server URL.
 	amqpServerURL, err := utils.ConnectionURLBuilder("amqp")
 
-	utils.FailOnError(err, "Failed to get AMQP server URL")
+	if err != nil {
+		return nil, err
+	}
 
 	// Create a new RabbitMQ connection.
 	connectRabbitMQ, err := amqp.Dial(amqpServerURL)
 
-	utils.FailOnError(err, "Failed to connect to RabbitMQ")
+	if err != nil {
+		return nil, err
+	}
 
-	return connectRabbitMQ
+	return connectRabbitMQ, nil
 }
 
-func CreateChannel(connectRabbitMQ *amqp.Connection) *amqp.Channel {
+func CreateChannel(connectRabbitMQ *amqp.Connection) (*amqp.Channel, error) {
 	// Create a new channel.
 	channelRabbitMQ, err := connectRabbitMQ.Channel()
 
-	utils.FailOnError(err, "Failed to open a channel")
-
-	return channelRabbitMQ
+	return channelRabbitMQ, err
 }
 
-type QueueType int
-
-const (
-	BuildUpdate QueueType = iota
-	BuildProcess
-)
-
-func (t QueueType) String() (string, error) {
+func getQueueDurability(t brokerTypes.QueueType) bool {
 	switch t {
-	case BuildProcess:
-		return "build_process", nil
-	case BuildUpdate:
-		return "build_update", nil
-	}
-	return "", fmt.Errorf("queue type '%v' is not supported", t)
-}
-
-func getQueueDurability(queueType QueueType) bool {
-	switch queueType {
-	case BuildProcess:
+	case brokerTypes.BuildProcess:
 		return true
-	case BuildUpdate:
+	case brokerTypes.BuildUpdate:
 		return false
 	}
 	return false
 }
 
-func getQueueAutoDelete(queueType QueueType) bool {
-	switch queueType {
-	case BuildProcess:
+func getQueueAutoDelete(t brokerTypes.QueueType) bool {
+	switch t {
+	case brokerTypes.BuildProcess:
 		return false
-	case BuildUpdate:
+	case brokerTypes.BuildUpdate:
 		return true
 	}
 	return false
 }
 
-func getMandatory(queueType QueueType) bool {
-	switch queueType {
-	case BuildProcess:
+func getMandatory(t brokerTypes.QueueType) bool {
+	switch t {
+	case brokerTypes.BuildProcess:
 		return true
-	case BuildUpdate:
+	case brokerTypes.BuildUpdate:
 		return false
 	}
 	return false
 }
 
-func getQueueName(queueType QueueType, name string) string {
+func getQueueName(queueType brokerTypes.QueueType, name string) string {
 	queueName, err := queueType.String()
 
 	utils.FailOnError(err, "Failed to get queue name")
@@ -86,9 +75,12 @@ func getQueueName(queueType QueueType, name string) string {
 	return fmt.Sprintf("%s:%s", queueName, name)
 }
 
-func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType QueueType) amqp.Queue {
+func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.QueueType) amqp.Queue {
 	// Get queue name.
 	queueName := getQueueName(queueType, name)
+
+	fmt.Printf("durability: %t \n", getQueueDurability(queueType))
+	fmt.Printf("autoDelete: %t \n", getQueueAutoDelete(queueType))
 
 	// Create a new queue.
 	queue, err := channelRabbitMQ.QueueDeclare(
@@ -105,34 +97,53 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType QueueType) a
 	return queue
 }
 
-func SendToQueue(channelRabbitMQ *amqp.Channel, name string, body string, queueType QueueType) {
+func getDeliveryMode(queueType brokerTypes.QueueType) uint8 {
+	switch queueType {
+	case brokerTypes.BuildProcess:
+		return amqp.Persistent
+	case brokerTypes.BuildUpdate:
+		return amqp.Transient
+	}
+	return amqp.Transient
+}
+
+func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.QueueType, body []byte) error {
 
 	// Get queue.
 	queue := getQueue(channelRabbitMQ, name, queueType)
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	// Publish a message.
-	err := channelRabbitMQ.Publish(
+	err := channelRabbitMQ.PublishWithContext(ctx,
 		"",                      // exchange
 		queue.Name,              // routing key
 		getMandatory(queueType), // mandatory
 		false,                   // immediate
 		amqp.Publishing{
-			ContentType: "application/json", // content type //TODO convert to protobuf
-			Body:        []byte(body),       // body
+			DeliveryMode: getDeliveryMode(queueType), // delivery mode - persistent or not
+			ContentType:  "application/json",         // content type //TODO convert to protobuf
+			Body:         []byte(body),               // body
 		},
 	)
 
-	utils.FailOnError(err, "Failed to publish a message")
+	return err
 }
 
-func SubscribeToQueue(channelRabbitMQ *amqp.Channel, name string, queueType QueueType) <-chan amqp.Delivery {
+func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, quit chan bool) error {
+
+	// Create a new channel.
+	channel := GetChannel()
 	// Get queue.
-	queue := getQueue(channelRabbitMQ, name, queueType)
+	queue := getQueue(channel, name, queueType)
+
+	consumer := uuid.New().String()
 
 	// Create a new consumer.
-	consumer, err := channelRabbitMQ.Consume(
+	messages, err := channel.Consume(
 		queue.Name, // queue
-		"",         // consumer
+		consumer,   // consumer
 		true,       // auto-ack
 		false,      // exclusive
 		false,      // no-local
@@ -140,7 +151,41 @@ func SubscribeToQueue(channelRabbitMQ *amqp.Channel, name string, queueType Queu
 		nil,        // arguments
 	)
 
-	utils.FailOnError(err, "Failed to register a consumer")
+	if err != nil {
+		return err
+	}
 
-	return consumer
+	defer channel.Cancel(consumer, false)
+
+	go func() {
+		for message := range messages {
+			callback(message.Body)
+		}
+	}()
+
+	<-quit
+
+	fmt.Println(("Channel closed"))
+
+	return nil
 }
+
+// go func() {
+// 	messages := broker.SubscribeToQueue(ampqChannel, "test-queue", broker.brokerTypes.BuildUpdate)
+
+// 	// Build a welcome message.
+// 	log.Println("Waiting for messages")
+
+// 	// Make a channel to receive messages into infinite loop.
+// 	forever := make(chan bool)
+
+// 	go func() {
+// 		for message := range messages {
+// 			// For example, show received message in a console.
+// 			log.Printf(" > Received message: %s\n", message.Body)
+// 		}
+// 	}()
+
+// 	<-forever
+
+// }()

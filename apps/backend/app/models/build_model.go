@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // status enum
@@ -31,4 +32,6 @@ type Build struct {
 	Title   string `db:"title" json:"title"`
 	Message string `db:"message" json:"message"`
 	Status  string `db:"status" json:"status"`
+
+	Errors pq.StringArray `db:"errors" json:"errors"`
 }

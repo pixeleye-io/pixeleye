@@ -27,10 +27,11 @@ CREATE TABLE build (
     -- Build information
     sha VARCHAR(40) NOT NULL,
     branch VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    author VARCHAR(255) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    status BUILD_STATUS NOT NULL DEFAULT 'uploading'
+    message TEXT,
+    author VARCHAR(255),
+    title VARCHAR(255),
+    status BUILD_STATUS NOT NULL DEFAULT 'uploading',
+    errors TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]
 );
 
 -- Automatically set updated_at timestamp
@@ -64,7 +65,9 @@ CREATE TABLE snapshot (
     name VARCHAR(255) NOT NULL,
     variant VARCHAR(255) NOT NULL,
     target VARCHAR(255) NOT NULL,
-    url TEXT NOT NULL
+    url TEXT NOT NULL,
+
+    UNIQUE (build_id, name, variant, target)
 );
 
 -- Automatically set updated_at timestamp

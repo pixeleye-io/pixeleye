@@ -1,0 +1,29 @@
+package brokerTypes
+
+import "fmt"
+
+type QueueType int
+
+const (
+	BuildUpdate QueueType = iota
+	BuildProcess
+)
+
+type Send func(queueType QueueType, queueName string, body []byte) error
+
+type Subscribe func(queueType QueueType, queueName string, callback func([]byte) error, quit chan bool) error
+
+type Broker struct {
+	Send      Send
+	Subscribe Subscribe
+}
+
+func (t QueueType) String() (string, error) {
+	switch t {
+	case BuildProcess:
+		return "build_process", nil
+	case BuildUpdate:
+		return "build_update", nil
+	}
+	return "", fmt.Errorf("queue type '%v' is not supported", t)
+}

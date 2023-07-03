@@ -1,6 +1,9 @@
 package queries
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -30,10 +33,36 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(buildID uuid.UUID) ([]models.Snaps
 	return snapshots, err
 }
 
-func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot) error {
-	query := `INSERT INTO snapshot (id, build_id, name, variant, target, url) VALUES (:id, :build_id, :name, :variant, :target, :url)`
+func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, updateBuild bool, build *models.Build) error {
+	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, url) VALUES (:id, :build_id, :name, :variant, :target, :url)`
+	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
-	_, err := q.NamedExec(query, snapshots)
+	ctx := context.Background()
+
+	tx, err := q.BeginTxx(ctx, nil)
+
+	if err != nil {
+		return err
+	}
+
+	if len(snapshots) != 0 {
+		_, err = tx.NamedExec(snapQuery, snapshots)
+	}
+
+	fmt.Printf("addSnaps: %v\n", err)
+
+	if updateBuild {
+		_, err = tx.NamedExec(buildQuery, build)
+		fmt.Printf("updateBuild2: %v\n", err)
+
+	}
+
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
 
 	return err
 }

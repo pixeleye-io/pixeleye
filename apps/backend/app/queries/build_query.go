@@ -29,7 +29,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 }
 
 func (q *BuildQueries) UpdateBuild(build *models.Build) error {
-	query := `UPDATE build SET sha = :sha, branch = :branch, author = :author, title = :title, message = :message, status = :status WHERE id = :id`
+	query := `UPDATE build SET sha = :sha, branch = :branch, author = :author, title = :title, message = :message, status = :status, errors = :errors WHERE id = :id`
 
 	_, err := q.NamedExec(query, build)
 

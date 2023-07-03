@@ -5,8 +5,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
-	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // Create Build method for creating a new build.
@@ -113,6 +113,29 @@ func GetBuild(c *fiber.Ctx) error {
 	})
 }
 
+func getDuplicateSnapError(snap models.Snapshot) string {
+	errTxt := "Duplicate snapshots with name: " + snap.Name
+
+	if snap.Variant != "" {
+		if snap.Target == "" {
+			return errTxt + " and variant: " + snap.Variant
+		} else {
+			return errTxt + ", variant: " + snap.Variant + " and target: " + snap.Target
+		}
+	}
+
+	if snap.Target != "" {
+		return errTxt + " and target: " + snap.Target
+	}
+
+	return errTxt
+}
+
+func removeSnapshot(s []models.Snapshot, i int) []models.Snapshot {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
 // Upload partial method for creating a new build.
 // @Description Upload snapshots for a build. These snapshots, once uploaded, will immediately be queued for processing.
 // @Summary Upload snapshots for a build.
@@ -152,20 +175,65 @@ func UploadPartial(c *fiber.Ctx) error {
 		})
 	}
 
-	if _, err := db.GetBuild(buildID); err != nil {
+	build, err := db.GetBuild(buildID)
+	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error":   true,
 			"message": "Build with given ID not found",
 		})
 	}
 
+	// Check the build is not already complete.
+	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":   true,
+			"message": "Build is already complete",
+		})
+	}
+
+	existingSnapshots, err := db.GetSnapshotsByBuild(buildID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to get existing snapshots",
+		})
+	}
+
+	// flag to check if there are duplicate snapshots
+	updateBuild := false
+
+	newSnapshots := []models.Snapshot{}
+
 	// Generate UUIDs for each snapshot.
 	for i := 0; i < len(partial.Snapshots); i++ {
-		partial.Snapshots[i].ID = uuid.New()
-		partial.Snapshots[i].BuildID = buildID
+		snap := partial.Snapshots[i]
+		isDup := false
+		// Check if snapshot already exists.
+		for _, existingSnapshot := range existingSnapshots {
+			errorTxt := getDuplicateSnapError(snap)
+			if models.CompareSnaps(snap, existingSnapshot) {
+				isDup = true
+
+				if !utils.ContainsString(build.Errors, errorTxt) {
+					build.Errors = append(build.Errors, errorTxt)
+					build.Status = models.BUILD_STATUS_ABORTED
+					updateBuild = true
+				}
+
+			}
+		}
+
+		if !isDup {
+			snap.ID = uuid.New()
+			snap.BuildID = buildID
+			newSnapshots = append(newSnapshots, snap)
+		}
+
 	}
 
 	validate := utils.NewValidator()
+
+	partial.Snapshots = newSnapshots
 
 	if err := validate.Struct(partial); err != nil {
 
@@ -177,10 +245,32 @@ func UploadPartial(c *fiber.Ctx) error {
 
 	}
 
-	if err := db.CreateBatchSnapshots(partial.Snapshots); err != nil {
+	if err := db.CreateBatchSnapshots(partial.Snapshots, updateBuild, &build); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error":   true,
 			"message": "Failed to create snapshots",
+			"data":    err.Error(),
+		})
+	}
+
+	channel, err := broker.GetBroker()
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to connect to message broker",
+		})
+	}
+
+	err = channel.QueueSnapshotsIngest(partial.Snapshots)
+
+	// TODO - Handle error.
+	// Need to decide what to do if we can't queue snapshots for processing.
+	// The build will remain in a pending state
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":   true,
+			"message": "Failed to queue snapshots for processing",
 		})
 	}
 
@@ -199,7 +289,7 @@ func UploadPartial(c *fiber.Ctx) error {
 // @Success 200 {object} models.Build
 // @Param build_id path string true "Build ID"
 // @Router /v1/build/{build_id}/complete [post]
-func UploadComplete(c *fiber.Ctx, channelRabbitMQ *amqp.Channel) error {
+func UploadComplete(c *fiber.Ctx) error {
 
 	buildID, err := uuid.Parse(c.Params("build_id"))
 
@@ -226,46 +316,41 @@ func UploadComplete(c *fiber.Ctx, channelRabbitMQ *amqp.Channel) error {
 		})
 	}
 
-	if build.Status != models.BUILD_STATUS_UPLOADING {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
+		// Build has already been marked as complete
+		return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
 			"error":   false,
 			"message": "Build already completed",
+			"data":    build,
 		})
 	}
 
-	snapshots, err := db.GetSnapshotsByBuild(buildID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
-			"message": "Failed to get build snapshots",
-		})
-	}
-
-	build.Status = models.BUILD_STATUS_PROCESSING
-
-	if len(snapshots) == 0 {
-		// No snapshots were uploaded, so we can skip processing. We can assume that the build is unchanged.
-		build.Status = models.BUILD_STATUS_UNCHANGED
+	if build.Status == models.BUILD_STATUS_ABORTED {
+		// Something went wrong during processing.
+		build.Status = models.BUILD_STATUS_FAILURE
 	} else {
 
-		isProcessing := false
-
-		for _, snapshot := range snapshots {
-			if snapshot.Status == models.SNAPSHOT_STATUS_PROCESSING {
-				isProcessing = true
-				break
-			}
+		snapshots, err := db.GetSnapshotsByBuild(buildID)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   true,
+				"message": "Failed to get build snapshots",
+			})
 		}
 
-		if isProcessing {
-			// Some snapshots are still processing, so we can't mark the build as complete yet.
-			build.Status = models.BUILD_STATUS_PROCESSING
-		} else {
-			// All snapshots have been processed, so we can mark the build as complete.
+		build.Status = models.BUILD_STATUS_UNCHANGED
+
+		// if no snapshots were uploaded, so we can skip processing. We can assume that the build is unchanged.
+		if len(snapshots) != 0 {
+			build.Status = models.BUILD_STATUS_UNCHANGED
+
 			for _, snapshot := range snapshots {
+				if snapshot.Status == models.SNAPSHOT_STATUS_PROCESSING {
+					build.Status = models.BUILD_STATUS_PROCESSING
+					break
+				}
 				if snapshot.Status == models.SNAPSHOT_STATUS_UNREVIEWED {
 					build.Status = models.BUILD_STATUS_UNREVIEWED
-					break
 				}
 			}
 		}

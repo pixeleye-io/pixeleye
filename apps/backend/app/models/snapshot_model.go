@@ -30,3 +30,20 @@ type Snapshot struct {
 
 	Status string `db:"status" json:"status"`
 }
+
+func CompareSnaps(a Snapshot, b Snapshot) bool {
+	if a.Name != b.Name {
+		return false
+	}
+
+	if a.Variant != b.Variant {
+		return false
+	}
+
+	if a.Target != b.Target {
+		return false
+	}
+
+	return true
+
+}
