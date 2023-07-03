@@ -8,7 +8,8 @@ func PingRoute(a *fiber.App) {
 	a.Get("/ping", func(c *fiber.Ctx) error {
 		// Return HTTP 200 status and JSON response.
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"msg": "pong",
+			"error":   false,
+			"message": "pong",
 		})
 	})
 }
