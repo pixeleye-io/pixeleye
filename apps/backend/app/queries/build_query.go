@@ -21,7 +21,7 @@ func (q *BuildQueries) GetBuild(id uuid.UUID) (models.Build, error) {
 }
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	query := `INSERT INTO build (id, sha, branch, author, title, message) VALUES (:id, :sha, :branch, :author, :title, :message)`
+	query := `INSERT INTO build (id, sha, branch, author, title, message, status) VALUES (:id, :sha, :branch, :author, :title, :message, :status)`
 
 	_, err := q.NamedExec(query, build)
 

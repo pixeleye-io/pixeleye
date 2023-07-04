@@ -1,12 +1,11 @@
 package integration
 
 import (
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
+	"github.com/google/uuid"
 )
 
 func TestGetBuild(t *testing.T) {
@@ -25,19 +24,13 @@ func TestGetBuild(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tests := []struct {
-		description  string // description of the test case
-		route        string // route path to test
-		expectedCode int    // expected HTTP status code
-		method       string // HTTP method
-		body         string // HTTP body
-	}{
+	tests := []TestData{
 		{
 			description:  "get HTTP status 200 with build fetch",
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7",
 			expectedCode: 200,
 			method:       "GET",
-			body: MustJson(t, fiber.Map{
+			responseBody: MustJson(t, fiber.Map{
 				"error":   false,
 				"message": "Build retrieved successfully",
 				"data": fiber.Map{
@@ -59,7 +52,7 @@ func TestGetBuild(t *testing.T) {
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-353aab0e2bb7",
 			expectedCode: 404,
 			method:       "GET",
-			body: MustJson(t, fiber.Map{
+			responseBody: MustJson(t, fiber.Map{
 				"error":   true,
 				"message": "Build with given ID not found",
 				"data":    nil,
@@ -70,7 +63,7 @@ func TestGetBuild(t *testing.T) {
 			route:        "/api/v1/builds/1",
 			expectedCode: 400,
 			method:       "GET",
-			body: MustJson(t, fiber.Map{
+			responseBody: MustJson(t, fiber.Map{
 				"error":   true,
 				"message": "invalid UUID length: 1",
 				"data":    nil,
@@ -78,36 +71,126 @@ func TestGetBuild(t *testing.T) {
 		},
 	}
 
-	// Iterate through test single test cases
-	for _, test := range tests {
-		// Create a new http request with the route from the test case
-		req := httptest.NewRequest(test.method, test.route, nil)
+	RunSimpleTests(t, tests)
 
-		// Perform the request plain with the app,
-		// the second argument is a request latency
-		// (set to -1 for no latency)
-		resp, err := app.Test(req)
+}
 
+func TestCreateBuild(t *testing.T) {
+
+	bodyWrapper := func(bodyDataObj ResponseShapeObject, bodyDataStr ResponseShapeString) (ResponseShapeObject, ResponseShapeString) {
+
+		_, err := uuid.Parse(bodyDataObj.Data["id"].(string))
 		if err != nil {
-			t.Log(err.Error())
-			t.Fail()
-			continue
+			t.Log(err)
+			t.FailNow()
 		}
 
-		// Read body
-		body, err := SortBody(t, resp.Body)
+		delete(bodyDataObj.Data, "id")
 
-		if err != nil {
-			t.Log(err.Error())
-			t.Fail()
-			continue
-		}
+		delete(bodyDataObj.Data, "updated_at")
+		delete(bodyDataObj.Data, "created_at")
 
-		resp.Body.Close()
-
-		// Verify, if the status code is as expected
-		assert.Equalf(t, test.expectedCode, resp.StatusCode, test.description)
-		assert.Equalf(t, test.body, body, test.description)
+		return bodyDataObj, bodyDataStr
 	}
+
+	tests := []TestData{
+		{
+			description:  "get HTTP status 201 with build creation",
+			route:        "/api/v1/builds/create",
+			expectedCode: 201,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: MustJson(t, fiber.Map{
+				"sha":     "1234567",
+				"branch":  "main",
+				"message": "Initial commit",
+				"author":  "John Doe",
+				"title":   "Initial commit",
+			}),
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build created successfully",
+				"data": fiber.Map{
+					"sha":     "1234567",
+					"branch":  "main",
+					"errors":  nil,
+					"message": "Initial commit",
+					"author":  "John Doe",
+					"status":  "uploading",
+					"title":   "Initial commit",
+				},
+			}),
+			bodyMapper: bodyWrapper,
+		},
+		{
+			description:  "get HTTP status 201 with build creation  with minimal data",
+			route:        "/api/v1/builds/create",
+			expectedCode: 201,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: MustJson(t, fiber.Map{
+				"sha":    "1234567",
+				"branch": "main",
+			}),
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build created successfully",
+				"data": fiber.Map{
+					"sha":     "1234567",
+					"branch":  "main",
+					"errors":  nil,
+					"status":  "uploading",
+					"author":  "",
+					"title":   "",
+					"message": "",
+				},
+			}),
+			bodyMapper: bodyWrapper,
+		},
+		{
+			description:  "get HTTP status 201 with build creation",
+			route:        "/api/v1/builds/create",
+			expectedCode: 400,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody:  MustJson(t, fiber.Map{}),
+			responseBody: MustJson(t, fiber.Map{
+				"error":   true,
+				"message": "Invalid build data",
+				"data": fiber.Map{
+					"Branch": "Key: 'Build.Branch' Error:Field validation for 'Branch' failed on the 'required' tag",
+					"Sha":    "Key: 'Build.Sha' Error:Field validation for 'Sha' failed on the 'required' tag",
+				},
+			}),
+		},
+		{
+			description:  "status is always set to uploading",
+			route:        "/api/v1/builds/create",
+			expectedCode: 201,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: MustJson(t, fiber.Map{
+				"sha":    "1234567",
+				"branch": "main",
+				"status": "failed",
+			}),
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build created successfully",
+				"data": fiber.Map{
+					"sha":     "1234567",
+					"branch":  "main",
+					"errors":  nil,
+					"status":  "uploading",
+					"author":  "",
+					"title":   "",
+					"message": "",
+				},
+			}),
+			bodyMapper: bodyWrapper,
+		},
+	}
+
+	RunSimpleTests(t, tests)
 
 }

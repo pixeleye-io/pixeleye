@@ -6,16 +6,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func TestPingRoute(t *testing.T) {
+func Test404Route(t *testing.T) {
 	tests := []TestData{
 		{
-			description:  "get HTTP status 200 with pong message",
-			route:        "/ping",
-			expectedCode: 200,
+			description:  "get HTTP status  404",
+			route:        "/not-found",
+			expectedCode: 404,
 			method:       "GET",
 			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
-				"message": "pong",
+				"error":   true,
+				"message": "sorry, endpoint is not found",
 				"data":    nil,
 			}),
 		},

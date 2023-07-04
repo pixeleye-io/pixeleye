@@ -48,11 +48,14 @@ func CreateBuild(c *fiber.Ctx) error {
 
 	build.ID = uuid.New()
 
+	build.Status = models.BUILD_STATUS_UPLOADING
+
 	if err := validate.Struct(build); err != nil {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   true,
-			"message": utils.ValidatorErrors(err),
+			"message": "Invalid build data",
+			"data":    utils.ValidatorErrors(err),
 		})
 	}
 
@@ -63,7 +66,7 @@ func CreateBuild(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(fiber.Map{
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"error":   false,
 		"message": "Build created successfully",
 		"data":    build,
