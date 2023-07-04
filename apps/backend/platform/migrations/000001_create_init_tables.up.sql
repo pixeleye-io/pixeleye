@@ -67,6 +67,8 @@ CREATE TABLE snapshot (
     target VARCHAR(255) NOT NULL,
     url TEXT NOT NULL,
 
+    status SNAPSHOT_STATUS NOT NULL DEFAULT 'processing',
+
     UNIQUE (build_id, name, variant, target)
 );
 

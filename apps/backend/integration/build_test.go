@@ -194,3 +194,163 @@ func TestCreateBuild(t *testing.T) {
 	RunSimpleTests(t, tests)
 
 }
+
+func TestBuildComplete(t *testing.T) {
+
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.Files("fixtures/build.yml", "fixtures/snapshot.yml"),
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := fixtures.Load(); err != nil {
+		t.Fatal(err)
+	}
+
+	BodyMapper := func(bodyDataObj ResponseShapeObject, bodyDataStr ResponseShapeString) (ResponseShapeObject, ResponseShapeString) {
+		delete(bodyDataObj.Data, "updated_at")
+		return bodyDataObj, bodyDataStr
+	}
+
+	tests := []TestData{
+		{
+			description:  "get HTTP status 200 with build completion",
+			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7/complete",
+			expectedCode: 200,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build completed successfully",
+				"data": fiber.Map{
+					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb7",
+					"created_at": "2020-12-31T23:59:59Z",
+					"updated_at": "2020-12-31T23:59:59Z",
+					"sha":        "1234567",
+					"branch":     "main",
+					"message":    "Initial commit",
+					"author":     "John Doe",
+					"title":      "Initial commit",
+					"status":     "unchanged",
+					"errors":     []string{},
+				},
+			}),
+		},
+		{
+			description:  "We acknowledge the build has already been completed",
+			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7/complete",
+			expectedCode: 202,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build already completed",
+				"data": fiber.Map{
+					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb7",
+					"created_at": "2020-12-31T23:59:59Z",
+					"sha":        "1234567",
+					"branch":     "main",
+					"message":    "Initial commit",
+					"author":     "John Doe",
+					"title":      "Initial commit",
+					"status":     "unchanged",
+					"errors":     []string{},
+				},
+			}),
+			bodyMapper: BodyMapper,
+		},
+		{
+			description:  "get HTTP status 404 with build completion",
+			route:        "/api/v1/builds/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/complete",
+			expectedCode: 404,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   true,
+				"message": "Build with given ID not found",
+				"data":    nil,
+			}),
+		},
+		{
+			description:  "get HTTP status 400 with build completion",
+			route:        "/api/v1/builds/aaaaaaaa/complete",
+			expectedCode: 400,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   true,
+				"message": "Invalid build ID",
+				"data":    nil,
+			}),
+		},
+		{
+			description:  "get HTTP status 200 with build status processing as a snapshot is still being processed",
+			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb9/complete",
+			expectedCode: 200,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build completed successfully",
+				"data": fiber.Map{
+					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb9",
+					"created_at": "2020-12-31T23:59:59Z",
+					"sha":        "1234567",
+					"branch":     "main",
+					"message":    "Initial commit",
+					"author":     "John Doe",
+					"title":      "Initial commit",
+					"status":     "processing",
+					"errors":     []string{},
+				},
+			}),
+			bodyMapper: BodyMapper,
+		},
+		{
+			description:  "get HTTP status 200 with build status unchanged as only snapshot is unchanged",
+			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35a3ab0e2bb9/complete",
+			expectedCode: 200,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build completed successfully",
+				"data": fiber.Map{
+					"id":         "db77a875-d15b-42ed-8581-35a3ab0e2bb9",
+					"created_at": "2020-12-31T23:59:59Z",
+					"sha":        "1234567",
+					"branch":     "main",
+					"message":    "Initial commit",
+					"author":     "John Doe",
+					"title":      "Initial commit",
+					"status":     "unchanged",
+					"errors":     []string{},
+				},
+			}),
+			bodyMapper: BodyMapper,
+		},
+		{
+			description:  "get HTTP status 200 with build status unreviewed as only snapshot is unreviewed",
+			route:        "/api/v1/builds/db77a875-d15b-42dd-8581-35a3ab0e2bb9/complete",
+			expectedCode: 200,
+			method:       "POST",
+			responseBody: MustJson(t, fiber.Map{
+				"error":   false,
+				"message": "Build completed successfully",
+				"data": fiber.Map{
+					"id":         "db77a875-d15b-42dd-8581-35a3ab0e2bb9",
+					"created_at": "2020-12-31T23:59:59Z",
+					"sha":        "1234567",
+					"branch":     "main",
+					"message":    "Initial commit",
+					"author":     "John Doe",
+					"title":      "Initial commit",
+					"status":     "unreviewed",
+					"errors":     []string{},
+				},
+			}),
+			bodyMapper: BodyMapper,
+		},
+	}
+
+	// TODO: Add tests for snapshots that are aborted or failed
+	RunSimpleTests(t, tests)
+}

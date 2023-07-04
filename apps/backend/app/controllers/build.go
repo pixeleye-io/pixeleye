@@ -348,6 +348,14 @@ func UploadComplete(c *fiber.Ctx) error {
 			build.Status = models.BUILD_STATUS_UNCHANGED
 
 			for _, snapshot := range snapshots {
+				if snapshot.Status == models.SNAPSHOT_STATUS_FAILURE {
+					build.Status = models.BUILD_STATUS_FAILURE
+					break
+				}
+				if snapshot.Status == models.SNAPSHOT_STATUS_ABORTED {
+					build.Status = models.BUILD_STATUS_ABORTED
+					break
+				}
 				if snapshot.Status == models.SNAPSHOT_STATUS_PROCESSING {
 					build.Status = models.BUILD_STATUS_PROCESSING
 					break
