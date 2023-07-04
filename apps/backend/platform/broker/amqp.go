@@ -12,6 +12,8 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
+// TODO don't fail build if we can't connect to the broker
+
 func ConnectAMPQ() (*amqp.Connection, error) {
 	// Define RabbitMQ server URL.
 	amqpServerURL, err := utils.ConnectionURLBuilder("amqp")

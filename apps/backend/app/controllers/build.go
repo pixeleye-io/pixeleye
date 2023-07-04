@@ -22,7 +22,7 @@ import (
 // @Param message body string false "Commit message"
 // @Param author body string false "Commit author"
 // @Success 200 {object} models.Build
-// @Router /v1/build/create [post]
+// @Router /v1/builds/create [post]
 func CreateBuild(c *fiber.Ctx) error {
 
 	build := &models.Build{}
@@ -78,13 +78,13 @@ func CreateBuild(c *fiber.Ctx) error {
 // @Produce json
 // @Param build_id path string true "Build ID"
 // @Success 200 {object} models.Build
-// @Router /v1/build/{build_id} [get]
+// @Router /v1/builds/{build_id} [get]
 func GetBuild(c *fiber.Ctx) error {
 
 	// Get build ID from URL.
 	id, err := uuid.Parse(c.Params("build_id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   true,
 			"message": err.Error(),
 		})
@@ -144,7 +144,7 @@ func removeSnapshot(s []models.Snapshot, i int) []models.Snapshot {
 // @Produce json
 // @Param build_id path string true "Build ID"
 // @Param snapshots body models.Snapshot true "Snapshots"
-// @Router /v1/build/{build_id}/upload [post]
+// @Router /v1/builds/{build_id}/upload [post]
 func UploadPartial(c *fiber.Ctx) error {
 
 	buildID, err := uuid.Parse(c.Params("build_id"))
@@ -288,7 +288,7 @@ func UploadPartial(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} models.Build
 // @Param build_id path string true "Build ID"
-// @Router /v1/build/{build_id}/complete [post]
+// @Router /v1/builds/{build_id}/complete [post]
 func UploadComplete(c *fiber.Ctx) error {
 
 	buildID, err := uuid.Parse(c.Params("build_id"))

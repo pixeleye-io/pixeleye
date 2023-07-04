@@ -12,11 +12,11 @@ func PrivateRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
 	// Routes for POST method:
-	route.Post("/build/create", controllers.CreateBuild)
-	route.Post("/build/:build_id/upload", controllers.UploadPartial)
-	route.Post("/build/:build_id/complete", controllers.UploadComplete)
+	route.Post("/builds/create", controllers.CreateBuild)
+	route.Post("/builds/:build_id/upload", controllers.UploadPartial)
+	route.Post("/builds/:build_id/complete", controllers.UploadComplete)
 
 	// Routes for GET method:
-	route.Get("/build/:build_id", controllers.GetBuild)
+	route.Get("/builds/:build_id", controllers.GetBuild)
 
 }

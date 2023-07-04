@@ -1,25 +1,13 @@
 package integration
 
 import (
-	"encoding/json"
 	"io"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/pixeleye-io/pixeleye/pkg/routes"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
-
-func mustJson(t *testing.T, v interface{}) string {
-	t.Helper()
-	out, err := json.Marshal(v)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return string(out)
-}
 
 func TestPingRoute(t *testing.T) {
 	tests := []struct {
@@ -35,21 +23,12 @@ func TestPingRoute(t *testing.T) {
 			route:        "/ping",
 			expectedCode: 200,
 			method:       "GET",
-			body: mustJson(t, fiber.Map{
+			body: MustJson(t, fiber.Map{
 				"error":   false,
 				"message": "pong",
 			}),
 		},
 	}
-
-	// Create a new fiber app
-	app := SetupApp()
-
-	routes.PingRoute(app)
-
-	go utils.StartServer(app)
-
-	defer app.Shutdown()
 
 	// Iterate through test single test cases
 	for _, test := range tests {
