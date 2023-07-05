@@ -134,11 +134,6 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 	return errTxt
 }
 
-func removeSnapshot(s []models.Snapshot, i int) []models.Snapshot {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
 // Upload partial method for creating a new build.
 // @Description Upload snapshots for a build. These snapshots, once uploaded, will immediately be queued for processing.
 // @Summary Upload snapshots for a build.
@@ -154,7 +149,6 @@ func UploadPartial(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
 			"message": "Invalid build ID",
 		})
 	}
@@ -164,7 +158,6 @@ func UploadPartial(c *fiber.Ctx) error {
 	if err := c.BodyParser(&partial); err != nil {
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
 			"message": err.Error(),
 		})
 
@@ -173,7 +166,6 @@ func UploadPartial(c *fiber.Ctx) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
 			"message": err.Error(),
 		})
 	}
@@ -181,7 +173,6 @@ func UploadPartial(c *fiber.Ctx) error {
 	build, err := db.GetBuild(buildID)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   true,
 			"message": "Build with given ID not found",
 		})
 	}
@@ -189,7 +180,6 @@ func UploadPartial(c *fiber.Ctx) error {
 	// Check the build is not already complete.
 	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
 			"message": "Build is already complete",
 		})
 	}
@@ -197,13 +187,14 @@ func UploadPartial(c *fiber.Ctx) error {
 	existingSnapshots, err := db.GetSnapshotsByBuild(buildID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
 			"message": "Failed to get existing snapshots",
 		})
 	}
 
 	// flag to check if there are duplicate snapshots
 	updateBuild := false
+
+	// TODO move this into a transaction
 
 	newSnapshots := []models.Snapshot{}
 
@@ -241,7 +232,6 @@ func UploadPartial(c *fiber.Ctx) error {
 	if err := validate.Struct(partial); err != nil {
 
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
 			"message": utils.ValidatorErrors(err),
 			"data":    partial,
 		})
@@ -250,7 +240,6 @@ func UploadPartial(c *fiber.Ctx) error {
 
 	if err := db.CreateBatchSnapshots(partial.Snapshots, updateBuild, &build); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
 			"message": "Failed to create snapshots",
 			"data":    err.Error(),
 		})
@@ -260,7 +249,6 @@ func UploadPartial(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
 			"message": "Failed to connect to message broker",
 		})
 	}
@@ -270,15 +258,15 @@ func UploadPartial(c *fiber.Ctx) error {
 	// TODO - Handle error.
 	// Need to decide what to do if we can't queue snapshots for processing.
 	// The build will remain in a pending state
+	// We could create a new table to store snapshots that have failed to be processed,
+	// and then once our message broker is back online, we can re-queue them.
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
 			"message": "Failed to queue snapshots for processing",
 		})
 	}
 
 	return c.JSON(fiber.Map{
-		"error":   false,
 		"message": "Snapshots uploaded successfully",
 	})
 }
@@ -298,85 +286,28 @@ func UploadComplete(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
-			"message": "Invalid build ID",
+			"message": "invalid build ID",
 		})
 	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
-			"message": "Failed to open database connection",
+			"message": "failed to open database connection",
 		})
 	}
 
-	build, err := db.GetBuild(buildID)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   true,
-			"message": "Build with given ID not found",
+	build, qErr := db.CompleteBuild(buildID)
+
+	if qErr.IsError() {
+		return c.Status(qErr.Code).JSON(fiber.Map{
+			"message": qErr.Message,
 		})
 	}
 
-	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
-		// Build has already been marked as complete
-		return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
-			"error":   false,
-			"message": "Build already completed",
-			"data":    build,
-		})
-	}
-
-	if build.Status == models.BUILD_STATUS_ABORTED {
-		// Something went wrong during processing.
-		build.Status = models.BUILD_STATUS_FAILURE
-	} else {
-
-		snapshots, err := db.GetSnapshotsByBuild(buildID)
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error":   true,
-				"message": "Failed to get build snapshots",
-			})
-		}
-
-		build.Status = models.BUILD_STATUS_UNCHANGED
-
-		// if no snapshots were uploaded, so we can skip processing. We can assume that the build is unchanged.
-		if len(snapshots) != 0 {
-			build.Status = models.BUILD_STATUS_UNCHANGED
-
-			for _, snapshot := range snapshots {
-				if snapshot.Status == models.SNAPSHOT_STATUS_FAILURE {
-					build.Status = models.BUILD_STATUS_FAILURE
-					break
-				}
-				if snapshot.Status == models.SNAPSHOT_STATUS_ABORTED {
-					build.Status = models.BUILD_STATUS_ABORTED
-					break
-				}
-				if snapshot.Status == models.SNAPSHOT_STATUS_PROCESSING {
-					build.Status = models.BUILD_STATUS_PROCESSING
-					break
-				}
-				if snapshot.Status == models.SNAPSHOT_STATUS_UNREVIEWED {
-					build.Status = models.BUILD_STATUS_UNREVIEWED
-				}
-			}
-		}
-	}
-
-	if err := db.UpdateBuild(&build); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
-			"message": "Failed to update build",
-		})
-	}
-
-	return c.JSON(fiber.Map{
-		"error":   false,
-		"message": "Build completed successfully",
+	return c.Status(qErr.Code).JSON(fiber.Map{
+		"message": qErr.Message,
 		"data":    build,
 	})
+
 }

@@ -11,7 +11,7 @@ import (
 const (
 	BUILD_STATUS_UPLOADING  = "uploading"
 	BUILD_STATUS_PROCESSING = "processing"
-	BUILD_STATUS_FAILURE    = "failure"
+	BUILD_STATUS_FAILED     = "failed"
 	BUILD_STATUS_ABORTED    = "aborted"
 	BUILD_STATUS_APPROVED   = "approved"
 	BUILD_STATUS_REJECTED   = "rejected"

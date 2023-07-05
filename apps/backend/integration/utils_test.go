@@ -25,17 +25,15 @@ type TestData struct {
 
 type ResponseShapeString struct {
 	Data    string `json:"data"` // Rest of the fields should go here.
-	Error   bool   `json:"error"`
 	Message string `json:"message"`
 }
 
 type ResponseShapeObject struct {
 	Data    map[string]interface{} `json:"data"` // Rest of the fields should go here.
-	Error   bool                   `json:"error"`
 	Message string                 `json:"message"`
 }
 
-func MustJson(t *testing.T, v interface{}) string {
+func mustJson(t *testing.T, v interface{}) string {
 	t.Helper()
 	out, err := json.Marshal(v)
 	if err != nil {
@@ -44,7 +42,7 @@ func MustJson(t *testing.T, v interface{}) string {
 	return string(out)
 }
 
-func SortBody(t *testing.T, r io.Reader, bodyMapper BodyMapper) (string, error) {
+func sortBody(t *testing.T, r io.Reader, bodyMapper BodyMapper) (string, error) {
 	var bodyStr string
 
 	// Read body
@@ -64,18 +62,18 @@ func SortBody(t *testing.T, r io.Reader, bodyMapper BodyMapper) (string, error) 
 		if bodyMapper != nil {
 			_, bodyDataStr = bodyMapper(bodDataObj, bodyDataStr)
 		}
-		bodyStr = MustJson(t, bodyDataStr)
+		bodyStr = mustJson(t, bodyDataStr)
 	} else {
 		if bodyMapper != nil {
 			bodDataObj, _ = bodyMapper(bodDataObj, bodyDataStr)
 		}
-		bodyStr = MustJson(t, bodDataObj)
+		bodyStr = mustJson(t, bodDataObj)
 	}
 
 	return bodyStr, nil
 }
 
-func RunSimpleTests(t *testing.T, tests []TestData) {
+func runSimpleTests(t *testing.T, tests []TestData) {
 	// Iterate through test single test cases
 	for _, test := range tests {
 
@@ -95,7 +93,6 @@ func RunSimpleTests(t *testing.T, tests []TestData) {
 
 		// Perform the request plain with the app,
 		// the second argument is a request latency
-		// (set to -1 for no latency)
 		resp, err := app.Test(req)
 
 		if err != nil {
@@ -105,7 +102,7 @@ func RunSimpleTests(t *testing.T, tests []TestData) {
 		}
 
 		// Read body
-		body, err := SortBody(t, resp.Body, test.bodyMapper)
+		body, err := sortBody(t, resp.Body, test.bodyMapper)
 
 		if err != nil {
 			t.Log(err.Error())

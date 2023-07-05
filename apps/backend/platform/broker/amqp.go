@@ -81,9 +81,6 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 	// Get queue name.
 	queueName := getQueueName(queueType, name)
 
-	fmt.Printf("durability: %t \n", getQueueDurability(queueType))
-	fmt.Printf("autoDelete: %t \n", getQueueAutoDelete(queueType))
-
 	// Create a new queue.
 	queue, err := channelRabbitMQ.QueueDeclare(
 		queueName,                     // queue name

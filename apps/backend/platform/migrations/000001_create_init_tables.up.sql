@@ -16,7 +16,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TYPE BUILD_STATUS AS ENUM ('uploading', 'processing', 'failure', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
+CREATE TYPE BUILD_STATUS AS ENUM ('uploading', 'processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 
 -- Create build table
 CREATE TABLE build (
@@ -52,7 +52,7 @@ CREATE TABLE build_source (
     source_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE
 );
 
-CREATE TYPE SNAPSHOT_STATUS AS ENUM ('processing', 'failure', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
+CREATE TYPE SNAPSHOT_STATUS AS ENUM ('processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 
 -- Create snapshot table
 CREATE TABLE snapshot (

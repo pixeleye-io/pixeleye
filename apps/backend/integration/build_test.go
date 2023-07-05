@@ -30,8 +30,7 @@ func TestGetBuild(t *testing.T) {
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7",
 			expectedCode: 200,
 			method:       "GET",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "Build retrieved successfully",
 				"data": fiber.Map{
 					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb7",
@@ -52,8 +51,7 @@ func TestGetBuild(t *testing.T) {
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-353aab0e2bb7",
 			expectedCode: 404,
 			method:       "GET",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   true,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "Build with given ID not found",
 				"data":    nil,
 			}),
@@ -63,15 +61,14 @@ func TestGetBuild(t *testing.T) {
 			route:        "/api/v1/builds/1",
 			expectedCode: 400,
 			method:       "GET",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   true,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "invalid UUID length: 1",
 				"data":    nil,
 			}),
 		},
 	}
 
-	RunSimpleTests(t, tests)
+	runSimpleTests(t, tests)
 
 }
 
@@ -100,15 +97,14 @@ func TestCreateBuild(t *testing.T) {
 			expectedCode: 201,
 			method:       "POST",
 			contentType:  "application/json",
-			requestBody: MustJson(t, fiber.Map{
+			requestBody: mustJson(t, fiber.Map{
 				"sha":     "1234567",
 				"branch":  "main",
 				"message": "Initial commit",
 				"author":  "John Doe",
 				"title":   "Initial commit",
 			}),
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "Build created successfully",
 				"data": fiber.Map{
 					"sha":     "1234567",
@@ -128,12 +124,11 @@ func TestCreateBuild(t *testing.T) {
 			expectedCode: 201,
 			method:       "POST",
 			contentType:  "application/json",
-			requestBody: MustJson(t, fiber.Map{
+			requestBody: mustJson(t, fiber.Map{
 				"sha":    "1234567",
 				"branch": "main",
 			}),
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "Build created successfully",
 				"data": fiber.Map{
 					"sha":     "1234567",
@@ -153,9 +148,8 @@ func TestCreateBuild(t *testing.T) {
 			expectedCode: 400,
 			method:       "POST",
 			contentType:  "application/json",
-			requestBody:  MustJson(t, fiber.Map{}),
-			responseBody: MustJson(t, fiber.Map{
-				"error":   true,
+			requestBody:  mustJson(t, fiber.Map{}),
+			responseBody: mustJson(t, fiber.Map{
 				"message": "Invalid build data",
 				"data": fiber.Map{
 					"Branch": "Key: 'Build.Branch' Error:Field validation for 'Branch' failed on the 'required' tag",
@@ -169,13 +163,12 @@ func TestCreateBuild(t *testing.T) {
 			expectedCode: 201,
 			method:       "POST",
 			contentType:  "application/json",
-			requestBody: MustJson(t, fiber.Map{
+			requestBody: mustJson(t, fiber.Map{
 				"sha":    "1234567",
 				"branch": "main",
 				"status": "failed",
 			}),
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "Build created successfully",
 				"data": fiber.Map{
 					"sha":     "1234567",
@@ -191,7 +184,7 @@ func TestCreateBuild(t *testing.T) {
 		},
 	}
 
-	RunSimpleTests(t, tests)
+	runSimpleTests(t, tests)
 
 }
 
@@ -220,11 +213,10 @@ func TestBuildComplete(t *testing.T) {
 		{
 			description:  "get HTTP status 200 with build completion",
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7/complete",
-			expectedCode: 200,
+			expectedCode: 202,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
-				"message": "Build completed successfully",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build marked as complete",
 				"data": fiber.Map{
 					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb7",
 					"created_at": "2020-12-31T23:59:59Z",
@@ -244,9 +236,8 @@ func TestBuildComplete(t *testing.T) {
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7/complete",
 			expectedCode: 202,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
-				"message": "Build already completed",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build has already been marked as complete",
 				"data": fiber.Map{
 					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb7",
 					"created_at": "2020-12-31T23:59:59Z",
@@ -266,9 +257,8 @@ func TestBuildComplete(t *testing.T) {
 			route:        "/api/v1/builds/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/complete",
 			expectedCode: 404,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   true,
-				"message": "Build with given ID not found",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build with given ID not found",
 				"data":    nil,
 			}),
 		},
@@ -277,20 +267,18 @@ func TestBuildComplete(t *testing.T) {
 			route:        "/api/v1/builds/aaaaaaaa/complete",
 			expectedCode: 400,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   true,
-				"message": "Invalid build ID",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "invalid build ID",
 				"data":    nil,
 			}),
 		},
 		{
 			description:  "get HTTP status 200 with build status processing as a snapshot is still being processed",
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb9/complete",
-			expectedCode: 200,
+			expectedCode: 202,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
-				"message": "Build completed successfully",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build marked as complete",
 				"data": fiber.Map{
 					"id":         "db77a875-d15b-42ed-8581-35aaab0e2bb9",
 					"created_at": "2020-12-31T23:59:59Z",
@@ -308,11 +296,10 @@ func TestBuildComplete(t *testing.T) {
 		{
 			description:  "get HTTP status 200 with build status unchanged as only snapshot is unchanged",
 			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35a3ab0e2bb9/complete",
-			expectedCode: 200,
+			expectedCode: 202,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
-				"message": "Build completed successfully",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build marked as complete",
 				"data": fiber.Map{
 					"id":         "db77a875-d15b-42ed-8581-35a3ab0e2bb9",
 					"created_at": "2020-12-31T23:59:59Z",
@@ -330,11 +317,10 @@ func TestBuildComplete(t *testing.T) {
 		{
 			description:  "get HTTP status 200 with build status unreviewed as only snapshot is unreviewed",
 			route:        "/api/v1/builds/db77a875-d15b-42dd-8581-35a3ab0e2bb9/complete",
-			expectedCode: 200,
+			expectedCode: 202,
 			method:       "POST",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
-				"message": "Build completed successfully",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build marked as complete",
 				"data": fiber.Map{
 					"id":         "db77a875-d15b-42dd-8581-35a3ab0e2bb9",
 					"created_at": "2020-12-31T23:59:59Z",
@@ -349,8 +335,28 @@ func TestBuildComplete(t *testing.T) {
 			}),
 			bodyMapper: BodyMapper,
 		},
+		{
+			description:  "get HTTP status 200 with build status failed as a snapshot has failed",
+			route:        "/api/v1/builds/db77a875-d15b-42dd-8581-35a3cd0e2bb9/complete",
+			expectedCode: 202,
+			method:       "POST",
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build marked as complete",
+				"data": fiber.Map{
+					"id":         "db77a875-d15b-42dd-8581-35a3cd0e2bb9",
+					"created_at": "2020-12-31T23:59:59Z",
+					"sha":        "1234567",
+					"branch":     "main",
+					"message":    "Initial commit",
+					"author":     "John Doe",
+					"title":      "Initial commit",
+					"status":     "failed",
+					"errors":     []string{},
+				},
+			}),
+			bodyMapper: BodyMapper,
+		},
 	}
 
-	// TODO: Add tests for snapshots that are aborted or failed
-	RunSimpleTests(t, tests)
+	runSimpleTests(t, tests)
 }

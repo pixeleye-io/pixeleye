@@ -13,13 +13,12 @@ func Test404Route(t *testing.T) {
 			route:        "/not-found",
 			expectedCode: 404,
 			method:       "GET",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   true,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "sorry, endpoint is not found",
 				"data":    nil,
 			}),
 		},
 	}
 
-	RunSimpleTests(t, tests)
+	runSimpleTests(t, tests)
 }

@@ -13,13 +13,12 @@ func TestPingRoute(t *testing.T) {
 			route:        "/ping",
 			expectedCode: 200,
 			method:       "GET",
-			responseBody: MustJson(t, fiber.Map{
-				"error":   false,
+			responseBody: mustJson(t, fiber.Map{
 				"message": "pong",
 				"data":    nil,
 			}),
 		},
 	}
 
-	RunSimpleTests(t, tests)
+	runSimpleTests(t, tests)
 }
