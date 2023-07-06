@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/pixeleye-io/pixeleye/app/queries"
+	"github.com/pixeleye-io/pixeleye/platform/database"
 	"golang.org/x/oauth2"
 )
 
@@ -132,14 +134,43 @@ func LoginCallback(c *fiber.Ctx) error {
 	defer response.Body.Close()
 
 	type GithubUser struct {
-		ID        int    `json:"id"`
+		ID        string `json:"id"`
 		AvatarURL string `json:"avatar_url"`
 		Name      string `json:"name"`
+		Email     string `json:"email"`
 	}
 
 	user := GithubUser{}
 
 	err = json.NewDecoder(response.Body).Decode(&user)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "failed to get user info",
+		})
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	accountInfo := queries.AccountInfo{
+		ID:     user.ID,
+		Name:   user.Name,
+		Avatar: user.AvatarURL,
+		Email:  user.Email,
+	}
+
+	err = db.UpsertAccount(*token, accountInfo, providerName)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "success",

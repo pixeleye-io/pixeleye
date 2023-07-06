@@ -77,3 +77,70 @@ CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON snapshot
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
+
+-- Create user table
+CREATE TABLE user (
+    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- User information
+    email VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    avatar_url TEXT,
+
+    UNIQUE (email)
+);
+
+-- Automatically set updated_at timestamp
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON user
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TYPE ACCOUNT_PROVIDER AS ENUM ('github', 'gitlab', 'bitbucket');
+
+-- Create Account table
+CREATE TABLE account (
+    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Account information
+    user_id UUID NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    provider ACCOUNT_PROVIDER NOT NULL,
+    provider_account_id VARCHAR(255) NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    access_token TEXT NOT NULL,
+    refresh_token TEXT,
+    access_token_expires TIMESTAMPTZ NOT NULL,
+
+    UNIQUE (user_id, provider, provider_id)
+);
+
+-- Automatically set updated_at timestamp
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON account
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+-- Create Session table
+CREATE TABLE session (
+    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Session information
+    user_id UUID NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    token TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+
+    UNIQUE (user_id, token)
+);
+
+-- Automatically set updated_at timestamp
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON session
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
