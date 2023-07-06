@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/pixeleye-io/pixeleye/pkg/configs"
@@ -12,14 +13,16 @@ import (
 
 	_ "github.com/create-go-app/fiber-go-template/docs" // load API Docs files (Swagger)
 
-	"github.com/joho/godotenv" // load .env file automatically
+	"github.com/joho/godotenv"
 )
 
 //TODO - add error handling middleware to filter out non custom errors, log them, and return a generic error to the user
 
 func main() {
-	// Load .env file automatically by godotenv
-	godotenv.Load("../../.env")
+	godotenv.Load("./../../../../.env")
+
+	fmt.Printf("Github secret: %s", os.Getenv("GITHUB_CLIENT_SECRET"))
+
 	// Define Fiber config
 	config := configs.FiberConfig()
 
@@ -31,6 +34,7 @@ func main() {
 
 	// Routes
 	routes.PingRoute(app)     // Register Ping route
+	routes.AuthRoutes(app)    // Register Auth routes
 	routes.PrivateRoutes(app) // Register Private routes
 	routes.NotFoundRoute(app) // Register 404 Error route
 

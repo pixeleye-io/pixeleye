@@ -3,7 +3,10 @@ package controllers
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,7 +27,7 @@ func generateStateCookie() (fiber.Cookie, error) {
 
 	state := base64.URLEncoding.EncodeToString(bytes)
 	cookie := fiber.Cookie{
-		Name:     "__Host-oauth_state",
+		Name:     "oauth_state",
 		Value:    state,
 		Expires:  expiration,
 		HTTPOnly: true,
@@ -37,18 +40,28 @@ func generateStateCookie() (fiber.Cookie, error) {
 }
 
 func getState(c *fiber.Ctx) string {
-	cookie := c.Cookies("__Host-oauth_state")
+	cookie := c.Cookies("oauth_state")
 
 	return cookie
 }
 
-var providers = map[string]*oauth2.Config{
-	"github": {
-		RedirectURL: "http://localhost:3000/auth/google/callback",
-	},
+func getProviders() map[string]*oauth2.Config {
+	return map[string]*oauth2.Config{
+		"github": {
+			RedirectURL: "http://localhost:5000/api/v1/auth/callback/github",
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  "https://github.com/login/oauth/authorize",
+				TokenURL: "https://github.com/login/oauth/access_token",
+			},
+			ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+			ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
+		},
+	}
 }
 
 func LoginProvider(c *fiber.Ctx) error {
+
+	var providers = getProviders()
 
 	providerName := c.Params("provider")
 
@@ -76,7 +89,11 @@ func LoginProvider(c *fiber.Ctx) error {
 
 func LoginCallback(c *fiber.Ctx) error {
 
+	var providers = getProviders()
+
 	cookie := getState(c)
+
+	fmt.Println(cookie)
 
 	if cookie != c.Query("state") {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -104,9 +121,9 @@ func LoginCallback(c *fiber.Ctx) error {
 
 	client := provider.Client(c.Context(), token)
 
-	response, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	response, err := client.Get("https://api.github.com/user")
 
-	if err != nil {
+	if err != nil || !(response.StatusCode >= 200 && response.StatusCode < 300) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "failed to get user info",
 		})
@@ -114,7 +131,18 @@ func LoginCallback(c *fiber.Ctx) error {
 
 	defer response.Body.Close()
 
+	type GithubUser struct {
+		ID        int    `json:"id"`
+		AvatarURL string `json:"avatar_url"`
+		Name      string `json:"name"`
+	}
+
+	user := GithubUser{}
+
+	err = json.NewDecoder(response.Body).Decode(&user)
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "success",
+		"data":    user,
 	})
 }

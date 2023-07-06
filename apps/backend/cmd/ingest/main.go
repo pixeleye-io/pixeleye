@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	godotenv.Load("../../.env")
+	godotenv.Load("./../../../../.env")
 
 	// Create rabbitmq
 	connection := broker.GetConnection()

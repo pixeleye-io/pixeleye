@@ -14,6 +14,7 @@ type (
 		Provider           string    `db:"type" json:"type" validate:"required"`
 		ProviderAccountID  string    `db:"account_id" json:"account_id" validate:"required"`
 		RefreshToken       string    `db:"refresh_token" json:"refresh_token"`
+		Type               string    `db:"type" json:"type" validate:"required"`
 		AccessToken        string    `db:"access_token" json:"access_token"`
 		AccessTokenExpires time.Time `db:"access_token_expires" json:"access_token_expires"`
 		Scope              string    `db:"scope" json:"scope"`
@@ -29,10 +30,9 @@ type (
 	}
 
 	User struct {
-		ID            uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
-		Name          string    `db:"name" json:"name" validate:"required"`
-		Email         string    `db:"email" json:"email" validate:"required"`
-		EmailVerified time.Time `db:"email_verified" json:"email_verified" validate:"required"`
-		Avatar        string    `db:"avatar" json:"avatar" validate:"required"`
+		ID     uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
+		Name   string    `db:"name" json:"name" validate:"required"`
+		Email  string    `db:"email" json:"email" validate:"required"`
+		Avatar string    `db:"avatar" json:"avatar" validate:"required"`
 	}
 )
