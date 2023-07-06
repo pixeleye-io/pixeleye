@@ -121,7 +121,7 @@ func TestMain(m *testing.M) {
 
 	log.Println("Connecting to rabbitmq on url: ", amqpUrl)
 
-	SetEnv(strings.Split(databasePort, ":")[1], amqpPort)
+	SetEnv(strings.Split(databasePort, ":")[1], strings.Split(amqpPort, ":")[1])
 
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
 	pool.MaxWait = 60 * time.Second

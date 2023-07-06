@@ -116,24 +116,6 @@ func GetBuild(c *fiber.Ctx) error {
 	})
 }
 
-func getDuplicateSnapError(snap models.Snapshot) string {
-	errTxt := "Duplicate snapshots with name: " + snap.Name
-
-	if snap.Variant != "" {
-		if snap.Target == "" {
-			return errTxt + " and variant: " + snap.Variant
-		} else {
-			return errTxt + ", variant: " + snap.Variant + " and target: " + snap.Target
-		}
-	}
-
-	if snap.Target != "" {
-		return errTxt + " and target: " + snap.Target
-	}
-
-	return errTxt
-}
-
 // Upload partial method for creating a new build.
 // @Description Upload snapshots for a build. These snapshots, once uploaded, will immediately be queued for processing.
 // @Summary Upload snapshots for a build.
@@ -149,7 +131,7 @@ func UploadPartial(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid build ID",
+			"message": "invalid build ID",
 		})
 	}
 
@@ -170,78 +152,11 @@ func UploadPartial(c *fiber.Ctx) error {
 		})
 	}
 
-	build, err := db.GetBuild(buildID)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": "Build with given ID not found",
-		})
-	}
+	snapshots, qErr := db.CreateBatchSnapshots(partial.Snapshots, buildID)
 
-	// Check the build is not already complete.
-	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Build is already complete",
-		})
-	}
-
-	existingSnapshots, err := db.GetSnapshotsByBuild(buildID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to get existing snapshots",
-		})
-	}
-
-	// flag to check if there are duplicate snapshots
-	updateBuild := false
-
-	// TODO move this into a transaction
-
-	newSnapshots := []models.Snapshot{}
-
-	// Generate UUIDs for each snapshot.
-	for i := 0; i < len(partial.Snapshots); i++ {
-		snap := partial.Snapshots[i]
-		isDup := false
-		// Check if snapshot already exists.
-		for _, existingSnapshot := range existingSnapshots {
-			errorTxt := getDuplicateSnapError(snap)
-			if models.CompareSnaps(snap, existingSnapshot) {
-				isDup = true
-
-				if !utils.ContainsString(build.Errors, errorTxt) {
-					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_ABORTED
-					updateBuild = true
-				}
-
-			}
-		}
-
-		if !isDup {
-			snap.ID = uuid.New()
-			snap.BuildID = buildID
-			newSnapshots = append(newSnapshots, snap)
-		}
-
-	}
-
-	validate := utils.NewValidator()
-
-	partial.Snapshots = newSnapshots
-
-	if err := validate.Struct(partial); err != nil {
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": utils.ValidatorErrors(err),
-			"data":    partial,
-		})
-
-	}
-
-	if err := db.CreateBatchSnapshots(partial.Snapshots, updateBuild, &build); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to create snapshots",
-			"data":    err.Error(),
+	if qErr.IsError() {
+		return c.Status(qErr.Code).JSON(fiber.Map{
+			"message": qErr.Message,
 		})
 	}
 
@@ -249,11 +164,11 @@ func UploadPartial(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to connect to message broker",
+			"message": "failed to connect to message broker",
 		})
 	}
 
-	err = channel.QueueSnapshotsIngest(partial.Snapshots)
+	err = channel.QueueSnapshotsIngest(snapshots)
 
 	// TODO - Handle error.
 	// Need to decide what to do if we can't queue snapshots for processing.
@@ -262,12 +177,12 @@ func UploadPartial(c *fiber.Ctx) error {
 	// and then once our message broker is back online, we can re-queue them.
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to queue snapshots for processing",
+			"message": "failed to queue snapshots for processing",
 		})
 	}
 
 	return c.JSON(fiber.Map{
-		"message": "Snapshots uploaded successfully",
+		"message": "snapshots uploaded successfully",
 	})
 }
 

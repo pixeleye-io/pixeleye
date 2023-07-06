@@ -6,6 +6,7 @@ import (
 	"github.com/go-testfixtures/testfixtures/v3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/pixeleye-io/pixeleye/app/models"
 )
 
 func TestGetBuild(t *testing.T) {
@@ -359,4 +360,111 @@ func TestBuildComplete(t *testing.T) {
 	}
 
 	runSimpleTests(t, tests)
+}
+
+func TestUploadSnapshot(t *testing.T) {
+	fixtures, err := testfixtures.New(
+		testfixtures.Database(db.DB),
+		testfixtures.Dialect("postgres"),
+		testfixtures.Files("fixtures/build.yml"),
+	)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := fixtures.Load(); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []TestData{
+		{
+			description:  "get HTTP status 200 with snapshot upload",
+			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb7/upload",
+			expectedCode: 200,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: mustJson(t, models.Partial{
+				Snapshots: []models.Snapshot{
+					{
+						Name:    "snapshot1",
+						Variant: "variant1",
+						Target:  "chrome",
+						URL:     "https://example.com",
+					},
+				},
+			}),
+			responseBody: mustJson(t, fiber.Map{
+				"message": "snapshots uploaded successfully",
+				"data":    nil,
+			}),
+		},
+		{
+			description:  "get HTTP status 400 with snapshot upload as build ID is invalid",
+			route:        "/api/v1/builds/3333/upload",
+			expectedCode: 400,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: mustJson(t, models.Partial{
+				Snapshots: []models.Snapshot{
+					{
+						Name:    "snapshot1",
+						Variant: "variant1",
+						Target:  "chrome",
+						URL:     "https://example.com",
+					},
+				},
+			}),
+			responseBody: mustJson(t, fiber.Map{
+				"message": "invalid build ID",
+				"data":    nil,
+			}),
+		},
+		{
+			description:  "get HTTP status 404 with snapshot upload as build ID is not found",
+			route:        "/api/v1/builds/db77a875-d15b-42ed-8581-35aaab0e2bb5/upload",
+			expectedCode: 404,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: mustJson(t, models.Partial{
+				Snapshots: []models.Snapshot{
+					{
+						Name:    "snapshot1",
+						Variant: "variant1",
+						Target:  "chrome",
+						URL:     "https://example.com",
+					},
+				},
+			}),
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build with id db77a875-d15b-42ed-8581-35aaab0e2bb5 not found",
+				"data":    nil,
+			}),
+		},
+		{
+			description:  "get HTTP status 400 with build already completed",
+			route:        "/api/v1/builds/db7d2375-d15b-42dd-8581-35a3cd0e2bb9/upload",
+			expectedCode: 400,
+			method:       "POST",
+			contentType:  "application/json",
+			requestBody: mustJson(t, models.Partial{
+				Snapshots: []models.Snapshot{
+					{
+						Name:    "snapshot1",
+						Variant: "variant1",
+						Target:  "chrome",
+						URL:     "https://example.com",
+					},
+				},
+			}),
+			responseBody: mustJson(t, fiber.Map{
+				"message": "build with id db7d2375-d15b-42dd-8581-35a3cd0e2bb9 has completed. You cannot continue to add snapshots to it",
+				"data":    nil,
+			}),
+		},
+		// TODO - test that we send a message to the rabbitmq queue
+	}
+
+	runSimpleTests(t, tests)
+
 }

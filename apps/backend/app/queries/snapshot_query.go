@@ -2,11 +2,13 @@ package queries
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 type SnapshotQueries struct {
@@ -33,36 +35,145 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(buildID uuid.UUID) ([]models.Snaps
 	return snapshots, err
 }
 
-func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, updateBuild bool, build *models.Build) error {
+func getDuplicateSnapError(snap models.Snapshot) string {
+	errTxt := "Duplicate snapshots with name: " + snap.Name
+
+	if snap.Variant != "" {
+		if snap.Target == "" {
+			return errTxt + " and variant: " + snap.Variant
+		} else {
+			return errTxt + ", variant: " + snap.Variant + " and target: " + snap.Target
+		}
+	}
+
+	if snap.Target != "" {
+		return errTxt + " and target: " + snap.Target
+	}
+
+	return errTxt
+}
+
+// Assumes we have no duplicate snapshots passed in
+func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId uuid.UUID) ([]models.Snapshot, QueryError) {
+	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
+	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
 	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, url) VALUES (:id, :build_id, :name, :variant, :target, :url)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
+
+	if len(snapshots) == 0 {
+		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, "no snapshots to create")
+	}
 
 	ctx := context.Background()
 
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return err
+		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to begin transaction: %v", err)
 	}
 
-	if len(snapshots) != 0 {
-		_, err = tx.NamedExec(snapQuery, snapshots)
+	defer tx.Rollback()
+
+	build := models.Build{}
+
+	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil || build.ID == uuid.Nil {
+		return []models.Snapshot{}, BuildError(fiber.StatusNotFound, "build with id %s not found", buildId)
 	}
 
-	fmt.Printf("addSnaps: %v\n", err)
+	if build.Status != models.BUILD_STATUS_ABORTED && build.Status != models.BUILD_STATUS_UPLOADING {
+		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, "build with id %s has completed. You cannot continue to add snapshots to it", buildId)
+	}
+
+	existingSnapshots := []models.Snapshot{}
+
+	if err = tx.SelectContext(ctx, &existingSnapshots, selectExistingSnapshotsQuery, buildId); err != nil {
+		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to get existing snapshots: %v", err)
+	}
+
+	newSnapshots := []models.Snapshot{}
+
+	// flag to check if there are duplicate snapshots
+	updateBuild := false
+
+	// TODO move this to a separate function, so we can test it
+	for i, snap := range snapshots {
+		isDup := false
+		// Check there aren't any duplicates in the new snapshots.
+		for j := i + 1; j < len(snapshots); j++ {
+			snapAfter := snapshots[j]
+
+			if models.CompareSnaps(snap, snapAfter) {
+				isDup = true
+				errorTxt := getDuplicateSnapError(snap)
+				if !utils.ContainsString(build.Errors, errorTxt) {
+					// No need to update build if the error for this snapshot already exists.
+					build.Errors = append(build.Errors, errorTxt)
+					build.Status = models.BUILD_STATUS_ABORTED
+					updateBuild = true
+				}
+				break // No need to check for anymore duplicates of this snapshot.
+			}
+		}
+		if isDup {
+			// No need to check for anymore duplicates. Continue to next snapshot.
+			isDup = false
+			continue
+		}
+		// Check there aren't any duplicates in the existing snapshots.
+		for _, existingSnapshot := range existingSnapshots {
+			if models.CompareSnaps(snap, existingSnapshot) {
+				isDup = true
+				errorTxt := getDuplicateSnapError(snap)
+				if !utils.ContainsString(build.Errors, errorTxt) {
+					// No need to update build if the error for this snapshot already exists.
+					build.Errors = append(build.Errors, errorTxt)
+					build.Status = models.BUILD_STATUS_ABORTED
+					updateBuild = true
+				}
+			}
+		}
+
+		if !isDup {
+			snap.ID = uuid.New()
+			snap.BuildID = build.ID
+			newSnapshots = append(newSnapshots, snap)
+		}
+	}
+
+	if len(newSnapshots) == 0 {
+		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, "no new snapshots to upload")
+	}
+
+	validate := utils.NewValidator()
+
+	partial := models.Partial{
+		Snapshots: newSnapshots,
+	}
+
+	if err := validate.Struct(partial); err != nil {
+		msg, _ := json.Marshal(utils.ValidatorErrors(err))
+		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, string(msg))
+	}
 
 	if updateBuild {
-		_, err = tx.NamedExec(buildQuery, build)
-		fmt.Printf("updateBuild2: %v\n", err)
-
+		_, err = tx.NamedExecContext(ctx, buildQuery, build)
 	}
 
 	if err != nil {
-		tx.Rollback()
-		return err
+		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to update build: %v", err)
+	}
+
+	_, err = tx.NamedExecContext(ctx, snapQuery, newSnapshots)
+
+	if err != nil {
+		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to create snapshots: %v", err)
 	}
 
 	err = tx.Commit()
 
-	return err
+	if err != nil {
+		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to commit transaction: %v", err)
+	}
+
+	return newSnapshots, BuildError(fiber.StatusAccepted, "snapshots created successfully")
 }

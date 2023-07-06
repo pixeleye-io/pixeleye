@@ -12,12 +12,14 @@ import (
 
 	_ "github.com/create-go-app/fiber-go-template/docs" // load API Docs files (Swagger)
 
-	_ "github.com/joho/godotenv/autoload" // load .env file automatically
+	"github.com/joho/godotenv" // load .env file automatically
 )
 
 //TODO - add error handling middleware to filter out non custom errors, log them, and return a generic error to the user
 
 func main() {
+	// Load .env file automatically by godotenv
+	godotenv.Load("../../.env")
 	// Define Fiber config
 	config := configs.FiberConfig()
 
