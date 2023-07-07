@@ -9,8 +9,7 @@ const buttonVariants = cva("transition font-semibold flex items-center justify-c
     intent: {
       primary: [
         "border",
-        "bg-black text-white border-black hover:text-black active:bg-black/10 hover:bg-transparent",
-        "dark:bg-white border dark:text-black dark:border-white dark:hover:bg-transparent hover:bg-transparent dark:hover:text-white dark:active:bg-white/10",
+        "bg-primary text-primary-foreground border-primary hover:text-primary active:bg-primary/5 hover:bg-transparent",
       ],
       secondary: [
         "border bg-gray-white dark:bg-gray-900",

@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+    transpilePackages: ["@pixeleye/ui"]
+}
 
 module.exports = nextConfig
