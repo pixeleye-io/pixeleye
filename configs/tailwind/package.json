@@ -1,0 +1,9 @@
+{
+  "name": "@pixeleye/tailwind",
+  "version": "0.0.0",
+  "private": true,
+  "main": "tailwind.config.js",
+  "dependencies": {
+    "tailwindcss": "^3.3.2"
+  }
+}
