@@ -12,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/pixeleye-io/pixeleye/app/queries"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/session"
 	"golang.org/x/oauth2"
 )
 
@@ -164,9 +165,16 @@ func LoginCallback(c *fiber.Ctx) error {
 		Email:  user.Email,
 	}
 
-	err = db.UpsertAccount(*token, accountInfo, providerName)
+	dbUser, err := db.UpsertAccount(*token, accountInfo, providerName)
 
 	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// Set session cookie
+	if err := session.SetUser(c, dbUser); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})

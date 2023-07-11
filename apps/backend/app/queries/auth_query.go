@@ -21,7 +21,7 @@ type AccountInfo struct {
 	Avatar string
 }
 
-func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, provider string) error {
+func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, provider string) (models.User, error) {
 	getUserQuery := "SELECT * FROM user WHERE email = $1 FOR UPDATE"
 	insertUserQuery := "INSERT INTO user (id, name, email, avatar) VALUES (:id, :name, :email, :avatar)"
 	insertAccountQuery := "INSERT INTO account (user_id, provider, provider_account_id, refresh_token, type, access_token, access_token_expires) VALUES (:user_id, :provider, :provider_account_id, :refresh_token, :type, :access_token, :access_token_expires) ON CONFLICT (user_id, provider, provider_account_id) DO UPDATE SET refresh_token = :refresh_token, access_token = :access_token, access_token_expires = :access_token_expires"
@@ -32,7 +32,7 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	defer tx.Rollback()
@@ -51,10 +51,10 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 		err = tx.GetContext(ctx, &user, insertUserQuery, user)
 
 		if err != nil {
-			return err
+			return models.User{}, err
 		}
 	} else if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	account := models.Account{
@@ -70,7 +70,7 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 	_, err = tx.NamedExecContext(ctx, insertAccountQuery, account)
 
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	shouldUpdateUser := false
@@ -89,15 +89,15 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 		_, err = tx.NamedExecContext(ctx, updateUser, user)
 
 		if err != nil {
-			return err
+			return models.User{}, err
 		}
 	}
 
 	err = tx.Commit()
 
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
-	return nil
+	return user, nil
 }

@@ -2,26 +2,26 @@ import { Button, Input, Link, LogoWatching } from "@pixeleye/ui";
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-full flex-1">
-      <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 lg:w-3/5">
-        <div className="mx-auto w-full max-w-sm ">
+    <div className="flex flex-1 min-h-full">
+      <div className="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 lg:w-3/5">
+        <div className="w-full max-w-sm mx-auto ">
           <div>
-            <h2 className="text-2xl font-bold leading-9 tracking-tight text-primary-background">
+            <h2 className="text-2xl font-bold leading-9 tracking-tight text-on-surface">
               Sign in
             </h2>
-            <p className="mt-2 text-sm leading-6 text-primary-background">
+            <p className="mt-2 text-sm leading-6 text-on-surface">
               Not a member? <Link href="#">Sign up for an account</Link>
             </p>
           </div>
 
           <div className="mt-10">
-            <div className="mt-6 grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-4 mt-6">
               <a
-                href="#"
-                className="flex w-full items-center justify-center gap-3 rounded-md bg-[#24292F] px-3 py-1.5 text-primary-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F]"
+                href="/api/auth/github"
+                className="flex w-full items-center justify-center gap-3 rounded-md bg-[#24292F] px-3 py-1.5 text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F]"
               >
                 <svg
-                  className="h-5 w-5"
+                  className="w-5 h-5"
                   aria-hidden="true"
                   fill="currentColor"
                   viewBox="0 0 20 20"
@@ -45,7 +45,7 @@ export default function LoginPage() {
                   <div className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-sm font-medium leading-6">
-                  <span className="bg-background px-6 text-primary-background">
+                  <span className="px-6 bg-surface text-on-surface">
                     Or continue with
                   </span>
                 </div>
@@ -74,11 +74,11 @@ export default function LoginPage() {
                         id="remember-me"
                         name="remember-me"
                         type="checkbox"
-                        className="h-4 w-4 rounded border-border text-indigo-600 focus:ring-indigo-600"
+                        className="w-4 h-4 text-indigo-600 rounded border-border focus:ring-indigo-600"
                       />
                       <label
                         htmlFor="remember-me"
-                        className="ml-3 block text-sm leading-6 text-primary-background"
+                        className="block ml-3 text-sm leading-6 text-on-surface"
                       >
                         Remember me
                       </label>
@@ -100,11 +100,11 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <div className="relative lg:flex items-center hidden w-0 flex-1 z-0">
-        <span className="border-l border-border inset-y-0 left-10 absolute" />
-        <div className="flex bg-background z-10 py-4 text-primary-background">
-          <LogoWatching className="w-16 " />
-          <h3 className="text-4xl pt-1 font-bold">ixeleye</h3>
+      <div className="relative z-0 items-center flex-1 hidden w-0 lg:flex">
+        <span className="absolute inset-y-0 border-l border-outline-variant left-10" />
+        <div className="z-10 flex py-4 bg-surface text-on-surface">
+          <LogoWatching className="w-16" />
+          <h3 className="pt-1 text-4xl font-bold">ixeleye</h3>
         </div>
       </div>
     </div>

@@ -10,3 +10,7 @@ export * from "./logo";
 export { default as Input } from "./input";
 export * from "./logo";
 export { default as Label } from "./label";
+export * from "./divider";
+export { default as Divider } from "./divider";
+export * from "./header";
+export { default as Header } from "./header";

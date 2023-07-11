@@ -1,4 +1,4 @@
-const defaultTheme = require('tailwindcss/defaultTheme')
+const defaultTheme = require("tailwindcss/defaultTheme");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -13,61 +13,53 @@ module.exports = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-      },
-      borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
-        sm: "calc(var(--radius) - 4px)",
+        /** Accent colors */
+        primary: "rgba(var(--color-primary) / <alpha-value>)",
+        "on-primary": "rgba(var(--color-on-primary) / <alpha-value>)",
+        "primary-container":
+          "rgba(var(--color-primary-container) / <alpha-value>)",
+        "on-primary-container":
+          "rgba(var(--color-on-primary-container) / <alpha-value>)",
+        secondary: "rgba(var(--color-secondary) / <alpha-value>)",
+        "on-secondary": "rgba(var(--color-on-secondary) / <alpha-value>)",
+        "secondary-container":
+          "rgba(var(--color-secondary-container) / <alpha-value>)",
+        "on-secondary-container":
+          "rgba(var(--color-on-secondary-container) / <alpha-value>)",
+        tertiary: "rgba(var(--color-tertiary) / <alpha-value>)",
+        "on-tertiary": "rgba(var(--color-on-tertiary) / <alpha-value>)",
+        "tertiary-container":
+          "rgba(var(--color-tertiary-container) / <alpha-value>)",
+        "on-tertiary-container":
+          "rgba(var(--color-on-tertiary-container) / <alpha-value>)",
+        error: "rgba(var(--color-error) / <alpha-value>)",
+        "on-error": "rgba(var(--color-on-error) / <alpha-value>)",
+        "error-container": "rgba(var(--color-error-container) / <alpha-value>)",
+        "on-error-container":
+          "rgba(var(--color-on-error-container) / <alpha-value>)",
+
+        /** Neutral colors */
+        surface: "rgba(var(--color-surface) / <alpha-value>)",
+        "on-surface": "rgba(var(--color-on-surface) / <alpha-value>)",
+        "surface-container-lowest":
+          "rgba(var(--color-surface-container-lowest / <alpha-value>)",
+        "surface-container-low":
+          "rgba(var(--color-surface-container-low) / <alpha-value>)",
+
+        "surface-container":
+          "rgba(var(--color-surface-container) / <alpha-value>)",
+        "surface-container-high":
+          "rgba(var(--color-surface-container-high) / <alpha-value>)",
+        "surface-container-highest":
+          "rgba(var(--color-surface-container-highest) / <alpha-value>)",
+        outline: "rgba(var(--color-outline) / <alpha-value>)",
+        "outline-variant": "rgba(var(--color-outline-variant) / <alpha-value>)",
+        "surface-variant": "rgba(var(--color-surface-variant) / <alpha-value>)",
+        "on-surface-variant":
+          "rgba(var(--color-on-surface-variant) / <alpha-value>)",
       },
       fontFamily: {
-        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: 0 },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        sans: ["Inter var", ...defaultTheme.fontFamily.sans],
       },
     },
   },

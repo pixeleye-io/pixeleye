@@ -123,24 +123,3 @@ CREATE TRIGGER set_timestamp
 BEFORE UPDATE ON account
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
-
--- Create Session table
-CREATE TABLE session (
-    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    -- Session information
-    user_id UUID NOT NULL REFERENCES user(id) ON DELETE CASCADE,
-    token TEXT NOT NULL,
-    expires_at TIMESTAMPTZ NOT NULL,
-
-    UNIQUE (user_id, token)
-);
-
--- Automatically set updated_at timestamp
-CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON session
-FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();
-
