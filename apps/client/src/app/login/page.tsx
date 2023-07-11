@@ -17,7 +17,7 @@ export default function LoginPage() {
           <div className="mt-10">
             <div className="grid grid-cols-1 gap-4 mt-6">
               <a
-                href="/api/auth/github"
+                href="/api/v1/auth/login/github"
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-[#24292F] px-3 py-1.5 text-on-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24292F]"
               >
                 <svg

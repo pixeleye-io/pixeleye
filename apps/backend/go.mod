@@ -15,12 +15,15 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/ClickHouse/ch-go v0.55.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.9.1 // indirect
+	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/docker/cli v20.10.17+incompatible // indirect
 	github.com/docker/docker v20.10.24+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
@@ -79,6 +82,8 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-testfixtures/testfixtures/v3 v3.9.0
+	github.com/gofiber/contrib/jwt v1.0.3
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/jackc/pgx/v5 v5.4.1
 	github.com/jmoiron/sqlx v1.3.5
@@ -93,6 +98,7 @@ require (
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/rabbitmq/amqp091-go v1.8.1
+	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/savsgio/dictpool v0.0.0-20221023140959-7bf2e61cea94 // indirect
 	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect

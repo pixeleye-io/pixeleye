@@ -27,9 +27,15 @@ type (
 	}
 
 	User struct {
-		ID     uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
-		Name   string    `db:"name" json:"name" validate:"required"`
-		Email  string    `db:"email" json:"email" validate:"required"`
-		Avatar string    `db:"avatar" json:"avatar" validate:"required"`
+		ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
+		Name      string    `db:"name" json:"name" validate:"required"`
+		Email     string    `db:"email" json:"email" validate:"required"`
+		AvatarURL string    `db:"avatar_url" json:"avatar_url" validate:"required"`
+		CreatedAt time.Time `db:"created_at"`
+		UpdatedAt time.Time `db:"updated_at"`
+	}
+
+	Renew struct {
+		RefreshToken string `json:"refresh_token" validate:"required"`
 	}
 )

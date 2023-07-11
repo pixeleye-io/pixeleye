@@ -18,5 +18,6 @@ func PrivateRoutes(a *fiber.App) {
 
 	// Routes for GET method:
 	route.Get("/builds/:build_id", controllers.GetBuild)
+	route.Get("/user", controllers.GetCurrentUser)
 
 }

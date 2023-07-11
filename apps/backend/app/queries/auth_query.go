@@ -22,10 +22,10 @@ type AccountInfo struct {
 }
 
 func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, provider string) (models.User, error) {
-	getUserQuery := "SELECT * FROM user WHERE email = $1 FOR UPDATE"
-	insertUserQuery := "INSERT INTO user (id, name, email, avatar) VALUES (:id, :name, :email, :avatar)"
+	getUserQuery := "SELECT * FROM users WHERE email = $1 FOR UPDATE"
+	insertUserQuery := "INSERT INTO users (id, name, email, avatar_url) VALUES (:id, :name, :email, :avatar_url)"
 	insertAccountQuery := "INSERT INTO account (user_id, provider, provider_account_id, refresh_token, type, access_token, access_token_expires) VALUES (:user_id, :provider, :provider_account_id, :refresh_token, :type, :access_token, :access_token_expires) ON CONFLICT (user_id, provider, provider_account_id) DO UPDATE SET refresh_token = :refresh_token, access_token = :access_token, access_token_expires = :access_token_expires"
-	updateUser := "UPDATE user SET name = :name, email = :email, avatar = :avatar WHERE id = :id"
+	updateUser := "UPDATE users SET name = :name, email = :email, avatar_url = :avatar_url WHERE id = :id"
 
 	ctx := context.Background()
 
@@ -42,13 +42,13 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 
 	if err == sql.ErrNoRows {
 		user = models.User{
-			ID:     uuid.New(),
-			Name:   userInfo.Name,
-			Email:  userInfo.Email,
-			Avatar: userInfo.Avatar,
+			ID:        uuid.New(),
+			Name:      userInfo.Name,
+			Email:     userInfo.Email,
+			AvatarURL: userInfo.Avatar,
 		}
 
-		err = tx.GetContext(ctx, &user, insertUserQuery, user)
+		_, err = tx.NamedExecContext(ctx, insertUserQuery, &user)
 
 		if err != nil {
 			return models.User{}, err
@@ -67,7 +67,7 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 		AccessTokenExpires: token.Expiry,
 	}
 
-	_, err = tx.NamedExecContext(ctx, insertAccountQuery, account)
+	_, err = tx.NamedExecContext(ctx, insertAccountQuery, &account)
 
 	if err != nil {
 		return models.User{}, err
@@ -80,13 +80,13 @@ func (q *AuthQueries) UpsertAccount(token oauth2.Token, userInfo AccountInfo, pr
 		shouldUpdateUser = true
 	}
 
-	if user.Avatar == "" {
-		user.Avatar = userInfo.Avatar
+	if user.AvatarURL == "" {
+		user.AvatarURL = userInfo.Avatar
 		shouldUpdateUser = true
 	}
 
 	if shouldUpdateUser {
-		_, err = tx.NamedExecContext(ctx, updateUser, user)
+		_, err = tx.NamedExecContext(ctx, updateUser, &user)
 
 		if err != nil {
 			return models.User{}, err

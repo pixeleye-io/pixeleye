@@ -79,22 +79,20 @@ FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
 -- Create user table
-CREATE TABLE user (
+CREATE TABLE users (
     id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- User information
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     name VARCHAR(255),
-    avatar_url TEXT,
-
-    UNIQUE (email)
+    avatar_url TEXT
 );
 
 -- Automatically set updated_at timestamp
 CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON user
+BEFORE UPDATE ON users
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -107,15 +105,15 @@ CREATE TABLE account (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- Account information
-    user_id UUID NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     provider ACCOUNT_PROVIDER NOT NULL,
     provider_account_id VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
     access_token TEXT NOT NULL,
     refresh_token TEXT,
-    access_token_expires TIMESTAMPTZ NOT NULL,
+    access_token_expires DATETIME NOT NULL,
 
-    UNIQUE (user_id, provider, provider_id)
+    UNIQUE (user_id, provider, provider_account_id)
 );
 
 -- Automatically set updated_at timestamp

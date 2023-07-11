@@ -11,5 +11,8 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "zod": "^3.21.4"
   }
 }

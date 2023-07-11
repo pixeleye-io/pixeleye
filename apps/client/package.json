@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@pixeleye/ui": "workspace:*",
+    "@pixeleye/api": "workspace:*",
     "framer-motion": "^10.12.18",
     "next": "13.4.9",
     "next-themes": "^0.2.1",

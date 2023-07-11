@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -23,6 +23,9 @@ importers:
 
   apps/client:
     dependencies:
+      '@pixeleye/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@pixeleye/ui':
         specifier: workspace:*
         version: link:../../libs/ui
@@ -97,6 +100,10 @@ importers:
   configs/tsconfig: {}
 
   libs/api:
+    dependencies:
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
     devDependencies:
       '@pixeleye/eslint-config':
         specifier: workspace:*

@@ -1,18 +1,22 @@
 package controllers
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/pixeleye-io/pixeleye/app/queries"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/cache"
 	"github.com/pixeleye-io/pixeleye/platform/database"
-	"github.com/pixeleye-io/pixeleye/platform/session"
 	"golang.org/x/oauth2"
 )
 
@@ -119,6 +123,7 @@ func LoginCallback(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "code exchange failed",
+			"data":    err.Error(),
 		})
 	}
 
@@ -132,22 +137,30 @@ func LoginCallback(c *fiber.Ctx) error {
 		})
 	}
 
-	defer response.Body.Close()
-
 	type GithubUser struct {
-		ID        string `json:"id"`
+		ID        int    `json:"id"`
 		AvatarURL string `json:"avatar_url"`
 		Name      string `json:"name"`
 		Email     string `json:"email"`
 	}
 
-	user := GithubUser{}
+	defer response.Body.Close()
 
-	err = json.NewDecoder(response.Body).Decode(&user)
+	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "failed to get user info",
+			"data":    err.Error(),
+		})
+	}
+
+	user := GithubUser{}
+
+	if err := json.Unmarshal(body, &user); err != nil { // Parse []byte to go struct pointer
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "failed to get user info",
+			"data":    err.Error(),
 		})
 	}
 
@@ -159,7 +172,7 @@ func LoginCallback(c *fiber.Ctx) error {
 	}
 
 	accountInfo := queries.AccountInfo{
-		ID:     user.ID,
+		ID:     strconv.Itoa(user.ID),
 		Name:   user.Name,
 		Avatar: user.AvatarURL,
 		Email:  user.Email,
@@ -173,15 +186,41 @@ func LoginCallback(c *fiber.Ctx) error {
 		})
 	}
 
-	// Set session cookie
-	if err := session.SetUser(c, dbUser); err != nil {
+	// Generate a new pair of access and refresh tokens.
+	tokens, err := utils.GenerateNewTokens(dbUser.ID.String(), []string{})
+	if err != nil {
+		// Return status 500 and token generation error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
 
+	// Define user ID.
+	userID := dbUser.ID.String()
+
+	// Create a new Redis connection.
+	connRedis, err := cache.RedisConnection()
+	if err != nil {
+		// Return status 500 and Redis connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	// Define refresh token TTL.
+	ttl, err := strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
+
+	// Save refresh token to Redis.
+	errSaveToRedis := connRedis.Set(context.Background(), userID, tokens.Refresh, time.Duration(ttl)*time.Hour).Err()
+	if errSaveToRedis != nil {
+		// Return status 500 and Redis connection error.
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": errSaveToRedis.Error(),
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "success",
-		"data":    user,
+		"access":  tokens.Access,
+		"refresh": tokens.Refresh,
 	})
 }
