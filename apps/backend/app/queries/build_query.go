@@ -2,10 +2,11 @@ package queries
 
 import (
 	"context"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
 
@@ -39,7 +40,7 @@ func (q *BuildQueries) UpdateBuild(build *models.Build) error {
 	return err
 }
 
-func (q *BuildQueries) CompleteBuild(id uuid.UUID) (models.Build, QueryError) {
+func (q *BuildQueries) CompleteBuild(id uuid.UUID) (models.Build, error) {
 
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
@@ -52,18 +53,18 @@ func (q *BuildQueries) CompleteBuild(id uuid.UUID) (models.Build, QueryError) {
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return build, BuildError(fiber.StatusInternalServerError, "failed to begin transaction: %v", err)
+		return build, err
 	}
 
 	defer tx.Rollback()
 
 	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
-		return build, BuildError(fiber.StatusNotFound, "build with given ID not found")
+		return build, echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
 	}
 
 	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
 		// Build has already been marked as complete
-		return build, BuildError(fiber.StatusAccepted, "build has already been marked as complete")
+		return build, echo.NewHTTPError(http.StatusBadRequest, "build has already been marked as complete")
 	}
 
 	if build.Status == models.BUILD_STATUS_ABORTED {
@@ -74,7 +75,7 @@ func (q *BuildQueries) CompleteBuild(id uuid.UUID) (models.Build, QueryError) {
 		snapshotStatus := []string{}
 
 		if err = tx.SelectContext(ctx, &snapshotStatus, selectSnapshotsQuery, build.ID); err != nil {
-			return build, BuildError(fiber.StatusInternalServerError, "failed to get snapshots: %v", err)
+			return build, err
 		}
 
 		// Since snapshot processing is asynchronous, we can check the status of each snapshot to determine the overall build status.
@@ -103,13 +104,12 @@ func (q *BuildQueries) CompleteBuild(id uuid.UUID) (models.Build, QueryError) {
 	}
 
 	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.ID); err != nil {
-		return build, BuildError(fiber.StatusInternalServerError, "failed to update build: %v", err)
-
+		return build, err
 	}
 
 	if err = tx.Commit(); err != nil {
-		return build, BuildError(fiber.StatusInternalServerError, "failed to commit transaction: %v", err)
+		return build, err
 	}
 
-	return build, BuildError(fiber.StatusAccepted, "build marked as complete")
+	return build, nil
 }

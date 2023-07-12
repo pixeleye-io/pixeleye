@@ -12,7 +12,7 @@ func ConnectionURLBuilder(n string) (string, error) {
 
 	// Switch given names.
 	switch n {
-	case "fiber":
+	case "core":
 		// URL for Fiber connection.
 		url = fmt.Sprintf(
 			"%s:%s",

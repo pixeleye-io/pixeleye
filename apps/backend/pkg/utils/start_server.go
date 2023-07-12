@@ -1,50 +1,49 @@
 package utils
 
 import (
-	"log"
+	"context"
+	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/labstack/echo/v4"
 )
 
 // StartServerWithGracefulShutdown function for starting server with a graceful shutdown.
-func StartServerWithGracefulShutdown(a *fiber.App) {
-	// Create channel for idle connections.
-	idleConnsClosed := make(chan struct{})
+func StartServerWithGracefulShutdown(e *echo.Echo) {
+	address, err := ConnectionURLBuilder("core")
 
-	go func() {
-		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt) // Catch OS signals.
-		<-sigint
-
-		// Received an interrupt signal, shutdown.
-		if err := a.Shutdown(); err != nil {
-			// Error from closing listeners, or context timeout:
-			log.Printf("Oops... Server is not shutting down! Reason: %v", err)
-		}
-
-		close(idleConnsClosed)
-	}()
-
-	// Build Fiber connection URL.
-	fiberConnURL, _ := ConnectionURLBuilder("fiber")
-
-	// Run server.
-	if err := a.Listen(fiberConnURL); err != nil {
-		log.Printf("Oops... Server is not running! Reason: %v", err)
+	if err != nil {
+		e.Logger.Fatal(err)
 	}
 
-	<-idleConnsClosed
+	// Start server
+	go func() {
+		if err := e.Start(address); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }
 
 // StartServer func for starting a simple server.
-func StartServer(a *fiber.App) {
-	// Build Fiber connection URL.
-	fiberConnURL, _ := ConnectionURLBuilder("fiber")
+func StartServer(e *echo.Echo) {
+	address, err := ConnectionURLBuilder("core")
 
-	// Run server.
-	if err := a.Listen(fiberConnURL); err != nil {
-		log.Printf("Oops... Server is not running! Reason: %v", err)
+	if err != nil {
+		e.Logger.Fatal(err)
 	}
+
+	e.Logger.Fatal(e.Start(address))
 }

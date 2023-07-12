@@ -1,8 +1,10 @@
 package controllers
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
@@ -23,25 +25,17 @@ import (
 // @Param author body string false "Commit author"
 // @Success 200 {object} models.Build
 // @Router /v1/builds/create [post]
-func CreateBuild(c *fiber.Ctx) error {
+func CreateBuild(c echo.Context) error {
 
-	build := &models.Build{}
+	build := models.Build{}
 
-	if err := c.BodyParser(build); err != nil {
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
-			"message": err.Error(),
-		})
-
+	if err := c.Bind(&build); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
-			"message": err.Error(),
-		})
+		return err
 	}
 
 	validate := utils.NewValidator()
@@ -52,25 +46,14 @@ func CreateBuild(c *fiber.Ctx) error {
 
 	if err := validate.Struct(build); err != nil {
 		// Return, if some fields are not valid.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
-			"message": "Invalid build data",
-			"data":    utils.ValidatorErrors(err),
-		})
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	if err := db.CreateBuild(build); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
-			"message": err.Error(),
-		})
+	if err := db.CreateBuild(&build); err != nil {
+		return err
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error":   false,
-		"message": "Build created successfully",
-		"data":    build,
-	})
+	return c.JSON(http.StatusCreated, build)
 }
 
 // Get Build method for getting a build.
@@ -81,39 +64,26 @@ func CreateBuild(c *fiber.Ctx) error {
 // @Produce json
 // @Param build_id path string true "Build ID"
 // @Success 200 {object} models.Build
-// @Router /v1/builds/{build_id} [get]
-func GetBuild(c *fiber.Ctx) error {
+// @Router /v1/builds/{id} [get]
+func GetBuild(c echo.Context) error {
 
 	// Get build ID from URL.
-	id, err := uuid.Parse(c.Params("build_id"))
+	id, err := uuid.Parse(c.QueryParam("id"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":   true,
-			"message": err.Error(),
-		})
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":   true,
-			"message": err.Error(),
-		})
+		return err
 	}
 
 	build, err := db.GetBuild(id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error":   true,
-			"message": "Build with given ID not found",
-		})
+		return echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
 	}
 
-	return c.JSON(fiber.Map{
-		"error":   false,
-		"message": "Build retrieved successfully",
-		"data":    build,
-	})
+	return c.JSON(http.StatusOK, build)
 }
 
 // Upload partial method for creating a new build.
@@ -124,66 +94,48 @@ func GetBuild(c *fiber.Ctx) error {
 // @Produce json
 // @Param build_id path string true "Build ID"
 // @Param snapshots body models.Snapshot true "Snapshots"
-// @Router /v1/builds/{build_id}/upload [post]
-func UploadPartial(c *fiber.Ctx) error {
+// @Router /v1/builds/{id}/upload [post]
+func UploadPartial(c echo.Context) error {
 
-	buildID, err := uuid.Parse(c.Params("build_id"))
+	buildID, err := uuid.Parse(c.QueryParam("id"))
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "invalid build ID",
-		})
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
 
 	partial := models.Partial{}
 
-	if err := c.BodyParser(&partial); err != nil {
-
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": err.Error(),
-		})
-
+	if err := c.Bind(&partial); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return err
 	}
 
-	snapshots, qErr := db.CreateBatchSnapshots(partial.Snapshots, buildID)
+	snapshots, err := db.CreateBatchSnapshots(partial.Snapshots, buildID)
 
-	if qErr.IsError() {
-		return c.Status(qErr.Code).JSON(fiber.Map{
-			"message": qErr.Message,
-		})
+	if err != nil {
+		return err
 	}
 
 	channel, err := broker.GetBroker()
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "failed to connect to message broker",
-		})
+		return err
 	}
-
-	err = channel.QueueSnapshotsIngest(snapshots)
 
 	// TODO - Handle error.
 	// Need to decide what to do if we can't queue snapshots for processing.
 	// The build will remain in a pending state
 	// We could create a new table to store snapshots that have failed to be processed,
 	// and then once our message broker is back online, we can re-queue them.
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "failed to queue snapshots for processing",
-		})
+	if err := channel.QueueSnapshotsIngest(snapshots); err != nil {
+		return err
 	}
 
-	return c.JSON(fiber.Map{
-		"message": "snapshots uploaded successfully",
-	})
+	return c.String(http.StatusOK, "snapshots queued for processing")
 }
 
 // Upload complete method for signalling a completed build.
@@ -193,36 +145,26 @@ func UploadPartial(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.Build
-// @Param build_id path string true "Build ID"
-// @Router /v1/builds/{build_id}/complete [post]
-func UploadComplete(c *fiber.Ctx) error {
+// @Param id path string true "Build ID"
+// @Router /v1/builds/{id}/complete [post]
+func UploadComplete(c echo.Context) error {
 
-	buildID, err := uuid.Parse(c.Params("build_id"))
+	buildID, err := uuid.Parse(c.QueryParam("id"))
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "invalid build ID",
-		})
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "failed to open database connection",
-		})
+		return err
 	}
 
-	build, qErr := db.CompleteBuild(buildID)
+	build, err := db.CompleteBuild(buildID)
 
-	if qErr.IsError() {
-		return c.Status(qErr.Code).JSON(fiber.Map{
-			"message": qErr.Message,
-		})
+	if err != nil {
+		return err
 	}
 
-	return c.Status(qErr.Code).JSON(fiber.Map{
-		"message": qErr.Message,
-		"data":    build,
-	})
-
+	return c.JSON(http.StatusAccepted, build)
 }

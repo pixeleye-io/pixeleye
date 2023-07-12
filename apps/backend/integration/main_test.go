@@ -7,16 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib" // load pgx driver for PostgreSQL
 	"github.com/jmoiron/sqlx"
+	"github.com/labstack/v4/echo"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
-	"github.com/pixeleye-io/pixeleye/pkg/configs"
-	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/routes"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -26,7 +24,7 @@ import (
 var db *sqlx.DB
 var connectRabbitMQ *amqp.Connection
 
-var app *fiber.App
+var app *echo.Echo
 
 func SetEnv(dbPort string, mqPort string) {
 	utils.FailOnError(os.Setenv("STAGE_STATUS", "dev"), "Failed setting STAGE_STATUS")
@@ -145,17 +143,10 @@ func TestMain(m *testing.M) {
 	utils.FailOnError(err, "Failed to create migration instance")
 	migration.Up()
 
-	// Create a new fiber app
+	// Create a new echo app
 	app = SetupApp()
 
-	// Middleware
-	middleware.FiberMiddleware(app) // Register Fiber's middleware for app
-
-	routes.PingRoute(app)
-	routes.PrivateRoutes(app)
-	routes.NotFoundRoute(app)
-
-	go utils.StartServer(app)
+	utils.StartServer(app)
 
 	//Run tests
 	code := m.Run()
@@ -173,15 +164,12 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func SetupApp() *fiber.App {
-	// Define Fiber config
-	config := configs.FiberConfig()
+func SetupApp() *echo.Echo {
+	e := echo.New()
 
-	// Define a new Fiber app with config
-	app := fiber.New(config)
+	// Routes
+	routes.HealthRoutes(e) // Register Health routes
+	routes.ProjectRoutes(e)
 
-	// Middleware
-	middleware.FiberMiddleware(app) // Register Fiber's middleware for app
-
-	return app
+	return e
 }

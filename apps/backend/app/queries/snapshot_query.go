@@ -3,10 +3,11 @@ package queries
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
@@ -54,14 +55,14 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 }
 
 // Assumes we have no duplicate snapshots passed in
-func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId uuid.UUID) ([]models.Snapshot, QueryError) {
+func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId uuid.UUID) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
 	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, url) VALUES (:id, :build_id, :name, :variant, :target, :url)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
 	if len(snapshots) == 0 {
-		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, "no snapshots to create")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "no snapshots to create")
 	}
 
 	ctx := context.Background()
@@ -69,7 +70,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to begin transaction: %v", err)
+		return nil, err
 	}
 
 	defer tx.Rollback()
@@ -77,17 +78,17 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	build := models.Build{}
 
 	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil || build.ID == uuid.Nil {
-		return []models.Snapshot{}, BuildError(fiber.StatusNotFound, "build with id %s not found", buildId)
+		return nil, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
 	}
 
 	if build.Status != models.BUILD_STATUS_ABORTED && build.Status != models.BUILD_STATUS_UPLOADING {
-		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, "build with id %s has completed. You cannot continue to add snapshots to it", buildId)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has completed. You cannot continue to add snapshots to it", buildId)
 	}
 
 	existingSnapshots := []models.Snapshot{}
 
 	if err = tx.SelectContext(ctx, &existingSnapshots, selectExistingSnapshotsQuery, buildId); err != nil {
-		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to get existing snapshots: %v", err)
+		return nil, err
 	}
 
 	newSnapshots := []models.Snapshot{}
@@ -141,7 +142,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	}
 
 	if len(newSnapshots) == 0 {
-		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, "no new snapshots to upload")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "no new snapshots to upload")
 	}
 
 	validate := utils.NewValidator()
@@ -152,28 +153,22 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 	if err := validate.Struct(partial); err != nil {
 		msg, _ := json.Marshal(utils.ValidatorErrors(err))
-		return []models.Snapshot{}, BuildError(fiber.StatusBadRequest, string(msg))
+		return nil, echo.NewHTTPError(http.StatusBadRequest, string(msg))
 	}
 
 	if updateBuild {
-		_, err = tx.NamedExecContext(ctx, buildQuery, build)
+		if _, err := tx.NamedExecContext(ctx, buildQuery, build); err != nil {
+			return nil, err
+		}
 	}
 
-	if err != nil {
-		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to update build: %v", err)
+	if _, err = tx.NamedExecContext(ctx, snapQuery, newSnapshots); err != nil {
+		return nil, err
 	}
 
-	_, err = tx.NamedExecContext(ctx, snapQuery, newSnapshots)
-
-	if err != nil {
-		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to create snapshots: %v", err)
+	if err := tx.Commit(); err != nil {
+		return nil, err
 	}
 
-	err = tx.Commit()
-
-	if err != nil {
-		return []models.Snapshot{}, BuildError(fiber.StatusInternalServerError, "failed to commit transaction: %v", err)
-	}
-
-	return newSnapshots, BuildError(fiber.StatusAccepted, "snapshots created successfully")
+	return newSnapshots, nil
 }
