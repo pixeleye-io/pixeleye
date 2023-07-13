@@ -6,7 +6,7 @@ import {
 import { Button, Input } from "@pixeleye/ui";
 import { InputHTMLAttributes } from "react";
 
-export const AuthNode = ({ node, label }: { node: UiNode; label: string }) => {
+export const AuthNode = ({ node }: { node: UiNode; }) => {
   // other node types are also supported
   // if (isUiNodeTextAttributes(node.attributes)) {
   // if (isUiNodeImageAttributes(node.attributes)) {

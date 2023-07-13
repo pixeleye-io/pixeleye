@@ -7,20 +7,6 @@ import { AuthNode } from "../nodes";
 import { UiNode, UiNodeInputAttributes } from "@ory/client";
 import { isUiNodeInputAttributes } from "@ory/integrations/ui";
 
-function getNodeLabel(node: UiNode) {
-  if (isUiNodeInputAttributes(node.attributes)) {
-    const attrs = node.attributes as UiNodeInputAttributes;
-    const nodeType = attrs.type;
-
-    switch (nodeType) {
-      case "email":
-        return "Email";
-      case "text":
-        return "Code";
-    }
-  }
-  return "";
-}
 
 export default async function VerificationPage({
   searchParams,
@@ -66,7 +52,7 @@ export default async function VerificationPage({
         className="space-y-6 mt-10"
       >
         {verificationFlow.ui.nodes.map((node, i) => (
-          <AuthNode node={node} label={getNodeLabel(node)} key={i} />
+          <AuthNode node={node} key={i} />
         ))}
       </form>
     </>
