@@ -68,7 +68,7 @@ func CreateBuild(c echo.Context) error {
 func GetBuild(c echo.Context) error {
 
 	// Get build ID from URL.
-	id, err := uuid.Parse(c.QueryParam("id"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
@@ -97,7 +97,7 @@ func GetBuild(c echo.Context) error {
 // @Router /v1/builds/{id}/upload [post]
 func UploadPartial(c echo.Context) error {
 
-	buildID, err := uuid.Parse(c.QueryParam("id"))
+	buildID, err := uuid.Parse(c.Param("id"))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
@@ -149,7 +149,7 @@ func UploadPartial(c echo.Context) error {
 // @Router /v1/builds/{id}/complete [post]
 func UploadComplete(c echo.Context) error {
 
-	buildID, err := uuid.Parse(c.QueryParam("id"))
+	buildID, err := uuid.Parse(c.Param("id"))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")

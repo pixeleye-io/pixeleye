@@ -93,13 +93,10 @@ func runSimpleTests(t *testing.T, tests []TestData) {
 
 		// Perform the request plain with the app,
 		// the second argument is a request latency
-		resp, err := app.Test(req)
+		// resp, err := app.Test(req)
 
-		if err != nil {
-			t.Log(err.Error())
-			t.Fail()
-			continue
-		}
+		resp := httptest.NewRecorder()
+		c := app.NewContext(req, resp)
 
 		// Read body
 		body, err := sortBody(t, resp.Body, test.bodyMapper)
@@ -109,8 +106,6 @@ func runSimpleTests(t *testing.T, tests []TestData) {
 			t.Fail()
 			continue
 		}
-
-		resp.Body.Close()
 
 		// Verify, if the status code is as expected
 		assert.Equalf(t, test.expectedCode, resp.StatusCode, test.description)

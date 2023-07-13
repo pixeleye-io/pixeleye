@@ -13,7 +13,6 @@ func ProjectRoutes(e *echo.Echo) {
 	v1 := e.Group("/v1")
 
 	v1.Use(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
-		KeyLookup: "query:api-key",
 		Validator: func(key string, c echo.Context) (bool, error) {
 			// TODO - add api key validation
 			return true, nil

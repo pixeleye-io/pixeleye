@@ -12,7 +12,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib" // load pgx driver for PostgreSQL
 	"github.com/jmoiron/sqlx"
-	"github.com/labstack/v4/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/pixeleye-io/pixeleye/pkg/routes"
@@ -151,7 +151,7 @@ func TestMain(m *testing.M) {
 	//Run tests
 	code := m.Run()
 
-	app.Shutdown()
+	app.Close()
 
 	// You can't defer this because os.Exit doesn't care for defer
 	if err := pool.Purge(postgresDB); err != nil {
