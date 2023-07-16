@@ -1,4 +1,4 @@
 packages:
   - 'configs/*'
   - 'libs/*'
-  - 'apps/client'
+  - 'apps/web'

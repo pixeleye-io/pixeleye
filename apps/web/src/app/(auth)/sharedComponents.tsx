@@ -1,17 +1,20 @@
-import { UiNode, UiNodeInputAttributes } from "@ory/client";
-import {
-  isUiNodeInputAttributes,
-  isUiNodeAnchorAttributes,
-} from "@ory/integrations/ui";
+import { UiNode, UiNodeInputAttributes, UiText } from "@ory/client";
+import { isUiNodeInputAttributes } from "@ory/integrations/ui";
 import { Button, Input } from "@pixeleye/ui";
-import { InputHTMLAttributes } from "react";
+import { cx } from "class-variance-authority";
 
-export const AuthNode = ({ node }: { node: UiNode; }) => {
+export const AuthNode = ({
+  node,
+  errors,
+}: {
+  node: UiNode;
+  errors?: Record<string, string>;
+}) => {
   // other node types are also supported
   // if (isUiNodeTextAttributes(node.attributes)) {
   // if (isUiNodeImageAttributes(node.attributes)) {
   // if (isUiNodeAnchorAttributes(node.attributes)) {
-  //   console.log(node.attributes.href);
+  //   console.log(node);
   // }
 
   if (isUiNodeInputAttributes(node.attributes)) {
@@ -34,6 +37,7 @@ export const AuthNode = ({ node }: { node: UiNode; }) => {
       default:
         if (attrs.name === "csrf_token")
           return <input {...node.attributes} key="csrf_token" />;
+
         return (
           <Input
             name={attrs.name}
@@ -50,3 +54,25 @@ export const AuthNode = ({ node }: { node: UiNode; }) => {
     }
   }
 };
+
+export function ErrorsList({
+  messages,
+  className,
+}: {
+  messages?: UiText[];
+  className?: string;
+}) {
+  const filteredMessages = messages?.filter(({ type }) => type === "error");
+
+  if (!filteredMessages || filteredMessages.length === 0) return;
+
+  return (
+    <ul className={cx("flex flex-col mt-4 space-y-2")}>
+      {filteredMessages?.map(({ text }, i) => (
+        <li key={i} className="text-sm text-error">
+          {text}
+        </li>
+      ))}
+    </ul>
+  );
+}

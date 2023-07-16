@@ -1,8 +1,8 @@
 import { Configuration, FrontendApi } from "@ory/client";
 
 export const apiBaseUrlInternal =
-  process.env.KRATOS_PUBLIC_URLL ||
-  process.env.ORY_SDK_URLL ||
+  process.env.KRATOS_PUBLIC_URL ||
+  process.env.ORY_SDK_URL ||
   "http://localhost:4000/.ory";
 
 export const apiBaseUrl = process.env.KRATOS_BROWSER_URL || apiBaseUrlInternal;

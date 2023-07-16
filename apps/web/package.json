@@ -1,10 +1,11 @@
 {
-  "name": "@pixeleye/client",
+  "name": "@pixeleye/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:docker": "docker build -t pixeleye/web .",
     "start": "next start",
     "lint": "next lint"
   },
@@ -24,12 +25,18 @@
     "@ory/integrations": "^1.1.4",
     "@ory/kratos-client": "^0.13.1",
     "@pixeleye/api": "workspace:*",
+    "@pixeleye/github": "workspace:*",
     "@pixeleye/ui": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.6.0",
+    "class-variance-authority": "^0.6.1",
     "framer-motion": "^10.12.18",
     "next": "13.4.9",
     "next-themes": "^0.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tailwindcss": "3.3.2"
+    "react-hook-form": "^7.45.1",
+    "tailwindcss": "3.3.2",
+    "zod": "^3.21.4",
+    "zustand": "^4.3.9"
   }
 }

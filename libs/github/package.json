@@ -1,0 +1,24 @@
+{
+  "name": "@pixeleye/github",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@octokit/app": "^13.1.2",
+    "@octokit/auth-app": "^6.0.0",
+    "@t3-oss/env-core": "^0.6.0",
+    "@t3-oss/env-nextjs": "^0.6.0",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
+    "@types/node": "20.3.1"
+  },
+  "main": "./index.ts",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
+  },
+  "types": "./index.tsx"
+}

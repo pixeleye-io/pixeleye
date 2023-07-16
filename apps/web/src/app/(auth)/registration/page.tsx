@@ -4,22 +4,28 @@ import { headers } from "next/headers";
 import { InputHTMLAttributes } from "react";
 import { getUrlForFlow, isQuerySet, frontend } from "../utils";
 import { filterNodesByGroups } from "@ory/integrations/ui";
-import { AuthNode } from "../nodes";
+import { AuthNode, ErrorsList } from "../sharedComponents";
 
-export default async function LoginPage({
+export default async function RegistrationPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const { flow, aal = "", refresh = "", return_to = "" } = searchParams;
+  const { flow, return_to, after_verification_return_to, login_challenge } =
+    searchParams;
 
   const initFlowQuery = new URLSearchParams({
-    aal: aal.toString(),
-    refresh: refresh.toString(),
-    return_to: return_to.toString(),
+    ...(return_to && { return_to: return_to.toString() }),
+    ...(after_verification_return_to && {
+      after_verification_return_to: after_verification_return_to.toString(),
+    }),
   });
 
-  const initFlowUrl = getUrlForFlow("login", initFlowQuery);
+  if (isQuerySet(login_challenge)) {
+    initFlowQuery.append("login_challenge", login_challenge);
+  }
+
+  const initFlowUrl = getUrlForFlow("registration", initFlowQuery);
 
   // The flow is used to identify the settings and registration flow and
   // return data like the csrf_token and so on.
@@ -27,40 +33,36 @@ export default async function LoginPage({
     redirect(initFlowUrl);
   }
 
-  const { data: loginFlow } = await frontend.getLoginFlow({
+  const { data: loginFlow } = await frontend.getRegistrationFlow({
     id: flow,
     cookie: headers().get("cookie") || undefined,
   });
 
-  // We need to redirect users to the verification page if not verified.
-  if (loginFlow.ui.messages && loginFlow.ui.messages.length > 0) {
-    if (loginFlow.ui.messages.some(({ id }) => id === 4000010)) {
-      const { data: verificationFlow } =
-        await frontend.createBrowserVerificationFlow({
-          returnTo:
-            (return_to && return_to.toString()) || loginFlow.return_to || "",
-        });
-
-      const verificationParameters = new URLSearchParams({
-        flow: verificationFlow.id,
-        message: JSON.stringify(loginFlow.ui.messages),
-      });
-      redirect(`/verification?${verificationParameters.toString()}`);
-    }
+  const initLoginQuery = new URLSearchParams({
+    ...((return_to?.toString() || loginFlow.return_to) && {
+      return_to: return_to?.toString() || loginFlow.return_to,
+    }),
+  });
+  if (loginFlow.oauth2_login_request?.challenge) {
+    initLoginQuery.set(
+      "login_challenge",
+      loginFlow.oauth2_login_request.challenge
+    );
   }
-
-  console.log(loginFlow.ui.messages);
 
   return (
     <>
       <div>
         <h2 className="text-2xl font-bold leading-9 tracking-tight text-on-surface">
-          Sign in
+          Create an account
         </h2>
         <p className="mt-2 text-sm leading-6 text-on-surface">
-          Not a member? <Link href="#">Sign up for an account</Link>
+          Already a member?{" "}
+          <Link href={`/login?${initLoginQuery.toString()}`}>Login</Link>
         </p>
       </div>
+
+      <ErrorsList className="mt-4" messages={loginFlow.ui.messages} />
 
       <form
         className="mt-10"
