@@ -78,46 +78,29 @@ BEFORE UPDATE ON snapshot
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
--- Create user table
-CREATE TABLE users (
+CREATE TYPE PROJECT_SOURCE AS ENUM ('github', 'gitlab', 'bitbucket', 'manual');
+
+
+-- Create project table
+CREATE TABLE project (
     id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    -- User information
-    email VARCHAR(255) NOT NULL UNIQUE,
-    name VARCHAR(255),
-    avatar_url TEXT
+    -- Project information
+    name VARCHAR(255) NOT NULL,
+    source PROJECT_SOURCE NOT NULL,
+    source_id VARCHAR(255),
 );
 
 -- Automatically set updated_at timestamp
 CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON users
+BEFORE UPDATE ON project
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE TYPE ACCOUNT_PROVIDER AS ENUM ('github', 'gitlab', 'bitbucket');
-
--- Create Account table
-CREATE TABLE account (
-    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    -- Account information
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    provider ACCOUNT_PROVIDER NOT NULL,
-    provider_account_id VARCHAR(255) NOT NULL,
-    type VARCHAR(255) NOT NULL,
-    access_token TEXT NOT NULL,
-    refresh_token TEXT,
-    access_token_expires DATETIME NOT NULL,
-
-    UNIQUE (user_id, provider, provider_account_id)
+-- Create user_project table
+CREATE TABLE project_users (
+    user_id UUID NOT NULL,
+    project_id UUID NOT NULL REFERENCES project(id) ON DELETE CASCADE
 );
-
--- Automatically set updated_at timestamp
-CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON account
-FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();

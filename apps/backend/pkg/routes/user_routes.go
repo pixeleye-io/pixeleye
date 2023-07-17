@@ -7,7 +7,7 @@ import (
 )
 
 // These routes are protected by an api key. They're used by the pixeleye cli to upload builds.
-func ProjectRoutes(e *echo.Echo) {
+func UserRoutes(e *echo.Echo) {
 
 	oryMiddleware := middleware.NewOryMiddleware()
 

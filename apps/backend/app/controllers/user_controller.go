@@ -1,20 +1,40 @@
 package controllers
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/pixeleye-io/pixeleye/platform/session"
+	"net/http"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/middleware"
+
+	"github.com/mitchellh/mapstructure"
 )
 
-func GetCurrentUser(c *fiber.Ctx) error {
+func GetAuthenticatedUser(c echo.Context) error {
 
 	// Get user from session.
-	user, err := session.GetUser(c)
+	session := middleware.GetSession(c)
+
+	user := models.User{}
+
+	err := mapstructure.Decode(session.Identity.GetTraits(), &user)
 
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "session not found",
-		})
+		return err
 	}
 
-	return c.JSON(user)
+	userID, err := uuid.Parse(session.Identity.GetId())
+
+	if err != nil {
+		return err
+	}
+
+	user.ID = userID
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, user)
 }
