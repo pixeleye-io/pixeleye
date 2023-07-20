@@ -23,8 +23,12 @@ const (
 // Build struct for build model.
 type Build struct {
 	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	CreatedAt time.Time `db:"created_at" json:"createAt"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+
+	ProjectID uuid.UUID `db:"project_id" json:"projectID" validate:"required,uuid"`
+
+	BuildNumber int `db:"build_number" json:"buildNumber" validate:"required"`
 
 	Sha     string `db:"sha" json:"sha" validate:"required"`
 	Branch  string `db:"branch" json:"branch" validate:"required"`

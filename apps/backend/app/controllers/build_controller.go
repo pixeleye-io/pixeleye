@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -29,6 +30,8 @@ func CreateBuild(c echo.Context) error {
 
 	build := models.Build{}
 
+	project := middleware.GetProject(c)
+
 	if err := c.Bind(&build); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -41,6 +44,8 @@ func CreateBuild(c echo.Context) error {
 	validate := utils.NewValidator()
 
 	build.ID = uuid.New()
+
+	build.ProjectID = project.ID
 
 	build.Status = models.BUILD_STATUS_UPLOADING
 
@@ -66,6 +71,8 @@ func CreateBuild(c echo.Context) error {
 // @Success 200 {object} models.Build
 // @Router /v1/builds/{id} [get]
 func GetBuild(c echo.Context) error {
+
+	// projectID := middleware.GetProjectID(c)
 
 	// Get build ID from URL.
 	id, err := uuid.Parse(c.Param("id"))

@@ -19,8 +19,8 @@ const (
 
 type Snapshot struct {
 	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	CreatedAt time.Time `db:"created_at" json:"createAt"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 
 	BuildID uuid.UUID `db:"build_id" json:"build_id" validate:"required"`
 	Name    string    `db:"name" json:"name" validate:"required"`

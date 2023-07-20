@@ -19,6 +19,12 @@ func NewValidator() *validator.Validate {
 		return false
 	})
 
+	// Custom validation for git_source
+	_ = validate.RegisterValidation("git_source", func(fl validator.FieldLevel) bool {
+		field := fl.Field().String()
+		return (field == "github" || field == "gitlab" || field == "bitbucket" || field == "custom")
+	})
+
 	return validate
 }
 

@@ -1,5 +1,5 @@
 {
-  "name": "@pixeleye/auth",
+  "name": "@pixeleye/cli",
   "version": "0.0.0",
   "private": true,
   "main": "./src/index.ts",
@@ -10,7 +10,12 @@
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
-    "@pixeleye/tsconfig": "workspace:*"
+    "@pixeleye/tsconfig": "workspace:*",
+    "@types/node": "20.3.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "env-ci": "^9.1.1",
+    "execa": "^7.1.1",
+    "@pixeleye/api": "workspace:*"
+  }
 }

@@ -9,13 +9,15 @@ import (
 // These routes are protected by an api key. They're used by the pixeleye cli to upload builds.
 func ProjectRoutes(e *echo.Echo) {
 
-	oryMiddleware := middleware.NewOryMiddleware()
+	authMiddleware := middleware.NewOryMiddleware()
 
 	// Create routes group.
 	v1 := e.Group("/v1")
 
-	v1.Use(oryMiddleware.Session)
+	v1.Use(authMiddleware.Session)
 
-	v1.GET("/user/me", controllers.GetAuthenticatedUser)
+	v1.POST("/projects", controllers.CreateProject)
+
+	v1.GET("/projects/:id", controllers.GetProject)
 
 }

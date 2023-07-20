@@ -1,5 +1,9 @@
 {
   "extends": "@pixeleye/tsconfig/react.json",
   "include": ["."],
+  "compilerOptions": {
+    "declaration": false,
+
+  },
   "exclude": ["dist", "build", "node_modules"]
 }

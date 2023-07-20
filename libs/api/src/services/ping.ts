@@ -1,15 +1,14 @@
-import { Method } from '../types/method';
+import { Method, Routes } from "api-typify";
 
 type GET = Method<{
-  '/ping': {
+  "/ping": {
     res: {
-        message: 'pong';
+      message: "pong";
     };
     req: undefined;
   };
 }>;
 
-
-export interface PingAPI {
+export interface PingAPI extends Routes {
   get: GET;
 }

@@ -1,7 +1,6 @@
-import { Button, Input, Link, LogoWatching } from "@pixeleye/ui";
+import { Link } from "@pixeleye/ui";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { InputHTMLAttributes, useMemo } from "react";
 import { getUrlForFlow, isQuerySet, frontend } from "../utils";
 import { filterNodesByGroups } from "@ory/integrations/ui";
 import { AuthNode, ErrorsList } from "../sharedComponents";

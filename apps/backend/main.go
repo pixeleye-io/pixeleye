@@ -24,6 +24,11 @@ func main() {
 
 	e := echo.New()
 
+	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
+		AllowOrigins:     []string{"http://localhost:5000", "http://localhost:4000", "http://localhost:3000"},
+		AllowCredentials: true,
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}}))
+
 	// Global middleware
 	e.Use(echoMiddleware.Logger())
 
@@ -31,6 +36,7 @@ func main() {
 	routes.HealthRoutes(e)
 	routes.BuildRoutes(e)
 	routes.UserRoutes(e)
+	routes.ProjectRoutes(e)
 
 	// Start server (with or without graceful shutdown).
 	if os.Getenv("STAGE_STATUS") == "dev" {

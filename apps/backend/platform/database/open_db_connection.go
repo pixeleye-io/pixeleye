@@ -7,8 +7,9 @@ import (
 
 // Queries struct for collect all app queries.
 type Queries struct {
-	*queries.BuildQueries    // load queries from Build model
-	*queries.SnapshotQueries // load queries from Snapshot model
+	*queries.BuildQueries
+	*queries.SnapshotQueries
+	*queries.ProjectQueries
 }
 
 // OpenDBConnection func for opening database connection.
@@ -28,7 +29,8 @@ func OpenDBConnection() (*Queries, error) {
 
 	return &Queries{
 		// Set queries from models:
-		BuildQueries:    &queries.BuildQueries{DB: db},    // from Build model
-		SnapshotQueries: &queries.SnapshotQueries{DB: db}, // from Snapshot model
+		BuildQueries:    &queries.BuildQueries{DB: db},
+		SnapshotQueries: &queries.SnapshotQueries{DB: db},
+		ProjectQueries:  &queries.ProjectQueries{DB: db},
 	}, nil
 }

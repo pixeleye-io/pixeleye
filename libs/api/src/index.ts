@@ -1,10 +1,22 @@
-import { fetchWrapper } from "./types/fetch";
+import { getAPI } from "api-typify";
 import { Services } from "./services";
 
-const wrapper = fetchWrapper("http://localhost:3000/api/v1");
+export const API = getAPI<
+  Services,
+  {
+    headers?: HeadersInit;
+  }
+>("http://localhost:5000/v1", (url, options) =>
+  fetch(url, {
+    ...options,
 
-export const API = {
-  get: wrapper<Services["get"]>("GET"),
-};
+    headers: {
+      ...options?.headers,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  })
+);
 
 export default API;

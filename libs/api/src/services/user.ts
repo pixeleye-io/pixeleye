@@ -1,14 +1,13 @@
-import { User } from '../models/user';
-import { Method } from '../types/method';
+import { Method, Routes } from "api-typify";
+import { User } from "../models/user";
 
 type GET = Method<{
-  '/user': {
+  "/user": {
     res: User;
     req: undefined;
   };
 }>;
 
-
-export interface UserAPI {
+export interface UserAPI extends Routes {
   get: GET;
 }
