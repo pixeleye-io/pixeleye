@@ -11,9 +11,9 @@ export const API = getAPI<
     ...options,
 
     headers: {
-      ...options?.headers,
       Accept: "application/json",
       "Content-Type": "application/json",
+      ...options?.headers,
     },
     credentials: "include",
   })

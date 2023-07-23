@@ -20,4 +20,5 @@ func BuildRoutes(e *echo.Echo) {
 	v1.POST("/builds/:id/complete", controllers.UploadComplete)
 
 	v1.GET("/builds/:id", controllers.GetBuild)
+	v1.GET("/builds", controllers.SearchBuilds)
 }

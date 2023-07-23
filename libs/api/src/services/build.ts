@@ -8,10 +8,11 @@ type GET = Method<{
   };
   "/builds": {
     res: Build[];
-    req: undefined;
+    req?: {
+      shas: string[];
+    };
     queries?: {
-      project_id: string;
-      branch: string;
+      branch?: string;
     };
   };
 }>;
@@ -19,7 +20,7 @@ type GET = Method<{
 type POST = Method<{
   "/builds/create": {
     res: undefined;
-    req: Build;
+    req: Omit<Build, "createdAt" | "updatedAt" | "id" | "status" | "errors" | "projectID" | "buildNumber">;
   };
   "/builds/{id}/upload": {
     res: undefined;

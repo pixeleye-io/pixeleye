@@ -30,6 +30,8 @@ type Build struct {
 
 	BuildNumber int `db:"build_number" json:"buildNumber" validate:"required"`
 
+	ParentBuildID uuid.UUID `db:"parent_build_id" json:"parentBuildID" validate:"required,uuid"`
+
 	Sha     string `db:"sha" json:"sha" validate:"required"`
 	Branch  string `db:"branch" json:"branch" validate:"required"`
 	Author  string `db:"author" json:"author"`

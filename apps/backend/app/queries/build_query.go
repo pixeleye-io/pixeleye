@@ -14,6 +14,28 @@ type BuildQueries struct {
 	*sqlx.DB
 }
 
+// This assumes that the user hasn't renamed their branches
+// You should always check that the builds commit sha is in the history of head
+func (q *BuildQueries) GetBuildFromBranch(projectID uuid.UUID, branch string) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`
+
+	err := q.Get(&build, query, projectID, branch)
+
+	return build, err
+}
+
+func (q *BuildQueries) GetBuildFromCommits(projectID uuid.UUID, shas []string) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT * FROM build WHERE project_id = $1 AND sha = ANY($2) ORDER BY build_number DESC LIMIT 1`
+
+	err := q.Get(&build, query, projectID, shas)
+
+	return build, err
+}
+
 func (q *BuildQueries) GetBuild(id uuid.UUID) (models.Build, error) {
 	build := models.Build{}
 

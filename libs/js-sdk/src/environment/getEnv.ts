@@ -5,11 +5,15 @@ export interface Context {
 }
 
 export interface Environment {
-  name: string;
-  commit: string;
-  branch: string;
-  isCI: boolean;
-  isPR: boolean;
+  name?: string;
+  commit?: string;
+  branch?: string;
+  isCI?: boolean;
+  isPR?: boolean;
+  sha?: string;
+  author?: string;
+  message?: string;
+  title?: string;
 }
 
 export interface Service {
@@ -17,7 +21,7 @@ export interface Service {
   getEnvironment: (ctx: Context) => Environment;
 }
 
-export function getEnvironment(ctx: Context) {
+export function getEnvironment(ctx: Context): Environment {
   // TODO Add my own handlers for common services
   const { name, commit, isPr, branch, isCi } = envCi(ctx);
 
@@ -29,5 +33,6 @@ export function getEnvironment(ctx: Context) {
     branch,
     isCI: isCi,
     isPR: isPr,
+    sha: commit,
   };
 }

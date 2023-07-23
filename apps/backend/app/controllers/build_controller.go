@@ -93,6 +93,56 @@ func GetBuild(c echo.Context) error {
 	return c.JSON(http.StatusOK, build)
 }
 
+// Search Builds method for searching builds.
+// @Description Search builds.
+// @Summary search builds
+// @Tags Build
+// @Accept json
+// @Produce json
+// @Param branch query string false "Branch name"
+// @Accept json
+// @Produce json
+// @Param shas body []string false "Commit SHAs
+// @Success 200 {object} []models.Build
+// @Router /v1/builds [get]
+func SearchBuilds(c echo.Context) error {
+	project := middleware.GetProject(c)
+
+	builds := []models.Build{}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	branch := c.QueryParam("branch")
+
+	if branch != "" {
+		build, err := db.GetBuildFromBranch(project.ID, branch)
+		if err == nil {
+			builds = append(builds, build)
+		}
+	}
+
+	shas := []string{}
+
+	if err := c.Bind(&shas); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if len(shas) > 100 {
+		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
+	}
+
+	if len(shas) > 0 {
+		build, _ := db.GetBuildFromCommits(project.ID, shas)
+		builds = append(builds, build)
+	}
+
+	return c.JSON(http.StatusOK, builds)
+}
+
 // Upload partial method for creating a new build.
 // @Description Upload snapshots for a build. These snapshots, once uploaded, will immediately be queued for processing.
 // @Summary Upload snapshots for a build.
