@@ -1,10 +1,15 @@
 import { getAPI } from "api-typify";
 import { Services } from "./services";
+export * from "./models";
 
 export const API = getAPI<
   Services,
   {
     headers?: HeadersInit;
+    next?: {
+      revalidate?: number | false;
+      tags?: string[];
+    };
   }
 >("http://localhost:5000/v1", (url, options) =>
   fetch(url, {
@@ -16,7 +21,7 @@ export const API = getAPI<
       ...options?.headers,
     },
     credentials: "include",
-  })
+  }).then((res) => res.json())
 );
 
 export default API;

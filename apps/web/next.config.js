@@ -8,6 +8,9 @@ const nextConfig = {
     },
   ],
   output: process.env.PX_HOST === "docker" ? "standalone" : undefined,
+  images: {
+    domains: ["avatars.githubusercontent.com"],
+  },
 };
 
 module.exports = nextConfig;

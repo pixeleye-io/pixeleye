@@ -11,11 +11,11 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.3.1"
+    "@types/node": "20.4.4"
   },
   "dependencies": {
+    "@pixeleye/api": "workspace:*",
     "env-ci": "^9.1.1",
-    "execa": "^7.1.1",
-    "@pixeleye/api": "workspace:*"
+    "execa": "^7.1.1"
   }
 }

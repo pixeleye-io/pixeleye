@@ -1,9 +1,7 @@
 import { CreateIdentityBody, IdentityApi } from "@ory/client";
 
 function CreateIdentity() {
-  const identityApi = new IdentityApi({
-    
-  });
+  const identityApi = new IdentityApi();
   const createIdentityBody: CreateIdentityBody = {
     schema_id: "default",
     traits: {

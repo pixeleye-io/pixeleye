@@ -9,6 +9,8 @@ export const ProjectZod = z.object({
   sourceID: z.string().optional(),
   source: z.enum(["github", "gitlab", "bitbucket", "custom"]),
   token: z.string(),
+
+  lastActivity: z.string().datetime().optional(),
 });
 
 export type Project = z.infer<typeof ProjectZod>;

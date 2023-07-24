@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@octokit/app": "^13.1.8",
+    "@octokit/app": "^14.0.0",
     "@octokit/auth-app": "^6.0.0",
     "@t3-oss/env-core": "^0.6.0",
     "@t3-oss/env-nextjs": "^0.6.0",
@@ -12,7 +12,7 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.3.1"
+    "@types/node": "20.4.4"
   },
   "main": "./index.ts",
   "scripts": {

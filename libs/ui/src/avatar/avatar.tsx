@@ -37,6 +37,7 @@ const AvatarImage = React.forwardRef<
       className={cx("aspect-square h-full w-full", className)}
       src={props.src as string}
       alt={props.alt as string}
+      layout="fill"
     />
   </AvatarPrimitive.Image>
 ));
@@ -47,9 +48,10 @@ const AvatarFallback = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Fallback
+
     ref={ref}
     className={cx(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      "flex h-full w-full items-center justify-center rounded-full bg-surface-container text-on-surface-container uppercase",
       className
     )}
     {...props}

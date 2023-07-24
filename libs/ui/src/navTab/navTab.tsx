@@ -1,47 +1,19 @@
 import { cx } from "class-variance-authority";
 import { Slottable } from "../types";
-import { Slot } from "@radix-ui/react-slot";
+import NavLink from "./navLink";
 
-interface NavLinkBaseProps {
+export interface TabProps {
   active?: boolean;
-}
-
-export type NavLinkProps = Slottable<"a", NavLinkBaseProps>;
-
-function NavLink({ asChild, className, active, ...rest }: NavLinkProps) {
-  const Component = asChild ? Slot : "a";
-
-  return (
-    <Component
-      className={cx(
-        "font-medium",
-        active
-          ? "text-on-surface"
-          : "text-on-surface-variant hover:text-on-surface",
-        className
-      )}
-      {...rest}
-    />
-  );
-}
-
-interface TabProps {
-  active?: boolean;
+  layoutId: string;
 }
 
 export type NavTabProps = Slottable<"a", TabProps>;
 
-function NavTab({
-  asChild,
-  className,
-  children,
-  active,
-  ...rest
-}: NavTabProps) {
+function NavTab({ asChild, className, active, ...rest }: NavTabProps) {
   return (
     <li
       className={cx(
-        "z-0 flex items-center justify-center hover:bg-on-surface/10 rounded my-2",
+        "z-0 flex items-center justify-center hover:bg-on-surface/10 rounded my-2 relative",
         className
       )}
     >
@@ -50,14 +22,12 @@ function NavTab({
         active={active}
         className="px-4 py-1"
         {...rest}
-      >
-        {children}
-      </NavLink>
+      />
     </li>
   );
 }
 
-interface TabsProps {}
+export interface TabsProps {}
 
 export type NavTabsProps = Slottable<"ol", TabsProps>;
 

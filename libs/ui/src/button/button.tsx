@@ -4,55 +4,43 @@ import { cva, cx, type VariantProps } from "class-variance-authority";
 import Spinner from "../spinner/spinner";
 import { Slottable } from "../types";
 
-const buttonVariants = cva("transition font-semibold flex items-center justify-center", {
-  variants: {
-    intent: {
-      primary: [
-        "border",
-        "bg-primary text-on-primary border-primary hover:text-primary active:bg-primary/5 hover:bg-transparent",
-      ],
-      secondary: [
-        "border bg-gray-white dark:bg-gray-900",
-        "text-gray-600 border-gray-600 hover:text-black hover:border-black active:bg-black/10",
-        "dark:text-gray-300 border-gray-500 dark:hover:text-white dark:hover:border-white active:bg-white/10",
-      ],
-      danger:
-        "border text-white bg-red-500 border-red-500 hover:bg-transparent hover:text-red-500 active:bg-red-500/10 ",
-      warning:
-        "border text-white bg-amber-500 border-amber-500 hover:bg-transparent hover:text-amber-500 active:bg-amber-500/10",
-      success:
-        "border text-white bg-emerald-500 border-emerald-500 hover:bg-transparent hover:text-emerald-500 active:bg-emerald-500/10 dark:bg-emerald-600 dark:border-emerald-600 dark:hover:bg-transparent dark:hover:text-emerald-600 dark:active:bg-emerald-600/10",
+const buttonVariants = cva(
+  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-on-primary hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+      full: {
+        true: "w-full",
+      },
     },
-    shape: {
-      rectangle: "rounded-lg active:rounded-xl",
-      square: "rounded-lg aspect-square",
-      circle: "rounded-full",
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+      full: false,
     },
-    size: {
-      small: ["text-sm", "py-1", "px-2"],
-      medium: ["text-base", "py-2", "px-4"],
-    },
-    full: {
-      true: "w-full",
-      false: "",
-    },
-  },
-  defaultVariants: {
-    intent: "primary",
-    size: "medium",
-    shape: "rectangle",
-    full: false,
-  },
-});
+  }
+);
 
-export type ButtonVariants = VariantProps<typeof buttonVariants>;
-
-interface Props {
-  variant?: ButtonVariants["intent"];
-  size?: ButtonVariants["size"];
-  full?: ButtonVariants["full"];
-  shape?: ButtonVariants["shape"];
+export interface Props extends VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
   loading?: boolean;
+  full?: boolean;
 }
 
 export type ButtonProps = Slottable<"button", Props>;
@@ -63,7 +51,6 @@ const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
       asChild,
       variant,
       size,
-      shape,
       className,
       disabled,
       loading,
@@ -74,10 +61,7 @@ const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
     ref
   ) {
     const Component = asChild ? Slot : "button";
-    const classes = cx(
-      buttonVariants({ intent: variant, size, shape, full }),
-      className
-    );
+    const classes = cx(buttonVariants({ variant, size, full }), className);
     return (
       <Component
         disabled={disabled || loading}

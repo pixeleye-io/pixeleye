@@ -58,6 +58,13 @@ func CreateBuild(c echo.Context) error {
 		return err
 	}
 
+	// We have triggers in postgres so we need to refetch the build
+	build, err = db.GetBuild(build.ID)
+
+	if err != nil {
+		return err
+	}
+
 	return c.JSON(http.StatusCreated, build)
 }
 

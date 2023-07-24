@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -60,8 +59,6 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 	sessionToken := r.Header.Get("X-Session-Token")
 
-	fmt.Println(sessionToken)
-
 	if sessionToken != "" {
 		resp, _, err := k.ory.FrontendApi.ToSession(context.Background()).XSessionToken(sessionToken).Execute()
 		if err != nil {
@@ -71,7 +68,6 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 	}
 
 	cookies := r.Header.Get("Cookie")
-	fmt.Println(cookies)
 
 	resp, _, err := k.ory.FrontendApi.ToSession(context.Background()).Cookie(cookies).Execute()
 	if err != nil {

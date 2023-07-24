@@ -6,6 +6,9 @@ type GET = Method<{
     res: Project;
     req: undefined;
   };
+  "/projects": {
+    res: Project[];
+  };
 }>;
 
 type POST = Method<{

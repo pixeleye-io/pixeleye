@@ -28,9 +28,9 @@ type Build struct {
 
 	ProjectID uuid.UUID `db:"project_id" json:"projectID" validate:"required,uuid"`
 
-	BuildNumber int `db:"build_number" json:"buildNumber" validate:"required"`
+	BuildNumber int `db:"build_number" json:"buildNumber"`
 
-	ParentBuildID uuid.UUID `db:"parent_build_id" json:"parentBuildID" validate:"required,uuid"`
+	ParentBuildID uuid.UUID `db:"parent_build_id" json:"parentBuildID" validate:"uuid"`
 
 	Sha     string `db:"sha" json:"sha" validate:"required"`
 	Branch  string `db:"branch" json:"branch" validate:"required"`

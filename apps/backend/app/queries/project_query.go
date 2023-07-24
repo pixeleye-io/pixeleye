@@ -23,6 +23,16 @@ func hashSecret(secret string) (string, error) {
 	return string(hashedSecret), err
 }
 
+func (q *ProjectQueries) GetLatestBuild(projectID uuid.UUID) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT * FROM build WHERE project_id = $1 ORDER BY created_at DESC LIMIT 1`
+
+	err := q.Get(&build, query, projectID)
+
+	return build, err
+}
+
 func (q *ProjectQueries) GetUsersProjects(userID uuid.UUID) ([]models.Project, error) {
 	query := `SELECT project.* FROM project JOIN project_users ON project.id = project_users.project_id WHERE project_users.user_id = $1`
 
@@ -41,6 +51,17 @@ func (q *ProjectQueries) GetProject(id uuid.UUID) (models.Project, error) {
 	err := q.Get(&project, query, id)
 
 	return project, err
+}
+
+// TODO - remove this query once we have the concept of teams
+func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
+	query := `SELECT project.*, build.updated_at AS latest_activity FROM project LEFT JOIN build ON project.id = build.project_id AND build.build_number = (SELECT MAX(build_number) FROM build WHERE build.project_id = project.id)`
+
+	projects := []models.Project{}
+
+	err := q.Select(&projects, query)
+
+	return projects, err
 }
 
 func (q *ProjectQueries) CreateProject(project *models.Project) error {

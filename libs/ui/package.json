@@ -11,15 +11,16 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/react": "18.2.13"
+    "@types/react": "18.2.15"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
-    "class-variance-authority": "^0.6.1",
-    "framer-motion": "^10.13.0",
-    "next": "13.4.9",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "class-variance-authority": "^0.7.0",
+    "framer-motion": "^10.13.1",
+    "next": "13.4.12",
     "react": "18.2.0"
   }
 }

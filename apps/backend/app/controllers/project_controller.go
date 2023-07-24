@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -39,7 +40,13 @@ func CreateProject(c echo.Context) error {
 
 	validate := utils.NewValidator()
 
-	project.ID = uuid.New()
+	id, err := nanoid.New()
+
+	if err != nil {
+		return err
+	}
+
+	project.ID = id
 
 	token, err := generateToken()
 
@@ -63,6 +70,8 @@ func CreateProject(c echo.Context) error {
 	if err := db.CreateProject(&project); err != nil {
 		return err
 	}
+
+	project.RawToken = token
 
 	return c.JSON(http.StatusCreated, project)
 }
@@ -93,4 +102,22 @@ func GetProject(c echo.Context) error {
 	project.Token = ""
 
 	return c.JSON(http.StatusOK, project)
+}
+
+func GetTeamsProjects(c echo.Context) error {
+	// TODO - once we have the concept of teams, ensure we actually scope the projects to the team.
+	// TODO - add pagination.
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	projects, err := db.GetProjects()
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, projects)
 }
