@@ -50,6 +50,8 @@ export default async function RegistrationPage({
     );
   }
 
+  console.log(loginFlow.ui.messages)
+
   return (
     <>
       <div>

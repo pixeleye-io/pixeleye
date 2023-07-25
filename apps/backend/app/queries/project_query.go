@@ -70,3 +70,11 @@ func (q *ProjectQueries) CreateProject(project *models.Project) error {
 
 	return err
 }
+
+func (q *ProjectQueries) UpdateProject(project *models.Project) error {
+	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token WHERE id = :id`
+
+	_, err := q.NamedExec(query, project)
+
+	return err
+}

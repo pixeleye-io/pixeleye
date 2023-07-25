@@ -2,8 +2,12 @@
 
 import API from "@pixeleye/api";
 import { Button } from "@pixeleye/ui";
+import { useKeyStore } from "@/stores/apiKeyStore";
+import { useRouter } from "next/navigation";
 
 export default function AddProjectPage() {
+  const { setKey } = useKeyStore();
+  const router = useRouter();
   return (
     <div>
       <h1>Add Project</h1>
@@ -15,6 +19,9 @@ export default function AddProjectPage() {
               source: "github" as any,
               sourceID: "32960904",
             },
+          }).then((project) => {
+            setKey(project.id, project.token);
+            router.push(`/projects/${project.id}`);
           });
         }}
       >

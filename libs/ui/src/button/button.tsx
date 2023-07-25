@@ -15,7 +15,7 @@ export const buttonVariants = cva(
         outline:
           "border border-outline-variant bg-surface hover:bg-surface-container-low hover:text-primary",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-surface-container-high text-on-surface hover:bg-surface-container-highest",
         ghost: "hover:bg-surface-container hover:text-on-surface",
         link: "text-primary underline-offset-4 hover:underline",
       },

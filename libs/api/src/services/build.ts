@@ -32,7 +32,7 @@ type POST = Method<{
   };
 }>;
 
-export interface BuildAPI extends Routes {
+export interface BuildAPI {
   GET: GET;
   POST: POST;
 }

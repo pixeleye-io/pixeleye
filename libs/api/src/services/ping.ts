@@ -9,6 +9,6 @@ type GET = Method<{
   };
 }>;
 
-export interface PingAPI extends Routes {
+export interface PingAPI {
   get: GET;
 }

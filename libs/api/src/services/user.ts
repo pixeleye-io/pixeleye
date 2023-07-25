@@ -8,6 +8,6 @@ type GET = Method<{
   };
 }>;
 
-export interface UserAPI extends Routes {
+export interface UserAPI {
   GET: GET;
 }

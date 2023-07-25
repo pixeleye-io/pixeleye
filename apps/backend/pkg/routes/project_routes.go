@@ -17,6 +17,8 @@ func ProjectRoutes(e *echo.Echo) {
 	v1.Use(authMiddleware.Session)
 
 	v1.POST("/projects", controllers.CreateProject)
+	v1.POST("/projects/:id/new-token", controllers.RegenerateToken)
+
 
 	v1.GET("/projects/:id", controllers.GetProject)
 	v1.GET("/projects", controllers.GetTeamsProjects)

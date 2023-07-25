@@ -16,9 +16,13 @@ type POST = Method<{
     res: Project;
     req: Omit<Project, "id" | "createdAt" | "updatedAt" | "token">;
   };
+  "/projects/{id}/new-token": {
+    res: Project;
+    req: undefined;
+  };
 }>;
 
-export interface ProjectAPI extends Routes {
+export interface ProjectAPI {
   GET: GET;
   POST: POST;
 }

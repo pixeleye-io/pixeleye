@@ -13,7 +13,7 @@ import (
 )
 
 func generateToken() (string, error) {
-	return utils.GenerateRandomStringURLSafe(32)
+	return utils.GenerateRandomStringURLSafe(24)
 }
 
 func hashToken(token string) (string, error) {
@@ -119,4 +119,46 @@ func GetTeamsProjects(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, projects)
+}
+
+func RegenerateToken(c echo.Context) error {
+	id := c.Param("id")
+
+	if !utils.ValidateNanoid(id) {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	project, err := db.GetProject(id)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "project with given ID not found")
+	}
+
+	token, err := generateToken()
+
+	if err != nil {
+		return err
+	}
+
+	hashedToken, err := hashToken(token)
+
+	if err != nil {
+		return err
+	}
+
+	project.Token = hashedToken
+
+	if err := db.UpdateProject(&project); err != nil {
+		return err
+	}
+
+	project.RawToken = token
+
+	return c.JSON(http.StatusOK, project)
 }
