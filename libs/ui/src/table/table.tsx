@@ -83,7 +83,7 @@ export const TableHead = forwardRef<
     <th
       ref={ref}
       className={cx(
-        "h-12 px-4 text-left align-middle font-medium text-on-surface-variant [&:has([role=checkbox])]:pr-0",
+        "h-12 px-4 text-left align-middle font-medium text-on-surface-variant ",
         className
       )}
       {...props}
@@ -99,7 +99,7 @@ export const TableCell = forwardRef<
     <td
       ref={ref}
       className={cx(
-        "p-4 align-middle [&:has([role=checkbox])]:pr-0",
+        "p-4 align-middle ",
         className
       )}
       {...props}

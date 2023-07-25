@@ -2,7 +2,21 @@
 
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cx } from "class-variance-authority";
-import { forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
+import {
+  forwardRef,
+  ElementRef,
+  ComponentPropsWithoutRef,
+  createContext,
+  useId,
+  useContext,
+  useState,
+} from "react";
+import { m } from "framer-motion";
+
+const TabsContext = createContext<{
+  layoutId?: string;
+  selected?: string;
+}>({});
 
 const Tabs = forwardRef<
   ElementRef<typeof TabsPrimitive.Root>,
@@ -15,20 +29,32 @@ const Tabs = forwardRef<
       ? localStorage.getItem(storageKey)
       : defaultValue;
 
+  const [selected, setSelected] = useState(defaultVal ?? defaultValue);
+
   const onChange = (val: string) => {
+    setSelected(val);
     if (storageKey) {
       localStorage.setItem(storageKey, val);
     }
     onValueChange?.(val);
   };
 
+  const layoutId = useId();
+
   return (
-    <TabsPrimitive.Root
-      onValueChange={onChange}
-      defaultValue={defaultVal ?? defaultValue}
-      ref={ref}
-      {...props}
-    />
+    <TabsContext.Provider
+      value={{
+        layoutId,
+        selected,
+      }}
+    >
+      <TabsPrimitive.Root
+        onValueChange={onChange}
+        value={selected}
+        ref={ref}
+        {...props}
+      />
+    </TabsContext.Provider>
   );
 });
 
@@ -50,16 +76,22 @@ TabsList.displayName = TabsPrimitive.List.displayName;
 const TabsTrigger = forwardRef<
   ElementRef<typeof TabsPrimitive.Trigger>,
   ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cx(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-surface transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-surface data-[state=active]:text-on-surface data-[state=active]:shadow-sm",
-      className
-    )}
-    {...props}
-  />
-));
+>(function TabsTrigger({ className, ...props }, ref) {
+  const { layoutId, selected } = useContext(TabsContext);
+  return (
+    <div className="relative z-0">
+      <TabsPrimitive.Trigger
+        ref={ref}
+        className={cx(
+          "inline-flex items-center z-10 justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-surface transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-on-surface",
+          className
+        )}
+        {...props}
+      />
+      {selected === props.value && <m.span layoutId={layoutId} className="bg-surface shadow-sm absolute -z-10 inset-0 rounded-sm" />}
+    </div>
+  );
+});
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
 const TabsContent = forwardRef<

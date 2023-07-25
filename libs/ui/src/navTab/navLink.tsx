@@ -39,7 +39,7 @@ export default function NavLink({
       {active && (
         <m.span
           layoutId={layoutId}
-          className="absolute inset-x-8 -bottom-[calc(0.5rem_+_1px)] h-px bg-primary"
+          className="absolute inset-x-6 -bottom-[calc(0.5rem_+_1px)] h-px bg-primary"
         />
       )}
     </>

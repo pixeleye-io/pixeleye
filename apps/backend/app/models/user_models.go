@@ -1,12 +1,10 @@
 package models
 
-import "github.com/google/uuid"
-
 type User struct {
-	ID     uuid.UUID `json:"id" validate:"required,uuid"`
-	Name   string    `json:"name"`
-	Email  string    `json:"email" validate:"email"`
-	Avatar string    `json:"avatar"`
+	ID     string `json:"id" validate:"required"`
+	Name   string `json:"name"`
+	Email  string `json:"email" validate:"email"`
+	Avatar string `json:"avatar"`
 }
 
 type UserTraits struct {

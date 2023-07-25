@@ -1,6 +1,3 @@
--- Add UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE OR REPLACE FUNCTION nanoid(
@@ -96,7 +93,7 @@ EXECUTE PROCEDURE trigger_set_timestamp();
 
 -- Create user_project table
 CREATE TABLE project_users (
-    user_id UUID NOT NULL,
+    user_id char(21) NOT NULL,
     project_id char(21) NOT NULL REFERENCES project(id) ON DELETE CASCADE,
     role PROJECT_ROLE NOT NULL
 );
@@ -105,7 +102,7 @@ CREATE TYPE BUILD_STATUS AS ENUM ('uploading', 'processing', 'failed', 'aborted'
 
 -- Create build table
 CREATE TABLE build (
-    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    id char(21) DEFAULT nanoid() PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
@@ -138,14 +135,14 @@ EXECUTE PROCEDURE trigger_set_timestamp();
 
 -- Create build_target table
 CREATE TABLE build_target (
-    build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
-    target_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE
+    build_id char(21) NOT NULL REFERENCES build(id) ON DELETE CASCADE,
+    target_id char(21) NOT NULL REFERENCES build(id) ON DELETE CASCADE
 );
 
 -- Create build_source table
 CREATE TABLE build_source (
-    build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
-    source_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE
+    build_id char(21) NOT NULL REFERENCES build(id) ON DELETE CASCADE,
+    source_id char(21) NOT NULL REFERENCES build(id) ON DELETE CASCADE
 );
 
 -- Create image table
@@ -167,12 +164,12 @@ CREATE TYPE SNAPSHOT_STATUS AS ENUM ('processing', 'failed', 'aborted', 'approve
 
 -- Create snapshot table
 CREATE TABLE snapshot (
-    id UUID DEFAULT uuid_generate_v4 () PRIMARY KEY,
+    id char(21) DEFAULT nanoid() PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- Snapshot information
-    build_id UUID NOT NULL REFERENCES build(id) ON DELETE CASCADE,
+    build_id char(21) NOT NULL REFERENCES build(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     variant VARCHAR(255) NOT NULL,
     target VARCHAR(255) NOT NULL,
@@ -180,10 +177,10 @@ CREATE TABLE snapshot (
 
     -- Comparison information
     status SNAPSHOT_STATUS NOT NULL DEFAULT 'processing',
-    baseline_snapshot_id UUID REFERENCES snapshot(id),
+    baseline_snapshot_id char(21) REFERENCES snapshot(id),
 
     -- Review information
-    reviewer_id UUID,
+    reviewer_id char(21),
     review_timestamp TIMESTAMPTZ,
 
     UNIQUE (build_id, name, variant, target)

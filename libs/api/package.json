@@ -13,7 +13,7 @@
     "@pixeleye/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "api-typify": "^0.2.2",
+    "api-typify": "^0.2.3",
     "zod": "^3.21.4"
   }
 }

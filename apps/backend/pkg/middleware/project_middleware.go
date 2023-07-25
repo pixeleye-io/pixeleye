@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -43,10 +43,10 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	projectId, err := uuid.Parse(values[0])
+	projectId := values[0]
 
-	if err != nil {
-		return nil, err
+	if !utils.ValidateNanoid(projectId) {
+		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
 	project, err := k.db.GetProject(projectId)

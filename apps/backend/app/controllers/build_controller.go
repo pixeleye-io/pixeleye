@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
@@ -43,7 +43,11 @@ func CreateBuild(c echo.Context) error {
 
 	validate := utils.NewValidator()
 
-	build.ID = uuid.New()
+	build.ID, err = nanoid.New()
+
+	if err != nil {
+		return err
+	}
 
 	build.ProjectID = project.ID
 
@@ -82,8 +86,9 @@ func GetBuild(c echo.Context) error {
 	// projectID := middleware.GetProjectID(c)
 
 	// Get build ID from URL.
-	id, err := uuid.Parse(c.Param("id"))
-	if err != nil {
+	id := c.Param("id")
+
+	if !utils.ValidateNanoid(id) {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
 
@@ -161,9 +166,9 @@ func SearchBuilds(c echo.Context) error {
 // @Router /v1/builds/{id}/upload [post]
 func UploadPartial(c echo.Context) error {
 
-	buildID, err := uuid.Parse(c.Param("id"))
+	buildID := c.Param("id")
 
-	if err != nil {
+	if !utils.ValidateNanoid(buildID) {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
 
@@ -213,9 +218,9 @@ func UploadPartial(c echo.Context) error {
 // @Router /v1/builds/{id}/complete [post]
 func UploadComplete(c echo.Context) error {
 
-	buildID, err := uuid.Parse(c.Param("id"))
+	buildID := c.Param("id")
 
-	if err != nil {
+	if !utils.ValidateNanoid(buildID) {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
 	}
 

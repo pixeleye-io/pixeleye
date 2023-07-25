@@ -5,6 +5,10 @@ import (
 	"github.com/google/uuid"
 )
 
+func ValidateNanoid(id string) bool {
+	return (len(id) == 21)
+}
+
 // NewValidator func for create a new validator for model fields.
 func NewValidator() *validator.Validate {
 	// Create a new validator for a Book model.
@@ -23,6 +27,12 @@ func NewValidator() *validator.Validate {
 	_ = validate.RegisterValidation("git_source", func(fl validator.FieldLevel) bool {
 		field := fl.Field().String()
 		return (field == "github" || field == "gitlab" || field == "bitbucket" || field == "custom")
+	})
+
+	// validator for nanoid
+	_ = validate.RegisterValidation("nanoid", func(fl validator.FieldLevel) bool {
+		field := fl.Field().String()
+		return ValidateNanoid(field)
 	})
 
 	return validate

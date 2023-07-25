@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -16,7 +15,7 @@ type BuildQueries struct {
 
 // This assumes that the user hasn't renamed their branches
 // You should always check that the builds commit sha is in the history of head
-func (q *BuildQueries) GetBuildFromBranch(projectID uuid.UUID, branch string) (models.Build, error) {
+func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (models.Build, error) {
 	build := models.Build{}
 
 	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`
@@ -26,7 +25,7 @@ func (q *BuildQueries) GetBuildFromBranch(projectID uuid.UUID, branch string) (m
 	return build, err
 }
 
-func (q *BuildQueries) GetBuildFromCommits(projectID uuid.UUID, shas []string) (models.Build, error) {
+func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (models.Build, error) {
 	build := models.Build{}
 
 	query := `SELECT * FROM build WHERE project_id = $1 AND sha = ANY($2) ORDER BY build_number DESC LIMIT 1`
@@ -36,7 +35,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID uuid.UUID, shas []string) (
 	return build, err
 }
 
-func (q *BuildQueries) GetBuild(id uuid.UUID) (models.Build, error) {
+func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 	build := models.Build{}
 
 	query := `SELECT * FROM build WHERE id = $1`
@@ -62,7 +61,7 @@ func (q *BuildQueries) UpdateBuild(build *models.Build) error {
 	return err
 }
 
-func (q *BuildQueries) CompleteBuild(id uuid.UUID) (models.Build, error) {
+func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`

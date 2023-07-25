@@ -42,10 +42,9 @@ module.exports = {
         surface: "rgba(var(--color-surface) / <alpha-value>)",
         "on-surface": "rgba(var(--color-on-surface) / <alpha-value>)",
         "surface-container-lowest":
-          "rgba(var(--color-surface-container-lowest / <alpha-value>)",
+          "rgba(var(--color-surface-container-lowest) / <alpha-value>)",
         "surface-container-low":
           "rgba(var(--color-surface-container-low) / <alpha-value>)",
-
         "surface-container":
           "rgba(var(--color-surface-container) / <alpha-value>)",
         "surface-container-high":
@@ -63,5 +62,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")]
 };

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -78,10 +77,10 @@ func CreateProject(c echo.Context) error {
 
 func GetProject(c echo.Context) error {
 
-	id, err := uuid.Parse(c.Param("id"))
+	id := c.Param("id")
 
-	if err != nil {
-		return err
+	if !utils.ValidateNanoid(id) {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
 	}
 
 	db, err := database.OpenDBConnection()

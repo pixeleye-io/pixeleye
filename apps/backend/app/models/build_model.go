@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
@@ -22,15 +21,15 @@ const (
 
 // Build struct for build model.
 type Build struct {
-	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
+	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
 	CreatedAt time.Time `db:"created_at" json:"createAt"`
 	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 
-	ProjectID uuid.UUID `db:"project_id" json:"projectID" validate:"required,uuid"`
+	ProjectID string `db:"project_id" json:"projectID" validate:"required,nanoid"`
 
 	BuildNumber int `db:"build_number" json:"buildNumber"`
 
-	ParentBuildID uuid.UUID `db:"parent_build_id" json:"parentBuildID" validate:"uuid"`
+	ParentBuildID string `db:"parent_build_id" json:"parentBuildID" validate:"nanoid"`
 
 	Sha     string `db:"sha" json:"sha" validate:"required"`
 	Branch  string `db:"branch" json:"branch" validate:"required"`

@@ -25,7 +25,7 @@ export function HomeHeader() {
           <NavTab layoutId={layoutId} asChild active={pathName === "/dashboard"}>
             <Link
               scroll={false}
-              href={"/" + ((teamId && `?team=${teamId}`) || "")}
+              href={"/dashboard" + ((teamId && `?team=${teamId}`) || "")}
             >
               Overview
             </Link>

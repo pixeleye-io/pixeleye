@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 const (
@@ -18,15 +16,15 @@ const (
 )
 
 type Snapshot struct {
-	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
+	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
 	CreatedAt time.Time `db:"created_at" json:"createAt"`
 	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 
-	BuildID uuid.UUID `db:"build_id" json:"build_id" validate:"required"`
-	Name    string    `db:"name" json:"name" validate:"required"`
-	Variant string    `db:"variant" json:"variant"`
-	Target  string    `db:"target" json:"target"`
-	URL     string    `db:"url" json:"url" validate:"required"`
+	BuildID string `db:"build_id" json:"build_id" validate:"required,nanoid"`
+	Name    string `db:"name" json:"name" validate:"required"`
+	Variant string `db:"variant" json:"variant"`
+	Target  string `db:"target" json:"target"`
+	URL     string `db:"url" json:"url" validate:"required"`
 
 	Status string `db:"status" json:"status"`
 }

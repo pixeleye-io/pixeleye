@@ -29,7 +29,7 @@ export const AuthNode = ({
             type={attrs.type as "submit" | "reset" | "button" | undefined}
             name={attrs.name}
             value={attrs.value}
-            variant={attrs.name === 'method' ? "secondary" : "default"}
+            variant={attrs.name === 'method' ? "default" : "outline"}
             full
           >
             {node.meta.label?.text}

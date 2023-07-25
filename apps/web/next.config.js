@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@pixeleye/ui", "@pixeleye/api"],
+  transpilePackages: ["@pixeleye/ui", "@pixeleye/api", "@pixeleye/tailwind"],
   rewrites: async () => [
     {
       source: "/api/:path*",
@@ -9,7 +9,7 @@ const nextConfig = {
   ],
   output: process.env.PX_HOST === "docker" ? "standalone" : undefined,
   images: {
-    domains: ["avatars.githubusercontent.com"],
+    domains: ["avatars.githubusercontent.com", "avatar.vercel.sh"],
   },
 };
 

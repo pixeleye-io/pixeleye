@@ -1,12 +1,34 @@
 "use client";
 
-import { Breadcrumbs, Logo, Status } from "@pixeleye/ui";
+import {
+  Breadcrumbs,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+  Logo,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+  Status,
+  TeamSwitcher,
+} from "@pixeleye/ui";
 
 import Link from "next/link";
 import { useSelectedLayoutSegments } from "next/navigation";
 import { Segment, useBreadcrumbStore } from "./breadcrumbStore";
 import Avatar from "@pixeleye/ui/src/avatar/avatar";
 import { User } from "@pixeleye/api";
+import { useTheme } from "next-themes";
 
 export interface NavbarProps {
   user: User;
@@ -15,6 +37,8 @@ export interface NavbarProps {
 export function Navbar({ user }: NavbarProps) {
   const segmentRepo = useBreadcrumbStore((state) => state.segmentRepo);
   const selectedSegments = useSelectedLayoutSegments();
+
+  const { theme, setTheme } = useTheme();
 
   const segments: Segment[] = [];
   selectedSegments.forEach((segment, i) => {
@@ -32,14 +56,30 @@ export function Navbar({ user }: NavbarProps) {
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
           <Link href="/dashboard" className="flex items-center">
-            <Logo className="h-7 w-7" />
+            <Logo className="h-7 w-7 text-on-surface hover:text-primary" />
           </Link>
         </Breadcrumbs.Item>
-        {/* <Breadcrumbs.Item asChild>
+        <Breadcrumbs.Item asChild>
           <div className="flex items-center">
-            <TeamToggle name="AlfieJones" teams={teams} />
+            <TeamSwitcher
+              personal={{
+                label: user.name || user.email,
+                id: user.id,
+                avatar: user.avatar,
+              }}
+              teams={[
+                {
+                  label: "Some org",
+                  id: "123",
+                },
+                {
+                  label: "Pixeleye",
+                  id: "342",
+                },
+              ]}
+            />
           </div>
-        </Breadcrumbs.Item> */}
+        </Breadcrumbs.Item>
         {segments.map((segment) => {
           return (
             <Breadcrumbs.Item key={segment.value} asChild>
@@ -54,13 +94,60 @@ export function Navbar({ user }: NavbarProps) {
           );
         })}
       </Breadcrumbs>
-      <Avatar>
-        <Avatar.Image alt="profile picture" src={user.avatar} />
-        <Avatar.Fallback>
-          {names[0].charAt(0)}
-          {names.length > 1 && names.at(-1)?.charAt(0)}
-        </Avatar.Fallback>
-      </Avatar>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar>
+              <Avatar.Image alt="profile picture" src={user.avatar} />
+              <Avatar.Fallback>
+                {names[0].charAt(0)}
+                {names.length > 1 && names.at(-1)?.charAt(0)}
+              </Avatar.Fallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none text-on-surface">
+                {user.name || user.email.split("@")[0]}
+              </p>
+              <p className="text-xs leading-none text-on-surface-variant">
+                {user.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Link href="/settings">Settings</Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href="/logout">Log out</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </nav>
   );
 }

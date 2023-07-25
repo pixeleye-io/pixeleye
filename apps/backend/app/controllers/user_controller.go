@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -24,11 +23,7 @@ func GetAuthenticatedUser(c echo.Context) error {
 		return err
 	}
 
-	userID, err := uuid.Parse(session.Identity.GetId())
-
-	if err != nil {
-		return err
-	}
+	userID := session.Identity.GetId()
 
 	user.ID = userID
 

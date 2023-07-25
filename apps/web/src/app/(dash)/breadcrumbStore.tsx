@@ -59,7 +59,7 @@ export const useBreadcrumbStore = create<BreadcrumbStore>((set) => ({
 }));
 
 interface RegisterSegmentProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   reference: string;
   order: number;
   segment?: Segment[] | false | Segment;

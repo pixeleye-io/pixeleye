@@ -9,7 +9,7 @@ export interface HeaderProps {
 function Header({ children, className }: HeaderProps) {
   return (
     <header
-      className={cx("sticky top-0 z-40 bg-white dark:bg-surface", className)}
+      className={cx("sticky top-0 z-40 bg-surface", className)}
     >
       {children}
       <Divider />

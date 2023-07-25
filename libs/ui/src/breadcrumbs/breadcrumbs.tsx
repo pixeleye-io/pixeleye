@@ -33,7 +33,7 @@ const Item: FC<ItemProps> = ({
     <li className={cx("flex items-center", className)}>
       {!hideLeadingSlash && (
         <svg
-          className="flex-shrink-0 w-6 h-6 text-neutral-500 dark:text-neutral-400"
+          className="flex-shrink-0 w-6 h-6 text-outline"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
           viewBox="0 0 20 20"
@@ -43,7 +43,7 @@ const Item: FC<ItemProps> = ({
         </svg>
       )}
       <Component
-        className="ml-2 text-base font-medium text-neutral-800 hover:text-black dark:text-neutral-300 dark:hover:text-white"
+        className="ml-2 text-base font-medium text-on-surface-variant hover:text-on-surface"
         {...rest}
       />
     </li>

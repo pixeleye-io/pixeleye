@@ -47,7 +47,6 @@ export default async function DashboardPage() {
 
   return (
     <main className="">
-      <Container>
         <Tabs storageKey="tabs-home" defaultValue="table">
           <div className="flex justify-end mx-4 my-8 space-x-4">
             <TabsList>
@@ -84,7 +83,7 @@ export default async function DashboardPage() {
                       {project.name}
                       <Link
                         className="absolute inset-0"
-                        href={`/project/${project.id}`}
+                        href={`/projects/${project.id}`}
                       >
                         <span className="sr-only">Project page</span>
                       </Link>
@@ -116,7 +115,7 @@ export default async function DashboardPage() {
                     {/* {project.url} */}
                   </p>
                   <Link
-                    href={`/project/${project.id}`}
+                    href={`/projects/${project.id}`}
                     className="absolute inset-0"
                   >
                     <span className="sr-only">Project page</span>
@@ -137,7 +136,6 @@ export default async function DashboardPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </Container>
     </main>
   );
 }

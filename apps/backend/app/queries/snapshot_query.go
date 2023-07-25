@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
@@ -16,7 +16,7 @@ type SnapshotQueries struct {
 	*sqlx.DB
 }
 
-func (q *SnapshotQueries) GetSnapshot(id uuid.UUID) (models.Snapshot, error) {
+func (q *SnapshotQueries) GetSnapshot(id string) (models.Snapshot, error) {
 	snapshot := models.Snapshot{}
 
 	query := `SELECT * FROM snapshot WHERE id = $1`
@@ -26,7 +26,7 @@ func (q *SnapshotQueries) GetSnapshot(id uuid.UUID) (models.Snapshot, error) {
 	return snapshot, err
 }
 
-func (q *SnapshotQueries) GetSnapshotsByBuild(buildID uuid.UUID) ([]models.Snapshot, error) {
+func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot, error) {
 	snapshots := []models.Snapshot{}
 
 	query := `SELECT * FROM snapshot WHERE build_id = $1`
@@ -55,7 +55,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 }
 
 // Assumes we have no duplicate snapshots passed in
-func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId uuid.UUID) ([]models.Snapshot, error) {
+func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
 	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, url) VALUES (:id, :build_id, :name, :variant, :target, :url)`
@@ -77,7 +77,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 	build := models.Build{}
 
-	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil || build.ID == uuid.Nil {
+	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil || build.ID == "" {
 		return nil, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
 	}
 
@@ -135,7 +135,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		}
 
 		if !isDup {
-			snap.ID = uuid.New()
+			snap.ID, err = nanoid.New()
+			if err != nil {
+				return nil, err
+			}
 			snap.BuildID = build.ID
 			newSnapshots = append(newSnapshots, snap)
 		}

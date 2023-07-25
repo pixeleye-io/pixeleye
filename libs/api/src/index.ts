@@ -21,7 +21,12 @@ export const API = getAPI<
       ...options?.headers,
     },
     credentials: "include",
-  }).then((res) => res.json())
+  }).then((res) => {
+    if(res.ok) {
+      return res.json();
+    }
+    return Promise.reject(res);
+  })
 );
 
 export default API;
