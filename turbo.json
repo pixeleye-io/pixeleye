@@ -9,6 +9,10 @@
     "lint": {},
     "types": {},
     "test": {},
+    "start": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true

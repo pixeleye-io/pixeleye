@@ -14,7 +14,7 @@ export function HomeHeader() {
 
   useEffect(() => {
     setTeamId(teamId || "");
-  }, []);
+  }, [setTeamId, teamId]);
 
   const layoutId = useId();
 

@@ -20,18 +20,18 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
           <NavTab
             layoutId={layoutId}
             asChild
-            active={pathName === `/project/${projectId}`}
+            active={pathName === `/projects/${projectId}`}
           >
-            <Link scroll={false} href={`/project/${projectId}`}>
+            <Link scroll={false} href={`/projects/${projectId}`}>
               Builds
             </Link>
           </NavTab>
           <NavTab
             layoutId={layoutId}
             asChild
-            active={pathName?.includes(`/project/${projectId}/manage`)}
+            active={pathName?.includes(`/projects/${projectId}/manage`)}
           >
-            <Link scroll={false} href={`/project/${projectId}/manage`}>
+            <Link scroll={false} href={`/projects/${projectId}/manage`}>
               Manage
             </Link>
           </NavTab>

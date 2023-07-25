@@ -144,7 +144,7 @@ export function Navbar({ user }: NavbarProps) {
 
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/logout">Log out</Link>
+            <a href="/logout">Log out</a>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

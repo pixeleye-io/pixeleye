@@ -138,8 +138,8 @@ importers:
   libs/api:
     dependencies:
       api-typify:
-        specifier: ^0.2.3
-        version: 0.2.3
+        specifier: ^0.3.1
+        version: 0.3.1
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -1807,8 +1807,8 @@ packages:
       picomatch: 2.3.1
     dev: false
 
-  /api-typify@0.2.3:
-    resolution: {integrity: sha512-rhiW97Hu7lWUOOWV/jvmB8lUM0JVL0sEO9z+l6leFQWSyZliwoZ1PPfQKA8DIfP5lpQGLuZUtUXlufJjoTcKyw==}
+  /api-typify@0.3.1:
+    resolution: {integrity: sha512-TeduztciRY5el/fVUqdL6Uc+DlLSWYUUitB32ee96SOBzuNEBHGVI2IlGXgrW+/Zz+Y/R3jFjC5QpSeNi0hTdg==}
     dev: false
 
   /arg@5.0.2:

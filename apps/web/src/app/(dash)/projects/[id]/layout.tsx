@@ -14,8 +14,6 @@ export default async function Layout({
 }) {
   const projectId = params.id;
 
-  console.log(projectId);
-
   const project = await API.get("/projects/{id}", {
     params: {
       id: projectId,
@@ -27,16 +25,14 @@ export default async function Layout({
 
   if (!project) return notFound();
 
-  console.log(project);
-
   return (
     <>
       <RegisterSegment
         order={1}
-        reference="project"
+        reference="projects"
         segment={{
           name: project.name,
-          value: `/project/${projectId}`,
+          value: `/projects/${projectId}`,
         }}
       />
       <ProjectHeader projectId={projectId} />
