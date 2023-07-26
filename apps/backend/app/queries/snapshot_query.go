@@ -54,6 +54,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 	return errTxt
 }
 
+// TODO - ensure we teat null snapshot variants and "" snapshot variants as the same
 // Assumes we have no duplicate snapshots passed in
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`

@@ -4,14 +4,16 @@ import { getParentBuild, getEnvironment } from "./environment";
 export async function CreateBuild(projectToken: string) {
   const ctx = {
     env: process.env,
+    variables: {},
+    endpoint: "http://localhost:5000/v1",
   };
 
-  const env = getEnvironment(ctx);
+  const env = await getEnvironment(ctx);
 
   if (!env.branch) {
     throw new Error("No branch found");
-  } else if (!env.sha) {
-    throw new Error("No sha found");
+  } else if (!env.commit) {
+    throw new Error("No commit found");
   }
 
   const parentBuild = await getParentBuild(ctx);
@@ -21,10 +23,7 @@ export async function CreateBuild(projectToken: string) {
   const build = API.post("/builds/create", {
     body: {
       branch: env.branch,
-      sha: env.sha,
-      author: env.author,
-      message: env.message,
-      title: env.title,
+      sha: env.commit,
       parentBuildID: parentBuild?.id,
     },
     headers: {

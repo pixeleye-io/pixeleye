@@ -1,6 +1,6 @@
 import { getEnvironment, Context } from "./getEnv";
-import { API } from "@pixeleye/api";
 import { getParentShas } from "./git";
+import { getAPI } from "./api";
 
 /**
  * Get the parent builds of the current build
@@ -12,12 +12,14 @@ import { getParentShas } from "./git";
  */
 export async function getParentBuild(ctx: Context) {
   // TODO - I need to handle pr's and find the base merge commit
-  const env = getEnvironment(ctx);
+  const env = await getEnvironment(ctx);
 
-  const shas = await getParentShas(100);
+  const shas = await getParentShas(128);
   const branch = env.branch;
 
-  const builds = await API.get("/builds", {
+  const api = getAPI(ctx);
+
+  const builds = await api.get("/builds", {
     body: {
       shas,
     },
@@ -29,7 +31,7 @@ export async function getParentBuild(ctx: Context) {
     return build;
   }
 
-  const branchBuild = await API.get("/builds", {
+  const branchBuild = await api.get("/builds", {
     queries: {
       branch,
     },

@@ -143,7 +143,7 @@ func SearchBuilds(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if len(shas) > 100 {
+	if len(shas) > 128 {
 		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
 	}
 

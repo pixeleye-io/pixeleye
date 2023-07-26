@@ -10,3 +10,7 @@ export const getBranch = async () => {
 export const getParentShas = async (n: number) => {
   return (await $`git rev-list HEAD~${n}..HEAD`).stdout.split("\n");
 };
+
+export const getCommit = async () => {
+  return (await $`git rev-parse HEAD`).stdout;
+};

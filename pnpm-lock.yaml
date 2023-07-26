@@ -151,6 +151,34 @@ importers:
         specifier: workspace:*
         version: link:../../configs/tsconfig
 
+  libs/cli:
+    dependencies:
+      '@pixeleye/js-sdk':
+        specifier: workspace:*
+        version: link:../js-sdk
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
+      commander:
+        specifier: ^11.0.0
+        version: 11.0.0
+      env-ci:
+        specifier: ^9.1.1
+        version: 9.1.1
+      execa:
+        specifier: ^7.1.1
+        version: 7.1.1
+    devDependencies:
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../configs/tsconfig
+      '@types/node':
+        specifier: 20.4.4
+        version: 20.4.4
+
   libs/github:
     dependencies:
       '@octokit/app':
@@ -2079,6 +2107,11 @@ packages:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
+  /chalk@5.3.0:
+    resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+    dev: false
+
   /chokidar@3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
     engines: {node: '>= 8.10.0'}
@@ -2146,6 +2179,11 @@ packages:
 
   /command-score@0.1.2:
     resolution: {integrity: sha512-VtDvQpIJBvBatnONUsPzXYFVKQQAhuf3XTNOAsdBxCNO/QCtUUd8LSgjn0GVarBkCad6aJCZfXgrjYbl/KRr7w==}
+    dev: false
+
+  /commander@11.0.0:
+    resolution: {integrity: sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==}
+    engines: {node: '>=16'}
     dev: false
 
   /commander@4.1.1:
