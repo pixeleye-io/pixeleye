@@ -1,6 +1,6 @@
 "use client";
 
-import API from "@pixeleye/api";
+import { API } from "@pixeleye/api";
 import { Button } from "@pixeleye/ui";
 import { useKeyStore } from "@/stores/apiKeyStore";
 import { useRouter } from "next/navigation";

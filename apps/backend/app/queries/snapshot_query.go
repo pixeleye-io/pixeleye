@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -137,6 +138,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 		if !isDup {
 			snap.ID, err = nanoid.New()
+			time := time.Now()
+			snap.CreatedAt = time
+			snap.UpdatedAt = time
+
 			if err != nil {
 				return nil, err
 			}
@@ -161,6 +166,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	}
 
 	if updateBuild {
+		build.UpdatedAt = time.Now()
 		if _, err := tx.NamedExecContext(ctx, buildQuery, build); err != nil {
 			return nil, err
 		}

@@ -23,7 +23,7 @@ export default async function Layout({
     },
   }).catch(() => undefined);
 
-  if (!project) return notFound();
+  if (!project) notFound();
 
   return (
     <>

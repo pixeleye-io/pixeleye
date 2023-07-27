@@ -3,6 +3,7 @@ package queries
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -46,7 +47,11 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 }
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	query := `INSERT INTO build (id, sha, branch, author, title, message, status, project_id) VALUES (:id, :sha, :branch, :author, :title, :message, :status, :project_id)`
+	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id)`
+
+	time := time.Now()
+	build.CreatedAt = time
+	build.UpdatedAt = time
 
 	_, err := q.NamedExec(query, build)
 
@@ -54,7 +59,9 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 }
 
 func (q *BuildQueries) UpdateBuild(build *models.Build) error {
-	query := `UPDATE build SET sha = :sha, branch = :branch, author = :author, title = :title, message = :message, status = :status, errors = :errors WHERE id = :id`
+	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors WHERE id = :id`
+
+	build.UpdatedAt = time.Now()
 
 	_, err := q.NamedExec(query, build)
 
@@ -123,6 +130,8 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 			}
 		}
 	}
+
+	build.UpdatedAt = time.Now()
 
 	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.ID); err != nil {
 		return build, err

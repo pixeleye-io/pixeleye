@@ -22,7 +22,7 @@ const (
 // Build struct for build model.
 type Build struct {
 	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
-	CreatedAt time.Time `db:"created_at" json:"createAt"`
+	CreatedAt time.Time `db:"created_at" json:"createdAt"`
 	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 
 	ProjectID string `db:"project_id" json:"projectID" validate:"required,nanoid"`
@@ -31,12 +31,10 @@ type Build struct {
 
 	ParentBuildID string `db:"parent_build_id" json:"parentBuildID" validate:"nanoid"`
 
-	Sha     string `db:"sha" json:"sha" validate:"required"`
-	Branch  string `db:"branch" json:"branch" validate:"required"`
-	Author  string `db:"author" json:"author"`
-	Title   string `db:"title" json:"title"`
-	Message string `db:"message" json:"message"`
-	Status  string `db:"status" json:"status"`
-
-	Errors pq.StringArray `db:"errors" json:"errors"`
+	Sha     string         `db:"sha" json:"sha" validate:"required"`
+	Branch  string         `db:"branch" json:"branch" validate:"required"`
+	Title   string         `db:"title" json:"title,omitempty"`
+	Message string         `db:"message" json:"message,omitempty"`
+	Status  string         `db:"status" json:"status" validate:"required,oneof=uploading processing failed aborted approved rejected unreviewed unchanged orphaned"`
+	Errors  pq.StringArray `db:"errors" json:"errors,omitempty"`
 }

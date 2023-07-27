@@ -53,10 +53,11 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
 }
 
 func (q *ProjectQueries) CreateProject(project *models.Project) error {
-	query := `INSERT INTO project (id, name, source, source_id, token) VALUES (:id, :name, :source, :source_id, :token)`
+	query := `INSERT INTO project (id, name, source, source_id, token, created_at, updated_at) VALUES (:id, :name, :source, :source_id, :token, :created_at, :updated_at)`
 
-	project.CreatedAt = time.Now()
-	project.UpdatedAt = time.Now()
+	time := time.Now()
+	project.CreatedAt = time
+	project.UpdatedAt = time
 
 	_, err := q.NamedExec(query, project)
 

@@ -1,12 +1,14 @@
-import API from "@pixeleye/api";
-import { getParentBuild, getEnvironment } from "./environment";
+import { getParentBuild, getEnvironment, getAPI } from "./environment";
 
 export async function CreateBuild(projectToken: string) {
   const ctx = {
     env: process.env,
     variables: {},
     endpoint: "http://localhost:5000/v1",
+    token: projectToken,
   };
+
+  const api = getAPI(ctx);
 
   const env = await getEnvironment(ctx);
 
@@ -20,7 +22,7 @@ export async function CreateBuild(projectToken: string) {
 
   // TODO - We should detect if this is the first build to avoid requiring a parent build
 
-  const build = API.post("/builds/create", {
+  const build = api.post("/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,

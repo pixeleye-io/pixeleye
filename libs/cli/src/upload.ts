@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import { join } from "path";
-import { CreateBuild } from "@pixeleye/js-sdk";
 import program from "./commands";
+import { Context, getAPI, uploadSnapshot } from "@pixeleye/js-sdk";
 
 async function readAllFiles(path: string) {
   const dir = join(process.cwd(), path);
@@ -33,20 +33,21 @@ function decode(fileName: string) {
 }
 
 interface Config {
-  secret: string;
-  key: string;
+  token: string;
   url: string;
 }
 
 async function upload(path: string, options: Config) {
-    
-  const client = createClient({
-    credentials: {
-      key: options.key,
-      secret: options.secret,
-    },
-    url: options.url,
-  });
+  const ctx: Context = {
+    env: process.env,
+    endpoint: options.url,
+    token: options.token,
+  };
+
+  const api = getAPI(ctx);
+
+  ctx.api = api;
+
   await readAllFiles(path)
     .then(async (files) => {
       console.log(files);
@@ -55,38 +56,47 @@ async function upload(path: string, options: Config) {
           fs
             .readFile(join(process.cwd(), path, file.name))
             .then(async (buffer) => ({
-              imageId: await client.uploadImage(buffer),
+              imageId: (await uploadSnapshot(ctx, buffer))?.id,
               name: file.name,
             }))
         )
-      );
-      const sha = Math.random().toString(36).substring(7);
-      const visualSnapshots = snaps.map((snap) => {
-        const { name, variant } = decode(snap.name);
-        return {
-          name,
-          variant,
-          imageId: snap.imageId,
-        };
+      ).catch((err) => {
+        console.log("err 23", err.message);
+        console.log(err);
+        throw err;
       });
 
-      const branch = "main";
+      console.log("done", snaps);
 
-      const targetSha = await client.getHeadBuild({
-        branch,
-      });
+      return;
 
-      console.log(targetSha, visualSnapshots);
+      // const sha = Math.random().toString(36).substring(7);
+      // const visualSnapshots = snaps.map((snap) => {
+      //   const { name, variant } = decode(snap.name);
+      //   return {
+      //     name,
+      //     variant,
+      //     imageId: snap.imageId,
+      //   };
+      // });
 
-      await client.createBuild({
-        visualSnapshots,
-        sha,
-        targetSha: targetSha?.sha,
-        branch,
-        title: "test title",
-        message: "test commit message",
-        pullRequestURL: "https://pixeleye.dev",
-      });
+      // const branch = "main";
+
+      // const targetSha = await client.getHeadBuild({
+      //   branch,
+      // });
+
+      // console.log(targetSha, visualSnapshots);
+
+      // await client.createBuild({
+      //   visualSnapshots,
+      //   sha,
+      //   targetSha: targetSha?.sha,
+      //   branch,
+      //   title: "test title",
+      //   message: "test commit message",
+      //   pullRequestURL: "https://pixeleye.dev",
+      // });
 
       // await client.createBuild({
       //   sha,

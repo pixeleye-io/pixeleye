@@ -45,6 +45,7 @@ export default async function DashboardPage() {
     },
   });
 
+
   return (
     <main className="">
         <Tabs storageKey="tabs-home" defaultValue="table">

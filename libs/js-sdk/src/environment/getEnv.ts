@@ -1,12 +1,12 @@
 import envCi from "env-ci";
 import { getBranch, getCommit } from "./git";
-import { createAPI } from "@pixeleye/api";
+import { CreateNodeAPI } from "./api";
 
 export interface Context {
-  env: NodeJS.ProcessEnv;
-  variables: Record<string, string>;
+  env: NodeJS.ProcessEnv; // TODO - add @t3-oss/env
   endpoint: string;
-  api?: ReturnType<typeof createAPI>;
+  token: string;
+  api?: ReturnType<typeof CreateNodeAPI>;
 }
 
 export interface Environment {
@@ -33,8 +33,8 @@ export async function getEnvironment(ctx: Context): Promise<Environment> {
 
   return {
     name: name,
-    commit: ctx.variables["PIXELEYE_COMMIT"] || commit || gitBranch,
-    branch: ctx.variables["PIXELEYE_BRANCH"] || branch || gitCommit,
+    commit: ctx.env["PIXELEYE_COMMIT"] || commit || gitBranch,
+    branch: ctx.env["PIXELEYE_BRANCH"] || branch || gitCommit,
     isCI: isCi,
     isPR: isPr,
   };

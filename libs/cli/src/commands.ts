@@ -34,6 +34,8 @@ program
       commands[mappedKey] = value;
     }
 
+    commands.url = commands.url || "https://pixeleye.io";
+
     // Key and secret are required
     if (!commands.token)
       program.error(

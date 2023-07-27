@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ProjectZod = z.object({
-  id: z.string().uuid(),
+  id: z.string().length(21),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 

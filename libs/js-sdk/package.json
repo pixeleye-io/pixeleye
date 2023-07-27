@@ -4,18 +4,24 @@
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "scripts": {
     "lint": "eslint",
-    "types": "tsc --noEmit"
+    "types": "tsc --noEmit",
+    "build": "tsup ./src/index.ts --format esm --dts"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.4.4"
+    "@types/node": "20.4.4",
+    "tsup": "^7.1.0"
   },
   "dependencies": {
     "@pixeleye/api": "workspace:*",
+    "api-typify": "^0.3.1",
     "env-ci": "^9.1.1",
-    "execa": "^7.1.1"
+    "execa": "^7.1.1",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.2"
   }
 }

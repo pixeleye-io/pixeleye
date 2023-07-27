@@ -5,6 +5,7 @@ export async function readConfig(path: string): Promise<Partial<any>> {
     const module = await import(path);
     return module.default;
   } else {
-    throw new Error(`Config file '${path}' does not exist.`);
+    console.log("Config file does not exist.")
+    return {};
   }
 }

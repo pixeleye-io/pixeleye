@@ -34,7 +34,7 @@ func main() {
 
 	// Routes
 	routes.HealthRoutes(e)
-	routes.BuildRoutes(e)
+	routes.ProjectTokenRoutes(e)
 	routes.UserRoutes(e)
 	routes.ProjectRoutes(e)
 

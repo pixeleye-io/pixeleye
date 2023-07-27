@@ -1,0 +1,14 @@
+
+> @pixeleye/js-sdk@0.0.0 build C:\Users\Alfie\GitHub\pixeleye-services\libs\js-sdk
+> tsup ./src/index.ts --format esm --dts
+
+[34mCLI[39m Building entry: ./src/index.ts
+[34mCLI[39m Using tsconfig: tsconfig.json
+[34mCLI[39m tsup v7.1.0
+[34mCLI[39m Target: es2021
+[34mESM[39m Build start
+[32mESM[39m [1mdist\index.js [22m[32m3.98 KB[39m
+[32mESM[39m ⚡️ Build success in 48ms
+[34mDTS[39m Build start
+[32mDTS[39m ⚡️ Build success in 1542ms
+[32mDTS[39m [1mdist\index.d.ts [22m[32m18.11 KB[39m

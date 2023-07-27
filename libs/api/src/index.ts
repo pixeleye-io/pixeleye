@@ -1,12 +1,14 @@
 import { getAPI } from "api-typify";
 import { Services } from "./services";
-export * from "./models";
 
-export function createAPI(endpoint: string) {
+export * from "./models";
+export * from "./services";
+
+export function createAPI(endpoint: string, headers?: Record<string, string>) {
   return getAPI<
     Services,
     {
-      headers?: HeadersInit;
+      headers?: Record<string, string>;
       next?: {
         revalidate?: number | false;
         tags?: string[];
@@ -18,6 +20,7 @@ export function createAPI(endpoint: string) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        ...headers,
         ...options?.headers,
       },
       credentials: "include",

@@ -182,8 +182,12 @@ table "snap_image" {
   primary_key {
     columns = [column.id]
   }
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
   column "hash" {
-    type = varchar(255)
+    type = varchar(64)
     null = false
   }
   column "project_id" {
@@ -211,8 +215,12 @@ table "diff_image" {
   primary_key {
     columns = [column.id]
   }
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
   column "hash" {
-    type = varchar(255)
+    type = varchar(64)
     null = false
   }
   column "project_id" {
@@ -265,12 +273,12 @@ table "snapshot" {
     on_delete   = CASCADE
   }
 
-  column "image_id" {
+  column "snap_image_id" {
     type = char(21)
     null = false
   }
-  foreign_key "image_id" {
-    columns     = [column.image_id]
+  foreign_key "snap_image_id" {
+    columns     = [column.snap_image_id]
     ref_columns = [table.snap_image.column.id]
   }
 
