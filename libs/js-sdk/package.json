@@ -21,7 +21,6 @@
     "api-typify": "^0.3.1",
     "env-ci": "^9.1.1",
     "execa": "^7.1.1",
-    "form-data": "^4.0.0",
     "node-fetch": "^3.3.2"
   }
 }

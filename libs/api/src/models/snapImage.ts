@@ -16,5 +16,4 @@ export interface PresignedURL {
   SignedHeader: {
     Host: string[];
   };
-  Fields?: Record<string, string>;
 }

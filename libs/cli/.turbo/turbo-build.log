@@ -3,6 +3,6 @@
 > esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js
 
 
-  dist\index.js  654.2kb
+  dist\index.js  508.4kb
 
-Done in 317ms
+Done in 169ms

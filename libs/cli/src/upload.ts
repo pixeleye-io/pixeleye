@@ -60,11 +60,7 @@ async function upload(path: string, options: Config) {
               name: file.name,
             }))
         )
-      ).catch((err) => {
-        console.log("err 23", err.message);
-        console.log(err);
-        throw err;
-      });
+      )
 
       console.log("done", snaps);
 

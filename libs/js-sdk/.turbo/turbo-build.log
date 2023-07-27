@@ -7,8 +7,8 @@
 [34mCLI[39m tsup v7.1.0
 [34mCLI[39m Target: es2021
 [34mESM[39m Build start
-[32mESM[39m [1mdist\index.js [22m[32m3.98 KB[39m
-[32mESM[39m ⚡️ Build success in 48ms
+[32mESM[39m [1mdist\index.js [22m[32m4.02 KB[39m
+[32mESM[39m ⚡️ Build success in 46ms
 [34mDTS[39m Build start
-[32mDTS[39m ⚡️ Build success in 1542ms
+[32mDTS[39m ⚡️ Build success in 6411ms
 [32mDTS[39m [1mdist\index.d.ts [22m[32m18.11 KB[39m
