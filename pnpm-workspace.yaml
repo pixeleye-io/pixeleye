@@ -1,4 +1,6 @@
 packages:
   - 'configs/*'
   - 'libs/*'
+  - 'services/*'
   - 'apps/web'
+  - 'apps/api-tests'

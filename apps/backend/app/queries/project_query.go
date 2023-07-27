@@ -1,25 +1,14 @@
 package queries
 
 import (
+	"time"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type ProjectQueries struct {
 	*sqlx.DB
-}
-
-func generateProjectSecret() (string, error) {
-	return utils.GenerateRandomStringURLSafe(32)
-
-}
-
-func hashSecret(secret string) (string, error) {
-	hashedSecret, err := bcrypt.GenerateFromPassword([]byte(secret), 14)
-
-	return string(hashedSecret), err
 }
 
 func (q *ProjectQueries) GetLatestBuild(projectID string) (models.Build, error) {
@@ -66,6 +55,9 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
 func (q *ProjectQueries) CreateProject(project *models.Project) error {
 	query := `INSERT INTO project (id, name, source, source_id, token) VALUES (:id, :name, :source, :source_id, :token)`
 
+	project.CreatedAt = time.Now()
+	project.UpdatedAt = time.Now()
+
 	_, err := q.NamedExec(query, project)
 
 	return err
@@ -73,6 +65,8 @@ func (q *ProjectQueries) CreateProject(project *models.Project) error {
 
 func (q *ProjectQueries) UpdateProject(project *models.Project) error {
 	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token WHERE id = :id`
+
+	project.UpdatedAt = time.Now()
 
 	_, err := q.NamedExec(query, project)
 

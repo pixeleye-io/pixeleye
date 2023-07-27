@@ -34,6 +34,7 @@ table "project" {
   }
   column "url" {
     type = text
+    null = true
   }
   column "source" {
     type = enum.project_source
