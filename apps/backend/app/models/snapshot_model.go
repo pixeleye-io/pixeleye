@@ -29,12 +29,12 @@ type Snapshot struct {
 	SnapId string `db:"snap_image_id" json:"snapID" validate:"required"`
 	DiffId string `db:"diff_image_id" json:"diffID,omitempty"`
 
-	BaselineID string `db:"baseline_snapshot_id" json:"baselineID,omitempty" validate:"nanoid"`
+	BaselineID string `db:"baseline_snapshot_id" json:"baselineID,omitempty" validate:"omitempty,nanoid"`
 
 	Status string `db:"status" json:"status" validate:"required,oneof=processing failed aborted approved rejected unreviewed unchanged orphaned"`
 
-	ReviewerID string     `db:"reviewer_id" json:"reviewerID,omitempty" validate:"nanoid"`
-	ReviewAt   *time.Time `db:"review_at" json:"reviewAt,omitempty"`
+	ReviewerID string     `db:"reviewer_id" json:"reviewerID,omitempty" validate:"omitempty,nanoid"`
+	ReviewedAt *time.Time `db:"reviewed_at" json:"reviewedAt,omitempty"`
 }
 
 func CompareSnaps(a Snapshot, b Snapshot) bool {

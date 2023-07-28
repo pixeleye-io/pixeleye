@@ -28,6 +28,9 @@ import (
 // @Router /v1/builds/create [post]
 func CreateBuild(c echo.Context) error {
 
+	// TODO - add check to ensure parent build has finished processing
+	// TODO - handle case where we already have a build for this commit
+
 	build := models.Build{}
 
 	project := middleware.GetProject(c)
@@ -116,7 +119,7 @@ func GetBuild(c echo.Context) error {
 // @Produce json
 // @Param shas body []string false "Commit SHAs
 // @Success 200 {object} []models.Build
-// @Router /v1/builds [get]
+// @Router /v1/builds [post]
 func SearchBuilds(c echo.Context) error {
 	project := middleware.GetProject(c)
 
@@ -137,11 +140,17 @@ func SearchBuilds(c echo.Context) error {
 		}
 	}
 
-	shas := []string{}
+	type Body struct {
+		Shas []string `json:"shas"`
+	}
 
-	if err := c.Bind(&shas); err != nil {
+	body := Body{}
+
+	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	shas := body.Shas
 
 	if len(shas) > 128 {
 		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
@@ -204,7 +213,9 @@ func UploadPartial(c echo.Context) error {
 		return err
 	}
 
-	return c.String(http.StatusOK, "snapshots queued for processing")
+	return c.JSON(http.StatusOK, models.GenericRes{
+		Message: "snapshots queued for processing",
+	})
 }
 
 // Upload complete method for signalling a completed build.

@@ -1,12 +1,15 @@
-import { getParentBuild, getEnvironment, getAPI } from "../environment";
+import { Build, PartialSnapshot } from "@pixeleye/api";
+import {
+  getParentBuild,
+  getEnvironment,
+  getAPI,
+  Context,
+} from "../environment";
 
-export async function CreateBuild(projectToken: string) {
-  const ctx = {
-    env: process.env,
-    variables: {},
-    endpoint: "http://localhost:5000/v1",
-    token: projectToken,
-  };
+// Creates a pixeleye build
+// We can then upload snapshots to this build
+export async function createBuild(ctx: Context) {
+  // TODO - build in a retry mechanism
 
   const api = getAPI(ctx);
 
@@ -26,10 +29,36 @@ export async function CreateBuild(projectToken: string) {
       sha: env.commit,
       parentBuildID: parentBuild?.id,
     },
-    headers: {
-      Authorization: `Bearer ${projectToken}`,
-    },
   });
 
   return build;
+}
+
+export async function linkSnapshotsToBuild(
+  ctx: Context,
+  build: Build,
+  snapshots: PartialSnapshot[]
+) {
+  // TODO - build in a retry mechanism
+  const api = getAPI(ctx);
+
+  await api.post(`/builds/{id}/upload`, {
+    body: {
+      snapshots,
+    },
+    params: {
+      id: build.id,
+    },
+  });
+}
+
+export async function completeBuild(ctx: Context, build: Build) {
+  // TODO - build in a retry mechanism
+  const api = getAPI(ctx);
+
+  return api.post(`/builds/{id}/complete`, {
+    params: {
+      id: build.id,
+    },
+  });
 }

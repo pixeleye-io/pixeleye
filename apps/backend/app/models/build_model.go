@@ -29,7 +29,7 @@ type Build struct {
 
 	BuildNumber int `db:"build_number" json:"buildNumber"`
 
-	ParentBuildID string `db:"parent_build_id" json:"parentBuildID" validate:"nanoid"`
+	ParentBuildID string `db:"parent_build_id" json:"parentBuildID" validate:"omitempty,nanoid"`
 
 	Sha     string         `db:"sha" json:"sha" validate:"required"`
 	Branch  string         `db:"branch" json:"branch" validate:"required"`

@@ -291,7 +291,7 @@ table "snapshot" {
     null = true
   }
   column "target" {
-    type = varchar(255)
+    type = varchar(255) // TODO- make this an enum
     null = true
   }
 

@@ -31,6 +31,9 @@ type UploadSnapReturn struct {
 // @Router /v1/snapshots/upload/{hash} [post]
 func GetUploadURL(c echo.Context) error {
 
+	// TODO - enable snapshot batching (multiple images in one request)
+	// This will be a very active endpoint, so we should batch the requests
+
 	hash := c.Param("hash")
 
 	if len(hash) != 64 {

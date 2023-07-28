@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -47,11 +48,16 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 }
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id)`
+	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :build_number)`
 
 	time := time.Now()
 	build.CreatedAt = time
 	build.UpdatedAt = time
+
+	//TODO fix build increment
+	s1 := rand.NewSource(time.UnixNano())
+	r1 := rand.New(s1)
+	build.BuildNumber = r1.Intn(100000)
 
 	_, err := q.NamedExec(query, build)
 
@@ -59,7 +65,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 }
 
 func (q *BuildQueries) UpdateBuild(build *models.Build) error {
-	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors WHERE id = :id`
+	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors, updated_at = :updated_at WHERE id = :id`
 
 	build.UpdatedAt = time.Now()
 
