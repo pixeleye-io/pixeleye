@@ -1,4 +1,4 @@
-import { getParentBuild, getEnvironment, getAPI } from "./environment";
+import { getParentBuild, getEnvironment, getAPI } from "../environment";
 
 export async function CreateBuild(projectToken: string) {
   const ctx = {
@@ -19,8 +19,6 @@ export async function CreateBuild(projectToken: string) {
   }
 
   const parentBuild = await getParentBuild(ctx);
-
-  // TODO - We should detect if this is the first build to avoid requiring a parent build
 
   const build = api.post("/builds/create", {
     body: {

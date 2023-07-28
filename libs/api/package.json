@@ -6,13 +6,11 @@
   "types": "./src/index.ts",
   "scripts": {
     "lint": "eslint",
-    "types": "tsc --noEmit",
-    "build": "tsup ./src/index.ts --format esm --dts"
+    "types": "tsc --noEmit"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
-    "@pixeleye/tsconfig": "workspace:*",
-    "tsup": "^7.1.0"
+    "@pixeleye/tsconfig": "workspace:*"
   },
   "dependencies": {
     "api-typify": "^0.3.1",

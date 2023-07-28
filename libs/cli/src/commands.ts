@@ -1,54 +1,48 @@
 import chalk from "chalk";
 import { Command } from "commander";
-import { readConfig } from "./config";
-import upload from "./upload";
+import { loadAndMergeConfig } from "./config/config";
+import { upload, ping } from "./handlers";
+import { defaults } from "./config";
 
-const program = new Command();
+export const program = new Command();
 
-const map = {
+program.configureOutput({
+  writeErr: (str) => process.stderr.write(chalk.red(str)),
+  writeOut: (str) => process.stdout.write(chalk.green(str)),
+});
+
+export const optionMap = {
   t: "token",
   u: "url",
 } as const;
 
-program
-  .command("upload")
+const configOption = (name: string) =>
+  program
+    .command(name)
+    .option(
+      "-c, --config <path>",
+      "Path to config file, e.g. ./config/pixeleye.config.js",
+      defaults.configFile
+    );
+
+const apiOptions = (name: string) =>
+  configOption(name)
+    .option("-t, --token <token>", "Pixeleye project token", undefined)
+    .option(
+      "-u, --url <url>",
+      "Pixeleye API URL (only use if self-hosting)",
+      defaults.endpoint
+    );
+
+apiOptions("upload")
   .argument("<path>", "Path to screenshots, e.g. ./screenshots")
-  .option(
-    "-c, --config <path>",
-    "Path to config file, e.g. ./config/pixeleye.config.js",
-    "pixeleye.config.js"
-  )
-  .option("-t, --token <token>", "Pixeleye project token")
-  .option("-u, --url <url>", "Pixeleye API URL (only used for self-hosting)", "https://pixeleye.io")
   .description("Upload your screenshots to pixeleye")
-  .hook("preAction", async (hookedCommand, subCommand) => {
-    const commands = hookedCommand.opts();
-    const configPath = commands.config;
+  .hook("preAction", loadAndMergeConfig)
+  .action(upload);
 
-    const config = configPath ? await readConfig(configPath) : {};
-    for (const [key, value] of Object.entries(config)) {
-      const mappedKey = Object.keys(map).includes(key)
-        ? map[key as keyof typeof map]
-        : key;
-      subCommand.setOptionValue(mappedKey, value);
-      commands[mappedKey] = value;
-    }
-
-    commands.url = commands.url || "https://pixeleye.io";
-
-    // Key and secret are required
-    if (!commands.token)
-      program.error(
-        "Pixeleye project token required. Please provide it via the command line or a config file.",
-        {
-          exitCode: 9,
-          code: "PIXELEYE_TOKEN_REQUIRED",
-        }
-      );
-  })
-  .action(upload)
-  .configureOutput({
-    outputError: (str, write) => write(chalk.red(str)),
-  });
+apiOptions("ping")
+  .description("Test your token and connection to pixeleye")
+  .hook("preAction", loadAndMergeConfig)
+  .action(ping);
 
 export default program.parse(process.argv);

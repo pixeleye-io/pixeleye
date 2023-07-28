@@ -8,7 +8,7 @@
 [34mCLI[39m Target: es2021
 [34mESM[39m Build start
 [32mESM[39m [1mdist\index.mjs [22m[32m1.97 KB[39m
-[32mESM[39m ⚡️ Build success in 122ms
+[32mESM[39m ⚡️ Build success in 56ms
 [34mDTS[39m Build start
-[32mDTS[39m ⚡️ Build success in 2153ms
-[32mDTS[39m [1mdist\index.d.mts [22m[32m37.47 KB[39m
+[32mDTS[39m ⚡️ Build success in 2373ms
+[32mDTS[39m [1mdist\index.d.mts [22m[32m37.44 KB[39m

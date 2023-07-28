@@ -1,6 +1,6 @@
-import { getEnvironment, Context } from "./getEnv";
+import { Context, getAPI } from "./context";
+import { getEnvironment } from "./getEnv";
 import { getParentShas } from "./git";
-import { getAPI } from "./api";
 
 /**
  * Get the parent builds of the current build
@@ -12,6 +12,7 @@ import { getAPI } from "./api";
  */
 export async function getParentBuild(ctx: Context) {
   // TODO - I need to handle pr's and find the base merge commit
+  // TODO - Add the concept of a default branch to fallback on if we can't find a build
   const env = await getEnvironment(ctx);
 
   const shas = await getParentShas(128);

@@ -1,6 +1,5 @@
-import { Context, getAPI } from "./environment";
-import { generateHash } from "./snaps";
-import fetch from "node-fetch";
+import { Context, getAPI } from "../environment";
+import { generateHash } from "../utils";
 import { Blob } from "buffer";
 
 export async function uploadSnapshot(ctx: Context, file: Buffer) {
@@ -14,6 +13,7 @@ export async function uploadSnapshot(ctx: Context, file: Buffer) {
     },
   });
 
+  // It's already been uploaded
   if (!presigned.URL) {
     return presigned;
   }

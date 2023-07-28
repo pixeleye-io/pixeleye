@@ -1,13 +1,6 @@
 import envCi from "env-ci";
 import { getBranch, getCommit } from "./git";
-import { CreateNodeAPI } from "./api";
-
-export interface Context {
-  env: NodeJS.ProcessEnv; // TODO - add @t3-oss/env
-  endpoint: string;
-  token: string;
-  api?: ReturnType<typeof CreateNodeAPI>;
-}
+import { Context } from "./context";
 
 export interface Environment {
   name?: string;

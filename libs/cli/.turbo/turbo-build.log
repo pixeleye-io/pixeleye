@@ -1,8 +1,4 @@
 
 > @pixeleye/cli@0.0.0 build C:\Users\Alfie\GitHub\pixeleye-services\libs\cli
-> esbuild src/index.ts --bundle --platform=node --target=node18 --outfile=dist/index.js
+> node ./build.mjs
 
-
-  dist\index.js  508.4kb
-
-Done in 169ms

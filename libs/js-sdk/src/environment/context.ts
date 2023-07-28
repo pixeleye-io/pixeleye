@@ -1,13 +1,19 @@
 import { Services } from "@pixeleye/api";
 import { getAPI as getAPITypes } from "api-typify";
-import { Context } from "./getEnv";
-import fetch, { HeadersInit } from "node-fetch";
+import { HeadersInit } from "undici";
 
-export function CreateNodeAPI(endpoint: string, headers?: HeadersInit) {
+export interface Context {
+  env: NodeJS.ProcessEnv; // TODO - add @t3-oss/env
+  endpoint: string;
+  token: string;
+  api?: APIType;
+}
+
+function createAPI(endpoint: string, headers?: HeadersInit ) {
   return getAPITypes<
     Services,
     {
-      headers?: HeadersInit;
+      headers?: HeadersInit ;
       next?: {
         revalidate?: number | false;
         tags?: string[];
@@ -31,10 +37,12 @@ export function CreateNodeAPI(endpoint: string, headers?: HeadersInit) {
   );
 }
 
-export function getAPI(ctx: Context): ReturnType<typeof CreateNodeAPI> {
+export type APIType = ReturnType<typeof createAPI>;
+
+export function getAPI(ctx: Context): APIType {
   if (ctx.api) return ctx.api;
 
-  const api = CreateNodeAPI(ctx.endpoint, {
+  const api = createAPI(ctx.endpoint, {
     Authorization: `Bearer ${ctx.token}`,
   });
 
