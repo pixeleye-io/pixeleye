@@ -5,24 +5,41 @@ import (
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
+	"github.com/rs/zerolog/log"
 )
 
 type IngestQueue struct {
 	*brokerTypes.Broker
 }
 
+// TODO - I should investigate what the best batch size is here
+const batchSize = 15
+
 func (q *IngestQueue) QueueSnapshotsIngest(snapshots []models.Snapshot) error {
 
-	// TODO - limit the number of snapshots we send in a single message
+	var err error
 
-	// TODO - just send the IDs and let the worker fetch the snapshots from the DB
-	body, err := json.Marshal(snapshots)
+	batched := [batchSize]string{}
+	for i := 0; i < len(snapshots); i++ {
 
-	if err != nil {
-		return err
+		batched[i%batchSize] = snapshots[i].ID
+
+		// We send off the batch if it is full or we are at the end of the snapshots
+		if i%batchSize == batchSize-1 || i == len(snapshots)-1 {
+			body, marshErr := json.Marshal(batched)
+
+			batched = [batchSize]string{}
+
+			if marshErr != nil {
+				log.Error().Err(marshErr).Msg("Failed to marshal snapshots")
+				err = marshErr
+				continue
+			}
+
+			err = q.Send(brokerTypes.BuildProcess, "", body)
+
+		}
 	}
 
-	err = q.Send(brokerTypes.BuildProcess, "", body)
-
-	return err
+	return err // This is the last error we got
 }

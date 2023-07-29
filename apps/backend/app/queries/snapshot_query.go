@@ -213,7 +213,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 				warningTxt := getDuplicateSnapWarning(snap)
 				if !utils.ContainsString(build.Warnings, warningTxt) {
 					// No need to update build if the warning for this snapshot already exists.
-					build.Warnings = append(build.Warnings, errorTxt)
+					build.Warnings = append(build.Warnings, warningTxt)
 					build.Status = models.BUILD_STATUS_ABORTED
 					updateBuild = true
 				}

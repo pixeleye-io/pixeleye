@@ -18,6 +18,7 @@ type BuildQueries struct {
 // This assumes that the user hasn't renamed their branches
 // You should always check that the builds commit sha is in the history of head
 func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (models.Build, error) {
+	// TODO - We should make sure we ignore failed builds
 	build := models.Build{}
 
 	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`

@@ -47,15 +47,6 @@ func GetUploadURL(c echo.Context) error {
 		return err
 	}
 
-	// TODO - also check if the image exists in S3, otherwise we should still return a signed URL
-	snap, err := db.GetSnapImage(hash, project.ID)
-
-	if err == nil {
-		return c.JSON(http.StatusOK, UploadSnapReturn{
-			SnapImage: &snap,
-		})
-	}
-
 	s3, err := storage.GetClient()
 
 	if err != nil {
@@ -63,6 +54,20 @@ func GetUploadURL(c echo.Context) error {
 	}
 
 	path := fmt.Sprintf("snaps/%s/%s.png", project.ID, hash)
+
+	fileExists, err := s3.FileExists(os.Getenv("S3_BUCKET"), path)
+
+	if err != nil {
+		return err
+	}
+
+	snap, err := db.GetSnapImage(hash, project.ID)
+
+	if err == nil && fileExists {
+		return c.JSON(http.StatusOK, UploadSnapReturn{
+			SnapImage: &snap,
+		})
+	}
 
 	url, err := s3.PutObject(os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
 

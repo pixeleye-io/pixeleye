@@ -33,6 +33,27 @@ func (basics BucketClient) BucketExists(bucketName string) (bool, error) {
 	return exists, err
 }
 
+// Check if a file exists
+func (basics BucketClient) FileExists(bucketName string, objectKey string) (bool, error) {
+	_, err := basics.S3Client.HeadObject(context.TODO(), &s3.HeadObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	})
+	exists := true
+	if err != nil {
+		var apiError smithy.APIError
+		if errors.As(err, &apiError) {
+			switch apiError.(type) {
+			case *types.NotFound:
+				exists = false
+				err = nil
+			}
+		}
+	}
+
+	return exists, err
+}
+
 // UploadFile reads from a file and puts the data into an object in a bucket.
 func (basics BucketClient) UploadFile(bucketName string, objectKey string, fileName string) error {
 	file, err := os.Open(fileName)

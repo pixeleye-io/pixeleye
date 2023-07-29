@@ -3,6 +3,9 @@ package processors
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -86,7 +89,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	err := db.SetSnapshotsStatus(newSnapshots, models.SNAPSHOT_STATUS_ORPHANED)
 
 	if err != nil {
-		// TODO: Log error
+		log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
 		// We don't want to return this error because we still want to process the remaining snapshots
 	}
 
@@ -95,7 +98,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	err = db.UpdateBuild(&build)
 
 	if err != nil {
-		// TODO: Log error
+		log.Error().Err(err).Str("Snapshots", strings.Join(removedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to update build with removed snapshots")
 		// We don't want to return this error because we still want to process the remaining snapshots
 	}
 
@@ -103,7 +106,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	err = db.SetSnapshotsStatus(unchangedSnapshots, models.SNAPSHOT_STATUS_UNCHANGED)
 
 	if err != nil {
-		// TODO: Log error
+		log.Error().Err(err).Str("Snapshots", strings.Join(unchangedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to unchanged")
 		// We don't want to return this error because we still want to process the remaining snapshots
 	}
 
@@ -111,8 +114,12 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 		err := processSnapshot(snap[0], snap[1], db)
 
 		if err != nil {
-			db.SetSnapshotStatus(snap[0].SnapId, models.SNAPSHOT_STATUS_FAILED)
-			// TODO: Log error & add it to build table
+			log.Error().Err(err).Str("SnapshotID", snap[0].SnapId).Msg("Failed to process snapshot")
+
+			err = db.SetSnapshotStatus(snap[0].SnapId, models.SNAPSHOT_STATUS_FAILED)
+			if err != nil {
+				log.Error().Err(err).Str("SnapshotID", snap[0].SnapId).Msg("Failed to set snapshot status to failed")
+			}
 		}
 	}
 
@@ -149,11 +156,11 @@ func IngestSnapshots(snapshotIDs []string) error {
 	}
 
 	if len(snapshots) != len(snapshotIDs) {
-		// TODO - log that we're missing some snapshots
+		log.Warn().Int("Expected", len(snapshotIDs)).Int("Actual", len(snapshots)).Msg("Not all snapshots were found when ingesting snapshots")
 	}
 
 	if len(snapshots) == 0 {
-		return fmt.Errorf("No snapshots found")
+		return fmt.Errorf("no snapshots found for snapshot IDs: %s", strings.Join(snapshotIDs, ", "))
 	}
 
 	build, err := db.GetBuild(snapshots[0].BuildID)
