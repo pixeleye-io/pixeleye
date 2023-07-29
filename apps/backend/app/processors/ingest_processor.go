@@ -1,5 +1,125 @@
 package processors
 
+import (
+	"database/sql"
+	"fmt"
+
+	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/platform/database"
+)
+
+// TODO - make sure I'm setting snapshot to failed & storing error if it does fail
+
+// 1) Check in build history for an approved snapshot, get first
+// 2) If the approved snapshot is the same as the baseline, then we can approve this snapshot
+// 3) If the approved snapshot is different, then we need to generate a diff and set the status to unreviewed
+func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
+
+	lastApprovedSnapshot, err := db.GetLastApprovedInHistory(snapshot.SnapId)
+
+	if err != sql.ErrNoRows {
+		if err != nil {
+			return err
+		}
+
+		if lastApprovedSnapshot.SnapId == baselineSnapshot.SnapId {
+			db.SetSnapshotStatus(snapshot.SnapId, models.SNAPSHOT_STATUS_APPROVED)
+			return nil
+		}
+	}
+
+	// TODO - process the image changes
+
+	return db.SetSnapshotStatus(snapshot.SnapId, models.SNAPSHOT_STATUS_UNREVIEWED)
+}
+
+// group the snapshots into new, removed, changed and unchanged
+// We also pair the snapshots with their baselines if they exist
+func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (newSnapshots []string, removedSnapshots []string, unchangedSnapshots []string, changedSnapshots [][2]models.Snapshot) {
+	newSnapshots = []string{}
+	removedSnapshots = []string{}
+	unchangedSnapshots = []string{}
+	changedSnapshots = [][2]models.Snapshot{}
+
+	for _, snapshot := range snapshots {
+		found := false
+		for _, baseline := range baselines {
+			if models.CompareSnaps(snapshot, baseline) {
+				found = true
+
+				if snapshot.SnapId == baseline.SnapId {
+					unchangedSnapshots = append(unchangedSnapshots, snapshot.ID)
+				} else {
+					changedSnapshots = append(changedSnapshots, [2]models.Snapshot{snapshot, baseline})
+				}
+			}
+		}
+
+		if !found {
+			newSnapshots = append(newSnapshots, snapshot.ID)
+		}
+
+	}
+
+	// Now we need to find the snapshots that have been removed
+	for _, baseline := range baselines {
+		found := false
+		for _, snapshot := range snapshots {
+			if models.CompareSnaps(snapshot, baseline) {
+				found = true
+			}
+		}
+
+		if !found {
+			removedSnapshots = append(removedSnapshots, baseline.ID)
+		}
+	}
+
+	return newSnapshots, removedSnapshots, unchangedSnapshots, changedSnapshots
+}
+
+func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
+
+	newSnapshots, removedSnapshots, unchangedSnapshots, changedSnapshots := groupSnapshots(snapshots, baselines)
+
+	// We can go ahead and mark the new snapshots as orphaned
+	err := db.SetSnapshotsStatus(newSnapshots, models.SNAPSHOT_STATUS_ORPHANED)
+
+	if err != nil {
+		// TODO: Log error
+		// We don't want to return this error because we still want to process the remaining snapshots
+	}
+
+	// We can go ahead and mark the removed snapshots as removed
+	build.DeletedSnapshotIDs = append(build.DeletedSnapshotIDs, removedSnapshots...)
+	err = db.UpdateBuild(&build)
+
+	if err != nil {
+		// TODO: Log error
+		// We don't want to return this error because we still want to process the remaining snapshots
+	}
+
+	// We can go ahead and mark the unchanged snapshots as unchanged
+	err = db.SetSnapshotsStatus(unchangedSnapshots, models.SNAPSHOT_STATUS_UNCHANGED)
+
+	if err != nil {
+		// TODO: Log error
+		// We don't want to return this error because we still want to process the remaining snapshots
+	}
+
+	for _, snap := range changedSnapshots {
+		err := processSnapshot(snap[0], snap[1], db)
+
+		if err != nil {
+			db.SetSnapshotStatus(snap[0].SnapId, models.SNAPSHOT_STATUS_FAILED)
+			// TODO: Log error & add it to build table
+		}
+	}
+
+	return nil
+
+}
+
 // Steps:
 // 1. Get snapshot & (build parent) from DB
 // 2. Figure out which snapshots to compare it to
@@ -9,6 +129,61 @@ package processors
 // 3.1 If it has been reviewed, then mark it as reviewed
 // 3.2 If it has not been reviewed, then mark it as unreviewed
 
-func IngestSnapshots(snapshotIDs []string) {
+// We assume all the snapshots belong to the same build
+func IngestSnapshots(snapshotIDs []string) error {
 
+	if len(snapshotIDs) == 0 {
+		return fmt.Errorf("no snapshot IDs provided")
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	snapshots, err := db.GetSnapshots(snapshotIDs)
+
+	if err != nil {
+		return err
+	}
+
+	if len(snapshots) != len(snapshotIDs) {
+		// TODO - log that we're missing some snapshots
+	}
+
+	if len(snapshots) == 0 {
+		return fmt.Errorf("No snapshots found")
+	}
+
+	build, err := db.GetBuild(snapshots[0].BuildID)
+
+	if err != nil {
+		return err
+	}
+
+	if build.ParentBuildID == "" {
+		err = db.SetSnapshotsStatus(snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
+		if err != nil {
+			return err
+		}
+	} else {
+		parentBuild, err := db.GetBuild(build.ParentBuildID)
+
+		if err != nil {
+			return err
+		}
+
+		parentBuildSnapshots, err := db.GetSnapshotsByBuild(parentBuild.ID)
+
+		if err != nil {
+			return err
+		}
+
+		err = compareBuilds(snapshots, parentBuildSnapshots, build, db)
+
+	}
+
+	// TODO - check if we can mark build as finished processing
+	return nil
 }

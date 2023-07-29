@@ -123,6 +123,11 @@ table "build" {
     default = "uploading"
   }
 
+  column "target_build_id" {
+    type = char(21)
+    null = true
+  }
+
   column "sha" {
     type = varchar(255)
     null = false
@@ -140,8 +145,23 @@ table "build" {
     null = true
   }
 
+  column "warnings" {
+    type = sql("text[]")
+    null = true
+  }
+
   column "errors" {
     type = sql("text[]")
+    null = true
+  }
+
+  column "deleted_snapshot_ids" {
+    type = sql("text[]")
+    null = true
+  }
+
+  column "approved_by" {
+    type = char(21)
     null = true
   }
 
@@ -291,7 +311,7 @@ table "snapshot" {
     null = true
   }
   column "target" {
-    type = varchar(255) // TODO- make this an enum
+    type = varchar(255)
     null = true
   }
 

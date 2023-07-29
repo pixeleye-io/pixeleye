@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -101,8 +102,12 @@ func GetBuild(c echo.Context) error {
 	}
 
 	build, err := db.GetBuild(id)
+	// TODO - create a helper function for this & make sure we handle this properly everywhere else
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
+		}
+		return err
 	}
 
 	return c.JSON(http.StatusOK, build)

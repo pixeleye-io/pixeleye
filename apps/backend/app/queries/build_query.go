@@ -47,6 +47,8 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 	return build, err
 }
 
+// TODO - make sure when approving a build that it is the latest build
+
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
 	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :build_number)`
 

@@ -27,6 +27,90 @@ func (q *SnapshotQueries) GetSnapshot(id string) (models.Snapshot, error) {
 	return snapshot, err
 }
 
+func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, error) {
+	snapshot := models.Snapshot{}
+
+	query := `WITH RECURSIVE find_approved_snapshot AS (
+		-- Anchor query: Get the initial snapshot with the given snapshot_id
+		SELECT
+		  s.id,
+		  s.name,
+		  s.variant,
+		  s.target,
+		  s.status,
+		  0 AS depth
+		FROM snapshot s
+		WHERE s.id = $1
+	  
+		UNION ALL
+	  
+		-- Recursive query: Join with build_history to get the next snapshot in the build history
+		SELECT
+		  s.id,
+		  s.name,
+		  s.variant,
+		  s.target,
+		  s.status,
+		  f.depth + 1
+		FROM find_approved_snapshot f
+		INNER JOIN build_history bh ON f.id = bh.parent_id
+		INNER JOIN snapshot s ON bh.child_id = s.id
+		WHERE (s.status = 'approved' OR s.status = 'orphaned') -- Considering only approved snapshots in the build history
+		  AND s.name = f.name -- Matching name with the starting snapshot
+		  AND s.variant = f.variant -- Matching variant with the starting snapshot
+		  AND s.target = f.target -- Matching target with the starting snapshot
+	  )
+	  -- Final query: Select the first approved snapshot with matching name, variant, and target
+	  SELECT *
+	  FROM find_approved_snapshot
+	  WHERE status = 'approved'
+	  ORDER BY depth ASC
+	  LIMIT 1;
+	  `
+
+	err := q.Get(&snapshot, query, id)
+
+	return snapshot, err
+}
+
+func (q *SnapshotQueries) GetSnapshots(ids []string) ([]models.Snapshot, error) {
+	snapshots := []models.Snapshot{}
+
+	query, args, err := sqlx.In(`SELECT * FROM snapshot WHERE id IN (?)`, ids)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query = q.Rebind(query)
+
+	err = q.Select(&snapshots, query, args...)
+
+	return snapshots, err
+}
+
+func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error {
+	query, args, err := sqlx.In(`UPDATE snapshot SET status = ? WHERE id IN (?)`, status, ids)
+
+	if err != nil {
+		return err
+	}
+
+	query = q.Rebind(query)
+
+	_, err = q.Exec(query, args...)
+
+	return err
+}
+
+func (q *SnapshotQueries) SetSnapshotStatus(id string, status string) error {
+	query := `UPDATE snapshot SET status = $1 WHERE id = $2`
+
+	_, err := q.Exec(query, status, id)
+
+	return err
+}
+
 func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot, error) {
 	snapshots := []models.Snapshot{}
 
@@ -37,7 +121,7 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot
 	return snapshots, err
 }
 
-func getDuplicateSnapError(snap models.Snapshot) string {
+func getDuplicateSnapWarning(snap models.Snapshot) string {
 	errTxt := "Duplicate snapshots with name: " + snap.Name
 
 	if snap.Variant != "" {
@@ -107,10 +191,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 			if models.CompareSnaps(snap, snapAfter) {
 				isDup = true
-				errorTxt := getDuplicateSnapError(snap)
-				if !utils.ContainsString(build.Errors, errorTxt) {
-					// No need to update build if the error for this snapshot already exists.
-					build.Errors = append(build.Errors, errorTxt)
+				warningTxt := getDuplicateSnapWarning(snap)
+				if !utils.ContainsString(build.Warnings, warningTxt) {
+					// No need to update build if the warning for this snapshot already exists.
+					build.Warnings = append(build.Warnings, warningTxt)
 					build.Status = models.BUILD_STATUS_ABORTED
 					updateBuild = true
 				}
@@ -126,10 +210,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		for _, existingSnapshot := range existingSnapshots {
 			if models.CompareSnaps(snap, existingSnapshot) {
 				isDup = true
-				errorTxt := getDuplicateSnapError(snap)
-				if !utils.ContainsString(build.Errors, errorTxt) {
-					// No need to update build if the error for this snapshot already exists.
-					build.Errors = append(build.Errors, errorTxt)
+				warningTxt := getDuplicateSnapWarning(snap)
+				if !utils.ContainsString(build.Warnings, warningTxt) {
+					// No need to update build if the warning for this snapshot already exists.
+					build.Warnings = append(build.Warnings, errorTxt)
 					build.Status = models.BUILD_STATUS_ABORTED
 					updateBuild = true
 				}

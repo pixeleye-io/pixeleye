@@ -13,6 +13,8 @@ type IngestQueue struct {
 
 func (q *IngestQueue) QueueSnapshotsIngest(snapshots []models.Snapshot) error {
 
+	// TODO - limit the number of snapshots we send in a single message
+
 	// TODO - just send the IDs and let the worker fetch the snapshots from the DB
 	body, err := json.Marshal(snapshots)
 

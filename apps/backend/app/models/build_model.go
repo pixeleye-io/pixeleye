@@ -31,10 +31,13 @@ type Build struct {
 
 	ParentBuildID string `db:"parent_build_id" json:"parentBuildID" validate:"omitempty,nanoid"`
 
-	Sha     string         `db:"sha" json:"sha" validate:"required"`
-	Branch  string         `db:"branch" json:"branch" validate:"required"`
-	Title   string         `db:"title" json:"title,omitempty"`
-	Message string         `db:"message" json:"message,omitempty"`
-	Status  string         `db:"status" json:"status" validate:"required,oneof=uploading processing failed aborted approved rejected unreviewed unchanged orphaned"`
-	Errors  pq.StringArray `db:"errors" json:"errors,omitempty"`
+	Sha                string         `db:"sha" json:"sha" validate:"required"`
+	Branch             string         `db:"branch" json:"branch" validate:"required"`
+	Title              string         `db:"title" json:"title,omitempty"`
+	Message            string         `db:"message" json:"message,omitempty"`
+	Status             string         `db:"status" json:"status" validate:"required,oneof=uploading processing failed aborted approved rejected unreviewed unchanged orphaned"`
+	Errors             pq.StringArray `db:"errors" json:"errors,omitempty"`
+	Warnings           pq.StringArray `db:"warnings" json:"warnings,omitempty"`
+	DeletedSnapshotIDs pq.StringArray `db:"deleted_snapshot_ids" json:"deletedSnapshotIDs,omitempty"`
+	ApprovedBy         string         `db:"approved_by" json:"approvedBy,omitempty"`
 }
