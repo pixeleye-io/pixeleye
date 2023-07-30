@@ -8,7 +8,10 @@ export const BuildZod = z.object({
   projectID: z.string().length(21),
   buildNumber: z.number().int(),
 
-  parentBuildID: z.string().length(21).optional(),
+  targetParentID: z.string().length(21).optional(),
+  parentBuildIDs: z.array(z.string().length(21)).optional(),
+
+  targetBuildID: z.string().length(21).optional(),
 
   sha: z.string(),
   branch: z.string(),

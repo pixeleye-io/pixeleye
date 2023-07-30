@@ -2,7 +2,6 @@ package queries
 
 import (
 	"context"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -51,20 +50,44 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 // TODO - make sure when approving a build that it is the latest build
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :build_number)`
+	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id)`
+
+	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
 
 	time := time.Now()
 	build.CreatedAt = time
 	build.UpdatedAt = time
 
-	//TODO fix build increment
-	s1 := rand.NewSource(time.UnixNano())
-	r1 := rand.New(s1)
-	build.BuildNumber = r1.Intn(100000)
+	ctx := context.Background()
 
-	_, err := q.NamedExec(query, build)
+	tx, err := q.BeginTxx(ctx, nil)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	if _, err := tx.NamedExec(query, build); err != nil {
+		// There's a very small chance of a race condition here with the build number. If this happens, we can just try again and hope for the best.
+		if _, err = tx.NamedExec(query, build); err != nil {
+			return err
+		}
+	}
+
+	buildHistoryEntries := []models.BuildHistory{}
+
+	for _, parentID := range build.ParentBuildIDs {
+		buildHistoryEntries = append(buildHistoryEntries, models.BuildHistory{ParentID: parentID, ChildID: build.ID})
+	}
+
+	if len(buildHistoryEntries) > 0 {
+		if _, err := tx.NamedExecContext(ctx, buildHistoryQuery, buildHistoryEntries); err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (q *BuildQueries) UpdateBuild(build *models.Build) error {
@@ -77,11 +100,106 @@ func (q *BuildQueries) UpdateBuild(build *models.Build) error {
 	return err
 }
 
+func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, error) {
+	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
+	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
+
+	build := models.Build{}
+
+	if err := tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
+		return "", err
+	}
+
+	if build.Status != models.BUILD_STATUS_PROCESSING && build.Status != models.BUILD_STATUS_ABORTED {
+		// Build isn't processing, so we don't need to do anything
+		return models.BUILD_STATUS_PROCESSING, nil
+	}
+
+	if build.Status == models.BUILD_STATUS_ABORTED {
+		// Something went wrong during processing.
+		return models.BUILD_STATUS_FAILED, nil
+	}
+
+	snapshotStatus := []string{}
+
+	if err := tx.SelectContext(ctx, &snapshotStatus, selectSnapshotsQuery, build.ID); err != nil {
+		return "", err
+	}
+
+	// Since snapshot processing is asynchronous, we can check the status of each snapshot to determine the overall build status.
+	// If snapshots are still processing, then the build is still processing.
+
+	build.Status = models.BUILD_STATUS_UNCHANGED
+
+	worstStatus := models.BUILD_STATUS_UNCHANGED
+
+	if len(snapshotStatus) == 0 {
+		// No snapshots were uploaded, so we can skip processing. We can assume that the build is unchanged.
+		return models.BUILD_STATUS_UNCHANGED, nil
+	}
+
+	for _, status := range snapshotStatus {
+		if status == models.SNAPSHOT_STATUS_FAILED || status == models.SNAPSHOT_STATUS_ABORTED {
+			// Snapshots should only be marked as aborted if the build was aborted. We might as well check this just in case.
+			// This is the 'worst' status, so we can break out of the loop.
+			return models.BUILD_STATUS_FAILED, nil
+		}
+		if status == models.SNAPSHOT_STATUS_PROCESSING {
+			worstStatus = models.BUILD_STATUS_PROCESSING
+		} else if status == models.SNAPSHOT_STATUS_UNREVIEWED && build.Status != models.BUILD_STATUS_PROCESSING {
+			worstStatus = models.BUILD_STATUS_UNREVIEWED
+		}
+	}
+
+	return worstStatus, nil
+}
+
+func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build, error) {
+
+	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
+	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
+
+	ctx := context.Background()
+
+	build := models.Build{}
+
+	tx, err := q.BeginTxx(ctx, nil)
+
+	if err != nil {
+		return build, err
+	}
+
+	defer tx.Rollback()
+
+	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
+		return build, err
+	}
+
+	status, err := tryGetBuildStatus(tx, ctx, id)
+
+	if err != nil {
+		return build, err
+	}
+
+	if status == models.BUILD_STATUS_PROCESSING {
+		// Build is still processing, so we don't need to do anything
+		return build, nil
+	}
+
+	build.Status = status
+	build.UpdatedAt = time.Now()
+
+	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+		return build, err
+	}
+
+	return build, tx.Commit()
+}
+
 func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
-	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
-	updateBuildQuery := `UPDATE build SET status = $1 WHERE id = $2`
+	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
 
 	build := models.Build{}
 
@@ -104,45 +222,22 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 		return build, echo.NewHTTPError(http.StatusBadRequest, "build has already been marked as complete")
 	}
 
-	if build.Status == models.BUILD_STATUS_ABORTED {
-		// Something went wrong during processing.
-		build.Status = models.BUILD_STATUS_FAILED
-	} else {
+	status, err := tryGetBuildStatus(tx, ctx, id)
 
-		snapshotStatus := []string{}
-
-		if err = tx.SelectContext(ctx, &snapshotStatus, selectSnapshotsQuery, build.ID); err != nil {
-			return build, err
-		}
-
-		// Since snapshot processing is asynchronous, we can check the status of each snapshot to determine the overall build status.
-		// If snapshots are still processing, we assume the build is still processing.
-		// TODO - Ensure the ingest microservice updates the build status if the last snapshot is processed.
-
-		build.Status = models.BUILD_STATUS_UNCHANGED
-
-		// if no snapshots were uploaded, so we can skip processing. We can assume that the build is unchanged.
-		if len(snapshotStatus) != 0 {
-			build.Status = models.BUILD_STATUS_UNCHANGED
-
-			for _, status := range snapshotStatus {
-				if status == models.SNAPSHOT_STATUS_FAILED || status == models.SNAPSHOT_STATUS_ABORTED {
-					// Snapshots should only be marked as aborted if the build was aborted. We still want to check for this case though.
-					build.Status = models.BUILD_STATUS_FAILED
-					break // This is the 'worst' status, so we can break out of the loop.
-				}
-				if status == models.SNAPSHOT_STATUS_PROCESSING {
-					build.Status = models.BUILD_STATUS_PROCESSING
-				} else if status == models.SNAPSHOT_STATUS_UNREVIEWED && build.Status != models.BUILD_STATUS_PROCESSING {
-					build.Status = models.BUILD_STATUS_UNREVIEWED
-				}
-			}
-		}
+	if err != nil {
+		return build, err
 	}
+
+	if status == models.BUILD_STATUS_PROCESSING {
+		// Build is still processing, so we don't need to do anything
+		return build, nil
+	}
+
+	build.Status = status
 
 	build.UpdatedAt = time.Now()
 
-	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.ID); err != nil {
+	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
 		return build, err
 	}
 

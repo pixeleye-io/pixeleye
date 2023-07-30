@@ -35,7 +35,6 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 	if token == "" {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
-	fmt.Println(token)
 
 	values := strings.Split(token, ":")
 

@@ -19,16 +19,16 @@ func (q *IngestQueue) QueueSnapshotsIngest(snapshots []models.Snapshot) error {
 
 	var err error
 
-	batched := [batchSize]string{}
+	batched := []string{}
 	for i := 0; i < len(snapshots); i++ {
 
-		batched[i%batchSize] = snapshots[i].ID
+		batched = append(batched, snapshots[i].ID)
 
 		// We send off the batch if it is full or we are at the end of the snapshots
 		if i%batchSize == batchSize-1 || i == len(snapshots)-1 {
 			body, marshErr := json.Marshal(batched)
 
-			batched = [batchSize]string{}
+			batched = []string{}
 
 			if marshErr != nil {
 				log.Error().Err(marshErr).Msg("Failed to marshal snapshots")

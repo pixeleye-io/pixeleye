@@ -104,9 +104,9 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error 
 }
 
 func (q *SnapshotQueries) SetSnapshotStatus(id string, status string) error {
-	query := `UPDATE snapshot SET status = $1 WHERE id = $2`
+	query := `UPDATE snapshot SET status = $1, updated_at = $2 WHERE id = $3`
 
-	_, err := q.Exec(query, status, id)
+	_, err := q.Exec(query, status, time.Now(), id)
 
 	return err
 }
@@ -121,7 +121,7 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot
 	return snapshots, err
 }
 
-func getDuplicateSnapWarning(snap models.Snapshot) string {
+func getDuplicateSnapError(snap models.Snapshot) string {
 	errTxt := "Duplicate snapshots with name: " + snap.Name
 
 	if snap.Variant != "" {
@@ -139,7 +139,6 @@ func getDuplicateSnapWarning(snap models.Snapshot) string {
 	return errTxt
 }
 
-// TODO - ensure we teat null snapshot variants and "" snapshot variants as the same
 // Assumes we have no duplicate snapshots passed in
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
@@ -191,10 +190,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 			if models.CompareSnaps(snap, snapAfter) {
 				isDup = true
-				warningTxt := getDuplicateSnapWarning(snap)
-				if !utils.ContainsString(build.Warnings, warningTxt) {
-					// No need to update build if the warning for this snapshot already exists.
-					build.Warnings = append(build.Warnings, warningTxt)
+				errorTxt := getDuplicateSnapError(snap)
+				if !utils.ContainsString(build.Errors, errorTxt) {
+					// No need to update build if the error for this snapshot already exists.
+					build.Errors = append(build.Errors, errorTxt)
 					build.Status = models.BUILD_STATUS_ABORTED
 					updateBuild = true
 				}
@@ -210,10 +209,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		for _, existingSnapshot := range existingSnapshots {
 			if models.CompareSnaps(snap, existingSnapshot) {
 				isDup = true
-				warningTxt := getDuplicateSnapWarning(snap)
-				if !utils.ContainsString(build.Warnings, warningTxt) {
-					// No need to update build if the warning for this snapshot already exists.
-					build.Warnings = append(build.Warnings, warningTxt)
+				errorTxt := getDuplicateSnapError(snap)
+				if !utils.ContainsString(build.Errors, errorTxt) {
+					// No need to update build if the error for this snapshot already exists.
+					build.Errors = append(build.Errors, errorTxt)
 					build.Status = models.BUILD_STATUS_ABORTED
 					updateBuild = true
 				}

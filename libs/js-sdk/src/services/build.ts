@@ -27,7 +27,9 @@ export async function createBuild(ctx: Context) {
     body: {
       branch: env.branch,
       sha: env.commit,
-      parentBuildID: parentBuild?.id,
+      targetBuildID: parentBuild?.id,
+      targetParentID: parentBuild?.id,
+      parentBuildIDs: parentBuild ? [parentBuild.id] : undefined, // TODO - Actually get the parent build ids
     },
   });
 

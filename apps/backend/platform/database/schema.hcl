@@ -112,6 +112,11 @@ table "build" {
     on_delete   = CASCADE
   }
 
+  column "target_parent_id" {
+    type = char(21)
+    null = false
+  }
+
   column "build_number" {
     type    = integer
     null    = false
@@ -125,7 +130,7 @@ table "build" {
 
   column "target_build_id" {
     type = char(21)
-    null = true
+    null = false
   }
 
   column "sha" {
@@ -308,11 +313,11 @@ table "snapshot" {
   }
   column "variant" {
     type = varchar(255)
-    null = true
+    null = false
   }
   column "target" {
     type = varchar(255)
-    null = true
+    null = false
   }
 
   column "status" {

@@ -6,24 +6,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
+	"github.com/rs/zerolog/log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // TODO don't fail build if we can't connect to the broker
 
-func ConnectAMPQ() (*amqp.Connection, error) {
+func ConnectAMPQ(url string) (*amqp.Connection, error) {
 	// Define RabbitMQ server URL.
-	amqpServerURL, err := utils.ConnectionURLBuilder("amqp")
-
-	if err != nil {
-		return nil, err
-	}
 
 	// Create a new RabbitMQ connection.
-	connectRabbitMQ, err := amqp.Dial(amqpServerURL)
+	connectRabbitMQ, err := amqp.Dial(url)
 
 	if err != nil {
 		return nil, err
@@ -72,7 +67,9 @@ func getMandatory(t brokerTypes.QueueType) bool {
 func getQueueName(queueType brokerTypes.QueueType, name string) string {
 	queueName, err := queueType.String()
 
-	utils.FailOnError(err, "Failed to get queue name")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to get queue name")
+	}
 
 	return fmt.Sprintf("%s:%s", queueName, name)
 }
@@ -91,7 +88,9 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 		nil,                           // arguments
 	)
 
-	utils.FailOnError(err, "Failed to declare a queue")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to declare a queue")
+	}
 
 	return queue
 }
@@ -122,7 +121,7 @@ func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTyp
 		false,                   // immediate
 		amqp.Publishing{
 			DeliveryMode: getDeliveryMode(queueType), // delivery mode - persistent or not
-			ContentType:  "application/json",         // content type //TODO convert to protobuf
+			ContentType:  "application/json",         // content type
 			Body:         []byte(body),               // body
 		},
 	)
@@ -168,23 +167,3 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 
 	return nil
 }
-
-// go func() {
-// 	messages := broker.SubscribeToQueue(ampqChannel, "test-queue", broker.brokerTypes.BuildUpdate)
-
-// 	// Build a welcome message.
-// 	log.Println("Waiting for messages")
-
-// 	// Make a channel to receive messages into infinite loop.
-// 	forever := make(chan bool)
-
-// 	go func() {
-// 		for message := range messages {
-// 			// For example, show received message in a console.
-// 			log.Printf(" > Received message: %s\n", message.Body)
-// 		}
-// 	}()
-
-// 	<-forever
-
-// }()

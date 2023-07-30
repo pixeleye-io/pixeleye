@@ -5,6 +5,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/rs/zerolog/log"
 )
 
 // Queries struct for collect all app queries.
@@ -25,8 +26,10 @@ func GetChannel() *amqp.Channel {
 	connection := GetConnection()
 	channel, err := connection.Channel()
 	if err != nil {
-		utils.FailOnError(err, "Failed to open a channel")
+		log.Error().Err(err).Msg("Failed to open a channel")
+
 		if channel != nil {
+
 			channel.Close()
 		}
 	}
@@ -36,15 +39,18 @@ func GetChannel() *amqp.Channel {
 
 func GetConnection() *amqp.Connection {
 	if globalConnection == nil {
-		var err error
+		url, err := utils.ConnectionURLBuilder("amqp")
+		if err != nil {
+			log.Fatal().Err(err).Msg("Failed to build connection URL")
+		}
 		// Define a new Database connection
-		globalConnection, err = ConnectAMPQ()
+		globalConnection, err = ConnectAMPQ(url)
 		if err != nil {
 			if globalConnection != nil {
 				globalConnection.Close()
 				globalConnection = nil
 			}
-			utils.FailOnError(err, "Failed to connect to RabbitMQ")
+			log.Fatal().Err(err).Msg("Failed to connect to RabbitMQ")
 		}
 	}
 	return globalConnection

@@ -1,28 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/pixeleye-io/pixeleye/platform/broker"
-	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
+	"github.com/pixeleye-io/pixeleye/pkg/ingest"
+	"github.com/rs/zerolog"
 )
 
 func main() {
 	godotenv.Load("./../../.env")
 
-	// Create rabbitmq
-	connection := broker.GetConnection()
-	defer broker.Close()
-
-	quit := make(chan bool)
-	count := 0
-	broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
-		fmt.Println("Received a message: %s", string(msg))
-		count += 1
-		if count == 10 {
-			quit <- true
-		}
-		return nil
-	}, quit)
+	// Start server (with or without graceful shutdown).
+	if os.Getenv("STAGE_STATUS") == "dev" {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		ingest.StartIngestServer()
+	} else {
+		ingest.StartIngestServerWithGracefulShutdown()
+	}
 }

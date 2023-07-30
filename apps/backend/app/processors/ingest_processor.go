@@ -18,7 +18,7 @@ import (
 // 3) If the approved snapshot is different, then we need to generate a diff and set the status to unreviewed
 func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
 
-	lastApprovedSnapshot, err := db.GetLastApprovedInHistory(snapshot.SnapId)
+	lastApprovedSnapshot, err := db.GetLastApprovedInHistory(snapshot.ID)
 
 	if err != sql.ErrNoRows {
 		if err != nil {
@@ -26,14 +26,17 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 		}
 
 		if lastApprovedSnapshot.SnapId == baselineSnapshot.SnapId {
-			db.SetSnapshotStatus(snapshot.SnapId, models.SNAPSHOT_STATUS_APPROVED)
+			log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is the same as the baseline, approving")
+			db.SetSnapshotStatus(snapshot.ID, models.SNAPSHOT_STATUS_APPROVED)
 			return nil
 		}
 	}
 
+	log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is different to the baseline, generating diff")
+
 	// TODO - process the image changes
 
-	return db.SetSnapshotStatus(snapshot.SnapId, models.SNAPSHOT_STATUS_UNREVIEWED)
+	return db.SetSnapshotStatus(snapshot.ID, models.SNAPSHOT_STATUS_UNREVIEWED)
 }
 
 // group the snapshots into new, removed, changed and unchanged
@@ -78,6 +81,8 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 		}
 	}
 
+	log.Debug().Str("New", strings.Join(newSnapshots, ", ")).Str("Removed", strings.Join(removedSnapshots, ", ")).Str("Unchanged", strings.Join(unchangedSnapshots, ", ")).Str("Changed", fmt.Sprintf("%v", changedSnapshots)).Msg("Grouped snapshots")
+
 	return newSnapshots, removedSnapshots, unchangedSnapshots, changedSnapshots
 }
 
@@ -85,40 +90,50 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 
 	newSnapshots, removedSnapshots, unchangedSnapshots, changedSnapshots := groupSnapshots(snapshots, baselines)
 
-	// We can go ahead and mark the new snapshots as orphaned
-	err := db.SetSnapshotsStatus(newSnapshots, models.SNAPSHOT_STATUS_ORPHANED)
+	if len(newSnapshots) > 0 {
+		// We can go ahead and mark the new snapshots as orphaned
+		err := db.SetSnapshotsStatus(newSnapshots, models.SNAPSHOT_STATUS_ORPHANED)
 
-	if err != nil {
-		log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
-		// We don't want to return this error because we still want to process the remaining snapshots
+		if err != nil {
+			log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
+			// We don't want to return this error because we still want to process the remaining snapshots
+		}
 	}
 
-	// We can go ahead and mark the removed snapshots as removed
-	build.DeletedSnapshotIDs = append(build.DeletedSnapshotIDs, removedSnapshots...)
-	err = db.UpdateBuild(&build)
+	if len(removedSnapshots) > 0 {
 
-	if err != nil {
-		log.Error().Err(err).Str("Snapshots", strings.Join(removedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to update build with removed snapshots")
-		// We don't want to return this error because we still want to process the remaining snapshots
+		// We can go ahead and mark the removed snapshots as removed
+		build.DeletedSnapshotIDs = append(build.DeletedSnapshotIDs, removedSnapshots...)
+		err := db.UpdateBuild(&build)
+
+		if err != nil {
+			log.Error().Err(err).Str("Snapshots", strings.Join(removedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to update build with removed snapshots")
+			// We don't want to return this error because we still want to process the remaining snapshots
+		}
+
 	}
 
-	// We can go ahead and mark the unchanged snapshots as unchanged
-	err = db.SetSnapshotsStatus(unchangedSnapshots, models.SNAPSHOT_STATUS_UNCHANGED)
+	if len(unchangedSnapshots) > 0 {
 
-	if err != nil {
-		log.Error().Err(err).Str("Snapshots", strings.Join(unchangedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to unchanged")
-		// We don't want to return this error because we still want to process the remaining snapshots
+		// We can go ahead and mark the unchanged snapshots as unchanged
+		err := db.SetSnapshotsStatus(unchangedSnapshots, models.SNAPSHOT_STATUS_UNCHANGED)
+
+		if err != nil {
+			log.Error().Err(err).Str("Snapshots", strings.Join(unchangedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to unchanged")
+			// We don't want to return this error because we still want to process the remaining snapshots
+		}
+
 	}
 
 	for _, snap := range changedSnapshots {
 		err := processSnapshot(snap[0], snap[1], db)
 
 		if err != nil {
-			log.Error().Err(err).Str("SnapshotID", snap[0].SnapId).Msg("Failed to process snapshot")
+			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
 
-			err = db.SetSnapshotStatus(snap[0].SnapId, models.SNAPSHOT_STATUS_FAILED)
+			err = db.SetSnapshotStatus(snap[0].ID, models.SNAPSHOT_STATUS_FAILED)
 			if err != nil {
-				log.Error().Err(err).Str("SnapshotID", snap[0].SnapId).Msg("Failed to set snapshot status to failed")
+				log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to set snapshot status to failed")
 			}
 		}
 	}
@@ -149,6 +164,8 @@ func IngestSnapshots(snapshotIDs []string) error {
 		return err
 	}
 
+	fmt.Printf("Ingesting snapshots: %s\n", strings.Join(snapshotIDs, ", "))
+
 	snapshots, err := db.GetSnapshots(snapshotIDs)
 
 	if err != nil {
@@ -169,13 +186,17 @@ func IngestSnapshots(snapshotIDs []string) error {
 		return err
 	}
 
-	if build.ParentBuildID == "" {
+	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
+
+	if strings.TrimSpace(build.TargetParentID) == "" {
 		err = db.SetSnapshotsStatus(snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
+		log.Info().Str("BuildID", build.ID).Msg("Build has no parent build, marking all snapshots as orphaned")
 		if err != nil {
 			return err
 		}
 	} else {
-		parentBuild, err := db.GetBuild(build.ParentBuildID)
+		fmt.Printf("Build parent ID: %s\n", build.TargetParentID)
+		parentBuild, err := db.GetBuild(build.TargetParentID)
 
 		if err != nil {
 			return err
@@ -189,8 +210,15 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 		err = compareBuilds(snapshots, parentBuildSnapshots, build, db)
 
+		if err != nil {
+			return err
+		}
+
 	}
 
-	// TODO - check if we can mark build as finished processing
+	// TODO - I need to do a lot of work around error handling with builds. Although not catastrophic, we want to avoid infinitely processing builds & snapshots
+	// Maybe adding a counter to build table to track how many snapshots we've attempted to process and if it's equal to the number of snapshots in the build, then we can mark the build as processed
+	db.CheckAndUpdateStatusAccordingly(build.ID)
+
 	return nil
 }

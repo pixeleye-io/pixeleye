@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/lib/pq"
@@ -29,7 +30,9 @@ type Build struct {
 
 	BuildNumber int `db:"build_number" json:"buildNumber"`
 
-	ParentBuildID string `db:"parent_build_id" json:"parentBuildID" validate:"omitempty,nanoid"`
+	ParentBuildIDs []string `db:"-" json:"parentBuildIDs" validate:"omitempty"` // TODO build nanoid array validator
+	TargetParentID string   `db:"target_parent_id" json:"targetParentID" validate:"omitempty,nanoid"`
+	TargetBuildID  string   `db:"target_build_id" json:"targetBuildID" validate:"omitempty,nanoid"`
 
 	Sha                string         `db:"sha" json:"sha" validate:"required"`
 	Branch             string         `db:"branch" json:"branch" validate:"required"`
@@ -39,5 +42,10 @@ type Build struct {
 	Errors             pq.StringArray `db:"errors" json:"errors,omitempty"`
 	Warnings           pq.StringArray `db:"warnings" json:"warnings,omitempty"`
 	DeletedSnapshotIDs pq.StringArray `db:"deleted_snapshot_ids" json:"deletedSnapshotIDs,omitempty"`
-	ApprovedBy         string         `db:"approved_by" json:"approvedBy,omitempty"`
+	ApprovedBy         sql.NullString `db:"approved_by" json:"approvedBy,omitempty"`
+}
+
+type BuildHistory struct {
+	ParentID string `db:"parent_id" json:"parentID" validate:"required,nanoid"`
+	ChildID  string `db:"child_id" json:"childID" validate:"required,nanoid"`
 }
