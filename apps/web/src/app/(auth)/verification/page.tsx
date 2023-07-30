@@ -1,11 +1,7 @@
-import { Button, Input, Link, LogoWatching } from "@pixeleye/ui";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { InputHTMLAttributes } from "react";
 import { getUrlForFlow, isQuerySet, frontend } from "../utils";
 import { AuthNode } from "../sharedComponents";
-import { UiNode, UiNodeInputAttributes } from "@ory/client";
-import { isUiNodeInputAttributes } from "@ory/integrations/ui";
 
 
 export default async function VerificationPage({

@@ -18,4 +18,6 @@ func UserRoutes(e *echo.Echo) {
 
 	v1.GET("/user/me", controllers.GetAuthenticatedUser)
 
+	v1.GET("/user/team", controllers.GetPersonalTeam)
+
 }

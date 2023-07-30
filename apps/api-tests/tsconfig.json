@@ -1,9 +1,5 @@
 {
-  "extends": "@pixeleye/tsconfig/base.json",
+  "extends": "@pixeleye/tsconfig/node.json",
   "include": ["."],
-  "exclude": ["dist", "build", "node_modules"],
-  "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "node"
-  }
+  "exclude": ["dist", "build", "node_modules"]
 }

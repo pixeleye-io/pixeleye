@@ -26,6 +26,12 @@ importers:
       '@ory/client':
         specifier: ^1.1.41
         version: 1.1.41
+      '@ory/kratos-client':
+        specifier: ^0.13.1
+        version: 0.13.1
+      nanoid:
+        specifier: ^4.0.2
+        version: 4.0.2
     devDependencies:
       '@pixeleye/eslint-config':
         specifier: workspace:*
@@ -33,6 +39,9 @@ importers:
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../configs/tsconfig
+      '@t3-oss/env-core':
+        specifier: ^0.6.0
+        version: 0.6.0(typescript@5.1.6)(zod@3.21.4)
       '@types/mocha':
         specifier: ^10.0.1
         version: 10.0.1
@@ -57,6 +66,12 @@ importers:
       typescript:
         specifier: ^5.1.6
         version: 5.1.6
+      undici:
+        specifier: ^5.22.1
+        version: 5.22.1
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
 
   apps/web:
     dependencies:
@@ -2348,7 +2363,6 @@ packages:
     dependencies:
       typescript: 5.1.6
       zod: 3.21.4
-    dev: false
 
   /@t3-oss/env-nextjs@0.6.0(typescript@5.1.6)(zod@3.21.4):
     resolution: {integrity: sha512-SpzcGNIbUYcQw4zPPFeRJqCC1560zL7QmB0puIqOnuCsmykPkqHPX+n9CNZLXVQerboHzfvb7Kd+jAdouk72Vw==}
@@ -4844,6 +4858,12 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  /nanoid@4.0.2:
+    resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
+    engines: {node: ^14 || ^16 || >=18}
+    hasBin: true
+    dev: false
+
   /natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
@@ -6664,7 +6684,6 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
-    dev: false
 
   /zustand@4.3.9(react@18.2.0):
     resolution: {integrity: sha512-Tat5r8jOMG1Vcsj8uldMyqYKC5IZvQif8zetmLHs9WoZlntTHmIoNM8TpLRY31ExncuUvUOXehd0kvahkuHjDw==}

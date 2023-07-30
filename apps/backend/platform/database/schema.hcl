@@ -2,6 +2,76 @@ schema "public" {}
 
 schema "private" {}
 
+enum "team_type" {
+  schema = schema.public
+  values = ["github", "gitlab", "bitbucket", "user"]
+}
+
+table "team" {
+  schema = schema.public
+  column "id" {
+    type = char(21)
+    null = false
+  }
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+  column "updated_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "name" {
+    type = varchar(255)
+    null = false
+  }
+  column "avatar_url" {
+    type = text
+    null = false
+  }
+  column "url" {
+    type = text
+    null = false
+  }
+  column "type" {
+    type = enum.team_type
+    null = false
+  }
+}
+
+enum "team_member_role" {
+  schema = schema.public
+  values = ["owner", "admin", "accountant", "member"]
+}
+
+table "team_users" {
+  schema = schema.public
+  column "team_id" {
+    type = varchar(255)
+    null = false
+  }
+  foreign_key "team_id" {
+    columns     = [column.team_id]
+    ref_columns = [table.team.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "user_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "role" {
+    type = enum.team_member_role
+    null = false
+  }
+}
+
 
 enum "project_source" {
   schema = schema.public
@@ -25,6 +95,11 @@ table "project" {
   }
   column "updated_at" {
     type = timestamptz
+    null = false
+  }
+
+  column "team_id" {
+    type = char(21)
     null = false
   }
 
@@ -68,7 +143,7 @@ table "project_users" {
   }
 
   column "user_id" {
-    type = char(21)
+    type = varchar(255)
     null = false
   }
 

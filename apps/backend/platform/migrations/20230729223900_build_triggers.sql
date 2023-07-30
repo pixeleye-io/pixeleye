@@ -1,4 +1,4 @@
-CREATE FUNCTION increment_build() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION increment_build() RETURNS TRIGGER AS $$
 BEGIN
   SELECT COALESCE(max(build_number) + 1, 0) INTO NEW.build_number
   FROM build

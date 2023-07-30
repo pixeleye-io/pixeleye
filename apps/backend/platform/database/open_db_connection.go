@@ -12,6 +12,8 @@ type Queries struct {
 	*queries.ProjectQueries
 	*queries.SnapImageQueries
 	*queries.DiffImageQueries
+	*queries.UserQueries
+	*queries.TeamQueries
 }
 
 // OpenDBConnection func for opening database connection.
@@ -36,5 +38,7 @@ func OpenDBConnection() (*Queries, error) {
 		ProjectQueries:   &queries.ProjectQueries{DB: db},
 		SnapImageQueries: &queries.SnapImageQueries{DB: db},
 		DiffImageQueries: &queries.DiffImageQueries{DB: db},
+		UserQueries:      &queries.UserQueries{DB: db},
+		TeamQueries:      &queries.TeamQueries{DB: db},
 	}, nil
 }
