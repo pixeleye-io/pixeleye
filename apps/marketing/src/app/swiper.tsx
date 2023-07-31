@@ -31,7 +31,7 @@ export function Swiper(props: SwiperProps) {
   }, [framerLoaded]);
 
   const clipped = useTransform(x, (latest) => {
-    return latest + 4;
+    return latest + 16;
   });
 
   const clipPath = useMotionTemplate`inset(0px  0px 0px ${clipped}px )`;
@@ -78,7 +78,7 @@ export function Swiper(props: SwiperProps) {
           drag="x"
           className="absolute inset-y-0 flex items-center justify-center z-20 cursor-grab"
         >
-          <div className="mx-2 h-full w-px bg-black ">
+          <div className="mx-4 h-full w-px bg-black ">
             <div className="" />
           </div>
         </m.div>
