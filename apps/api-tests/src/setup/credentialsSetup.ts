@@ -3,28 +3,30 @@ import {
   Configuration,
   Identity,
   FrontendApi,
-  SuccessfulNativeLogin,
   Session,
+  SuccessfulNativeLogin,
 } from "@ory/kratos-client";
 import { env } from "../env";
 import {
   JohnSmithsPassword,
   createJohnSmithIdentityBody,
 } from "../fixtures/account/johnSmith";
+import { fetch } from "undici";
 
 let oryIdentityAPI: IdentityApi | undefined = undefined;
 
 let oryAuthAPI: FrontendApi | undefined = undefined;
 
-function getOryIdentityAPI(): IdentityApi {
+export function getOryIdentityAPI(): IdentityApi {
   if (oryIdentityAPI) {
     return oryIdentityAPI;
   }
   oryIdentityAPI = new IdentityApi(
     new Configuration({
+      apiKey: env.ORY_API_KEY,
       accessToken: env.ORY_API_KEY,
     }),
-    env.ORY_ENDPOINT
+    env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT
   );
 
   return oryIdentityAPI;
@@ -38,20 +40,26 @@ function getOryAuthAPI(): FrontendApi {
     new Configuration({
       accessToken: env.ORY_API_KEY,
     }),
-    env.ORY_ENDPOINT
+    env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT
   );
   return oryAuthAPI;
 }
 
 // Requires an ory api key
-async function createOryIdentity() {
-  const api = getOryIdentityAPI();
+async function createOryIdentity(id: IDs = IDs.jekyll) {
+  const identity = await fetch(
+    (env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT) + "/admin/identities",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: env.ORY_API_KEY,
+      },
+      body: JSON.stringify(createJohnSmithIdentityBody(id)),
+    }
+  ).then((res) => res.json());
 
-  const identity = await api.createIdentity({
-    createIdentityBody: createJohnSmithIdentityBody,
-  });
-
-  return identity;
+  return identity as Identity;
 }
 
 async function createOrySession(identity: Identity) {
@@ -60,9 +68,8 @@ async function createOrySession(identity: Identity) {
   const flow = await api.createNativeLoginFlow();
 
   const session = await fetch(
-    `${env.ORY_ENDPOINT}/self-service/login?${new URLSearchParams({
-      flow: flow.data.id,
-    })}`,
+    flow.data.ui.action,
+
     {
       body: JSON.stringify({
         identifier: identity.traits.email,
@@ -70,16 +77,20 @@ async function createOrySession(identity: Identity) {
         password: JohnSmithsPassword,
       }),
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
-  ).then((res) => res.json() as Promise<SuccessfulNativeLogin>);
+  ).then((res) => res.json());
 
-  return session;
+  return session as SuccessfulNativeLogin;
 }
 const identityCache = new Map<string, Identity>();
 
 export const IDs = {
   jekyll: "jekyll",
   hyde: "hyde",
+  public: "public",
 } as const;
 
 export type IDs = (typeof IDs)[keyof typeof IDs];
@@ -91,27 +102,61 @@ export async function getOryIdentityId(
     return identityCache.get(id)!;
   }
 
-  const identity = await createOryIdentity().then((res) => res.data);
+  const identity = await createOryIdentity(id);
 
   identityCache.set(id, identity);
 
   return identity;
 }
 
-const sessionCache = new Map<string, SuccessfulNativeLogin>();
+export async function createAllSessions() {
+  const sessions: Record<string, SuccessfulNativeLogin> = {};
 
-export async function getAuthSession(
-  id: IDs = IDs.jekyll
-): Promise<SuccessfulNativeLogin> {
-  if (sessionCache.has(id)) {
-    return sessionCache.get(id)!;
-  }
+  await Promise.all(
+    Object.values(IDs).map(async (id) => {
+      if (id === IDs.public) {
+        sessions[id] = {
+          session_token: "",
+          session: {
+            id: "",
+            identity: {
+              id: "",
+              schema_id: "",
+              schema_url: "",
+              traits: {},
+            },
+          },
+        };
+        return;
+      }
 
-  const identity = await getOryIdentityId(id);
+      const identity = await getOryIdentityId(id);
 
-  const session = await createOrySession(identity);
+      const session = await createOrySession(identity);
 
-  sessionCache.set(id, session);
+      sessions[id] = session;
+    })
+  );
 
-  return session;
+  return sessions;
+}
+
+export function getCreatedUsers(): Identity[] {
+  return Array.from(identityCache).map(([, identity]) => identity);
+}
+
+// Delete user accounts created during tests
+export async function deleteUsers(sessions: Record<IDs, SuccessfulNativeLogin>) {
+
+  const api = getOryIdentityAPI();
+
+  await Promise.all(
+    Object.values(sessions).map(async ({ session }) => {
+      if (!session.identity.id) {
+        return;
+      }
+      console.log("Deleting user", session.identity.id);
+      return api.deleteIdentity({ id: session.identity.id });
+    })
+  );
 }

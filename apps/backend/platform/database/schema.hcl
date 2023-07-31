@@ -437,3 +437,24 @@ table "snapshot" {
 }
 
 
+table "user_deletion_request" {
+  schema = schema.public
+  column "user_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.user_id]
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "expires_at" {
+    type = timestamptz
+    null = false
+  }
+}

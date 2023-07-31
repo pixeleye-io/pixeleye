@@ -5,6 +5,8 @@ export const env = createEnv({
   server: {
     ORY_ENDPOINT: z.string().url(),
     ORY_API_KEY: z.string().min(1),
+    ORY_TEST_ENDPOINT: z.string().url().optional(),
+    SERVER_ENDPOINT: z.string().url(),
   },
   runtimeEnv: process.env,
 });

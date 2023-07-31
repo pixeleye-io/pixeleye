@@ -8,6 +8,14 @@ type GET = Method<{
   };
 }>;
 
+type DELETE = Method<{
+  "/user/me": {
+    res: undefined;
+    req: undefined;
+  };
+}>;
+
 export interface UserAPI {
   GET: GET;
+  DELETE: DELETE;
 }

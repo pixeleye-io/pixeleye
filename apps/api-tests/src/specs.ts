@@ -1,16 +1,14 @@
-import { IDs, getAuthSession } from "./setup/credentialsSetup";
+import { IDs } from "./setup/credentialsSetup";
 import pactum from "pactum";
+import { getSession } from "./setup/getSession";
 
-export async function specAsUser(
-  user: IDs = IDs.jekyll,
-  requestTimeOut = 10000
-) {
-  const session = await getAuthSession(user);
+export function specAsUser(user: IDs = IDs.jekyll, requestTimeOut = 10000) {
+  const session = getSession(user);
 
   return pactum
     .spec()
     .withHeaders({
-      "X-Session-Token": session.session_token,
+      "Authorization": `Bearer ${session.session_token}`,
     })
     .withRequestTimeout(requestTimeOut);
 }

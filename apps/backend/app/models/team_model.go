@@ -22,6 +22,8 @@ type Team struct {
 	Name      string `db:"name" json:"name" validate:"required"`
 	AvatarURL string `db:"avatar_url" json:"avatarURL,omitempty" validate:"omitempty,url"`
 	URL       string `db:"url" json:"url,omitempty" validate:"omitempty,url"`
+
+	Role string `db:"role" json:"role,omitempty" validate:"omitempty,oneof=owner admin accountant member"` // only for user scoped queries
 }
 
 const (

@@ -55,3 +55,6 @@ yarn-error.log*
 next-env.d.ts
 
 dist
+
+
+apps/api-tests/src/fixtures/sessions.json

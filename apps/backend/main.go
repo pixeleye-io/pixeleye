@@ -28,6 +28,8 @@ func main() {
 
 	e := echo.New()
 
+	//TODO - get csrf working
+
 	e.Use(middleware.Logger())
 
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{

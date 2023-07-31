@@ -8,6 +8,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	ory "github.com/ory/client-go"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/rs/zerolog/log"
 )
 
 type oryMiddleware struct {
@@ -39,6 +40,7 @@ func NewOryMiddleware() *oryMiddleware {
 			URL: "http://localhost:4000/.ory", // Ory Network Project URL
 		},
 	}
+
 	return &oryMiddleware{
 		ory: ory.NewAPIClient(cfg),
 	}
@@ -57,11 +59,24 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 	// We first check if the session token is set in the header otherwise we use the cookie.
 
-	sessionToken := r.Header.Get("X-Session-Token")
+	authorization := r.Header.Get("Authorization")
 
-	if sessionToken != "" {
-		resp, _, err := k.ory.FrontendApi.ToSession(context.Background()).XSessionToken(sessionToken).Execute()
+	if authorization != "" {
+
+		if len(authorization) < 7 {
+			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+		}
+		tokenType := authorization[:6]
+
+		if tokenType != "Bearer" && tokenType != "bearer" {
+			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+		}
+
+		authorization = authorization[7:]
+
+		resp, _, err := k.ory.FrontendApi.ToSession(context.Background()).XSessionToken(authorization).Execute()
 		if err != nil {
+			log.Err(err).Msg("Error validating session")
 			return nil, err
 		}
 		return resp, nil
