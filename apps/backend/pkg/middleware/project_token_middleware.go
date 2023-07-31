@@ -20,6 +20,10 @@ func GetProject(c echo.Context) *models.Project {
 	return c.Get("project").(*models.Project)
 }
 
+func SetProject(c echo.Context, project *models.Project) {
+	c.Set("project", project)
+}
+
 func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, error) {
 
 	// We first check if the session token is set in the header otherwise we use the cookie.
@@ -77,7 +81,7 @@ func (k *projectMiddleware) ProjectToken(next echo.HandlerFunc) echo.HandlerFunc
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}
-		c.Set("project", project)
+		SetProject(c, project)
 		return next(c)
 	}
 }

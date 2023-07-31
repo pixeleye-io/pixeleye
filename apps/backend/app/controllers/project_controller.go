@@ -1,16 +1,18 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// TODO - refactor these to fetch team & project from context.
 
 func generateToken() (string, error) {
 	return utils.GenerateRandomStringURLSafe(24)
@@ -26,11 +28,20 @@ func hashToken(token string) (string, error) {
 }
 
 func CreateProject(c echo.Context) error {
+
 	project := models.Project{}
+
+	team := middleware.GetTeam(c)
 
 	if err := c.Bind(&project); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	project.Role = "admin"
+
+	project.TeamID = team.ID // We want to override the team ID from the request body. Otherwise, a user could create a project for another team.
+
+	user := middleware.GetSession(c)
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -66,7 +77,7 @@ func CreateProject(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	if err := db.CreateProject(&project); err != nil {
+	if err := db.CreateProject(&project, user.GetId()); err != nil {
 		return err
 	}
 
@@ -77,24 +88,7 @@ func CreateProject(c echo.Context) error {
 
 func GetProject(c echo.Context) error {
 
-	id := c.Param("id")
-
-	if !utils.ValidateNanoid(id) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
-	}
-
-	db, err := database.OpenDBConnection()
-
-	if err != nil {
-		return err
-	}
-
-	project, err := db.GetProject(id)
-
-	if err != nil {
-		fmt.Println(err)
-		return echo.NewHTTPError(http.StatusNotFound, "project with given ID not found")
-	}
+	project := middleware.GetProject(c)
 
 	// We should remove the token via the struct but we also remove it here for safety.
 	// TODO - add test to ensure that the token is not returned.

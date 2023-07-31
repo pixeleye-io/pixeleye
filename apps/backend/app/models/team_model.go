@@ -20,8 +20,8 @@ type Team struct {
 	Type string `db:"type" json:"type" validate:"required,oneof=github gitlab bitbucket user"`
 
 	Name      string `db:"name" json:"name" validate:"required"`
-	AvatarURL string `db:"avatar_url" json:"avatarURL,omitempty" validate:"omitempty,url"`
-	URL       string `db:"url" json:"url,omitempty" validate:"omitempty,url"`
+	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
+	URL       string `db:"url" json:"url" validate:"omitempty,url"`
 
 	Role string `db:"role" json:"role,omitempty" validate:"omitempty,oneof=owner admin accountant member"` // only for user scoped queries
 }

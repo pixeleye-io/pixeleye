@@ -16,12 +16,25 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
-func (q *UserQueries) createUserPersonalTeam() (models.Team, error) {
-	createUserTeamQuery := `INSERT INTO team (id, type, created_at, updated_at) VALUES (:id, :type, :created_at, :updated_at)`
+func (q *UserQueries) createTeam(ownerId string, teamType string, teamName string) (models.Team, error) {
+	createUserTeamQuery := `INSERT INTO team (id, name, type, avatar_url, url, created_at, updated_at) VALUES (:id, :name, :type, :avatar_url, :url, :created_at, :updated_at)`
 	createUserOnTeamQuery := `INSERT INTO team_users (team_id, user_id, role) VALUES (:team_id, :user_id, :role)`
 
+	timeNow := time.Now()
+
+	id, err := nanoid.New()
+
+	if err != nil {
+		return models.Team{}, err
+	}
+
 	team := models.Team{
-		Type: "user",
+		ID:        id,
+		Type:      teamType,
+		Name:      teamName,
+		CreatedAt: timeNow,
+		UpdatedAt: timeNow,
+		Role:      models.TEAM_MEMBER_ROLE_OWNER,
 	}
 
 	ctx := context.Background()
@@ -34,33 +47,17 @@ func (q *UserQueries) createUserPersonalTeam() (models.Team, error) {
 
 	defer tx.Rollback()
 
-	id, err := nanoid.New()
-
-	if err != nil {
-		return team, err
-	}
-
-	team.ID = id
-
-	timeNow := time.Now()
-	team.CreatedAt = timeNow
-	team.UpdatedAt = timeNow
-
-	_, err = tx.NamedExecContext(ctx, createUserTeamQuery, team)
-
-	if err != nil {
+	if _, err = tx.NamedExecContext(ctx, createUserTeamQuery, team); err != nil {
 		return team, err
 	}
 
 	userOnTeam := models.TeamMember{
 		TeamID: team.ID,
-		UserID: team.ID,
+		UserID: ownerId,
 		Role:   models.TEAM_MEMBER_ROLE_OWNER,
 	}
 
-	_, err = tx.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam)
-
-	if err != nil {
+	if _, err = tx.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam); err != nil {
 		return team, err
 	}
 
@@ -78,7 +75,7 @@ func (q *UserQueries) GetUsersPersonalTeam(id string) (models.Team, error) {
 
 	if err == sql.ErrNoRows {
 		// This is a new user, so we need to create a new team for them.
-		team, err = q.createUserPersonalTeam()
+		team, err = q.createTeam(id, models.TEAM_TYPE_USER, "Personal")
 
 		if err != nil {
 			return team, err
@@ -109,7 +106,7 @@ func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
 
 	if !personalTeamExists {
 		// This is a new user, so we need to create a new team for them.
-		team, err := q.createUserPersonalTeam()
+		team, err := q.createTeam(id, models.TEAM_TYPE_USER, "Personal")
 
 		if err != nil {
 			return teams, err

@@ -32,3 +32,15 @@ func (q *TeamQueries) GetTeamsProjects(teamID string, userID string, isAdmin boo
 
 	return projects, err
 }
+
+func (q *TeamQueries) GetTeam(teamID string, userID string) (models.Team, error) {
+	query := `SELECT * FROM team JOIN team_members ON team.id = team_members.team_id AND team_users.user_id = $1 WHERE team.id = $2`
+
+	team := models.Team{}
+
+	if err := q.Get(&team, query, userID, teamID); err != nil {
+		return team, err
+	}
+
+	return team, nil
+}

@@ -103,13 +103,19 @@ table "project" {
     null = false
   }
 
+  foreign_key "team_id" {
+    columns     = [column.team_id]
+    ref_columns = [table.team.column.id]
+    on_delete   = CASCADE
+  }
+
   column "name" {
     type = varchar(255)
     null = false
   }
   column "url" {
     type = text
-    null = true
+    null = false
   }
   column "source" {
     type = enum.project_source
@@ -117,17 +123,17 @@ table "project" {
   }
   column "source_id" {
     type = varchar(255)
-    null = true
+    null = false
   }
   column "token" {
     type = varchar(255)
-    null = true
+    null = false
   }
 }
 
 enum "project_member_role" {
   schema = schema.public
-  values = ["owner", "admin", "reviewer", "viewer"]
+  values = ["admin", "reviewer", "viewer"]
 }
 
 table "project_users" {

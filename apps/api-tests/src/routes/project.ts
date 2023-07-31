@@ -2,19 +2,19 @@ import { env } from "../env";
 import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
 
-const userEndpoint = env.SERVER_ENDPOINT + "/v1/user";
+const projectEndpoint = env.SERVER_ENDPOINT + "/v1/projects";
 
-export const usersAPI = {
-  getAuthenticatedUser: (user?: IDs, expectedStatus = 200) =>
+export const projectAPI = {
+  getTeamsProjects: (user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
-      .get(userEndpoint + "/me")
+      .post(projectEndpoint)
       .expectStatus(expectedStatus),
   deleteUser: (user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
-      .get(userEndpoint + "/me")
+      .get(projectEndpoint + "/me")
       .expectStatus(expectedStatus),
   getUsersTeams: (user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
-      .get(userEndpoint + "/teams")
+      .get(projectEndpoint + "/teams")
       .expectStatus(expectedStatus),
 } as const;

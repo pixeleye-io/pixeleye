@@ -4,19 +4,21 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 )
 
 func GetTeamsProjects(c echo.Context) error {
-	// TODO - once we have the concept of teams, ensure we actually scope the projects to the team.
-	// TODO - add pagination.
+	team := middleware.GetTeam(c)
+	user := middleware.GetSession(c)
+
 	db, err := database.OpenDBConnection()
 
 	if err != nil {
 		return err
 	}
 
-	projects, err := db.GetProjects()
+	projects, err := db.GetTeamsProjectsAsUser(team.ID, user.GetId())
 
 	if err != nil {
 		return err

@@ -1,9 +1,7 @@
 import {
-  IdentityApi,
   Configuration,
   Identity,
   FrontendApi,
-  Session,
   SuccessfulNativeLogin,
 } from "@ory/kratos-client";
 import { env } from "../env";
@@ -12,25 +10,9 @@ import {
   createJohnSmithIdentityBody,
 } from "../fixtures/account/johnSmith";
 import { fetch } from "undici";
-
-let oryIdentityAPI: IdentityApi | undefined = undefined;
+import { usersAPI } from "../routes/users";
 
 let oryAuthAPI: FrontendApi | undefined = undefined;
-
-export function getOryIdentityAPI(): IdentityApi {
-  if (oryIdentityAPI) {
-    return oryIdentityAPI;
-  }
-  oryIdentityAPI = new IdentityApi(
-    new Configuration({
-      apiKey: env.ORY_API_KEY,
-      accessToken: env.ORY_API_KEY,
-    }),
-    env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT
-  );
-
-  return oryIdentityAPI;
-}
 
 function getOryAuthAPI(): FrontendApi {
   if (oryAuthAPI) {
@@ -146,17 +128,17 @@ export function getCreatedUsers(): Identity[] {
 }
 
 // Delete user accounts created during tests
-export async function deleteUsers(sessions: Record<IDs, SuccessfulNativeLogin>) {
-
-  const api = getOryIdentityAPI();
-
+export async function deleteUsers(
+  sessions: Record<IDs, SuccessfulNativeLogin>
+) {
   await Promise.all(
-    Object.values(sessions).map(async ({ session }) => {
-      if (!session.identity.id) {
+    Object.keys(sessions).map(async (key) => {
+      if (key === IDs.public) {
         return;
       }
-      console.log("Deleting user", session.identity.id);
-      return api.deleteIdentity({ id: session.identity.id });
+      console.log("Deleting user", key);
+      await usersAPI.deleteUser(key as IDs);
+      // TODO - I should have some check here to make sure the user was deleted successfully
     })
   );
 }

@@ -3,4 +3,5 @@ packages:
   - 'libs/*'
   - 'services/*'
   - 'apps/web'
+  - 'apps/marketing'
   - 'apps/api-tests'

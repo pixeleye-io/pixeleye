@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "env-cmd -f ../../.env vitest",
-    "test1": "env-cmd -f ../../.env npx ts-mocha src/**/*.test.ts --require setup.ts  --reporter spec --reporter mochawesome --reporter-options reportDir=results --timeout=10000"
+    "test:api": "env-cmd -f ../../.env vitest"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
