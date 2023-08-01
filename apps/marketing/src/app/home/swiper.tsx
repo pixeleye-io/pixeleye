@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useGlobalStore } from "../providers";
-import Image from "next/image";
+import Image from "next/image"
 
 export interface SwiperProps {}
 
@@ -30,7 +30,8 @@ export function Swiper(props: SwiperProps) {
   }, []);
 
   const [constraintWidth, setConstraintWidth] = useState(0);
-  const cWidth = useMotionValue(0);
+
+  
 
   const constrainer = useRef(null);
 

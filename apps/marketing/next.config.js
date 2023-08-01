@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ["@pixeleye/ui", "@pixeleye/tailwind"],
-  images: {},
+  images: {
+    domains: ['tailwindui.com'],
+  },
   async redirects() {
     return [
       {
