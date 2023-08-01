@@ -41,7 +41,13 @@ func CreateProject(c echo.Context) error {
 
 	project.TeamID = team.ID // We want to override the team ID from the request body. Otherwise, a user could create a project for another team.
 
-	user := middleware.GetSession(c)
+	session := middleware.GetSession(c)
+
+	user, err := utils.DestructureUser(session)
+
+	if err != nil {
+		return err
+	}
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -77,7 +83,7 @@ func CreateProject(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	if err := db.CreateProject(&project, user.GetId()); err != nil {
+	if err := db.CreateProject(&project, user.ID); err != nil {
 		return err
 	}
 

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/rs/zerolog/log"
 )
@@ -16,83 +16,12 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
-func (q *UserQueries) createTeam(ownerId string, teamType string, teamName string) (models.Team, error) {
-	createUserTeamQuery := `INSERT INTO team (id, name, type, avatar_url, url, created_at, updated_at) VALUES (:id, :name, :type, :avatar_url, :url, :created_at, :updated_at)`
-	createUserOnTeamQuery := `INSERT INTO team_users (team_id, user_id, role) VALUES (:team_id, :user_id, :role)`
-
-	timeNow := time.Now()
-
-	id, err := nanoid.New()
-
-	if err != nil {
-		return models.Team{}, err
-	}
-
-	team := models.Team{
-		ID:        id,
-		Type:      teamType,
-		Name:      teamName,
-		CreatedAt: timeNow,
-		UpdatedAt: timeNow,
-		Role:      models.TEAM_MEMBER_ROLE_OWNER,
-	}
-
-	ctx := context.Background()
-
-	tx, err := q.BeginTxx(ctx, nil)
-
-	if err != nil {
-		return team, err
-	}
-
-	defer tx.Rollback()
-
-	if _, err = tx.NamedExecContext(ctx, createUserTeamQuery, team); err != nil {
-		return team, err
-	}
-
-	userOnTeam := models.TeamMember{
-		TeamID: team.ID,
-		UserID: ownerId,
-		Role:   models.TEAM_MEMBER_ROLE_OWNER,
-	}
-
-	if _, err = tx.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam); err != nil {
-		return team, err
-	}
-
-	tx.Commit()
-
-	return team, err
-}
-
-func (q *UserQueries) GetUsersPersonalTeam(id string) (models.Team, error) {
-	team := models.Team{}
-
-	query := `SELECT team.* FROM team JOIN team_users ON team.id = team_users.team_id AND team_users.user_id = $1 AND team.type = 'user'`
-
-	err := q.Get(&team, query, id)
-
-	if err == sql.ErrNoRows {
-		// This is a new user, so we need to create a new team for them.
-		team, err = q.createTeam(id, models.TEAM_TYPE_USER, "Personal")
-
-		if err != nil {
-			return team, err
-		}
-	}
-
-	return team, err
-}
-
 func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
-	query := `SELECT team.*, team_users.role FROM team JOIN team_users ON team.id = team_users.team_id AND team_users.user_id = $1`
+	query := `SELECT team.*, team_users.role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team_users.user_id = $1`
 
 	teams := []models.Team{}
 
-	err := q.Select(&teams, query, id)
-
-	if err != nil && err != sql.ErrNoRows {
+	if err := q.Select(&teams, query, id); err != nil && err != sql.ErrNoRows {
 		return teams, err
 	}
 
@@ -104,18 +33,29 @@ func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
 		}
 	}
 
+	qt := TeamQueries{q.DB}
+
 	if !personalTeamExists {
 		// This is a new user, so we need to create a new team for them.
-		team, err := q.createTeam(id, models.TEAM_TYPE_USER, "Personal")
+		team, err := qt.CreateTeam(id, models.TEAM_TYPE_USER, "Personal")
 
-		if err != nil {
+		if driverErr, ok := err.(*pq.Error); ok { // Now the error number is accessible directly
+			if driverErr.Code == pq.ErrorCode("23505") {
+				log.Error().Err(err).Msg("Duplicate key error, user already has a personal team.")
+				// We have a duplicate key error, so have hit a race condition where another request has created the team for us.
+				if err := q.Select(&teams, query, id); err != nil {
+					return teams, err
+				}
+				return teams, nil
+			}
+		} else if err != nil {
 			return teams, err
 		}
 
 		teams = append(teams, team)
 	}
 
-	return teams, err
+	return teams, nil
 }
 
 func (q *UserQueries) CreateUserDeleteRequest(id string, expiriesAt time.Time) error {

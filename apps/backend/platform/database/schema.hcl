@@ -42,6 +42,17 @@ table "team" {
     type = enum.team_type
     null = false
   }
+  // Used for ensuring uniqueness of a users personal team
+  column "owner_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  index "idx_unqiue_user_team" {
+    columns = [column.type, column.owner_id]
+    where   = "type = 'user'"
+    unique  = true
+  }
 }
 
 enum "team_member_role" {

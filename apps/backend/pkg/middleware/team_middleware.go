@@ -10,6 +10,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/rs/zerolog/log"
 )
 
 type PermissionsRequired struct {
@@ -26,8 +27,21 @@ func getTeamKey(teamId string, userId string) string {
 
 func GetTeam(c echo.Context) models.Team {
 	teamID := c.Param("team_id")
-	userID := GetSession(c).GetId()
-	return c.Get(getTeamKey(teamID, userID)).(models.Team)
+	session := GetSession(c)
+
+	user, err := utils.DestructureUser(session)
+
+	if err != nil {
+		return models.Team{}
+	}
+
+	team := c.Get(getTeamKey(teamID, user.ID))
+
+	if team == nil {
+		return models.Team{}
+	}
+
+	return team.(models.Team)
 }
 
 func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.HandlerFunc {
@@ -41,11 +55,19 @@ func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.Handler
 		}
 
 		// Get the user from the context.
-		user := GetSession(c)
+		session := GetSession(c)
+
+		user, err := utils.DestructureUser(session)
+
+		if err != nil {
+			return err
+		}
+
+		log.Debug().Msgf("TeamRoleAccess: teamID: %s, userID: %s", teamID, user.ID)
 
 		// Check if we already have the team in the context.
 		// TODO - check this actually works.
-		if team, ok := c.Get(getTeamKey(teamID, user.GetId())).(models.Team); ok {
+		if team := GetTeam(c); team != (models.Team{}) {
 			if !slices.Contains(p.Roles, team.Role) {
 				return echo.NewHTTPError(401, "you do not have permission to access this resource.")
 			}
@@ -60,7 +82,7 @@ func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.Handler
 
 		team := models.TeamMember{}
 
-		if _, err := db.GetTeam(teamID, user.GetId()); err != nil {
+		if _, err := db.GetTeam(teamID, user.ID); err != nil {
 			return err
 		}
 
@@ -68,7 +90,7 @@ func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.Handler
 			return echo.NewHTTPError(401, "you do not have permission to access this resource.")
 		}
 
-		c.Set(getTeamKey(teamID, user.GetId()), team)
+		c.Set(getTeamKey(teamID, user.ID), team)
 
 		return next(c)
 	}

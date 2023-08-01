@@ -1,7 +1,7 @@
 -- Create enum type "project_source"
 CREATE TYPE "public"."project_source" AS ENUM ('github', 'gitlab', 'bitbucket', 'custom');
 -- Create enum type "project_member_role"
-CREATE TYPE "public"."project_member_role" AS ENUM ('owner', 'admin', 'reviewer', 'viewer');
+CREATE TYPE "public"."project_member_role" AS ENUM ('admin', 'reviewer', 'viewer');
 -- Create enum type "build_status"
 CREATE TYPE "public"."build_status" AS ENUM ('uploading', 'processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 -- Create enum type "snapshot_status"

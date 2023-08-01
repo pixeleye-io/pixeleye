@@ -2,6 +2,8 @@ package queries
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -92,6 +94,10 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 	)`
 
 	err := q.Get(&project, query, id)
+
+	if err == sql.ErrNoRows {
+		return project, fmt.Errorf("project not found")
+	}
 
 	return project, err
 }

@@ -29,7 +29,13 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
 		}
 
-		user := GetSession(c)
+		session := GetSession(c)
+
+		user, err := utils.DestructureUser(session)
+
+		if err != nil {
+			return err
+		}
 
 		db, err := database.OpenDBConnection()
 
@@ -37,7 +43,7 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 			return err
 		}
 
-		project, err := db.GetProjectAsUser(projectID, user.GetId())
+		project, err := db.GetProjectAsUser(projectID, user.ID)
 
 		if err != nil {
 			return err
