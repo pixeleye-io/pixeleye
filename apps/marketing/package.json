@@ -20,6 +20,7 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
+    "@cloudflare/next-on-pages": "^1.5.0",
     "@heroicons/react": "^2.0.18",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.4",
