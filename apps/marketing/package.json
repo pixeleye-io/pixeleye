@@ -25,6 +25,7 @@
     "@radix-ui/react-dialog": "^1.0.4",
     "@t3-oss/env-nextjs": "^0.6.0",
     "@uidotdev/usehooks": "^2.0.1",
+    "@vercel/analytics": "^1.0.1",
     "class-variance-authority": "^0.7.0",
     "dayjs": "^1.11.9",
     "framer-motion": "^10.13.1",
