@@ -8,15 +8,29 @@ import {
 } from "framer-motion";
 import { useWindowSize } from "usehooks-ts";
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
-import { useGlobalStore } from "./providers";
+import { useGlobalStore } from "../providers";
 
 export interface SwiperProps {}
 
 export function Swiper(props: SwiperProps) {
   const container = useRef<HTMLDivElement>(null);
 
-  const size = useWindowSize();
+  const [windowWidth, setWindowSize] = useState(0);
+
+  const handleSize = () => {
+    setWindowSize(window.innerWidth);
+  };
+
+  useLayoutEffect(() => {
+    handleSize();
+
+    window.addEventListener("resize", handleSize);
+
+    return () => window.removeEventListener("resize", handleSize);
+  }, []);
+
   const [constraintWidth, setConstraintWidth] = useState(0);
+  const cWidth = useMotionValue(0);
 
   const constrainer = useRef(null);
 
@@ -27,23 +41,31 @@ export function Swiper(props: SwiperProps) {
   useLayoutEffect(() => {
     if (!framerLoaded || !container.current) return;
     const { width, left } = container.current.getBoundingClientRect();
-    setConstraintWidth(Math.min(size.width - left, width) );
+    console.log({ width, left, windowWidth });
+    setConstraintWidth(Math.min(windowWidth - left, width) - 32);
   }, [framerLoaded]);
 
   const clipped = useTransform(x, (latest) => {
-    return latest + 16;
+    return latest + 33.5;
   });
 
   const clipPath = useMotionTemplate`inset(0px  0px 0px ${clipped}px )`;
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!container.current) return;
     const { width, left } = container.current.getBoundingClientRect();
-    setConstraintWidth(Math.min(size.width - left, width) );
-  }, [size.width]);
+    setConstraintWidth(Math.min(windowWidth - left, width) - 32);
+  }, [windowWidth]);
 
   return (
-    <div className="relative z-0" ref={container}>
+    <div
+      className="relative z-0"
+      ref={container}
+      onClick={({ clientX, currentTarget }) => {
+        var { left } = currentTarget.getBoundingClientRect();
+        x.set(clientX - left - 32);
+      }}
+    >
       <img
         src="https://tailwindui.com/img/component-images/project-app-screenshot.png"
         alt="App screenshot"
@@ -65,9 +87,8 @@ export function Swiper(props: SwiperProps) {
       </m.div>
       <m.div
         ref={constrainer}
-        animate={{ width: constraintWidth }}
         style={{ width: constraintWidth }}
-        className=""
+        className="mx-4"
       >
         <m.div
           dragConstraints={constrainer}
@@ -76,11 +97,13 @@ export function Swiper(props: SwiperProps) {
           animate={{ x: 150 }}
           style={{ x }}
           drag="x"
-          className="absolute inset-y-0 flex items-center justify-center z-20 cursor-grab"
+          className="absolute inset-y-0 flex flex-col items-center justify-center z-20 cursor-grab"
         >
-          <div className="mx-4 h-full w-px bg-black ">
-            <div className="" />
-          </div>
+          <span className="mx-4 h-[calc(30%-1.5rem)] w-1 bg-outline" />
+          <span className="h-12 w-6 bg-outline backdrop-blur-[1px] border-4 border-outline rounded-full relative">
+            <span className="w-0.5 bg-on-surface absolute inset-y-2 left-[calc(50%-1px)] rounded-full" />
+          </span>
+          <span className="mx-4 h-[calc(70%-1.5rem)] w-1 bg-outline" />
         </m.div>
       </m.div>
     </div>

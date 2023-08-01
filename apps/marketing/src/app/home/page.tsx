@@ -1,6 +1,7 @@
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { Button, LogoWatching, Link } from "@pixeleye/ui";
 import { Swiper } from "./swiper";
+import NextLink from "next/link";
 
 function Hero() {
   return (
@@ -29,15 +30,15 @@ function Hero() {
         />
       </svg>
       <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40">
-        <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 lg:pt-8">
+        <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 pt-8">
           <div className="flex text-on-surface">
             <LogoWatching className="w-16" />
             <h3 className="pt-1 text-4xl font-bold">
               <span className="sr-only">P</span>ixeleye
             </h3>
           </div>
-          <div className="mt-24 sm:mt-32 lg:mt-16">
-            <a href="#" className="inline-flex space-x-6 group">
+          <div className="mt-10 lg:mt-16">
+            <NextLink href="#" className="inline-flex space-x-6 group">
               <span className="rounded-full bg-tertiary-container/75 px-3 py-1 text-sm font-semibold leading-6 text-on-tertiary-container ring-1 ring-inset ring-tertiary/75">
                 What&apos;s new
               </span>
@@ -48,7 +49,7 @@ function Hero() {
                   aria-hidden="true"
                 />
               </span>
-            </a>
+            </NextLink>
           </div>
           <h1 className="mt-10 text-5xl font-bold tracking-tight pb-2 text-tertiary sm:text-6xl">
             Open-source visual testing
