@@ -1,5 +1,6 @@
 import "./colors.css";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
@@ -30,6 +31,7 @@ export default function RootLayout({
           <Header />
           <div className="lg:pt-0 pt-16">{children}</div>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
