@@ -3,6 +3,8 @@ import { Button, LogoWatching, Link } from "@pixeleye/ui";
 import { Swiper } from "./swiper";
 import NextLink from "next/link";
 
+export const runtime = "edge";
+
 function Hero() {
   return (
     <div className="relative isolate overflow-hidden bg-surface">
