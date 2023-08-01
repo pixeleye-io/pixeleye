@@ -8,5 +8,8 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-turbo": "^1.10.11",
     "eslint-plugin-react": "7.33.0"
+  },
+  "devDependencies": {
+    "next": "13.4.12"
   }
 }

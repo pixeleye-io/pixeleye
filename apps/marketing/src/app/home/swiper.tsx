@@ -6,9 +6,9 @@ import {
   useMotionValue,
   useTransform,
 } from "framer-motion";
-import { useWindowSize } from "usehooks-ts";
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useGlobalStore } from "../providers";
+import Image from "next/image";
 
 export interface SwiperProps {}
 
@@ -43,7 +43,7 @@ export function Swiper(props: SwiperProps) {
     const { width, left } = container.current.getBoundingClientRect();
     console.log({ width, left, windowWidth });
     setConstraintWidth(Math.min(windowWidth - left, width) - 32);
-  }, [framerLoaded]);
+  }, [framerLoaded, windowWidth]);
 
   const clipped = useTransform(x, (latest) => {
     return latest + 33.5;
@@ -66,7 +66,7 @@ export function Swiper(props: SwiperProps) {
         x.set(clientX - left - 32);
       }}
     >
-      <img
+      <Image
         src="https://tailwindui.com/img/component-images/project-app-screenshot.png"
         alt="App screenshot"
         width={2432}
@@ -77,7 +77,7 @@ export function Swiper(props: SwiperProps) {
         className="absolute inset-0 will-change-[clip] z-10"
         style={{ clipPath }}
       >
-        <img
+        <Image
           src="https://tailwindui.com/img/component-images/dark-project-app-screenshot.png"
           alt="App screenshot"
           width={2432}
