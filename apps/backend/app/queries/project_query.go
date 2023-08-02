@@ -8,6 +8,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 type ProjectQueries struct {
@@ -93,7 +94,7 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 		)
 	)`
 
-	err := q.Get(&project, query, id)
+	err := q.Get(&project, query, id, userID)
 
 	if err == sql.ErrNoRows {
 		return project, fmt.Errorf("project not found")
@@ -102,22 +103,11 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 	return project, err
 }
 
-// TODO - remove this query once we have the concept of teams
-func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
-	query := `SELECT project.*, build.updated_at AS latest_activity FROM project LEFT JOIN build ON project.id = build.project_id AND build.build_number = (SELECT MAX(build_number) FROM build WHERE build.project_id = project.id)`
-
-	projects := []models.Project{}
-
-	err := q.Select(&projects, query)
-
-	return projects, err
-}
-
 func (q *ProjectQueries) CreateProject(project *models.Project, userID string) error {
-	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url, token) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url, :token)`
+	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url)`
 	setUsersQuery := `INSERT INTO project_users (project_id, user_id, role) VALUES (:project_id, :user_id, :role)`
 
-	time := time.Now()
+	time := utils.CurrentTime()
 	project.CreatedAt = time
 	project.UpdatedAt = time
 
@@ -152,6 +142,73 @@ func (q *ProjectQueries) UpdateProject(project *models.Project) error {
 	project.UpdatedAt = time.Now()
 
 	_, err := q.NamedExec(query, project)
+
+	return err
+}
+
+func (q *ProjectQueries) DeleteProject(id string) error {
+	query := `DELETE FROM project WHERE id = $1`
+
+	_, err := q.Exec(query, id)
+
+	return err
+}
+
+func (q *ProjectQueries) GetProjectUsers(projectID string) ([]models.ProjectMember, error) {
+	query := `SELECT * FROM project_users WHERE project_id = $1`
+
+	projectUsers := []models.ProjectMember{}
+
+	err := q.Select(&projectUsers, query, projectID)
+
+	return projectUsers, err
+}
+
+func (q *ProjectQueries) GetProjectUser(projectID string, userID string) (models.ProjectMember, error) {
+	query := `SELECT * FROM project_users WHERE project_id = $1 AND user_id = $2`
+
+	projectUser := models.ProjectMember{}
+
+	err := q.Get(&projectUser, query, projectID, userID)
+
+	return projectUser, err
+}
+
+func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userID string, role string) error {
+	queryProject := `INSERT INTO project_users (project_id, user_id, role) VALUES ($1, $2, $3)`
+	queryTeam := `INSERT INTO team_users (team_id, user_id, role) VALUES ($1, $2, 'member') ON CONFLICT DO NOTHING` // If a user is in a project, they should be in the team
+
+	ctx := context.Background()
+	tx, err := q.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	if _, err = tx.ExecContext(ctx, queryProject, projectID, userID, role); err != nil {
+		return err
+	}
+
+	if _, err = tx.ExecContext(ctx, queryTeam, teamID, userID); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (q *ProjectQueries) RemoveUserFromProject(projectID string, userID string) error {
+	query := `DELETE FROM project_users WHERE project_id = $1 AND user_id = $2`
+
+	_, err := q.Exec(query, projectID, userID)
+
+	return err
+}
+
+func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string, role string) error {
+	query := `UPDATE project_users SET role = $1 WHERE project_id = $2 AND user_id = $3`
+
+	_, err := q.Exec(query, role, projectID, userID)
 
 	return err
 }

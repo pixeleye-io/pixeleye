@@ -58,3 +58,4 @@ dist
 
 
 apps/api-tests/src/fixtures/sessions.json
+apps/backend/routes.json

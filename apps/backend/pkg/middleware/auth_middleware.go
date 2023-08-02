@@ -8,6 +8,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	ory "github.com/ory/client-go"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,6 +32,12 @@ func GetUserTraits(c echo.Context) (*models.UserTraits, error) {
 
 func GetSession(c echo.Context) *ory.Session {
 	return c.Get("session").(*ory.Session)
+}
+
+func GetUser(c echo.Context) (models.User, error) {
+	session := GetSession(c)
+
+	return utils.DestructureUser(session)
 }
 
 func NewOryMiddleware() *oryMiddleware {

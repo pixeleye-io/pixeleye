@@ -10,7 +10,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	_ "github.com/jackc/pgx/v5/stdlib" // load pgx driver for PostgreSQL
+	_ "github.com/lib/pq"
 )
 
 // PostgreSQLConnection func for connection to PostgreSQL database.
@@ -27,7 +27,7 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	}
 
 	// Define database connection for PostgreSQL.
-	db, err := sqlx.Connect("pgx", postgresConnURL)
+	db, err := sqlx.Connect("postgres", postgresConnURL)
 	if err != nil {
 		return nil, fmt.Errorf("error, not connected to database, %w", err)
 	}

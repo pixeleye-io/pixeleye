@@ -5,16 +5,53 @@ import { specAsUser } from "../specs";
 const projectEndpoint = env.SERVER_ENDPOINT + "/v1/projects";
 
 export const projectAPI = {
-  getTeamsProjects: (user?: IDs, expectedStatus = 200) =>
+  getProject: (projectID: string, user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
-      .post(projectEndpoint)
+      .get(projectEndpoint + `/${projectID}`)
       .expectStatus(expectedStatus),
-  deleteUser: (user?: IDs, expectedStatus = 200) =>
+  deleteProject: (
+    projectID: string,
+    projectName: string,
+    user?: IDs,
+    expectedStatus = 204
+  ) =>
     specAsUser(user)
-      .get(projectEndpoint + "/me")
+      .withBody({ name: projectName })
+      .delete(projectEndpoint + `/${projectID}/admin`)
       .expectStatus(expectedStatus),
-  getUsersTeams: (user?: IDs, expectedStatus = 200) =>
+  regenerateToken: (projectID: string, user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
-      .get(projectEndpoint + "/teams")
+      .post(projectEndpoint + `/${projectID}/admin/new-token`)
+      .expectStatus(expectedStatus),
+  addUserToProject: (
+    projectID: string,
+    userID: string,
+    role: string,
+    user?: IDs,
+    expectedStatus = 204
+  ) =>
+    specAsUser(user)
+      .withBody({ userID, role })
+      .post(projectEndpoint + `/${projectID}/admin/users`)
+      .expectStatus(expectedStatus),
+  removeUserFromProject: (
+    projectID: string,
+    userID: string,
+    user?: IDs,
+    expectedStatus = 204
+  ) =>
+    specAsUser(user)
+      .delete(projectEndpoint + `/${projectID}/admin/users/${userID}`)
+      .expectStatus(expectedStatus),
+  updateUserRole: (
+    projectID: string,
+    userID: string,
+    role: string,
+    user?: IDs,
+    expectedStatus = 204 
+  ) =>
+    specAsUser(user)
+      .withBody({ role })
+      .patch(projectEndpoint + `/${projectID}/admin/users/${userID}`)
       .expectStatus(expectedStatus),
 } as const;

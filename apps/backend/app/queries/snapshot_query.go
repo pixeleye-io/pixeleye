@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -106,7 +105,7 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error 
 func (q *SnapshotQueries) SetSnapshotStatus(id string, status string) error {
 	query := `UPDATE snapshot SET status = $1, updated_at = $2 WHERE id = $3`
 
-	_, err := q.Exec(query, status, time.Now(), id)
+	_, err := q.Exec(query, status, utils.CurrentTime(), id)
 
 	return err
 }
@@ -221,7 +220,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 		if !isDup {
 			snap.ID, err = nanoid.New()
-			time := time.Now()
+			time := utils.CurrentTime()
 			snap.CreatedAt = time
 			snap.UpdatedAt = time
 			snap.Status = models.SNAPSHOT_STATUS_PROCESSING
@@ -250,7 +249,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	}
 
 	if updateBuild {
-		build.UpdatedAt = time.Now()
+		build.UpdatedAt = utils.CurrentTime()
 		if _, err := tx.NamedExecContext(ctx, buildQuery, build); err != nil {
 			return nil, err
 		}

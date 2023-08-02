@@ -3,11 +3,11 @@ package queries
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 type BuildQueries struct {
@@ -54,7 +54,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 
 	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
 
-	time := time.Now()
+	time := utils.CurrentTime()
 	build.CreatedAt = time
 	build.UpdatedAt = time
 
@@ -93,7 +93,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 func (q *BuildQueries) UpdateBuild(build *models.Build) error {
 	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors, updated_at = :updated_at WHERE id = :id`
 
-	build.UpdatedAt = time.Now()
+	build.UpdatedAt = utils.CurrentTime()
 
 	_, err := q.NamedExec(query, build)
 
@@ -187,7 +187,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 	}
 
 	build.Status = status
-	build.UpdatedAt = time.Now()
+	build.UpdatedAt = utils.CurrentTime()
 
 	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
 		return build, err
@@ -235,7 +235,7 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 
 	build.Status = status
 
-	build.UpdatedAt = time.Now()
+	build.UpdatedAt = utils.CurrentTime()
 
 	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
 		return build, err

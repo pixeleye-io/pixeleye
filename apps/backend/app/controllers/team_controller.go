@@ -5,15 +5,16 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 )
 
 func GetTeamsProjects(c echo.Context) error {
 	team := middleware.GetTeam(c)
-	session := middleware.GetSession(c)
+	user, err := middleware.GetUser(c)
 
-	user, err := utils.DestructureUser(session)
+	if err != nil {
+		return err
+	}
 
 	db, err := database.OpenDBConnection()
 

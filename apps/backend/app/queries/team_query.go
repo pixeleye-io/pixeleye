@@ -94,7 +94,7 @@ func (q *TeamQueries) GetTeamsProjects(teamID string, userID string, isAdmin boo
 }
 
 func (q *TeamQueries) GetTeam(teamID string, userID string) (models.Team, error) {
-	query := `SELECT team.* FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1 AND team_users.user_id = $2`
+	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1 AND team_users.user_id = $2`
 
 	team := models.Team{}
 

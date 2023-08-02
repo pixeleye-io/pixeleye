@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/labstack/echo/v4"
@@ -85,7 +84,7 @@ func GetUploadURL(c echo.Context) error {
 		ID:        id,
 		Hash:      hash,
 		ProjectID: project.ID,
-		CreatedAt: time.Now(),
+		CreatedAt: utils.CurrentTime(),
 	}
 
 	validate := utils.NewValidator()

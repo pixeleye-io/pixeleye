@@ -28,7 +28,7 @@ func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
 	personalTeamExists := false
 
 	for _, team := range teams {
-		if team.Type == "user" {
+		if team.Type == "user" && team.OwnerID == id {
 			personalTeamExists = true
 		}
 	}
@@ -39,7 +39,7 @@ func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
 		// This is a new user, so we need to create a new team for them.
 		team, err := qt.CreateTeam(id, models.TEAM_TYPE_USER, "Personal")
 
-		if driverErr, ok := err.(*pq.Error); ok { // Now the error number is accessible directly
+		if driverErr, ok := err.(*pq.Error); ok {
 			if driverErr.Code == pq.ErrorCode("23505") {
 				log.Error().Err(err).Msg("Duplicate key error, user already has a personal team.")
 				// We have a duplicate key error, so have hit a race condition where another request has created the team for us.

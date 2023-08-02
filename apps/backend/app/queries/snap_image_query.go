@@ -1,11 +1,10 @@
 package queries
 
 import (
-	"time"
-
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 type SnapImageQueries struct {
@@ -25,7 +24,7 @@ func (q *SnapImageQueries) GetSnapImage(hash string, projectID string) (models.S
 func (q *SnapImageQueries) CreateSnapImage(snapImage *models.SnapImage) error {
 	query := `INSERT INTO snap_image (id, hash, project_id, created_at) VALUES (:id, :hash, :project_id, :created_at)`
 
-	snapImage.CreatedAt = time.Now()
+	snapImage.CreatedAt = utils.CurrentTime()
 
 	var err error
 	if snapImage.ID, err = nanoid.New(); err != nil {

@@ -17,9 +17,7 @@ import (
 func GetAuthenticatedUser(c echo.Context) error {
 
 	// Get user from session.
-	session := middleware.GetSession(c)
-
-	user, err := utils.DestructureUser(session)
+	user, err := middleware.GetUser(c)
 
 	if err != nil {
 		return err
@@ -44,9 +42,7 @@ func DeleteUser(c echo.Context) error {
 	// TODO  - Make sure the user has to re-authenticate before they can delete their account.
 
 	// Get user from session.
-	session := middleware.GetSession(c)
-
-	user, err := utils.DestructureUser(session)
+	user, err := middleware.GetUser(c)
 
 	if err != nil {
 		return err
@@ -108,39 +104,10 @@ func DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-//TODO - Delete this if we don't need it.
-// func GetPersonalTeam(c echo.Context) error {
-
-// 	// Get user from session.
-// 	session := middleware.GetSession(c)
-
-// 	user, err := utils.DestructureUser(session)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	db, err := database.OpenDBConnection()
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	team, err := db.GetUsersPersonalTeam(user.ID)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return c.JSON(http.StatusOK, team)
-// }
-
 func GetUsersTeams(c echo.Context) error {
 
 	// Get user from session.
-	session := middleware.GetSession(c)
-
-	user, err := utils.DestructureUser(session)
+	user, err := middleware.GetUser(c)
 
 	if err != nil {
 		return err

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -49,6 +50,11 @@ func main() {
 	// Start server (with or without graceful shutdown).
 	if os.Getenv("STAGE_STATUS") == "dev" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+
+		if data, err := json.MarshalIndent(e.Routes(), "", "  "); err == nil {
+			os.WriteFile("routes.json", data, 0644)
+		}
+
 		go ingest.StartIngestServer()
 		e.Debug = true
 		utils.StartServer(e)

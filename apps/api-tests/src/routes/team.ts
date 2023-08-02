@@ -16,7 +16,7 @@ export const teamAPI = {
     project: ProjectBody,
     teamID: string,
     user?: IDs,
-    expectedStatus = 200
+    expectedStatus = 201
   ) =>
     specAsUser(user)
       .withBody(project)

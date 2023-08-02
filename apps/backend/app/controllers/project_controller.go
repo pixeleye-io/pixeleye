@@ -12,8 +12,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// TODO - refactor these to fetch team & project from context.
-
 func generateToken() (string, error) {
 	return utils.GenerateRandomStringURLSafe(24)
 }
@@ -41,9 +39,7 @@ func CreateProject(c echo.Context) error {
 
 	project.TeamID = team.ID // We want to override the team ID from the request body. Otherwise, a user could create a project for another team.
 
-	session := middleware.GetSession(c)
-
-	user, err := utils.DestructureUser(session)
+	user, err := middleware.GetUser(c)
 
 	if err != nil {
 		return err
@@ -104,23 +100,8 @@ func GetProject(c echo.Context) error {
 }
 
 func RegenerateToken(c echo.Context) error {
-	id := c.Param("id")
 
-	if !utils.ValidateNanoid(id) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
-	}
-
-	db, err := database.OpenDBConnection()
-
-	if err != nil {
-		return err
-	}
-
-	project, err := db.GetProject(id)
-
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "project with given ID not found")
-	}
+	project := middleware.GetProject(c)
 
 	token, err := generateToken()
 
@@ -136,11 +117,147 @@ func RegenerateToken(c echo.Context) error {
 
 	project.Token = hashedToken
 
-	if err := db.UpdateProject(&project); err != nil {
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.UpdateProject(project); err != nil {
 		return err
 	}
 
 	project.RawToken = token
 
 	return c.JSON(http.StatusOK, project)
+}
+
+type UpdateProjectRequest struct {
+	Name string `json:"name" validate:"required"`
+}
+
+func DeleteProject(c echo.Context) error {
+
+	project := middleware.GetProject(c)
+
+	body := UpdateProjectRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if project.Name != body.Name {
+		return echo.NewHTTPError(http.StatusBadRequest, "project name does not match")
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.DeleteProject(project.ID); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+type AddUserToProjectRequest struct {
+	UserID string `json:"userID" validate:"required"`
+	Role   string `json:"role" validate:"required,oneof=admin reviewer viewer"`
+}
+
+func AddUserToProject(c echo.Context) error {
+
+	project := middleware.GetProject(c)
+
+	body := AddUserToProjectRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.AddUserToProject(project.TeamID, project.ID, body.UserID, body.Role); err != nil {
+		// TODO - check if the error is a duplicate error and return a 409
+		return err
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+func RemoveUserFromProject(c echo.Context) error {
+
+	userID := c.Param("user_id")
+
+	project := middleware.GetProject(c)
+
+	user, err := middleware.GetUser(c)
+
+	if err != nil {
+		return err
+	}
+
+	if userID == user.ID {
+		return echo.NewHTTPError(http.StatusBadRequest, "you cannot remove yourself from the project")
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.RemoveUserFromProject(project.ID, userID); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+type UpdateProjectRoleRequest struct {
+	Role string `json:"role" validate:"required,oneof=admin reviewer viewer"`
+}
+
+func UpdateProjectRole(c echo.Context) error {
+
+	userID := c.Param("user_id")
+
+	project := middleware.GetProject(c)
+
+	body := UpdateProjectRoleRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.UpdateUserRoleOnProject(project.ID, userID, body.Role); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }

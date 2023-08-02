@@ -8,8 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 )
+
+// TODO - fix middleware to return 404
 
 type ProjectPermissionsRequired struct {
 	Roles     []string
@@ -24,6 +27,8 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 	return func(c echo.Context) error {
 
 		projectID := c.Param("project_id")
+
+		log.Debug().Msgf("project id: %s", projectID)
 
 		if !utils.ValidateNanoid(projectID) {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
@@ -54,6 +59,8 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 		}
 
 		SetProject(c, &project)
+
+		log.Debug().Msgf("project: %+v", project)
 
 		return next(c)
 	}

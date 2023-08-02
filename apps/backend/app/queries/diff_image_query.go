@@ -1,11 +1,10 @@
 package queries
 
 import (
-	"time"
-
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 type DiffImageQueries struct {
@@ -25,7 +24,7 @@ func (q *DiffImageQueries) GetDiffImage(hash string) (models.DiffImage, error) {
 func (q *DiffImageQueries) CreateDiffImage(diffImage *models.DiffImage) error {
 	query := `INSERT INTO diff_image (id, hash, project_id, created_at) VALUES (:id, :hash, :project_id, :created_at)`
 
-	diffImage.CreatedAt = time.Now()
+	diffImage.CreatedAt = utils.CurrentTime()
 
 	var err error
 	if diffImage.ID, err = nanoid.New(); err != nil {

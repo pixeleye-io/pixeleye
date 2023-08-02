@@ -65,26 +65,19 @@ func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.Handler
 
 		log.Debug().Msgf("TeamRoleAccess: teamID: %s, userID: %s", teamID, user.ID)
 
-		// Check if we already have the team in the context.
-		// TODO - check this actually works.
-		if team := GetTeam(c); team != (models.Team{}) {
-			if !slices.Contains(p.Roles, team.Role) {
-				return echo.NewHTTPError(401, "you do not have permission to access this resource.")
-			}
-			return next(c)
-		}
-
 		// Get the users role on the team.
 		db, err := database.OpenDBConnection()
 		if err != nil {
 			return err
 		}
 
-		team := models.TeamMember{}
+		team, err := db.GetTeam(teamID, user.ID)
 
-		if _, err := db.GetTeam(teamID, user.ID); err != nil {
+		if err != nil {
 			return err
 		}
+
+		log.Debug().Msgf("TeamRoleAccess: teamID: %s, userID: %s, role: %s, roles required: %v", teamID, user.ID, team.Role, p.Roles)
 
 		if !slices.Contains(p.Roles, team.Role) {
 			return echo.NewHTTPError(401, "you do not have permission to access this resource.")

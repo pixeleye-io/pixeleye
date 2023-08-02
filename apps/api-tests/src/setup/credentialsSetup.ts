@@ -73,6 +73,7 @@ export const IDs = {
   jekyll: "jekyll",
   hyde: "hyde",
   public: "public",
+  john: "john",
 } as const;
 
 export type IDs = (typeof IDs)[keyof typeof IDs];
