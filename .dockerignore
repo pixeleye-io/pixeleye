@@ -5,3 +5,7 @@ npm-debug.log
 README.md
 .next
 .git
+apps/backend/*.exe
+apps/backend/package.json
+apps/backend/routes.json
+apps/backend/dev-compose.yaml
