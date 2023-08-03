@@ -10,6 +10,7 @@
     "lint": {},
     "types": {},
     "test": {},
+    "test:api": {},
     "start": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"]

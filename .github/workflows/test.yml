@@ -15,8 +15,8 @@ jobs:
         image: postgres:15-alpine
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pixeleye
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: test
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -33,6 +33,12 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
+
+      - uses: ariga/atlas-action@latest
+        with:
+          dir: ./apps/backend/platform/migrations
+          dir-format: atlas
+          dev-url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
 
       - name: Setup golang
         uses: actions/setup-go@v4
