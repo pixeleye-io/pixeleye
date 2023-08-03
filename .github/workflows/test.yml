@@ -33,12 +33,14 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-
-      - uses: ariga/atlas-action@v0
-        with:
-          dir: ./apps/backend/platform/migrations
-          dir-format: atlas
-          dev-url: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+      
+      - name: Install Atlas
+        run: |
+          curl -sSf https://atlasgo.sh | sh 
+      - run: |
+          atlas migrate apply --dir file://apps/backend/platform/migrations/ -u 'postgres://postgres:pass@localhost:5432/test?sslmode=disable'
+      - run: |
+          echo "Run your tests here!"
 
       - name: Setup golang
         uses: actions/setup-go@v4
