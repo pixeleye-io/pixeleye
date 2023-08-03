@@ -66,6 +66,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 		return err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if _, err := tx.NamedExec(query, build); err != nil {
@@ -169,6 +170,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 		return build, err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
@@ -211,6 +213,7 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 		return build, err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {

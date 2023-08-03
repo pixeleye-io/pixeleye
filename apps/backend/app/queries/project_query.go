@@ -123,6 +123,7 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 		return err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if _, err = tx.NamedExecContext(ctx, query, project); err != nil {
@@ -184,6 +185,7 @@ func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userI
 		return err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if _, err = tx.ExecContext(ctx, queryProject, projectID, userID, role); err != nil {

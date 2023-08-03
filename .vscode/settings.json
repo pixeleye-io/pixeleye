@@ -1,15 +1,22 @@
 {
-    "cSpell.words": [
-        "authed",
-        "hostable",
-        "mapstructure",
-        "oneof",
-        "pactum",
-        "pixeleye",
-        "Presign",
-        "Presigner",
-        "Swiper",
-        "unreviewed",
-        "Upsert"
-    ]
+  "cSpell.words": [
+    "authed",
+    "godotenv",
+    "hostable",
+    "joho",
+    "labstack",
+    "mapstructure",
+    "nolint",
+    "oneof",
+    "pactum",
+    "pixeleye",
+    "Presign",
+    "Presigner",
+    "Swiper",
+    "unreviewed",
+    "Upsert",
+    "zerolog"
+  ],
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": ["-E", "dogsled", "-E", "gochecknoglobals"]
 }

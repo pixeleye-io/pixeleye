@@ -50,6 +50,7 @@ func (q *TeamQueries) CreateTeam(ownerId string, teamType string, teamName strin
 		return team, err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if _, err = tx.NamedExecContext(ctx, createUserTeamQuery, team); err != nil {
@@ -66,9 +67,7 @@ func (q *TeamQueries) CreateTeam(ownerId string, teamType string, teamName strin
 		return team, err
 	}
 
-	tx.Commit()
-
-	return team, err
+	return team, tx.Commit()
 }
 
 // isAdmin bool is for check user is admin. If user is admin, user can see all projects in team.

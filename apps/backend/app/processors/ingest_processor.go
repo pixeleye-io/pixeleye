@@ -27,8 +27,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 
 		if lastApprovedSnapshot.SnapId == baselineSnapshot.SnapId {
 			log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is the same as the baseline, approving")
-			db.SetSnapshotStatus(snapshot.ID, models.SNAPSHOT_STATUS_APPROVED)
-			return nil
+			return db.SetSnapshotStatus(snapshot.ID, models.SNAPSHOT_STATUS_APPROVED)
 		}
 	}
 
@@ -218,6 +217,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	// TODO - I need to do a lot of work around error handling with builds. Although not catastrophic, we want to avoid infinitely processing builds & snapshots
 	// Maybe adding a counter to build table to track how many snapshots we've attempted to process and if it's equal to the number of snapshots in the build, then we can mark the build as processed
+	// nolint:errcheck
 	db.CheckAndUpdateStatusAccordingly(build.ID)
 
 	return nil

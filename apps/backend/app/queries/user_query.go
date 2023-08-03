@@ -80,6 +80,7 @@ func (q *UserQueries) deleteUser(id string) error {
 		return err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	if _, err = tx.ExecContext(ctx, deleteUsersTeamQuery, id); err != nil {
@@ -98,9 +99,7 @@ func (q *UserQueries) deleteUser(id string) error {
 		return err
 	}
 
-	tx.Commit()
-
-	return nil
+	return tx.Commit()
 }
 
 func (q *UserQueries) DeleteUsers() error {

@@ -1,14 +1,104 @@
-name: Integration Test CI
+name: Pixeleye CI
 
 on:
   push:
     branches: ["main"]
   pull_request:
-    branches: ["main"]
+    types: [opened, synchronize]
 
 jobs:
-  integration-test:
+  node-ci:
+    name: Node - Build, Lint, Test, Types
+    timeout-minutes: 15
     runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies node
+        run: pnpm install
+
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.32.2
+
+      - name: Lint
+        run: pnpm turbo lint
+
+      - name: Test
+        run: pnpm turbo test
+
+      - name: Types
+        run: pnpm turbo types
+
+      - name: Build
+        run: pnpm turbo build
+
+  golang-ci:
+    name: Golang - Lint, Test, Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.53
+
+      - name: Install dependencies
+        run: |
+          cd apps/backend  
+          go mod download
+          go mod verify
+
+      - name: Build
+        run: |
+          cd apps/backend
+          go build -v ./...
+
+      - name: Test
+        run: |
+          cd apps/backend
+          go test -v ./...
+
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    needs: [golang-ci, node-ci]
 
     services:
       postgres:
@@ -33,10 +123,10 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-      
+
       - name: Install Atlas
         run: |
-          curl -sSf https://atlasgo.sh | sh 
+          curl -sSf https://atlasgo.sh | sh
       - run: |
           atlas migrate apply --dir file://apps/backend/platform/migrations/ -u 'postgres://postgres:pass@localhost:5432/test?sslmode=disable'
       - run: |

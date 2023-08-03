@@ -157,6 +157,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		return nil, err
 	}
 
+	// nolint:errcheck
 	defer tx.Rollback()
 
 	build := models.Build{}

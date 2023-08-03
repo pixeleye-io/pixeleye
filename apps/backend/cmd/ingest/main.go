@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	// nolint:errcheck
 	godotenv.Load("./../../.env")
 
 	// Start server (with or without graceful shutdown).

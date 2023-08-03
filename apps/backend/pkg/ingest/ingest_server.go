@@ -43,6 +43,8 @@ func startIngestServer(quit chan bool) {
 	connection := broker.GetConnection()
 	defer broker.Close()
 
+	// TODO avoid shutting down if we get an error
+
 	// Start server
 	go func(quit chan bool) {
 		err := broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
@@ -50,12 +52,14 @@ func startIngestServer(quit chan bool) {
 
 			snapshotIDs := []string{}
 
-			json.Unmarshal(msg, &snapshotIDs)
+			if err := json.Unmarshal(msg, &snapshotIDs); err != nil {
+				log.Error().Err(err).Msg("Error while unmarshalling message")
+				return err
+			}
 
-			err := processors.IngestSnapshots(snapshotIDs)
-
-			if err != nil {
+			if err := processors.IngestSnapshots(snapshotIDs); err != nil {
 				log.Error().Err(err).Msg("Error while ingesting snapshots")
+				return err
 			}
 
 			return nil

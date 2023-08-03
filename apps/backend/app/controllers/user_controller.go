@@ -95,7 +95,11 @@ func DeleteUser(c echo.Context) error {
 		expirers = time.Now()
 	}
 
-	db.CreateUserDeleteRequest(user.ID, expirers)
+	err = db.CreateUserDeleteRequest(user.ID, expirers)
+
+	if err != nil {
+		return err
+	}
 
 	if deleteUserRequest.SkipPurgatory {
 		jobs.DeleteUserJob()

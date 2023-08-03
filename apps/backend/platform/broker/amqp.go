@@ -153,11 +153,14 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
+	// nolint:errcheck
 	defer channel.Cancel(consumer, false)
 
 	go func() {
 		for message := range messages {
-			callback(message.Body)
+			if err := callback(message.Body); err != nil {
+				log.Error().Err(err).Msg("Failed to process message")
+			}
 		}
 	}()
 
