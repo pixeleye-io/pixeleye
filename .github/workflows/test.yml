@@ -34,7 +34,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
 
-      - uses: ariga/atlas-action@latest
+      - uses: ariga/atlas-action@v0
         with:
           dir: ./apps/backend/platform/migrations
           dir-format: atlas
