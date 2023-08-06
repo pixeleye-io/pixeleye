@@ -120,9 +120,9 @@ jobs:
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v2.0
         with:
-          ORY_ENDPOINT: ${{ secrets.SECRET_KEY }}
-          ORY_API_KEY: ${{ secrets.SECRET_KEY }}
-          SERVER_ENDPOINT: localhost:5000
+          envkey_ORY_ENDPOINT: ${{ secrets.SECRET_KEY }}
+          envkey_ORY_API_KEY: ${{ secrets.SECRET_KEY }}
+          envkey_SERVER_ENDPOINT: localhost:5000
 
   api-tests:
     name: API Tests
