@@ -173,7 +173,7 @@ jobs:
 
       - name: start go server
         working-directory: ./apps/backend
-        run: go run main.go &
+        run: nohup go run main.go &
 
       - uses: pnpm/action-setup@v2
         with:
