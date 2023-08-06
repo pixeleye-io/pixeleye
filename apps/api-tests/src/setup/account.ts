@@ -43,6 +43,10 @@ const setup = async () => {
     counter++;
   }
 
+  if (!isUp) {
+    throw new Error("API is not up");
+  }
+
   return async () => {
     await deleteUsers(tokens);
   };
