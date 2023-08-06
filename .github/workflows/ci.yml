@@ -174,10 +174,6 @@ jobs:
           envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
           envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
 
-      - name: start go server
-        working-directory: ./apps/backend
-        run: go run main.go &
-
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -191,4 +187,4 @@ jobs:
         run: pnpm install
 
       - name: Run api tests
-        run: pnpm turbo test:api
+        run: cd ./apps/backend & go run main.go & pnpm turbo test:api
