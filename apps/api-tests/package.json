@@ -11,6 +11,7 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@t3-oss/env-core": "^0.6.0",
     "@types/node": "20.3.1",
+    "@types/wait-on": "^5.3.1",
     "env-cmd": "^10.1.0",
     "pactum": "^3.4.1",
     "typescript": "^5.1.6",
@@ -23,6 +24,7 @@
     "@ory/kratos-client": "^0.13.1",
     "@pixeleye/api": "workspace:*",
     "nanoid": "^4.0.2",
-    "pactum-matchers": "^1.1.5"
+    "pactum-matchers": "^1.1.5",
+    "wait-on": "^7.0.1"
   }
 }
