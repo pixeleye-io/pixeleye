@@ -44,6 +44,7 @@ export async function generateStaticParams() {
 
     return {
       pages: file
+        .replaceAll("%2F", "\\")
         .replace(/(.*)(\\docs\\)/, "")
         .replace(".md", "")
         .split("\\"),
