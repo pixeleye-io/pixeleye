@@ -119,7 +119,7 @@ jobs:
           cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 
   atlas-sync:
-    needs: lint
+    needs: atlas-lint
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
