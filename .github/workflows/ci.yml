@@ -159,42 +159,30 @@ jobs:
           go mod download
           go mod verify
 
-      - name: start go server
-        working-directory: ./apps/backend
-        run: go run main.go &
-
-      - name: Setup node
-        uses: actions/setup-node@v2
-        with:
-          node-version: "16.x"
-
-
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_ORY_ENDPOINT: ${{ secrets.ORY_ENDPOINT }}
           envkey_ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
           envkey_SERVER_ENDPOINT: localhost:5000
+          envkey_DB_URL: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          envkey_DB_MAX_CONNECTIONS: 100
+          envkey_DB_MAX_IDLE_CONNECTIONS: 10
+          envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
+          envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@localhost:5672
 
+      - name: start go server
+        working-directory: ./apps/backend
+        run: go run main.go &
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v2
         with:
           version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
 
       - name: Install dependencies node
         run: pnpm install
