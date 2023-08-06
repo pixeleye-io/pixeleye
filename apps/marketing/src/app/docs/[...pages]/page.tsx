@@ -11,11 +11,9 @@ import link from "../../../schema/link.markdoc";
 export const dynamicParams = false;
 
 function getFile(page: string[]) {
-  const path = page.join("/");
+  const path = decodeURI(page.join("/"));
 
-  return import(`../../../../../../docs/${path}.md`).then(
-    (res) => res.default
-  );
+  return import(`../../../../../../docs/${path}.md`).then((res) => res.default);
 }
 
 async function* getFiles(dir: string): AsyncGenerator<string> {
