@@ -113,17 +113,6 @@ jobs:
           dir-format: atlas
           dev-url: postgres://postgres:pass@localhost:5430/test?sslmode=disable
 
-  create-envfile:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Make envfile
-        uses: SpicyPizza/create-envfile@v2.0
-        with:
-          envkey_ORY_ENDPOINT: ${{ secrets.SECRET_KEY }}
-          envkey_ORY_API_KEY: ${{ secrets.SECRET_KEY }}
-          envkey_SERVER_ENDPOINT: localhost:5000
-
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
@@ -178,6 +167,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "16.x"
+
+
+      - name: Create .env file
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          envkey_ORY_ENDPOINT: ${{ secrets.SECRET_KEY }}
+          envkey_ORY_API_KEY: ${{ secrets.SECRET_KEY }}
+          envkey_SERVER_ENDPOINT: localhost:5000
+
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
