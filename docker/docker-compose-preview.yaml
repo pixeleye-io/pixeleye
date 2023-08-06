@@ -1,0 +1,87 @@
+version: "3"
+services:
+  database:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=preview
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+  migrate:
+    image: arigaio/atlas:latest
+    command: >
+      migrate apply
+      --url postgresql://postgres:postgres@database:5432/preview?sslmode=disable --revisions-schema public
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ../apps/backend/platform/migrations/:/migrations
+  broker:
+    image: rabbitmq:3-alpine
+    restart: always
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - broker:/var/lib/rabbitmq
+
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+    volumes:
+      - minio_data:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+  api:
+    build:
+      context: ../apps/backend
+      dockerfile: ./Dockerfile.api
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+    environment:
+      - STAGE_STATUS="prod"
+      - SERVER_URL="localhost:5000"
+      - SELF_HOSTING="false"
+      - godebug="netdns=cgo"
+      - AMQP_URL="amqp://guest:guest@broker:5672"
+      - DB_URL="host=database port=5432 user=postgres password=postgres dbname=preview sslmode=disable"
+      - DB_MAX_CONNECTIONS="100"
+      - DB_MAX_IDLE_CONNECTIONS="10"
+      - DB_MAX_LIFETIME_CONNECTIONS="2"
+      - S3_BUCKET="pixeleye"
+      - S3_ENDPOINT="http://localhost:9000"
+      - S3_ACCESS_KEY_ID=admin
+      - S3_KEY_SECRET=password
+
+volumes:
+  db:
+    driver: local
+  broker:
+    driver: local
+  minio_data:
+    driver: local

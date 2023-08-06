@@ -13,7 +13,7 @@ func ConnectionURLBuilder(n string) (string, error) {
 	// Switch given names.
 	switch n {
 	case "core":
-		// URL for Fiber connection.
+		// URL for Echo connection.
 		url = fmt.Sprintf(
 			"%s:%s",
 			os.Getenv("SERVER_HOST"),
@@ -29,13 +29,6 @@ func ConnectionURLBuilder(n string) (string, error) {
 			os.Getenv("DB_PASSWORD"),
 			os.Getenv("DB_NAME"),
 			os.Getenv("DB_SSL_MODE"),
-		)
-	case "redis":
-		// URL for Redis connection.
-		url = fmt.Sprintf(
-			"%s:%s",
-			os.Getenv("REDIS_HOST"),
-			os.Getenv("REDIS_PORT"),
 		)
 	case "amqp":
 		// URL for AMQP connection.
