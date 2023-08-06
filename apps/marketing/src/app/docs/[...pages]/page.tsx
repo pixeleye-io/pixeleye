@@ -12,7 +12,13 @@ export const dynamicParams = false;
 
 function getFile(page: string[]) {
   const path = page.join("/");
-  return import(`../../../../../../docs/${path}.md`).then((res) => res.default);
+  let prefix = "../../";
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  if (!process.env.VERCEL_URL) {
+    prefix = "";
+  }
+
+  return import(prefix + `../../../../docs/${path}.md`).then((res) => res.default);
 }
 
 async function* getFiles(dir: string): AsyncGenerator<string> {
@@ -50,7 +56,7 @@ const config: Config = {
   },
   nodes: {
     heading,
-    link
+    link,
   },
   variables: {},
 };
