@@ -11,7 +11,7 @@ import link from "../../../schema/link.markdoc";
 export const dynamicParams = false;
 
 function getFile(pages: string[]) {
-  const path = pages.map((p) => decodeURI(p)).join("/")
+  const path = pages.map((p) => decodeURI(p)).join("/");
 
   console.log(path);
 
@@ -41,10 +41,10 @@ export async function generateStaticParams() {
 
   return files.map((f) => {
     const file = decodeURI(f);
+    console.log("og", f, "new", file);
 
     return {
       pages: file
-        .replaceAll("%2F", "\\")
         .replace(/(.*)(\\docs\\)/, "")
         .replace(".md", "")
         .split("\\"),
