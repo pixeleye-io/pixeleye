@@ -13,7 +13,7 @@ jobs:
     outputs:
       migrations: ${{ steps.filter.outputs.migrations }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -104,7 +104,7 @@ jobs:
           - 5430:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v3.0.1
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: ariga/atlas-action@v0
@@ -140,7 +140,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Atlas
         run: |
@@ -172,8 +172,8 @@ jobs:
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v1
         with:
-          envkey_ORY_ENDPOINT: ${{ secrets.SECRET_KEY }}
-          envkey_ORY_API_KEY: ${{ secrets.SECRET_KEY }}
+          envkey_ORY_ENDPOINT: ${{ secrets.ORY_ENDPOINT }}
+          envkey_ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
           envkey_SERVER_ENDPOINT: localhost:5000
 
 
