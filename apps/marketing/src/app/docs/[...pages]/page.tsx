@@ -13,6 +13,8 @@ export const dynamicParams = false;
 function getFile(pages: string[]) {
   const path = pages.map((p) => decodeURI(p)).join("/")
 
+  console.log(path);
+
   return import(`../../../../../../docs/${path}.md`).then((res) => res.default);
 }
 
