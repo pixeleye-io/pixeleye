@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18]
+        node-version: [18, 16]
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
@@ -65,10 +65,11 @@ jobs:
         with:
           go-version: "1.20"
           cache: false
-      # - uses: dominikh/staticcheck-action@v1.2.0
-      #   with:
-      #     version: "2022.1.1"
-      #     install-go: false
+      - uses: dominikh/staticcheck-action@v1.2.0
+        with:
+          version: "2022.1.1"
+          install-go: false
+          working-directory: ./apps/backend
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
