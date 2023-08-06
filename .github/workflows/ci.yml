@@ -164,7 +164,7 @@ jobs:
         with:
           envkey_ORY_ENDPOINT: ${{ secrets.ORY_ENDPOINT }}
           envkey_ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
-          envkey_SERVER_ENDPOINT: localhost:5000
+          envkey_SERVER_ENDPOINT: http://localhost:5000
           envkey_DB_URL: postgres://postgres:pass@localhost:5432/test?sslmode=disable
           envkey_DB_MAX_CONNECTIONS: 100
           envkey_DB_MAX_IDLE_CONNECTIONS: 10
