@@ -23,22 +23,18 @@ const setup = async () => {
       method: "GET",
     })
       .then(async (res) => {
-        console.log(res)
         if (res.status === 200) {
           isUp = true;
           return;
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
 
     if (isUp) {
       break;
     }
 
-
-    console.log("Waiting for API to be up...")
+    console.log("Waiting for API to be up...");
     await new Promise((resolve) => setTimeout(resolve, 1000));
     counter++;
   }

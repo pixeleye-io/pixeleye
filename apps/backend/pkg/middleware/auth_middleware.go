@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mitchellh/mapstructure"
@@ -44,7 +45,7 @@ func NewOryMiddleware() *oryMiddleware {
 	cfg := ory.NewConfiguration()
 	cfg.Servers = ory.ServerConfigurations{
 		{
-			URL: "http://localhost:4000/.ory", // Ory Network Project URL
+			URL: os.Getenv("ORY_ENDPOINT"), // Ory Network Project URL
 		},
 	}
 
