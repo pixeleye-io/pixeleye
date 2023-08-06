@@ -116,6 +116,7 @@ jobs:
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
+    container: ubuntu
     needs: [golang-ci, node-ci]
 
     services:
