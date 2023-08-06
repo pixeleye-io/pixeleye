@@ -12,7 +12,7 @@ export const dynamicParams = false;
 
 function getFile(page: string[]) {
   const path = page.join("/");
-  
+
   return import(`../../../../../../docs/${path}.md`).then(
     (res) => res.default
   );
@@ -40,7 +40,7 @@ export async function generateStaticParams() {
   }
 
   return files.map((f) => {
-    const file = encodeURI(f);
+    const file = decodeURI(f);
 
     return {
       pages: file
