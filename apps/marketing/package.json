@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
+    "@markdoc/markdoc": "^0.3.0",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.4",
     "@t3-oss/env-nextjs": "^0.6.0",
@@ -31,6 +32,7 @@
     "framer-motion": "^10.13.1",
     "next": "13.4.12",
     "next-themes": "^0.2.1",
+    "raw-loader": "^4.0.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.45.2",

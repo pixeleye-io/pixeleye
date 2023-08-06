@@ -29,7 +29,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <div className="lg:pt-0 pt-16">{children}</div>
+          <div className="pt-16">{children}</div>
         </Providers>
         <Analytics />
       </body>

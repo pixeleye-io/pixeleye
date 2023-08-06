@@ -8,7 +8,7 @@ import NextLink from "next/link";
 
 const navigation = [
   { name: "Home", href: "/home" },
-  { name: "Docs", href: "#" },
+  { name: "Docs", href: "/docs/introduction/getting-started" },
   { name: "Pricing", href: "#" },
   { name: "Playground", href: "#" },
 ];
