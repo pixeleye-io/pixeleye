@@ -92,7 +92,7 @@ jobs:
           cd apps/backend
           go test -v ./...
 
-  atlas-ci:
+  atlas-lint:
     name: Atlas - Linting
     runs-on: ubuntu-latest
     needs: paths-filter
@@ -118,7 +118,7 @@ jobs:
           dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
           cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 
-      sync:
+  atlas-sync:
     needs: lint
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
