@@ -3,7 +3,7 @@ import { ProjectHeader } from "./projectHeader";
 import { RegisterSegment } from "../../breadcrumbStore";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
-import API from "@pixeleye/api";
+import { API } from "@/libs/api";
 
 export default async function Layout({
   children,

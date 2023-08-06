@@ -1,4 +1,0 @@
-
-> @pixeleye/cli@0.0.0 build /workspaces/pixeleye/libs/cli
-> node ./build.mjs
-

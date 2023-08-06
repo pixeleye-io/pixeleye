@@ -1,4 +1,0 @@
-
-> @pixeleye/js-sdk@0.0.0 types /workspaces/pixeleye/libs/js-sdk
-> tsc --noEmit
-

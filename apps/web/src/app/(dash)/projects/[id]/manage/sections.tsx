@@ -2,7 +2,7 @@
 
 import { useKeyStore } from "@/stores/apiKeyStore";
 import { KeyIcon } from "@heroicons/react/24/outline";
-import API from "@pixeleye/api";
+import { API } from "@/libs";
 import { Button } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 
@@ -31,7 +31,7 @@ export function SecuritySection({ id }: { id: string }) {
                     id,
                   },
                 }).then((project) => {
-                  setKey(project.id, project.token);
+                  setKey(project.id, project.token!);
                 });
               }
             }}
