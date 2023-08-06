@@ -13,13 +13,13 @@ jobs:
     outputs:
       migrations: ${{ steps.filter.outputs.migrations }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          migrations:
-            - 'apps/backend/platform/migrations'
+      - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            migrations:
+              - 'apps/backend/platform/migrations'
   node-ci:
     name: Node - Build, Lint, Test, Types
     timeout-minutes: 15
@@ -113,10 +113,21 @@ jobs:
           dir-format: atlas
           dev-url: postgres://postgres:pass@localhost:5430/test?sslmode=disable
 
+  create-envfile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          ORY_ENDPOINT: ${{ secrets.SECRET_KEY }}
+          ORY_API_KEY: ${{ secrets.SECRET_KEY }}
+          SERVER_ENDPOINT: localhost:5000
+
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
-    needs: [golang-ci, node-ci]
+    needs: [golang-ci, node-ci, create-envfile]
 
     services:
       postgres:

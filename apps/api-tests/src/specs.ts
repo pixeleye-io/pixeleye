@@ -8,7 +8,16 @@ export function specAsUser(user: IDs = IDs.jekyll, requestTimeOut = 10000) {
   return pactum
     .spec()
     .withHeaders({
-      "Authorization": `Bearer ${session.session_token}`,
+      Authorization: `Bearer ${session.session_token}`,
+    })
+    .withRequestTimeout(requestTimeOut);
+}
+
+export function specWithBuildToken(buildToken: string, requestTimeOut = 10000) {
+  return pactum
+    .spec()
+    .withHeaders({
+      Authorization: `Bearer ${buildToken}`,
     })
     .withRequestTimeout(requestTimeOut);
 }

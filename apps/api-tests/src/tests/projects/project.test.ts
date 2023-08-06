@@ -7,13 +7,6 @@ import { like } from "pactum-matchers";
 import { projectAPI } from "../../routes/project";
 import { handler } from "pactum";
 
-// Create project
-// can't access other teams projects
-// TODO - can't access other projects in a team where not admin/owner
-// TODO - can access projects if you're not admin/owner but in the project
-
-// TODO - users without admin access can't delete projects or generate tokens
-
 // Ensures that we don't have an access token
 handler.addExpectHandler("noToken", (ctx: any) => {
   expect(ctx.res.json.token).to.be.undefined;

@@ -65,7 +65,7 @@ services:
         condition: service_healthy
     environment:
       - STAGE_STATUS="prod"
-      - SERVER_URL="localhost:5000"
+      - SERVER_ENDPOINT="localhost:5000"
       - SELF_HOSTING="false"
       - godebug="netdns=cgo"
       - AMQP_URL="amqp://guest:guest@broker:5672"

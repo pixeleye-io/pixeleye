@@ -11,7 +11,6 @@ func TeamRoutes(e *echo.Echo) {
 
 	authMiddleware := middleware.NewOryMiddleware()
 
-	// Create routes group.
 	v1 := e.Group("/v1/teams/:team_id")
 
 	v1.Use(authMiddleware.Session)

@@ -132,7 +132,12 @@ func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTyp
 func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, quit chan bool) error {
 
 	// Create a new channel.
-	channel := GetChannel()
+	channel, err := GetChannel()
+
+	if err != nil {
+		return err
+	}
+
 	// Get queue.
 	queue := getQueue(channel, name, queueType)
 
@@ -153,9 +158,6 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
-	// nolint:errcheck
-	defer channel.Cancel(consumer, false)
-
 	go func() {
 		for message := range messages {
 			if err := callback(message.Body); err != nil {
@@ -168,5 +170,5 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 
 	fmt.Println(("Channel closed"))
 
-	return nil
+	return channel.Cancel(consumer, false)
 }

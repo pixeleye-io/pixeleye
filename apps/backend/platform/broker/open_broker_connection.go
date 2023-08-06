@@ -14,6 +14,7 @@ type Queues struct {
 	*queues.IngestQueue
 }
 
+// nolint:gochecknoglobals
 var globalConnection *amqp.Connection
 
 func Close() {
@@ -23,43 +24,52 @@ func Close() {
 	}
 }
 
-func GetChannel() *amqp.Channel {
-	connection := GetConnection()
+func GetChannel() (*amqp.Channel, error) {
+	connection, err := GetConnection()
+	if err != nil {
+		return nil, err
+	}
+
 	channel, err := connection.Channel()
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open a channel")
-
-		if channel != nil {
-
-			channel.Close()
-		}
 	}
 
-	return channel
+	return channel, err
 }
 
-func GetConnection() *amqp.Connection {
+func GetConnection() (*amqp.Connection, error) {
 	if globalConnection == nil {
 		url := os.Getenv("AMQP_URL")
 
+		log.Info().Msgf("Connecting to RabbitMQ at %s", url)
+
 		// Define a new Database connection
-		globalConnection, err := ConnectAMPQ(url)
+		var err error
+		globalConnection, err = ConnectAMPQ(url)
 		if err != nil {
-			if globalConnection != nil {
-				globalConnection.Close()
-				globalConnection = nil
-			}
 			log.Fatal().Err(err).Msg("Failed to connect to RabbitMQ")
+			return nil, err
 		}
 	}
-	return globalConnection
+
+	log.Info().Msg("Connected to RabbitMQ")
+	return globalConnection, nil
 }
 
 func GetBroker() (*Queues, error) {
 
-	channel := GetChannel()
+	channel, err := GetChannel()
 
-	connection := GetConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	connection, err := GetConnection()
+
+	if err != nil {
+		return nil, err
+	}
 
 	send := func(queueType brokerTypes.QueueType, queueName string, body []byte) error {
 		return SendToQueue(channel, queueName, queueType, body)
