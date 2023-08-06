@@ -7,6 +7,19 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  paths-filter:
+    name: Paths filter
+    runs-on: ubuntu-latest
+    outputs:
+      migrations: ${{ steps.filter.outputs.migrations }}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          migrations:
+            - 'apps/backend/platform/migrations'
   node-ci:
     name: Node - Build, Lint, Test, Types
     timeout-minutes: 15
@@ -75,6 +88,31 @@ jobs:
           cd apps/backend
           go test -v ./...
 
+  atlas-ci:
+    name: Atlas - Linting
+    runs-on: ubuntu-latest
+    needs: paths-filter
+    if: github.ref == 'refs/heads/main' || needs.paths-filter.outputs.migrations == 'true'
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: test
+        ports:
+          - 5430:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v3.0.1
+        with:
+          fetch-depth: 0
+      - uses: ariga/atlas-action@v0
+        with:
+          dir: apps/backend/platform/migrations
+          dir-format: atlas
+          dev-url: postgres://postgres:pass@localhost:5430/test?sslmode=disable
+
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
@@ -109,8 +147,6 @@ jobs:
           curl -sSf https://atlasgo.sh | sh
       - run: |
           atlas migrate apply --dir file://apps/backend/platform/migrations/ -u 'postgres://postgres:pass@localhost:5432/test?sslmode=disable'
-      - run: |
-          echo "Run your tests here!"
 
       - name: Setup golang
         uses: actions/setup-go@v4

@@ -181,6 +181,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.6.0
         version: 0.6.0(typescript@5.1.6)(zod@3.21.4)
+      api-typify:
+        specifier: ^0.3.1
+        version: 0.3.1
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0

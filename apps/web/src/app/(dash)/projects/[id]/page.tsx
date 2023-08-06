@@ -1,4 +1,4 @@
-import API from "@pixeleye/api";
+import { API } from "@/libs";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 

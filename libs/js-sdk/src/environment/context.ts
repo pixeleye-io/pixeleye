@@ -1,6 +1,6 @@
 import { Services } from "@pixeleye/api";
 import { getAPI as getAPITypes } from "api-typify";
-import { HeadersInit } from "undici";
+import { HeadersInit, fetch } from "undici";
 
 export interface Context {
   env: NodeJS.ProcessEnv; // TODO - add @t3-oss/env
@@ -9,17 +9,12 @@ export interface Context {
   api?: APIType;
 }
 
-function createAPI(endpoint: string, headers?: HeadersInit ) {
-  return getAPITypes<
-    Services,
-    {
-      headers?: HeadersInit ;
-      next?: {
-        revalidate?: number | false;
-        tags?: string[];
-      };
-    }
-  >(endpoint, (url, options) =>
+interface APIOptions {
+  headers?: HeadersInit;
+}
+
+function createAPI(endpoint: string, headers?: HeadersInit) {
+  return getAPITypes<Services, APIOptions>(endpoint, (url, options) =>
     fetch(url, {
       ...options,
       headers: {

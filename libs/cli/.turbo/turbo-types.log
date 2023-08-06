@@ -1,13 +1,4 @@
 
-> @pixeleye/cli@0.0.0 types C:\Users\Alfie\GitHub\pixeleye-services\libs\cli
+> @pixeleye/cli@0.0.0 types /workspaces/pixeleye/libs/cli
 > tsc --noEmit
 
-../api/src/index.ts(18,5): error TS2304: Cannot find name 'fetch'.
-../api/src/index.ts(27,14): error TS7006: Parameter 'res' implicitly has an 'any' type.
-src/handlers/upload.ts(85,14): error TS2551: Property 'parentBuildID' does not exist on type '{ id: string; status: "uploading" | "uploaded" | "failed"; createdAt: string; updatedAt: string; projectID: string; buildNumber: number; sha: string; branch: string; errors: string[]; targetParentID?: string | undefined; ... 4 more ...; title?: string | undefined; }'. Did you mean 'parentBuildIDs'?
-../js-sdk/src/environment/context.ts(23,5): error TS2304: Cannot find name 'fetch'.
-../js-sdk/src/environment/context.ts(31,14): error TS7006: Parameter 'res' implicitly has an 'any' type.
-../js-sdk/src/environment/getEnv.ts(1,19): error TS7016: Could not find a declaration file for module 'env-ci'. 'C:/Users/Alfie/GitHub/pixeleye-services/node_modules/.pnpm/env-ci@9.1.1/node_modules/env-ci/index.js' implicitly has an 'any' type.
-  Try `npm i --save-dev @types/env-ci` if it exists or add a new declaration (.d.ts) file containing `declare module 'env-ci';`
-../js-sdk/src/services/upload.ts(23,9): error TS2304: Cannot find name 'fetch'.
- ELIFECYCLE  Command failed with exit code 2.

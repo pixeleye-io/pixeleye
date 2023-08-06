@@ -82,7 +82,7 @@ export async function upload(path: string, options: Config) {
     program.error(err);
   });
 
-  if (!build.parentBuildID) {
+  if (!build.parentBuildIDs) {
     noParentBuildFound();
   }
 

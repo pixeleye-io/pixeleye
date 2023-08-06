@@ -1,6 +1,7 @@
 import { Context, getAPI } from "../environment";
 import { generateHash } from "../utils";
 import { Blob } from "buffer";
+import { fetch } from "undici"
 
 export async function uploadSnapshot(ctx: Context, file: Buffer) {
   const api = getAPI(ctx);

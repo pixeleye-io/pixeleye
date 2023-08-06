@@ -1,0 +1,61 @@
+version: "3"
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - db
+  migrate:
+    image: arigaio/atlas:latest
+    command: >
+      migrate apply
+      --url postgresql://postgres:postgres@db:5432/test?sslmode=disable --revisions-schema public
+    networks:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend/platform/migrations/:/migrations
+  broker:
+    image: rabbitmq:3-alpine
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - broker:/var/lib/rabbitmq
+    networks:
+      - broker
+  api:
+    image:
+      build: "./apps/backend/Dockerfile.api"
+    restart: always
+    ports:
+      - "5000": "5000"
+    networks:
+      - broker
+      - db
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  db:
+    driver: bridge
+  broker:
+    driver: bridge

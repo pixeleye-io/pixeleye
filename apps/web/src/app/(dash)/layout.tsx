@@ -1,6 +1,6 @@
-import API from "@pixeleye/api";
 import { cookies } from "next/headers";
 import { Navbar } from "./navbar";
+import { API } from "@/libs";
 
 export default async function DashboardLayout({
   children,
