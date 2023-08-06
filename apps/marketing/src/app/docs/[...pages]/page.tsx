@@ -10,8 +10,8 @@ import link from "../../../schema/link.markdoc";
 
 export const dynamicParams = false;
 
-function getFile(page: string[]) {
-  const path = decodeURI(page.join("/"));
+function getFile(pages: string[]) {
+  const path = pages.map((p) => decodeURI(p)).join("/")
 
   return import(`../../../../../../docs/${path}.md`).then((res) => res.default);
 }
