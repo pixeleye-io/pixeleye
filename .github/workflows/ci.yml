@@ -187,4 +187,5 @@ jobs:
         run: pnpm install
 
       - name: Run api tests
-        run: cd ./apps/backend & go run main.go & pnpm turbo test:api
+        working-directory: ./apps/backend
+        run: go run main.go & pnpm turbo test:api
