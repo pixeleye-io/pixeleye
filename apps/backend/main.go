@@ -51,7 +51,7 @@ func main() {
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
-		if os.Getenv("SELF_HOSTING") == "true" {
+		if os.Getenv("SELF_HOSTING") != "false" {
 			go ingest.StartIngestServerWithGracefulShutdown()
 		}
 		utils.StartServerWithGracefulShutdown(e)

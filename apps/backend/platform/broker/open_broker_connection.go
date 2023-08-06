@@ -1,8 +1,9 @@
 package broker
 
 import (
+	"os"
+
 	"github.com/pixeleye-io/pixeleye/app/queues"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rs/zerolog/log"
@@ -39,12 +40,10 @@ func GetChannel() *amqp.Channel {
 
 func GetConnection() *amqp.Connection {
 	if globalConnection == nil {
-		url, err := utils.ConnectionURLBuilder("amqp")
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to build connection URL")
-		}
+		url := os.Getenv("AMQP_URL")
+
 		// Define a new Database connection
-		globalConnection, err = ConnectAMPQ(url)
+		globalConnection, err := ConnectAMPQ(url)
 		if err != nil {
 			if globalConnection != nil {
 				globalConnection.Close()

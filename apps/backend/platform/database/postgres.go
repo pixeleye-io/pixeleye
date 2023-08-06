@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
-
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/lib/pq"
@@ -20,16 +18,12 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
 	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
 
-	// Build PostgreSQL connection URL.
-	postgresConnURL, err := utils.ConnectionURLBuilder("postgres")
-	if err != nil {
-		return nil, err
-	}
+	postgresConnURL := os.Getenv("DB_URL")
 
 	// Define database connection for PostgreSQL.
 	db, err := sqlx.Connect("postgres", postgresConnURL)
 	if err != nil {
-		return nil, fmt.Errorf("error, not connected to database, %w", err)
+		return nil, fmt.Errorf("error, not connected to database, env: %s, %w", postgresConnURL, err)
 	}
 
 	// Set database connection settings:
