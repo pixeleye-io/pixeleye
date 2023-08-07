@@ -19,7 +19,7 @@ export default function Header() {
   return (
     <header className="bg-surface/90 backdrop-blur-sm fixed z-30 w-full border-b border-b-outline-variant">
       <nav
-        className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8"
+        className="mx-auto flex max-w-8xl items-center justify-between px-6 py-4 lg:px-8"
         aria-label="Global"
       >
         <div className="flex items-center gap-x-12">
