@@ -4,7 +4,6 @@ import { cache } from "react";
 import { packageDirectory } from "pkg-dir";
 
 import * as url from "url";
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 export async function getFile(page: string[]) {
   const path = page.join("\\");
@@ -28,7 +27,7 @@ interface DocsFile {
 export const getAllFiles = cache(async () => {
   const files: DocsFile[] = [];
 
-  const root = __dirname
+  const root = process.cwd()
     .replaceAll("\\", "/")
     .replace(/(apps\/marketing)(.*)/, "");
 
