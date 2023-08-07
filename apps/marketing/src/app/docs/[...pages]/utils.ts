@@ -1,9 +1,6 @@
 import { join, resolve } from "path";
 import { readFile, readdir } from "fs/promises";
 import { cache } from "react";
-import { packageDirectory } from "pkg-dir";
-
-import * as url from "url";
 
 export async function getFile(page: string[]) {
   const path = page.join("\\");
