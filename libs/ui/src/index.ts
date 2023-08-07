@@ -37,3 +37,5 @@ export * from "./teamSwitcher";
 export { default as TeamSwitcher } from "./teamSwitcher";
 export * from "./dropdown";
 export * from "./select";
+export * from "./slider";
+export { default as Slider } from "./slider";

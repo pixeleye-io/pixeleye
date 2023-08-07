@@ -10,14 +10,14 @@ export default async function DocsLayout({
   const files = await getAllFiles();
 
   const sections = files.reduce((acc, { url }) => {
-    const [section, link] = url.split("\\", 2);
+    const [section, link] = url.split("/", 2);
     const sectionIndex = acc.findIndex(
       (s) => s.title === section.replaceAll("-", " ")
     );
 
     const linkObj = {
       title: link.replaceAll("-", " "),
-      href: `/docs/${url.replaceAll("\\", "/")}`,
+      href: `/docs/${url}`,
     };
 
     if (sectionIndex === -1) {
@@ -47,7 +47,7 @@ export default async function DocsLayout({
           <DocsNavMobile sections={sections} />
         </div>
         <div className="hidden md:relative md:block md:flex-none">
-          <div className="sticky top-16 -ml-0.5 h-[calc(100vh-4.75rem)] md:w-56 lg:w-64 overflow-y-auto overflow-x-hidden py-16 pl-0.5 pr-8 xl:w-72 xl:pr-16">
+          <div className="sticky top-16 -ml-0.5 h-[calc(100vh-4.75rem)] border-r border-outline-variant md:w-56 lg:w-64 overflow-y-auto overflow-x-hidden py-16 pl-0.5 pr-8 xl:w-72 xl:pr-16">
             <DocsNavDesktop sections={sections} />
           </div>
         </div>
