@@ -8,7 +8,7 @@ import NextLink from "next/link";
 
 const navigation = [
   { name: "Home", href: "/home" },
-  { name: "Docs", href: "#" },
+  { name: "Docs", href: "/docs/getting-started/introduction" },
   { name: "Pricing", href: "#" },
   { name: "Playground", href: "#" },
 ];
@@ -43,6 +43,7 @@ export default function Header() {
           <Button
             type="button"
             variant="link"
+            className="h-8"
             onClick={() => setMobileMenuOpen(true)}
           >
             <span className="sr-only">Open main menu</span>
@@ -62,11 +63,11 @@ export default function Header() {
         <Dialog.Portal>
           <div className="fixed inset-0 z-10" />
           <Dialog.Content className="fixed lg:hidden inset-y-0 right-0 z-50 w-full overflow-y-auto bg-surface-container px-6 py-4 sm:max-w-sm sm:ring-1 sm:ring-outline-variant shadow">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between -mt-0.5">
               <NextLink
                 onClick={() => setMobileMenuOpen(false)}
                 href="/home"
-                className="-mx-1.5 -mt-0.5 p-1.5"
+                className="-mx-1.5 -mt-1 p-1.5"
               >
                 <span className="sr-only">Pixeleye</span>
                 <Logo className="h-8 w-auto" />
