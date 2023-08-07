@@ -8,11 +8,13 @@ import { getFile, getAllFiles } from "./utils";
 
 export const dynamicParams = false;
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
   const files = await getAllFiles();
 
   return files.map(({ url }) => ({
-    pages: url.split("\\"),
+    pages: url.split("/"),
   }));
 }
 

@@ -4,11 +4,9 @@ import { cache } from "react";
 import { Octokit } from "@octokit/core";
 
 export async function getFile(page: string[]) {
-  const path = page.join("\\");
+  const path = page.join("/");
 
   const files = await getAllFiles();
-
-  console.log(files);
 
   const file = files.find((f) => f.url === path);
 
@@ -23,7 +21,7 @@ interface GitFolder {
   name: string;
   type: string;
   object: {
-    entries?: [GitFile];
+    entries: [GitFile];
   };
 }
 
@@ -86,15 +84,16 @@ export const getAllFiles = cache(async () => {
       return folder.object.entries
         .map((file) => {
           return {
-            url: [folder.name, file.name].join("/"),
+            url: [folder.name, file.name]
+              .join("/")
+              .replace(".md", "")
+              .replaceAll(/(\d\d-)/g, ""),
             text: file.object.text,
           };
         })
         .flat();
     })
     .flat();
-
-  console.log(test);
 
   return test;
 });
