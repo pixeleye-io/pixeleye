@@ -11,6 +11,12 @@ import NextLink from "next/link";
 import { Calculator } from "./calculator";
 import { FAQ } from "./faq";
 import { Examples } from "./examples";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Pricing | Pixeleye",
+    description: "Want to avoid the hassle of setting up and maintaining your own instance? We offer a hosted solution for you.",
+  };
 
 const tiers = [
   {
