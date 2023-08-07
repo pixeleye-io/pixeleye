@@ -3,6 +3,9 @@ import { readFile, readdir } from "fs/promises";
 import { cache } from "react";
 import { packageDirectory } from "pkg-dir";
 
+import * as url from "url";
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+
 export async function getFile(page: string[]) {
   const path = page.join("\\");
 
@@ -22,14 +25,12 @@ interface DocsFile {
   url: string;
 }
 
-
-// TODO - add caching to this
 export const getAllFiles = cache(async () => {
   const files: DocsFile[] = [];
 
-  const root = await packageDirectory().then(
-    (dir) => (dir || "")?.replaceAll("\\", "/").replace(/(apps\/marketing)(.*)/, "")
-  );
+  const root = __dirname
+    .replaceAll("\\", "/")
+    .replace(/(apps\/marketing)(.*)/, "");
 
   for await (const f of getFiles(join(root!, "docs"))) {
     files.push({
