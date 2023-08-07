@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["KRATOS_PUBLIC_URL", "ORY_SDK_URL", "KRATOS_BROWSER_URL"],
+  "globalEnv": ["KRATOS_PUBLIC_URL", "ORY_SDK_URL", "KRATOS_BROWSER_URL", "GITHUB_DOCS_TOKEN"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],

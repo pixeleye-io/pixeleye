@@ -13,7 +13,7 @@ const nextConfig = {
       },
       {
         source: "/docs",
-        destination: "/docs/introduction/getting-started",
+        destination: "/docs/getting-started/introduction",
         permanent: true,
       }
     ];
