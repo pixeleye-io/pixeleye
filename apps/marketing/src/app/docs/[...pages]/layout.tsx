@@ -51,14 +51,7 @@ export default async function DocsLayout({
             <DocsNavDesktop sections={sections} />
           </div>
         </div>
-        <div className="min-w-0 max-w-2xl flex-auto px-4 py-16 lg:pl-8 lg:pr-0 xl:px-16 h-full">
-          {children}
-        </div>
-        <div className="hidden xl:sticky xl:top-16 xl:-mr-6 xl:block xl:h-[calc(100vh-4.75rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">
-          <nav aria-labelledby="on-this-page-title" className="w-56">
-            Sidebar
-          </nav>
-        </div>
+        {children}
       </div>
     </Container>
   );
