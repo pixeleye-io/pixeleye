@@ -84,9 +84,6 @@ importers:
       '@markdoc/markdoc':
         specifier: ^0.3.0
         version: 0.3.0(@types/react@18.2.16)(react@18.2.0)
-      '@octokit/auth-token':
-        specifier: ^4.0.0
-        version: 4.0.0
       '@octokit/core':
         specifier: ^5.0.0
         version: 5.0.0
@@ -105,9 +102,6 @@ importers:
       '@uidotdev/usehooks':
         specifier: ^2.0.1
         version: 2.0.1(react-dom@18.2.0)(react@18.2.0)
-      '@vercel/analytics':
-        specifier: ^1.0.1
-        version: 1.0.1
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -120,9 +114,6 @@ importers:
       framer-motion:
         specifier: ^10.13.1
         version: 10.13.1(react-dom@18.2.0)(react@18.2.0)
-      graphql:
-        specifier: ^16.7.1
-        version: 16.7.1
       next:
         specifier: 13.4.12
         version: 13.4.12(react-dom@18.2.0)(react@18.2.0)
@@ -2814,10 +2805,6 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@vercel/analytics@1.0.1:
-    resolution: {integrity: sha512-Ux0c9qUfkcPqng3vrR0GTrlQdqNJ2JREn/2ydrVuKwM3RtMfF2mWX31Ijqo1opSjNAq6rK76PwtANw6kl6TAow==}
-    dev: false
-
   /@vitest/expect@0.33.0:
     resolution: {integrity: sha512-sVNf+Gla3mhTCxNJx+wJLDPp/WcstOe0Ksqz4Vec51MmgMth/ia0MGFEkIZmVGeTL5HtjYR4Wl/ZxBxBXZJTzQ==}
     dependencies:
@@ -4562,11 +4549,6 @@ packages:
 
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
-
-  /graphql@16.7.1:
-    resolution: {integrity: sha512-DRYR9tf+UGU0KOsMcKAlXeFfX89UiiIZ0dRU3mR0yJfu6OjZqUcp68NnFLnqQU5RexygFoDy1EW+ccOYcPfmHg==}
-    engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
-    dev: false
 
   /har-schema@2.0.0:
     resolution: {integrity: sha512-Oqluz6zhGX8cyRaTQlFMPw80bSJVG2x/cFb8ZPhUILGgHka9SsokCCOQgpveePerqidZOrT14ipqfJb7ILcW5Q==}
