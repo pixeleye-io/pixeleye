@@ -28,9 +28,9 @@ export const getAllFiles = cache(async () => {
 
   const root = await packageDirectory().then(
     (dir) => dir?.replace(/(apps\\marketing)(.*)/, "")
-  );
+  ); 
 
-  for await (const f of getFiles(root + "./docs")) {
+  for await (const f of getFiles(join(root!, "docs"))) {
     files.push({
       file: f,
       url: f
