@@ -26,9 +26,11 @@ interface DocsFile {
 export const getAllFiles = cache(async () => {
   const files: DocsFile[] = [];
 
-  const root = await packageDirectory();
+  const root = await packageDirectory().then(
+    (dir) => dir?.replace(/(apps\\marketing)(.*)/, "")
+  );
 
-  for await (const f of getFiles(root + "../../docs")) {
+  for await (const f of getFiles(root + "./docs")) {
     files.push({
       file: f,
       url: f
