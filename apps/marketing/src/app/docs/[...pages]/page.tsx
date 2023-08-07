@@ -1,46 +1,18 @@
 import { Config, parse, transform, renderers } from "@markdoc/markdoc";
 import { notFound } from "next/navigation";
 import React from "react";
-import { readdir } from "fs/promises";
-import { resolve } from "path";
-
 import heading from "../../../schema/heading.markdoc";
 import callout from "../../../schema/callout.markdoc";
 import link from "../../../schema/link.markdoc";
+import { getFile, getAllFiles } from "./utils";
 
 export const dynamicParams = false;
 
-function getFile(page: string[]) {
-  const path = page.join("/");
-  return import(`../../../../../../docs/${path}.md`).then((res) => res.default);
-}
-
-async function* getFiles(dir: string): AsyncGenerator<string> {
-  // const files = await readdir("posts");
-  // console.log(files);
-  const dirents = await readdir(dir, { withFileTypes: true });
-  for (const dirent of dirents) {
-    const res = resolve(dir, dirent.name);
-    if (dirent.isDirectory()) {
-      yield* getFiles(res);
-    } else {
-      yield res;
-    }
-  }
-}
-
 export async function generateStaticParams() {
-  const files = [];
+  const files = await getAllFiles();
 
-  for await (const f of getFiles("../../docs")) {
-    files.push(f);
-  }
-
-  return files.map((f) => ({
-    pages: f
-      .replace(/(.*)(\\docs\\)/, "")
-      .replace(".md", "")
-      .split("\\"),
+  return files.map(({ url }) => ({
+    pages: url.split("\\"),
   }));
 }
 
@@ -50,7 +22,7 @@ const config: Config = {
   },
   nodes: {
     heading,
-    link
+    link,
   },
   variables: {},
 };
@@ -63,9 +35,8 @@ export default async function Page({
 }) {
   const { pages } = params;
 
-  console.log(pages);
-
-  const file = await getFile(pages).catch(() => {
+  const file = await getFile(pages).catch((err) => {
+    console.log(err);
     return notFound();
   });
 

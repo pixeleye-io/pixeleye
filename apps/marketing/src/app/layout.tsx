@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
 import { cx } from "class-variance-authority";
+import { Container } from "@pixeleye/ui";
 import Header from "./header";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,10 +28,10 @@ export default function RootLayout({
           "selection:bg-teal-950 selection:text-teal-50"
         )}
       >
-        <Providers>
-          <Header />
-          <div className="pt-16">{children}</div>
-        </Providers>
+          <Providers>
+            <Header />
+            <div className="pt-16">{children}</div>
+          </Providers>
         <Analytics />
       </body>
     </html>
