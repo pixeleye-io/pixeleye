@@ -27,7 +27,7 @@ export const getAllFiles = cache(async () => {
   const files: DocsFile[] = [];
 
   const root = await packageDirectory().then(
-    (dir) => dir?.replaceAll("\\", "/").replace(/(apps\/marketing)(.*)/, "")
+    (dir) => (dir || "")?.replaceAll("\\", "/").replace(/(apps\/marketing)(.*)/, "")
   );
 
   for await (const f of getFiles(join(root!, "docs"))) {
