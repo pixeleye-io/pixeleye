@@ -1,11 +1,14 @@
-import { join, resolve } from "path";
-import { readFile, readdir } from "fs/promises";
+import { resolve } from "path";
+import { readdir } from "fs/promises";
 import { cache } from "react";
+import { Octokit } from "@octokit/core";
 
 export async function getFile(page: string[]) {
   const path = page.join("\\");
 
   const files = await getAllFiles();
+
+  console.log(files);
 
   const file = files.find((f) => f.url === path);
 
@@ -13,42 +16,85 @@ export async function getFile(page: string[]) {
     throw new Error("File not found");
   }
 
-  return readFile(file.file, "utf-8");
+  return file;
 }
 
-interface DocsFile {
-  file: string;
-  url: string;
+interface GitFolder {
+  name: string;
+  type: string;
+  object: {
+    entries?: [GitFile];
+  };
+}
+
+interface GitFile {
+  name: string;
+  type: string;
+  object: {
+    text: string;
+  };
+}
+
+interface GitFiles {
+  repository: {
+    object: {
+      entries: [GitFolder];
+    };
+  };
 }
 
 export const getAllFiles = cache(async () => {
-  const files: DocsFile[] = [];
+  // const { token } = createTokenAuth(process.env.GITHUB_DOCS_TOKEN);
+  // TODO: add access token
+  const octokit = new Octokit({
+    auth: process.env.GITHUB_DOCS_TOKEN,
+  });
 
-  const root = process.cwd()
-    .replaceAll("\\", "/")
-    .replace(/(apps\/marketing)(.*)/, "");
+  const gitFiles = await octokit.graphql<GitFiles>(
+    `{
+      repository(owner: "pixeleye-io", name: "pixeleye") {
+        object(expression: "HEAD:docs") {
+          ... on Tree {
+            entries {
+              name
+              type
+              object {
+                ... on Blob {
+                  byteSize
+                }
+                ... on Tree {
+                  entries {
+                    name
+                    type
+                    object {
+                      ... on Blob {
+                        text
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }`
+  );
 
-  for await (const f of getFiles(join(root!, "docs"))) {
-    files.push({
-      file: f,
-      url: f
-        .replace(/(.*)(\\docs\\)/, "")
-        .replace(".md", "")
-        .replaceAll(/(\d\d-)/g, ""),
-    });
-  }
+  const test = gitFiles.repository.object.entries
+    .map((folder) => {
+      return folder.object.entries
+        .map((file) => {
+          return {
+            url: [folder.name, file.name].join("/"),
+            text: file.object.text,
+          };
+        })
+        .flat();
+    })
+    .flat();
 
-  return files;
+  console.log(test);
+
+  return test;
 });
-
-export async function* getFiles(dir: string): AsyncGenerator<string> {
-  const dirents = await readdir(dir, { withFileTypes: true });
-  for (const dirent of dirents) {
-    const res = resolve(dir, dirent.name);
-    if (dirent.isDirectory()) {
-      yield* getFiles(res);
-    } else {
-      yield res;
-    }
-  }
-}

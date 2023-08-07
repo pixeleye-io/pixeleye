@@ -40,7 +40,7 @@ export default async function Page({
     return notFound();
   });
 
-  const ast = parse(file);
+  const ast = parse(file.text);
 
   const content = transform(ast, config);
 

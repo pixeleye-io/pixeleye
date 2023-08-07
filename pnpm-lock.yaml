@@ -84,6 +84,12 @@ importers:
       '@markdoc/markdoc':
         specifier: ^0.3.0
         version: 0.3.0(@types/react@18.2.16)(react@18.2.0)
+      '@octokit/auth-token':
+        specifier: ^4.0.0
+        version: 4.0.0
+      '@octokit/core':
+        specifier: ^5.0.0
+        version: 5.0.0
       '@pixeleye/ui':
         specifier: workspace:*
         version: link:../../libs/ui
@@ -114,6 +120,9 @@ importers:
       framer-motion:
         specifier: ^10.13.1
         version: 10.13.1(react-dom@18.2.0)(react@18.2.0)
+      graphql:
+        specifier: ^16.7.1
+        version: 16.7.1
       next:
         specifier: 13.4.12
         version: 13.4.12(react-dom@18.2.0)(react@18.2.0)
@@ -1412,7 +1421,7 @@ packages:
     dependencies:
       '@octokit/auth-oauth-device': 6.0.0
       '@octokit/auth-oauth-user': 4.0.0
-      '@octokit/request': 8.1.0
+      '@octokit/request': 8.1.1
       '@octokit/types': 11.1.0
       '@types/btoa-lite': 1.0.0
       btoa-lite: 1.0.0
@@ -1424,7 +1433,7 @@ packages:
     engines: {node: '>= 18'}
     dependencies:
       '@octokit/oauth-methods': 4.0.0
-      '@octokit/request': 8.1.0
+      '@octokit/request': 8.1.1
       '@octokit/types': 11.1.0
       universal-user-agent: 6.0.0
     dev: false
@@ -1435,7 +1444,7 @@ packages:
     dependencies:
       '@octokit/auth-oauth-device': 6.0.0
       '@octokit/oauth-methods': 4.0.0
-      '@octokit/request': 8.1.0
+      '@octokit/request': 8.1.1
       '@octokit/types': 11.1.0
       btoa-lite: 1.0.0
       universal-user-agent: 6.0.0
@@ -1509,7 +1518,7 @@ packages:
     engines: {node: '>= 18'}
     dependencies:
       '@octokit/oauth-authorization-url': 6.0.2
-      '@octokit/request': 8.1.0
+      '@octokit/request': 8.1.1
       '@octokit/request-error': 5.0.0
       '@octokit/types': 11.1.0
       btoa-lite: 1.0.0
@@ -4553,6 +4562,11 @@ packages:
 
   /graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
+
+  /graphql@16.7.1:
+    resolution: {integrity: sha512-DRYR9tf+UGU0KOsMcKAlXeFfX89UiiIZ0dRU3mR0yJfu6OjZqUcp68NnFLnqQU5RexygFoDy1EW+ccOYcPfmHg==}
+    engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
+    dev: false
 
   /har-schema@2.0.0:
     resolution: {integrity: sha512-Oqluz6zhGX8cyRaTQlFMPw80bSJVG2x/cFb8ZPhUILGgHka9SsokCCOQgpveePerqidZOrT14ipqfJb7ILcW5Q==}

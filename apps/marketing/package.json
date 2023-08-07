@@ -22,6 +22,8 @@
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "@markdoc/markdoc": "^0.3.0",
+    "@octokit/auth-token": "^4.0.0",
+    "@octokit/core": "^5.0.0",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",
@@ -32,6 +34,7 @@
     "clsx": "^2.0.0",
     "dayjs": "^1.11.9",
     "framer-motion": "^10.13.1",
+    "graphql": "^16.7.1",
     "next": "13.4.12",
     "next-themes": "^0.2.1",
     "pkg-dir": "^7.0.0",
