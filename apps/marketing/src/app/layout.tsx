@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
 import { cx } from "class-variance-authority";
-import { Container } from "@pixeleye/ui";
+import Footer from "./footer"
 import Header from "./header";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -31,6 +31,7 @@ export default function RootLayout({
           <Providers>
             <Header />
             <div className="pt-16">{children}</div>
+            <Footer />
           </Providers>
         <Analytics />
       </body>

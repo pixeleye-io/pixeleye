@@ -9,7 +9,7 @@ import NextLink from "next/link";
 const navigation = [
   { name: "Home", href: "/home" },
   { name: "Docs", href: "/docs/getting-started/introduction" },
-  { name: "Pricing", href: "#" },
+  { name: "Pricing", href: "/pricing" },
   { name: "Playground", href: "#" },
 ];
 
