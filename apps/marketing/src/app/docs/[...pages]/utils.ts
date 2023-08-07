@@ -42,10 +42,9 @@ interface GitFiles {
 }
 
 export const getAllFiles = cache(async () => {
-  // const { token } = createTokenAuth(process.env.GITHUB_DOCS_TOKEN);
-  // TODO: add access token
   const octokit = new Octokit({
-    auth: process.env.GITHUB_DOCS_TOKEN,
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    auth: process.env.DOCS_TOKEN,
   });
 
   const gitFiles = await octokit.graphql<GitFiles>(
