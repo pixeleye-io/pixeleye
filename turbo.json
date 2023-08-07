@@ -1,10 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["KRATOS_PUBLIC_URL", "ORY_SDK_URL", "KRATOS_BROWSER_URL", "GITHUB_DOCS_TOKEN"],
+  "globalEnv": [
+    "KRATOS_PUBLIC_URL",
+    "ORY_SDK_URL",
+    "KRATOS_BROWSER_URL",
+    "GITHUB_DOCS_TOKEN"
+  ],
   "pipeline": {
+    "deploy": {
+      "dependsOn": ["build", "sitemap"],
+      "outputs": []
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "sitemap"],
       "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "sitemap": {
+      "dependsOn": ["build"],
+      "outputs": ["public/robots.txt", "public/sitemap*.xml"]
     },
     "build:types": {},
     "lint": {},
