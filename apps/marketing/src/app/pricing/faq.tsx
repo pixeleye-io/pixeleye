@@ -5,13 +5,13 @@ const faqs = [
     id: 1,
     question: "What is a snapshot?",
     answer:
-      "A snapshot is a picture. You can take snapshots of individual components or even of your entire application. We use snapshots to compare changes in your ui",
+      "A snapshot is a picture. You can take snapshots of individual components or even of your entire application. We use these snapshots to compare changes in your ui.",
   },
   {
     id: 2,
     question: "What's the price per snapshot?",
     answer:
-      "We charge $0.003 per snapshot. We offer volume discounts for larger teams. Contact us for more information.",
+      "We charge $0.003 per snapshot but offer volume discounts for larger teams. Contact us for more information.",
   },
   {
     id: 3,
@@ -35,7 +35,7 @@ const faqs = [
     id: 6,
     question: "Can I sign up without a credit card?",
     answer:
-      "Yes, you can take up to 5000 snapshots a month with our free plan.",
+      "Yes, you can capture up to 5000 snapshots a month with our free plan.",
   },
 ];
 
@@ -49,7 +49,7 @@ export function FAQ() {
         <p className="mt-6 max-w-2xl text-base leading-7 text-on-surface-variant">
           Have a different question and can’t find the answer you’re looking
           for? Reach out to our support team by{" "}
-          <Link href="#">sending us an email</Link> and we’ll get back to you as
+          <Link href="mailto:support@pixeleye.io">sending us an email</Link> and we’ll get back to you as
           soon as we can.
         </p>
         <div className="mt-20">

@@ -5,86 +5,14 @@ description: How to get started with Pixeleye
 
 # Get started with Pixeleye
 
+Something about getting started
 
-[Links](/)
+## Another line
 
+Something about getting started
 
+## Another line 3
 
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
-# test
+Something about getting started
+
+### Another line 5

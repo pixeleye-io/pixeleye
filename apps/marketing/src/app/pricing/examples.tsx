@@ -39,7 +39,7 @@ export function Examples() {
                 {plan.name}
               </span>
               <span className="text-on-surface-variant">
-                <span className="block sm:inline">
+                <span className="inline">
                   {plan.developers} / {plan.pushes}
                 </span>{" "}
                 <span className="hidden sm:mx-1 sm:inline" aria-hidden="true">
@@ -49,9 +49,9 @@ export function Examples() {
               </span>
             </span>
           </span>
-          <span className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right">
+          <span className="mt-2 flex text-sm sm:ml-4 sm:mt-0 flex-col sm:text-right">
             <span className="font-medium text-on-surface">{plan.price}/mo</span>
-            <span className="ml-1 text-on-surface-variant sm:ml-0">
+            <span className="text-on-surface-variant ">
               {plan.count}
             </span>
           </span>
