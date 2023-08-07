@@ -28,7 +28,7 @@ export const getAllFiles = cache(async () => {
 
   const root = await packageDirectory();
 
-  for await (const f of getFiles(root + "../../../docs")) {
+  for await (const f of getFiles(root + "../../docs")) {
     files.push({
       file: f,
       url: f
