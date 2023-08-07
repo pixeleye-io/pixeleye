@@ -8,11 +8,10 @@
   ],
   "pipeline": {
     "deploy": {
-      "dependsOn": ["build", "sitemap"],
-      "outputs": []
+      "dependsOn": ["^build", "sitemap"]
     },
     "build": {
-      "dependsOn": ["^build", "sitemap"],
+      "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "sitemap": {
