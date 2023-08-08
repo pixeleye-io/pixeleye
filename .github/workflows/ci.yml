@@ -55,7 +55,7 @@ jobs:
         run: pnpm turbo types
 
       - name: Build
-        run: pnpm turbo build
+        run: pnpm turbo deploy
 
   golang-ci:
     name: Golang - Lint, Test, Build
