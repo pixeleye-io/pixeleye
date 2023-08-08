@@ -11,7 +11,7 @@ func ProjectTokenRoutes(e *echo.Echo) {
 
 	tokenMiddleware := middleware.NewProjectMiddleware()
 
-	v1 := e.Group("/v1")
+	v1 := e.Group("/v1/client")
 
 	v1.Use(tokenMiddleware.ProjectToken)
 

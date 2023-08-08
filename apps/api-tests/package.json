@@ -20,6 +20,8 @@
     "zod": "^3.21.4"
   },
   "dependencies": {
+    "@pixeleye/image-gen": "workspace:*",
+    "@pixeleye/js-sdk": "workspace:*",
     "@ory/client": "^1.1.41",
     "@ory/kratos-client": "^0.13.1",
     "@pixeleye/api": "workspace:*",

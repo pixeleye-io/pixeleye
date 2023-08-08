@@ -140,7 +140,10 @@ func SearchBuilds(c echo.Context) error {
 
 	if branch != "" {
 		build, err := db.GetBuildFromBranch(project.ID, branch)
-		if err == nil {
+		if err != sql.ErrNoRows {
+			if err != nil {
+				return err
+			}
 			builds = append(builds, build)
 		}
 	}
@@ -162,8 +165,13 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	if len(shas) > 0 {
-		build, _ := db.GetBuildFromCommits(project.ID, shas)
-		builds = append(builds, build)
+		build, err := db.GetBuildFromCommits(project.ID, shas)
+		if err != sql.ErrNoRows {
+			if err != nil {
+				return err
+			}
+			builds = append(builds, build)
+		}
 	}
 
 	return c.JSON(http.StatusOK, builds)
@@ -179,7 +187,6 @@ func SearchBuilds(c echo.Context) error {
 // @Param snapshots body models.Snapshot true "Snapshots"
 // @Router /v1/builds/{id}/upload [post]
 func UploadPartial(c echo.Context) error {
-
 	buildID := c.Param("id")
 
 	if !utils.ValidateNanoid(buildID) {

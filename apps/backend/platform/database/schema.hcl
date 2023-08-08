@@ -10,7 +10,7 @@ enum "team_type" {
 table "team" {
   schema = schema.public
   column "id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   primary_key {
@@ -93,7 +93,7 @@ enum "project_source" {
 table "project" {
   schema = schema.public
   column "id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   primary_key {
@@ -110,7 +110,7 @@ table "project" {
   }
 
   column "team_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
 
@@ -150,7 +150,7 @@ enum "project_member_role" {
 table "project_users" {
   schema = schema.public
   column "project_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "project_id" {
@@ -178,7 +178,7 @@ enum "build_status" {
 table "build" {
   schema = schema.public
   column "id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   primary_key {
@@ -195,7 +195,7 @@ table "build" {
   }
 
   column "project_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "project_id" {
@@ -205,7 +205,7 @@ table "build" {
   }
 
   column "target_parent_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
 
@@ -221,7 +221,7 @@ table "build" {
   }
 
   column "target_build_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
 
@@ -235,11 +235,11 @@ table "build" {
   }
   column "message" {
     type = varchar(255)
-    null = true
+    null = false
   }
   column "title" {
     type = varchar(255)
-    null = true
+    null = false
   }
 
   column "warnings" {
@@ -258,8 +258,8 @@ table "build" {
   }
 
   column "approved_by" {
-    type = char(21)
-    null = true
+    type = varchar(21)
+    null = false
   }
 
   index "idx_build-build_number__project_id" {
@@ -271,7 +271,7 @@ table "build" {
 table "build_history" {
   schema = schema.public
   column "child_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "child_id" {
@@ -280,7 +280,7 @@ table "build_history" {
     on_delete   = CASCADE
   }
   column "parent_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "parent_id" {
@@ -293,7 +293,7 @@ table "build_history" {
 table "snap_image" {
   schema = schema.public
   column "id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   primary_key {
@@ -308,7 +308,7 @@ table "snap_image" {
     null = false
   }
   column "project_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "project_id" {
@@ -326,7 +326,7 @@ table "snap_image" {
 table "diff_image" {
   schema = schema.public
   column "id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   primary_key {
@@ -341,7 +341,7 @@ table "diff_image" {
     null = false
   }
   column "project_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "project_id" {
@@ -365,7 +365,7 @@ enum "snapshot_status" {
 table "snapshot" {
   schema = schema.public
   column "id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   primary_key {
@@ -381,7 +381,7 @@ table "snapshot" {
   }
 
   column "build_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "build_id" {
@@ -391,7 +391,7 @@ table "snapshot" {
   }
 
   column "snap_image_id" {
-    type = char(21)
+    type = varchar(21)
     null = false
   }
   foreign_key "snap_image_id" {
@@ -419,7 +419,7 @@ table "snapshot" {
   }
 
   column "baseline_snapshot_id" {
-    type = char(21)
+    type = varchar(21)
     null = true
   }
   foreign_key "baseline_snapshot_id" {
@@ -429,7 +429,7 @@ table "snapshot" {
   }
 
   column "diff_image_id" {
-    type = char(21)
+    type = varchar(21)
     null = true
   }
   foreign_key "diff_image_id" {
@@ -439,7 +439,7 @@ table "snapshot" {
   }
 
   column "reviewer_id" {
-    type = char(21)
+    type = varchar(21)
     null = true
   }
   column "reviewed_at" {

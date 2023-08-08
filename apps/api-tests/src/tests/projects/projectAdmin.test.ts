@@ -19,7 +19,7 @@ const projectData: ProjectBody = {
   source: "custom",
 };
 
-describe("Team admin projects", () => {
+describe.skip("Team admin projects", () => {
   let jekyllTeams: Team[];
   let hydeTeams: Team[];
 

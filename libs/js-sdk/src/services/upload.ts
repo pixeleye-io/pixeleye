@@ -8,7 +8,7 @@ export async function uploadSnapshot(ctx: Context, file: Buffer) {
 
   const hash = generateHash(file);
 
-  const presigned = await api.post("/snapshots/upload/{hash}", {
+  const presigned = await api.post("/client/snapshots/upload/{hash}", {
     params: {
       hash,
     },
