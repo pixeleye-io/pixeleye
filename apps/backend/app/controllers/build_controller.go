@@ -81,39 +81,9 @@ func CreateBuild(c echo.Context) error {
 	return c.JSON(http.StatusCreated, build)
 }
 
-// Get Build method for getting a build.
-// @Description Get a build.
-// @Summary get a build
-// @Tags Build
-// @Accept json
-// @Produce json
-// @Param build_id path string true "Build ID"
-// @Success 200 {object} models.Build
-// @Router /v1/builds/{id} [get]
 func GetBuild(c echo.Context) error {
 
-	// projectID := middleware.GetProjectID(c)
-
-	// Get build ID from URL.
-	id := c.Param("id")
-
-	if !utils.ValidateNanoid(id) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
-	}
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	build, err := db.GetBuild(id)
-	// TODO - create a helper function for this & make sure we handle this properly everywhere else
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
-		}
-		return err
-	}
+	build := middleware.GetBuild(c)
 
 	return c.JSON(http.StatusOK, build)
 }

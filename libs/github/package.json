@@ -12,7 +12,7 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.4.4"
+    "@types/node": "20.4.9"
   },
   "main": "./index.ts",
   "scripts": {

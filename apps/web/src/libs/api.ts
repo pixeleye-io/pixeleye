@@ -1,7 +1,7 @@
 import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
 
-const endpoint = "http://localhost:5000/v1";
+const endpoint = "http://localhost:4000/v1";
 
 export interface CustomProps {
   headers?: Record<string, string>;

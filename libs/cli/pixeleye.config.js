@@ -1,4 +1,4 @@
 module.exports = {
-  token: "5KjSa3InEVYc2ifmi769W:N00ACEBYti6-JO2aulcmuzOcpgoaBgt8",
+  token: "KzUvi2LXLDBFB6-TNoGzO:uwFcizz5R6sB3E8-42SokCbjiEUkdaQR",
   url: "https://pixeleye.be5invis.me",
 };

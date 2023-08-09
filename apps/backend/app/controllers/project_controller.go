@@ -88,6 +88,27 @@ func CreateProject(c echo.Context) error {
 	return c.JSON(http.StatusCreated, project)
 }
 
+func GetProjectBuilds(c echo.Context) error {
+
+	project := middleware.GetProject(c)
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	branch := c.QueryParam("branch")
+
+	builds, err := db.GetProjectBuilds(project.ID, branch)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, builds)
+}
+
 func GetProject(c echo.Context) error {
 
 	project := middleware.GetProject(c)

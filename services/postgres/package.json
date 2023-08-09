@@ -8,13 +8,13 @@
   "type": "module",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "execa": "^7.1.1",
+    "execa": "^7.2.0",
     "is-port-reachable": "^4.0.0",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.4.4"
+    "@types/node": "20.4.9"
   }
 }

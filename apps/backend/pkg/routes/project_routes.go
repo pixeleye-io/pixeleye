@@ -21,6 +21,7 @@ func ProjectRoutes(e *echo.Echo) {
 	baseRoutes.Use(baseRoleMiddleware.ProjectRoleAccess)
 
 	baseRoutes.GET("", controllers.GetProject)
+	baseRoutes.GET("/builds", controllers.GetProjectBuilds)
 
 	// Admin routes.
 	adminRoutes := common.Group("/admin")

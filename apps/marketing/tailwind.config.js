@@ -6,5 +6,6 @@ module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "../../libs/ui/src/**/*.{js,jsx,ts,tsx}",
+    "../../libs/reviewer/src/**/*.{js,jsx,ts,tsx}",
   ],
 };

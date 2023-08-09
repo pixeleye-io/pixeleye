@@ -1,5 +1,6 @@
 import { Method, Routes } from "api-typify";
 import { Project } from "../models/project";
+import { Build } from "../models";
 
 type GET = Method<{
   "/projects/{id}": {
@@ -9,6 +10,12 @@ type GET = Method<{
   "/teams/{teamID}/projects": {
     res: Project[];
   };
+  "/projects/{id}/builds": {
+    res: Build[];
+    queries?: {
+      branch?: string;
+    };
+  };
 }>;
 
 type POST = Method<{
@@ -16,7 +23,7 @@ type POST = Method<{
     res: Project;
     req: Omit<Project, "id" | "createdAt" | "updatedAt" | "token" | "teamID">;
   };
-  "/projects/{id}/new-token": {
+  "/projects/{id}/admin/new-token": {
     res: Project;
     req: undefined;
   };

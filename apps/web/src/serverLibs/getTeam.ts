@@ -1,8 +1,13 @@
 import { Team } from "@pixeleye/api";
-import { sAPI } from "./api-server";
+import { API } from "@/libs";
+import { cookies } from "next/headers";
 
 export async function getTeam(searchParams: { team?: string }): Promise<Team> {
-  const teams = await sAPI.get("/user/teams", {});
+  const teams = await API.get("/user/teams", {
+    headers: {
+      cookie: cookies().toString(),
+    },
+  });
 
   if (searchParams.team) {
     const team = teams.find((team) => team.id === searchParams.team);

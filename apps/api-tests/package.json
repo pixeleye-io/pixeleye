@@ -10,23 +10,23 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@t3-oss/env-core": "^0.6.0",
-    "@types/node": "20.3.1",
+    "@types/node": "20.4.9",
     "@types/wait-on": "^5.3.1",
     "env-cmd": "^10.1.0",
     "pactum": "^3.4.1",
     "typescript": "^5.1.6",
-    "undici": "^5.22.1",
-    "vitest": "^0.33.0",
+    "undici": "^5.23.0",
+    "vitest": "^0.34.1",
     "zod": "^3.21.4"
   },
   "dependencies": {
-    "@pixeleye/image-gen": "workspace:*",
-    "@pixeleye/js-sdk": "workspace:*",
     "@ory/client": "^1.1.41",
     "@ory/kratos-client": "^0.13.1",
     "@pixeleye/api": "workspace:*",
+    "@pixeleye/image-gen": "workspace:*",
+    "@pixeleye/js-sdk": "workspace:*",
     "nanoid": "^4.0.2",
-    "pactum-matchers": "^1.1.5",
+    "pactum-matchers": "^1.1.6",
     "wait-on": "^7.0.1"
   }
 }

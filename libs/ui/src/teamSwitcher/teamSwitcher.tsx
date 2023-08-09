@@ -56,7 +56,7 @@ export default function TeamSwitcher({
       <PopoverTrigger asChild>
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           role="combobox"
           aria-expanded={open}
           aria-label="Select a team"
@@ -74,7 +74,7 @@ export default function TeamSwitcher({
           <span className="truncate min-w-0 max-w-full">
             {selectedTeam.label}
           </span>
-          <ChevronUpDownIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          <ChevronUpDownIcon className="ml-auto h-4 w-4 shrink-0 text-on-surface-variant" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] !p-0">

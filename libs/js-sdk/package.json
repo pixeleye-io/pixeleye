@@ -15,14 +15,14 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.4.4",
-    "undici": "^5.22.1"
+    "@types/node": "20.4.9",
+    "undici": "^5.23.0"
   },
   "dependencies": {
     "@pixeleye/api": "workspace:*",
     "api-typify": "^0.3.2",
     "env-ci": "^9.1.1",
-    "execa": "^7.1.1",
+    "execa": "^7.2.0",
     "jimp": "^0.22.10",
     "node-fetch": "^3.3.2"
   }

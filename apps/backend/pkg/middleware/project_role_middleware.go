@@ -26,7 +26,16 @@ func NewProjectPermissionsRequired(roles []string, teamRoles []string) *ProjectP
 func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		projectID := c.Param("project_id")
+		build := GetBuild(c)
+
+		log.Debug().Msgf("build: %+v", build)
+
+		var projectID string
+		if build == nil {
+			projectID = c.Param("project_id")
+		} else {
+			projectID = build.ProjectID
+		}
 
 		log.Debug().Msgf("project id: %s", projectID)
 

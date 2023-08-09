@@ -1,4 +1,4 @@
-import { sAPI, getTeam } from "@/libs";
+import { API } from "@/libs";
 import Link from "next/link";
 import dayjs from "dayjs";
 import {
@@ -16,6 +16,8 @@ import {
 } from "@pixeleye/ui";
 import { ListBulletIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { cookies } from "next/headers";
+import { getTeam } from "@/serverLibs";
 
 dayjs.extend(relativeTime);
 
@@ -24,26 +26,14 @@ export default async function DashboardPage({
 }: {
   searchParams: { team?: string };
 }) {
-  // const auth = await getUser(32960904);
-
-  // const testing = await fetch("https://api.github.com/user/32960904", {
-  //   headers: {
-  //       Authorization: `token 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`,
-  //   },
-  // })
-
-  // console.log(auth);
-
-  // console.log("testing", testing.headers);
-
-  console.log("Hello");
   const team = await getTeam(searchParams);
 
-  console.log("team", team);
-
-  const projects = await sAPI.get("/teams/{teamID}/projects", {
+  const projects = await API.get("/teams/{teamID}/projects", {
     params: {
       teamID: team.id,
+    },
+    headers: {
+      cookie: cookies().toString(),
     },
   });
 
