@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/rs/zerolog/log"
@@ -92,8 +93,13 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 	defer tx.Rollback()
 
 	if _, err := tx.NamedExec(query, build); err != nil {
-		// There's a very small chance of a race condition here with the build number. If this happens, we can just try again and hope for the best.
-		if _, err = tx.NamedExec(query, build); err != nil {
+		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
+			log.Error().Err(err).Msg("Failed to create build, build number probably already exists. Retrying...")
+			if _, err = tx.NamedExec(query, build); err != nil {
+				return err
+			}
+		} else {
+			log.Error().Err(err).Msg("Failed to create build")
 			return err
 		}
 	}
@@ -106,6 +112,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 
 	if len(buildHistoryEntries) > 0 {
 		if _, err := tx.NamedExecContext(ctx, buildHistoryQuery, buildHistoryEntries); err != nil {
+			log.Err(err).Msg("Failed to create build history entries")
 			return err
 		}
 	}
@@ -137,9 +144,9 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 		return "", err
 	}
 
-	if build.Status != models.BUILD_STATUS_PROCESSING && build.Status != models.BUILD_STATUS_ABORTED {
+	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
 		// Build isn't processing, so we don't need to do anything
-		return models.BUILD_STATUS_PROCESSING, nil
+		return build.Status, nil
 	}
 
 	if build.TargetBuildID == "" && build.TargetParentID == "" {

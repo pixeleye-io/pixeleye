@@ -212,8 +212,8 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0(typescript@5.1.6)(zod@3.21.4)
       api-typify:
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.3.2
+        version: 0.3.2
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -318,8 +318,8 @@ importers:
   libs/api:
     dependencies:
       api-typify:
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.3.2
+        version: 0.3.2
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -445,8 +445,8 @@ importers:
         specifier: workspace:*
         version: link:../api
       api-typify:
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.3.2
+        version: 0.3.2
       env-ci:
         specifier: ^9.1.1
         version: 9.1.1
@@ -2959,8 +2959,8 @@ packages:
       normalize-path: 3.0.0
       picomatch: 2.3.1
 
-  /api-typify@0.3.1:
-    resolution: {integrity: sha512-TeduztciRY5el/fVUqdL6Uc+DlLSWYUUitB32ee96SOBzuNEBHGVI2IlGXgrW+/Zz+Y/R3jFjC5QpSeNi0hTdg==}
+  /api-typify@0.3.2:
+    resolution: {integrity: sha512-ccNJosMtKHkZPu82VVgxX0eGjrShKnZRBTz7epk9hkdh7cAjhN1LkXQmYd6ku0A/KEe9p89ByiUliAI6LM1K2Q==}
     dev: false
 
   /aproba@2.0.0:

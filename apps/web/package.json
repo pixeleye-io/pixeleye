@@ -29,7 +29,7 @@
     "@pixeleye/github": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.6.0",
-    "api-typify": "^0.3.1",
+    "api-typify": "^0.3.2",
     "class-variance-authority": "^0.7.0",
     "dayjs": "^1.11.9",
     "framer-motion": "^10.13.1",

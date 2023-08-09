@@ -13,11 +13,13 @@ export default function AddProjectPage() {
       <h1>Add Project</h1>
       <Button
         onClick={() => {
-          API.post("/projects", {
+          API.post("/teams/{teamID}/projects", {
             body: {
               name: "Test",
               source: "custom",
-              teamID: ""
+            },
+            params: {
+              teamID: "1",
             },
           }).then((project) => {
             setKey(project.id, project.token!);

@@ -6,15 +6,15 @@ type GET = Method<{
     res: Project;
     req: undefined;
   };
-  "/projects": {
+  "/teams/{teamID}/projects": {
     res: Project[];
   };
 }>;
 
 type POST = Method<{
-  "/projects": {
+  "/teams/{teamID}/projects": {
     res: Project;
-    req: Omit<Project, "id" | "createdAt" | "updatedAt" | "token">;
+    req: Omit<Project, "id" | "createdAt" | "updatedAt" | "token" | "teamID">;
   };
   "/projects/{id}/new-token": {
     res: Project;

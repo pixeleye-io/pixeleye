@@ -1,6 +1,5 @@
-import { API } from "@/libs";
+import { sAPI, getTeam } from "@/libs";
 import Link from "next/link";
-import { headers, cookies } from "next/headers";
 import dayjs from "dayjs";
 import {
   Button,
@@ -8,25 +7,23 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Container,
   Table,
   TableBody,
-  TableCaption,
   TableHead,
   TableHeader,
   TableRow,
   TableCell,
 } from "@pixeleye/ui";
-import {
-  ListBulletIcon,
-  Squares2X2Icon,
-  ArrowTopRightOnSquareIcon,
-} from "@heroicons/react/24/outline";
+import { ListBulletIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { team?: string };
+}) {
   // const auth = await getUser(32960904);
 
   // const testing = await fetch("https://api.github.com/user/32960904", {
@@ -39,12 +36,16 @@ export default async function DashboardPage() {
 
   // console.log("testing", testing.headers);
 
-  const projects = await API.get("/projects", {
-    headers: {
-      cookie: cookies().toString(),
+  console.log("Hello");
+  const team = await getTeam(searchParams);
+
+  console.log("team", team);
+
+  const projects = await sAPI.get("/teams/{teamID}/projects", {
+    params: {
+      teamID: team.id,
     },
   });
-
 
   return (
     <main className="">
@@ -112,9 +113,7 @@ export default async function DashboardPage() {
                 className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition border rounded-lg group/card hover:shadow-md  hover:border-primary  border-outline"
               >
                 <h3 className="text-lg">{project.name}</h3>
-                <p className="text-sm text-on-surface">
-                  {/* {project.url} */}
-                </p>
+                <p className="text-sm text-on-surface">{/* {project.url} */}</p>
                 <Link
                   href={`/projects/${project.id}`}
                   className="absolute inset-0"

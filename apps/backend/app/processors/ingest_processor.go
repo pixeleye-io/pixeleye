@@ -187,15 +187,16 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
 
-	if strings.TrimSpace(build.TargetParentID) == "" {
+	if strings.TrimSpace(build.TargetBuildID) == "" {
 		err = db.SetSnapshotsStatus(snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
 		log.Info().Str("BuildID", build.ID).Msg("Build has no parent build, marking all snapshots as orphaned")
 		if err != nil {
 			return err
 		}
 	} else {
-		fmt.Printf("Build parent ID: %s\n", build.TargetParentID)
-		parentBuild, err := db.GetBuild(build.TargetParentID)
+
+		fmt.Printf("Build parent ID: %s\n", build.TargetBuildID)
+		parentBuild, err := db.GetBuild(build.TargetBuildID)
 
 		if err != nil {
 			return err

@@ -57,6 +57,11 @@ func CreateBuild(c echo.Context) error {
 
 	build.Status = models.BUILD_STATUS_UPLOADING
 
+	if build.TargetBuildID == "" {
+		// If we don't have a target but have a parent, we'll default to using that
+		build.TargetBuildID = build.TargetParentID
+	}
+
 	if err := validate.Struct(build); err != nil {
 		// Return, if some fields are not valid.
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
