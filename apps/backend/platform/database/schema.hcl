@@ -2,6 +2,49 @@ schema "public" {}
 
 schema "private" {}
 
+table "user" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "auth_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+  column "updated_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "name" {
+    type = varchar(255)
+    null = false
+  }
+  column "email" {
+    type = varchar(255)
+    null = false
+  }
+  column "avatar_url" {
+    type = text
+    null = false
+  }
+
+  index "idx_unique_user_auth_id" {
+    columns = [column.auth_id]
+    unique  = true
+  }
+}
+
 enum "team_type" {
   schema = schema.public
   values = ["github", "gitlab", "bitbucket", "user"]
@@ -44,8 +87,14 @@ table "team" {
   }
   // Used for ensuring uniqueness of a users personal team
   column "owner_id" {
-    type = varchar(255)
-    null = false
+    type = varchar(21)
+    null = true
+  }
+
+  foreign_key "owner_id" {
+    columns     = [column.owner_id]
+    ref_columns = [table.user.column.id]
+    on_delete   = CASCADE
   }
 
   index "idx_unqiue_user_team" {
@@ -442,6 +491,13 @@ table "snapshot" {
     type = varchar(21)
     null = true
   }
+
+  foreign_key "reviewer_id" {
+    columns     = [column.reviewer_id]
+    ref_columns = [table.user.column.id]
+    on_delete   = CASCADE
+  }
+
   column "reviewed_at" {
     type = timestamptz
     null = true

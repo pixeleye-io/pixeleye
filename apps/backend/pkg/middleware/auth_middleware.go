@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"net/http"
 	"os"
 
@@ -9,7 +11,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	ory "github.com/ory/client-go"
 	"github.com/pixeleye-io/pixeleye/app/models"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,12 +19,10 @@ type oryMiddleware struct {
 	ory *ory.APIClient
 }
 
-func GetUserTraits(c echo.Context) (*models.UserTraits, error) {
-	session := GetSession(c)
-
+func destructureUserTraits(traits interface{}) (*models.UserTraits, error) {
 	userTraits := &models.UserTraits{}
 
-	err := mapstructure.Decode(session.Identity.GetTraits(), &userTraits)
+	err := mapstructure.Decode(traits, &userTraits)
 
 	if err != nil {
 		return nil, err
@@ -31,14 +31,15 @@ func GetUserTraits(c echo.Context) (*models.UserTraits, error) {
 	return userTraits, nil
 }
 
-func GetSession(c echo.Context) *ory.Session {
-	return c.Get("session").(*ory.Session)
-}
-
 func GetUser(c echo.Context) (models.User, error) {
-	session := GetSession(c)
 
-	return utils.DestructureUser(session)
+	user := c.Get("user").(*models.User)
+
+	if user == nil {
+		return models.User{}, errors.New("user not found")
+	}
+
+	return *user, nil
 }
 
 func NewOryMiddleware() *oryMiddleware {
@@ -59,7 +60,37 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil || !*session.Active {
 			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}
-		c.Set("session", session)
+
+		db, err := database.OpenDBConnection()
+
+		if err != nil {
+			log.Err(err).Msg("Error opening database connection")
+			return err
+		}
+
+		user, err := db.GetUserByAuthID(session.Identity.GetId())
+
+		if err != nil && err != sql.ErrNoRows {
+			log.Err(err).Msg("Error getting user")
+			return err
+		}
+
+		if err == sql.ErrNoRows {
+			userTraits, err := destructureUserTraits(session.Identity.GetTraits())
+
+			if err != nil {
+				log.Err(err).Msg("Error destructuring user traits")
+				return err
+			}
+
+			user, err = db.CreateUser(session.Identity.GetId(), *userTraits)
+			if err != nil {
+				log.Err(err).Msg("Error creating user")
+				return err
+			}
+		}
+
+		c.Set("user", user)
 		return next(c)
 	}
 }

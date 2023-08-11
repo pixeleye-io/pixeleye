@@ -43,9 +43,7 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
 		}
 
-		session := GetSession(c)
-
-		user, err := utils.DestructureUser(session)
+		user, err := GetUser(c)
 
 		if err != nil {
 			return err

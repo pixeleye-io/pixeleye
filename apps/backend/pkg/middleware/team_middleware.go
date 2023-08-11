@@ -27,9 +27,8 @@ func getTeamKey(teamId string, userId string) string {
 
 func GetTeam(c echo.Context) models.Team {
 	teamID := c.Param("team_id")
-	session := GetSession(c)
 
-	user, err := utils.DestructureUser(session)
+	user, err := GetUser(c)
 
 	if err != nil {
 		return models.Team{}
@@ -54,10 +53,7 @@ func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.Handler
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid team ID")
 		}
 
-		// Get the user from the context.
-		session := GetSession(c)
-
-		user, err := utils.DestructureUser(session)
+		user, err := GetUser(c)
 
 		if err != nil {
 			return err
