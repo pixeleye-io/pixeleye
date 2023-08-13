@@ -214,3 +214,19 @@ func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string
 
 	return err
 }
+
+func (q *ProjectQueries) GetProjectBuilds(projectID string, branch string) ([]models.Build, error) {
+	query := `SELECT * FROM build WHERE project_id = $1`
+	queryBranches := `SELECT * FROM build WHERE project_id = $1 AND branch = $2`
+
+	builds := []models.Build{}
+
+	var err error
+	if branch == "" {
+		err = q.Select(&builds, query, projectID)
+	} else {
+		err = q.Select(&builds, queryBranches, projectID, branch)
+	}
+
+	return builds, err
+}

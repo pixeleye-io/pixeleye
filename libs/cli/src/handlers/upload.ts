@@ -90,7 +90,7 @@ export async function upload(path: string, options: Config) {
 
   const uploadSpinner = ora("Uploading snapshots to Pixeleye...").start();
 
-  // TODO - we can and should upload and link snapshots in batches so we can begin processing them in the background
+  // TODO - we can and should upload + link snapshots in batches so we can begin processing them in the background
 
   const snaps = await Promise.all(
     files.map((file) =>

@@ -57,6 +57,11 @@ func CreateBuild(c echo.Context) error {
 
 	build.Status = models.BUILD_STATUS_UPLOADING
 
+	if build.TargetBuildID == "" {
+		// If we don't have a target but have a parent, we'll default to using that
+		build.TargetBuildID = build.TargetParentID
+	}
+
 	if err := validate.Struct(build); err != nil {
 		// Return, if some fields are not valid.
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
@@ -76,39 +81,9 @@ func CreateBuild(c echo.Context) error {
 	return c.JSON(http.StatusCreated, build)
 }
 
-// Get Build method for getting a build.
-// @Description Get a build.
-// @Summary get a build
-// @Tags Build
-// @Accept json
-// @Produce json
-// @Param build_id path string true "Build ID"
-// @Success 200 {object} models.Build
-// @Router /v1/builds/{id} [get]
 func GetBuild(c echo.Context) error {
 
-	// projectID := middleware.GetProjectID(c)
-
-	// Get build ID from URL.
-	id := c.Param("id")
-
-	if !utils.ValidateNanoid(id) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
-	}
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	build, err := db.GetBuild(id)
-	// TODO - create a helper function for this & make sure we handle this properly everywhere else
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
-		}
-		return err
-	}
+	build := middleware.GetBuild(c)
 
 	return c.JSON(http.StatusOK, build)
 }
@@ -140,7 +115,10 @@ func SearchBuilds(c echo.Context) error {
 
 	if branch != "" {
 		build, err := db.GetBuildFromBranch(project.ID, branch)
-		if err == nil {
+		if err != sql.ErrNoRows {
+			if err != nil {
+				return err
+			}
 			builds = append(builds, build)
 		}
 	}
@@ -162,8 +140,13 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	if len(shas) > 0 {
-		build, _ := db.GetBuildFromCommits(project.ID, shas)
-		builds = append(builds, build)
+		build, err := db.GetBuildFromCommits(project.ID, shas)
+		if err != sql.ErrNoRows {
+			if err != nil {
+				return err
+			}
+			builds = append(builds, build)
+		}
 	}
 
 	return c.JSON(http.StatusOK, builds)
@@ -179,7 +162,6 @@ func SearchBuilds(c echo.Context) error {
 // @Param snapshots body models.Snapshot true "Snapshots"
 // @Router /v1/builds/{id}/upload [post]
 func UploadPartial(c echo.Context) error {
-
 	buildID := c.Param("id")
 
 	if !utils.ValidateNanoid(buildID) {

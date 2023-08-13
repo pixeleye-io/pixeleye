@@ -16,9 +16,18 @@ export const BuildZod = z.object({
   sha: z.string(),
   branch: z.string(),
   message: z.string().optional(),
-  author: z.string().optional(),
   title: z.string().optional(),
-  status: z.enum(["uploading", "uploaded", "failed"]),
+  status: z.enum([
+    "uploading",
+    "processing",
+    "failed",
+    "orphaned",
+    "aborted",
+    "approved",
+    "rejected",
+    "unreviewed",
+    "unchanged",
+  ]),
   errors: z.array(z.string()),
 });
 

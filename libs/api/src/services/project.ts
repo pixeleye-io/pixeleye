@@ -1,22 +1,29 @@
 import { Method, Routes } from "api-typify";
 import { Project } from "../models/project";
+import { Build } from "../models";
 
 type GET = Method<{
   "/projects/{id}": {
     res: Project;
     req: undefined;
   };
-  "/projects": {
+  "/teams/{teamID}/projects": {
     res: Project[];
+  };
+  "/projects/{id}/builds": {
+    res: Build[];
+    queries?: {
+      branch?: string;
+    };
   };
 }>;
 
 type POST = Method<{
-  "/projects": {
+  "/teams/{teamID}/projects": {
     res: Project;
-    req: Omit<Project, "id" | "createdAt" | "updatedAt" | "token">;
+    req: Omit<Project, "id" | "createdAt" | "updatedAt" | "token" | "teamID">;
   };
-  "/projects/{id}/new-token": {
+  "/projects/{id}/admin/new-token": {
     res: Project;
     req: undefined;
   };

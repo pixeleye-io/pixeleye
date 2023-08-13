@@ -16,6 +16,30 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
+func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
+	query := `SELECT * FROM user WHERE auth_id = $1`
+
+	user := models.User{}
+
+	if err := q.Get(&user, query, authID); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+func (q *UserQueries) CreateUser(userID string, userTraits models.UserTraits) (models.User, error) {
+	query := `INSERT INTO user (id, name, email, avatar) VALUES ($1, $2, $3, $4) RETURNING *`
+
+	user := models.User{}
+
+	if err := q.Get(&user, query, userID, userTraits.Name, userTraits.Email, userTraits.Avatar); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
 	query := `SELECT team.*, team_users.role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team_users.user_id = $1`
 

@@ -1,13 +1,13 @@
-import { Method, Routes } from "api-typify";
+import { Method } from "api-typify";
 import { Build } from "../models/build";
-import { PartialSnapshot, Snapshot } from "../models";
+import { PartialSnapshot } from "../models";
 
 type GET = Method<{
   "/builds/{id}": {
     res: Build;
     req: undefined;
   };
-  "/builds": {
+  "/client/builds": {
     res: Build[];
     queries?: {
       branch?: string;
@@ -16,7 +16,7 @@ type GET = Method<{
 }>;
 
 type POST = Method<{
-  "/builds/create": {
+  "/client/builds/create": {
     res: Build;
     req: Omit<
       Build,
@@ -29,17 +29,17 @@ type POST = Method<{
       | "buildNumber"
     >;
   };
-  "/builds/{id}/upload": {
+  "/client/builds/{id}/upload": {
     res: undefined;
     req: {
       snapshots: PartialSnapshot[];
     };
   };
-  "/builds/{id}/complete": {
+  "/client/builds/{id}/complete": {
     res: undefined;
     req: undefined;
   };
-  "/builds": {
+  "/client/builds": {
     res: Build[];
     req?: {
       shas: string[];

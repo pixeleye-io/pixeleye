@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
+	"github.com/rs/zerolog/log"
 )
 
 type UploadSnapReturn struct {
@@ -63,9 +65,14 @@ func GetUploadURL(c echo.Context) error {
 	snap, err := db.GetSnapImage(hash, project.ID)
 
 	if err == nil && fileExists {
+		// We already have this snapshot
 		return c.JSON(http.StatusOK, UploadSnapReturn{
 			SnapImage: &snap,
 		})
+	}
+
+	if err != nil && err != sql.ErrNoRows {
+		return err
 	}
 
 	url, err := s3.PutObject(os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
@@ -78,6 +85,15 @@ func GetUploadURL(c echo.Context) error {
 
 	if err != nil {
 		return err
+	}
+
+	// We already have the snapshot but for some reason we don't have an upload
+	if snap.ID != "" {
+		log.Debug().Msg("We already have a snapshot but no file uploaded")
+		return c.JSON(http.StatusOK, UploadSnapReturn{
+			SnapImage:            &snap,
+			PresignedHTTPRequest: url,
+		})
 	}
 
 	snapImage := models.SnapImage{

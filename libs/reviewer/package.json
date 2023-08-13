@@ -1,0 +1,26 @@
+{
+  "name": "@pixeleye/reviewer",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
+    "@types/react": "18.2.19"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "@pixeleye/api": "workspace:*",
+    "@pixeleye/ui": "workspace:*",
+    "class-variance-authority": "^0.7.0",
+    "framer-motion": "^10.15.1",
+    "next": "13.4.13",
+    "react": "18.2.0",
+    "zustand": "^4.4.1"
+  }
+}

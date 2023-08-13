@@ -6,13 +6,17 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/rs/zerolog/log"
 )
 
 type BuildQueries struct {
 	*sqlx.DB
 }
+
+// TODO - Add returns to queries like user queries
 
 // This assumes that the user hasn't renamed their branches
 // You should always check that the builds commit sha is in the history of head
@@ -30,9 +34,26 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (models.Build, error) {
 	build := models.Build{}
 
-	query := `SELECT * FROM build WHERE project_id = $1 AND sha = ANY($2) ORDER BY build_number DESC LIMIT 1`
+	arg := map[string]interface{}{
+		"project_id": projectID,
+		"shas":       shas,
+	}
 
-	err := q.Get(&build, query, projectID, shas)
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
+	if err != nil {
+		return build, err
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return build, err
+	}
+	query = q.Rebind(query)
+
+	if err != nil {
+		return build, err
+	}
+
+	err = q.Get(&build, query, args...)
 
 	return build, err
 }
@@ -50,13 +71,17 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 // TODO - make sure when approving a build that it is the latest build
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id)`
+	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id, approved_by) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id, :approved_by)`
 
 	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
 
 	time := utils.CurrentTime()
 	build.CreatedAt = time
 	build.UpdatedAt = time
+
+	if err := utils.TrimStruct(&build); err != nil {
+		return err
+	}
 
 	ctx := context.Background()
 
@@ -70,8 +95,13 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 	defer tx.Rollback()
 
 	if _, err := tx.NamedExec(query, build); err != nil {
-		// There's a very small chance of a race condition here with the build number. If this happens, we can just try again and hope for the best.
-		if _, err = tx.NamedExec(query, build); err != nil {
+		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
+			log.Error().Err(err).Msg("Failed to create build, build number probably already exists. Retrying...")
+			if _, err = tx.NamedExec(query, build); err != nil {
+				return err
+			}
+		} else {
+			log.Error().Err(err).Msg("Failed to create build")
 			return err
 		}
 	}
@@ -84,6 +114,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 
 	if len(buildHistoryEntries) > 0 {
 		if _, err := tx.NamedExecContext(ctx, buildHistoryQuery, buildHistoryEntries); err != nil {
+			log.Err(err).Msg("Failed to create build history entries")
 			return err
 		}
 	}
@@ -95,6 +126,10 @@ func (q *BuildQueries) UpdateBuild(build *models.Build) error {
 	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors, updated_at = :updated_at WHERE id = :id`
 
 	build.UpdatedAt = utils.CurrentTime()
+
+	if err := utils.TrimStruct(&build); err != nil {
+		return err
+	}
 
 	_, err := q.NamedExec(query, build)
 
@@ -111,9 +146,14 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 		return "", err
 	}
 
-	if build.Status != models.BUILD_STATUS_PROCESSING && build.Status != models.BUILD_STATUS_ABORTED {
+	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
 		// Build isn't processing, so we don't need to do anything
-		return models.BUILD_STATUS_PROCESSING, nil
+		return build.Status, nil
+	}
+
+	if build.TargetBuildID == "" && build.TargetParentID == "" {
+		// This is the first build in the chain, so we can assume that it is unchanged.
+		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
 	if build.Status == models.BUILD_STATUS_ABORTED {
@@ -129,8 +169,6 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 
 	// Since snapshot processing is asynchronous, we can check the status of each snapshot to determine the overall build status.
 	// If snapshots are still processing, then the build is still processing.
-
-	build.Status = models.BUILD_STATUS_UNCHANGED
 
 	worstStatus := models.BUILD_STATUS_UNCHANGED
 
@@ -177,6 +215,11 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 		return build, err
 	}
 
+	if build.Status == models.BUILD_STATUS_UPLOADING || build.Status == models.BUILD_STATUS_ABORTED {
+		// Build is still uploading, so we don't need to do anything
+		return build, nil
+	}
+
 	status, err := tryGetBuildStatus(tx, ctx, id)
 
 	if err != nil {
@@ -220,6 +263,8 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 		return build, echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
 	}
 
+	log.Debug().Msgf("Completing build %v", build)
+
 	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
 		// Build has already been marked as complete
 		return build, echo.NewHTTPError(http.StatusBadRequest, "build has already been marked as complete")
@@ -229,11 +274,6 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 
 	if err != nil {
 		return build, err
-	}
-
-	if status == models.BUILD_STATUS_PROCESSING {
-		// Build is still processing, so we don't need to do anything
-		return build, nil
 	}
 
 	build.Status = status

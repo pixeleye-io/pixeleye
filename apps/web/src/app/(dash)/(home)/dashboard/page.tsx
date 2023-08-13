@@ -1,6 +1,5 @@
 import { API } from "@/libs";
 import Link from "next/link";
-import { headers, cookies } from "next/headers";
 import dayjs from "dayjs";
 import {
   Button,
@@ -8,43 +7,35 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Container,
   Table,
   TableBody,
-  TableCaption,
   TableHead,
   TableHeader,
   TableRow,
   TableCell,
 } from "@pixeleye/ui";
-import {
-  ListBulletIcon,
-  Squares2X2Icon,
-  ArrowTopRightOnSquareIcon,
-} from "@heroicons/react/24/outline";
+import { ListBulletIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { cookies } from "next/headers";
+import { getTeam } from "@/serverLibs";
 
 dayjs.extend(relativeTime);
 
-export default async function DashboardPage() {
-  // const auth = await getUser(32960904);
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { team?: string };
+}) {
+  const team = await getTeam(searchParams);
 
-  // const testing = await fetch("https://api.github.com/user/32960904", {
-  //   headers: {
-  //       Authorization: `token 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`,
-  //   },
-  // })
-
-  // console.log(auth);
-
-  // console.log("testing", testing.headers);
-
-  const projects = await API.get("/projects", {
+  const projects = await API.get("/teams/{teamID}/projects", {
+    params: {
+      teamID: team.id,
+    },
     headers: {
       cookie: cookies().toString(),
     },
   });
-
 
   return (
     <main className="">
@@ -112,9 +103,7 @@ export default async function DashboardPage() {
                 className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition border rounded-lg group/card hover:shadow-md  hover:border-primary  border-outline"
               >
                 <h3 className="text-lg">{project.name}</h3>
-                <p className="text-sm text-on-surface">
-                  {/* {project.url} */}
-                </p>
+                <p className="text-sm text-on-surface">{/* {project.url} */}</p>
                 <Link
                   href={`/projects/${project.id}`}
                   className="absolute inset-0"
