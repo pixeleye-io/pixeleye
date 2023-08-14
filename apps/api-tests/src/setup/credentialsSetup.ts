@@ -93,7 +93,16 @@ export async function getOryIdentityId(
 }
 
 export async function createAllSessions() {
-  const sessions: Record<string, SuccessfulNativeLogin> = {};
+  const sessions: Record<
+    string,
+    SuccessfulNativeLogin & {
+      session: {
+        identity: {
+          userID: string;
+        };
+      };
+    }
+  > = {};
 
   await Promise.all(
     Object.values(IDs).map(async (id) => {
@@ -104,6 +113,7 @@ export async function createAllSessions() {
             id: "",
             identity: {
               id: "",
+              userID: "",
               schema_id: "",
               schema_url: "",
               traits: {},
@@ -117,7 +127,19 @@ export async function createAllSessions() {
 
       const session = await createOrySession(identity);
 
-      sessions[id] = session;
+      const user: any = await fetch(env.SERVER_ENDPOINT + "/v1/user/me", {
+        headers: {
+          Authorization: "Bearer " + session.session_token,
+        },
+      }).then((res) => res.json());
+
+      sessions[id] = {...session, session: {
+        ...session.session,
+        identity: {
+          ...session.session.identity,
+          userID: user.id,
+        }
+      }};
     })
   );
 

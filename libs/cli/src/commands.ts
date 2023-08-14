@@ -3,6 +3,7 @@ import { Command } from "commander";
 import { loadAndMergeConfig } from "./config/config";
 import { upload, ping } from "./handlers";
 import { defaults } from "./config";
+import { e2e } from "./handlers/e2e";
 
 export const program = new Command();
 
@@ -14,6 +15,7 @@ program.configureOutput({
 export const optionMap = {
   t: "token",
   u: "url",
+  p: "port",
 } as const;
 
 const configOption = (name: string) =>
@@ -44,5 +46,16 @@ apiOptions("ping")
   .description("Test your token and connection to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(ping);
+
+apiOptions("e2e")
+  .option(
+    "-p, --port <port>",
+    "Port to run local snapshot server",
+    defaults.port
+  )
+  .argument("<command>", "Command to run e2e tests, e.g. cypress run")
+  .description("Run e2e tests and upload screenshots to pixeleye")
+  .hook("preAction", loadAndMergeConfig)
+  .action(e2e);
 
 export default program.parse(process.argv);

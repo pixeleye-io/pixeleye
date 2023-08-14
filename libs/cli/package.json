@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
+    "@pixeleye/booth": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",

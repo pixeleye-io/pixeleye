@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,7 +20,7 @@ type UserQueries struct {
 }
 
 func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
-	query := `SELECT * FROM user WHERE auth_id = $1`
+	query := `SELECT * FROM users WHERE auth_id = $1`
 
 	user := models.User{}
 
@@ -29,11 +32,36 @@ func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
 }
 
 func (q *UserQueries) CreateUser(userID string, userTraits models.UserTraits) (models.User, error) {
-	query := `INSERT INTO user (id, name, email, avatar) VALUES ($1, $2, $3, $4) RETURNING *`
+	query := `INSERT INTO users (id, name, email, avatar_url, auth_id, created_at, updated_at) VALUES (:id, :name, :email, :avatar_url, :auth_id, :created_at, :updated_at)`
 
-	user := models.User{}
+	time := utils.CurrentTime()
 
-	if err := q.Get(&user, query, userID, userTraits.Name, userTraits.Email, userTraits.Avatar); err != nil {
+	user := models.User{
+		AuthID:    userID,
+		CreatedAt: time,
+		UpdatedAt: time,
+		Name:      userTraits.Name,
+		Email:     userTraits.Email,
+		Avatar:    userTraits.Avatar,
+	}
+
+	id, err := nanoid.New()
+
+	if err != nil {
+		return user, err
+	}
+
+	user.ID = id
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(user); err != nil {
+		errMsg := utils.ValidatorErrors(err)
+		log.Error().Err(err).Msgf("%v", errMsg)
+		return user, fmt.Errorf("%v", errMsg)
+	}
+
+	if _, err := q.NamedQuery(query, user); err != nil {
 		return user, err
 	}
 

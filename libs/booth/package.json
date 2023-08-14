@@ -1,0 +1,32 @@
+{
+  "name": "@pixeleye/booth",
+  "private": true,
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
+    "build": "node ./build.mjs"
+  },
+  "dependencies": {
+    "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
+    "@pixeleye/api": "workspace:*",
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/js-sdk": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
+    "playwright": "^1.32.1",
+    "puppeteer-core": "^19.8.0",
+    "socket.io": "^4.6.1",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@pixeleye/esbuild": "workspace:*",
+    "@types/node": "18.15.3",
+    "concurrently": "7.6.0",
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.22",
+    "socket.io-client": "^4.6.1",
+    "typescript": "5.0.2"
+  }
+}

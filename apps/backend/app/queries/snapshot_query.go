@@ -3,6 +3,7 @@ package queries
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -36,6 +37,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.name,
 		  s.variant,
 		  s.target,
+		  s.viewport,
 		  s.status,
 		  0 AS depth
 		FROM snapshot s
@@ -49,6 +51,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.name,
 		  s.variant,
 		  s.target,
+		  s.viewport,
 		  s.status,
 		  f.depth + 1
 		FROM find_approved_snapshot f
@@ -58,6 +61,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  AND s.name = f.name -- Matching name with the starting snapshot
 		  AND s.variant = f.variant -- Matching variant with the starting snapshot
 		  AND s.target = f.target -- Matching target with the starting snapshot
+		  AND s.viewport = f.viewport -- Matching viewport with the starting snapshot
 	  )
 	  -- Final query: Select the first approved snapshot with matching name, variant, and target
 	  SELECT *
@@ -121,18 +125,24 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot
 }
 
 func getDuplicateSnapError(snap models.Snapshot) string {
-	errTxt := "Duplicate snapshots with name: " + snap.Name
+	errTxt := "Duplicate snapshots with "
+
+	conflicting := []string{fmt.Sprintf("name: %s", snap.Name)}
 
 	if snap.Variant != "" {
-		if snap.Target == "" {
-			return errTxt + " and variant: " + snap.Variant
-		} else {
-			return errTxt + ", variant: " + snap.Variant + " and target: " + snap.Target
-		}
+		conflicting = append(conflicting, fmt.Sprintf("variant: %s", snap.Variant))
 	}
 
 	if snap.Target != "" {
-		return errTxt + " and target: " + snap.Target
+		conflicting = append(conflicting, fmt.Sprintf("target: %s", snap.Target))
+	}
+
+	if snap.Viewport != "" {
+		conflicting = append(conflicting, fmt.Sprintf("viewport: %s", snap.Viewport))
+	}
+
+	if len(conflicting) > 0 {
+		errTxt += utils.JoinStringsGrammatically(conflicting)
 	}
 
 	return errTxt
@@ -142,7 +152,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
-	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, created_at, updated_at, snap_image_id) VALUES (:id, :build_id, :name, :variant, :target, :created_at, :updated_at, :snap_image_id)`
+	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
 	if len(snapshots) == 0 {

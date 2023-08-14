@@ -2,7 +2,7 @@ schema "public" {}
 
 schema "private" {}
 
-table "user" {
+table "users" {
   schema = schema.public
   column "id" {
     type = varchar(21)
@@ -93,7 +93,7 @@ table "team" {
 
   foreign_key "owner_id" {
     columns     = [column.owner_id]
-    ref_columns = [table.user.column.id]
+    ref_columns = [table.users.column.id]
     on_delete   = CASCADE
   }
 
@@ -122,8 +122,14 @@ table "team_users" {
   }
 
   column "user_id" {
-    type = varchar(255)
+    type = varchar(21)
     null = false
+  }
+
+  foreign_key "user_id" {
+    columns     = [column.user_id]
+    ref_columns = [table.users.column.id]
+    on_delete   = CASCADE
   }
 
   column "role" {
@@ -209,8 +215,14 @@ table "project_users" {
   }
 
   column "user_id" {
-    type = varchar(255)
+    type = varchar(21)
     null = false
+  }
+
+  foreign_key "user_id" {
+    columns     = [column.user_id]
+    ref_columns = [table.users.column.id]
+    on_delete   = CASCADE
   }
 
   column "role" {
@@ -460,6 +472,10 @@ table "snapshot" {
     type = varchar(255)
     null = false
   }
+  column "viewport" {
+    type = varchar(255)
+    null = false
+  }
 
   column "status" {
     type    = enum.snapshot_status
@@ -494,7 +510,7 @@ table "snapshot" {
 
   foreign_key "reviewer_id" {
     columns     = [column.reviewer_id]
-    ref_columns = [table.user.column.id]
+    ref_columns = [table.users.column.id]
     on_delete   = CASCADE
   }
 

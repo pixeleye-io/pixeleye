@@ -11,6 +11,7 @@ export const SnapshotZod = z.object({
   name: z.string(),
   variant: z.string().optional(),
   target: z.string().optional(),
+  viewport: z.string().optional(),
 
   baselineID: z.string().length(21).optional(),
 
@@ -33,5 +34,5 @@ export type Snapshot = z.infer<typeof SnapshotZod>;
 
 export type PartialSnapshot = Pick<
   Snapshot,
-  "snapID" | "name" | "variant" | "target"
+  "snapID" | "name" | "variant" | "target" | "viewport"
 >;

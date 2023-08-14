@@ -23,9 +23,10 @@ type Snapshot struct {
 
 	BuildID string `db:"build_id" json:"buildID" validate:"required,nanoid"`
 
-	Name    string `db:"name" json:"name" validate:"required"`
-	Variant string `db:"variant" json:"variant,omitempty"`
-	Target  string `db:"target" json:"target,omitempty"`
+	Name     string `db:"name" json:"name" validate:"required"`
+	Variant  string `db:"variant" json:"variant,omitempty"`
+	Target   string `db:"target" json:"target,omitempty"`
+	Viewport string `db:"viewport" json:"viewport,omitempty" validate:"omitempty,viewport"`
 
 	SnapId string         `db:"snap_image_id" json:"snapID" validate:"required"`
 	DiffId sql.NullString `db:"diff_image_id" json:"diffID,omitempty"`
@@ -50,6 +51,10 @@ func CompareSnaps(a Snapshot, b Snapshot) bool {
 	}
 
 	if a.Target != b.Target {
+		return false
+	}
+
+	if a.Viewport != b.Viewport {
 		return false
 	}
 

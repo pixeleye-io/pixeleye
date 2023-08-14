@@ -1,0 +1,31 @@
+{
+  "name": "@pixeleye/cypress",
+  "private": true,
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
+    "build": "node ./build.mjs"
+  },
+  "dependencies": {
+    "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
+    "@pixeleye/js-sdk": "workspace:*",
+    "@pixeleye/api": "workspace:*",
+    "playwright": "^1.32.1",
+    "puppeteer-core": "^19.8.0",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "@pixeleye/esbuild": "workspace:*",
+    "@types/node": "18.15.3",
+    "concurrently": "7.6.0",
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.22",
+    "socket.io-client": "^4.6.1",
+    "typescript": "5.0.2"
+  }
+}

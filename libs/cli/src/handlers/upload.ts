@@ -54,7 +54,7 @@ export async function upload(path: string, options: Config) {
     token: options.token,
   };
 
-  const api = getAPI(ctx);
+  getAPI(ctx);
 
   const fileSpinner = ora("Reading files").start();
 

@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "authed",
+    "datetime",
     "devs",
     "frontmatter",
     "godotenv",
@@ -18,6 +19,7 @@
     "Swiper",
     "unreviewed",
     "Upsert",
+    "viewports",
     "zerolog"
   ],
   "go.lintTool": "golangci-lint",

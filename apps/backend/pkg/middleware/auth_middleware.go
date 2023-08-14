@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	"github.com/mitchellh/mapstructure"
 	ory "github.com/ory/client-go"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -84,13 +85,22 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			user, err = db.CreateUser(session.Identity.GetId(), *userTraits)
-			if err != nil {
+
+			if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
+				log.Error().Err(err).Msg("Error creating user, user already exists")
+				user, err = db.GetUserByAuthID(session.Identity.GetId())
+				if err != nil {
+					log.Error().Err(err).Msg("Error creating user")
+					return err
+				}
+			} else if err != nil {
 				log.Err(err).Msg("Error creating user")
 				return err
 			}
+
 		}
 
-		c.Set("user", user)
+		c.Set("user", &user)
 		return next(c)
 	}
 }

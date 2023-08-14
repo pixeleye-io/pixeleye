@@ -5,7 +5,13 @@ import { SuccessfulNativeLogin } from "@ory/kratos-client";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
-let sessionsCache: Record<IDs, SuccessfulNativeLogin> | undefined;
+let sessionsCache: Record<IDs, SuccessfulNativeLogin & {
+  session: {
+    identity: {
+      userID: string;
+    };
+  };
+}> | undefined;
 
 export function getSessions() {
   if (sessionsCache) {
@@ -13,7 +19,16 @@ export function getSessions() {
   }
   const data = readFileSync(__dirname + "/../fixtures/sessions.json", "utf8");
 
-  const sessions: Record<IDs, SuccessfulNativeLogin> = JSON.parse(data);
+  const sessions: Record<
+    IDs,
+    SuccessfulNativeLogin & {
+      session: {
+        identity: {
+          userID: string;
+        };
+      };
+    }
+  > = JSON.parse(data);
 
   sessionsCache = sessions;
 

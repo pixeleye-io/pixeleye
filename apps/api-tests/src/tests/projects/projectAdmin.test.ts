@@ -126,7 +126,7 @@ describe("Team admin projects", () => {
     const { session } = getSession(IDs.john);
     await projectAPI.addUserToProject(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.jekyll,
       500
@@ -137,7 +137,7 @@ describe("Team admin projects", () => {
     const { session } = getSession(IDs.hyde);
     await projectAPI.addUserToProject(
       jekyllsProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.jekyll
     );
@@ -154,7 +154,7 @@ describe("Team admin projects", () => {
     const { session } = getSession(IDs.jekyll);
     await projectAPI.addUserToProject(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.hyde
     );
@@ -182,14 +182,14 @@ describe("Team admin projects", () => {
     );
     await projectAPI.addUserToProject(
       jekyllsProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.hyde,
       401
     );
     await projectAPI.updateUserRole(
       jekyllsProject.id,
-      session.identity.id,
+      session.identity.userID,
       "reviewer",
       IDs.hyde,
       401
@@ -208,14 +208,14 @@ describe("Team admin projects", () => {
     );
     await projectAPI.addUserToProject(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.jekyll,
       401
     );
     await projectAPI.updateUserRole(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "reviewer",
       IDs.jekyll,
       401
@@ -226,7 +226,7 @@ describe("Team admin projects", () => {
     const { session } = getSession(IDs.hyde);
     await projectAPI.updateUserRole(
       jekyllsProject.id,
-      session.identity.id,
+      session.identity.userID,
       "reviewer",
       IDs.jekyll
     );
@@ -237,7 +237,7 @@ describe("Team admin projects", () => {
 
     await projectAPI.updateUserRole(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "admin",
       IDs.hyde
     );
@@ -255,14 +255,14 @@ describe("Team admin projects", () => {
     );
     await projectAPI.addUserToProject(
       jekyllsProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.hyde,
       401
     );
     await projectAPI.updateUserRole(
       jekyllsProject.id,
-      session.identity.id,
+      session.identity.userID,
       "reviewer",
       IDs.hyde,
       401
@@ -290,14 +290,14 @@ describe("Team admin projects", () => {
 
     await projectAPI.addUserToProject(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "viewer",
       IDs.jekyll
     );
 
     await projectAPI.updateUserRole(
       hydesProject.id,
-      session.identity.id,
+      session.identity.userID,
       "reviewer",
       IDs.jekyll
     );
