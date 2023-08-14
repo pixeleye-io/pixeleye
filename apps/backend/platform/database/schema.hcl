@@ -318,11 +318,6 @@ table "build" {
     null = true
   }
 
-  column "approved_by" {
-    type = varchar(21)
-    null = false
-  }
-
   index "idx_build-build_number__project_id" {
     columns = [column.project_id, column.build_number]
     unique  = true

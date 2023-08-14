@@ -28,8 +28,6 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 
 		build := GetBuild(c)
 
-		log.Debug().Msgf("build: %+v", build)
-
 		var projectID string
 		if build == nil {
 			projectID = c.Param("project_id")

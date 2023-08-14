@@ -96,8 +96,9 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 
 	if _, err := tx.NamedExec(query, build); err != nil {
 		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
-			log.Error().Err(err).Msg("Failed to create build, build number probably already exists. Retrying...")
+			log.Error().Err(err).Msg("Failed to create build, build number already exists. Retrying...")
 			if _, err = tx.NamedExec(query, build); err != nil {
+				log.Error().Err(err).Msg("Failed to create build")
 				return err
 			}
 		} else {

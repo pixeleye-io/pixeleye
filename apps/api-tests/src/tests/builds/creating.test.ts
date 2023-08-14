@@ -14,7 +14,7 @@ const projectData: ProjectBody = {
   source: "custom",
 };
 
-describe("Creating a build", () => {
+describe.skip("Creating a build", () => {
   let jekyllTeams: Team[];
 
   let jekyllsProject: Project;

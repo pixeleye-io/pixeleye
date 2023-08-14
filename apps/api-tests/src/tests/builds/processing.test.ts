@@ -49,7 +49,7 @@ describe("Creating a build", () => {
     jekyllsToken = `${jekyllsProject.id}:${jekyllsProject.token}`;
   });
 
-  it.concurrent(
+  it(
     "should create 3 builds with no changes",
     async () => {
       const snapshots: CreateBuildOptions["snapshots"] = [
@@ -101,7 +101,7 @@ describe("Creating a build", () => {
     }
   );
 
-  it.concurrent(
+  it(
     "should create 3 builds with changes then no changes",
     async () => {
       const snapshot1: CreateBuildOptions["snapshots"] = [
