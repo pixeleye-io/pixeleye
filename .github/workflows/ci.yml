@@ -1,9 +1,5 @@
 name: Pixeleye CI
 
-env:
-  AWS_HOST: localstack
-  SERVICES: s3
-
 on:
   push:
     branches: ["main"]
