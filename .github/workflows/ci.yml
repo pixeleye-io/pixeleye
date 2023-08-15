@@ -168,12 +168,12 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Fetch mc client
-        run: curl -o ./mc -# https://dl.min.io/client/mc/release/linux-amd64/mc && chmod +x ./mc
-      - name: Create the dev bucket
-        run: ./mc alias set minio http://minio dev admindev && ./mc mb minio/pixeleye
-      - name: Remove mc client
-        run: rm -v ./mc
+      - name: Create bucket
+        run: |
+          sudo curl -o /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
+          sudo chmod +x /usr/local/bin/mc
+          mc alias set pxminio http://minio minio minio123
+          mc mb pxminio/pixeleye
 
       - name: Install Atlas
         run: |
