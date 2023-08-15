@@ -160,13 +160,6 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Create bucket
-        run: |
-          sudo curl -o /usr/local/bin/mc https://dl.min.io/client/mc/release/linux-amd64/mc
-          sudo chmod +x /usr/local/bin/mc
-          mc alias set pxminio http://minio minio minio123
-          mc mb pxminio/pixeleye
-
       - name: Setup minio
         run: |
           docker run -d -p 9000:9000 --name minio 
