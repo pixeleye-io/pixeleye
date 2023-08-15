@@ -1,16 +1,18 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
-	"log"
-	"os"
+
+	_ "image/png"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/smithy-go"
+	"github.com/rs/zerolog/log"
 )
 
 // BucketExists checks whether a bucket exists in the current account.
@@ -55,46 +57,36 @@ func (basics BucketClient) FileExists(bucketName string, objectKey string) (bool
 }
 
 // UploadFile reads from a file and puts the data into an object in a bucket.
-func (basics BucketClient) UploadFile(bucketName string, objectKey string, fileName string) error {
-	file, err := os.Open(fileName)
+func (basics BucketClient) UploadFile(bucketName string, objectKey string, file []byte) error {
+
+	_, err := basics.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+		Body:   bytes.NewReader(file),
+	})
 	if err != nil {
-		log.Printf("Couldn't open file %v to upload. Here's why: %v\n", fileName, err)
-	} else {
-		defer file.Close()
-		_, err := basics.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-			Bucket: aws.String(bucketName),
-			Key:    aws.String(objectKey),
-			Body:   file,
-		})
-		if err != nil {
-			log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
-				fileName, bucketName, objectKey, err)
-		}
+		log.Error().Err(err).Msgf("Couldn't upload file to %v:%v. Here's why: %v\n",
+			bucketName, objectKey, err)
 	}
+
 	return err
 }
 
 // DownloadFile gets an object from a bucket and stores it in a local file.
-func (basics BucketClient) DownloadFile(bucketName string, objectKey string, fileName string) error {
+func (basics BucketClient) DownloadFile(bucketName string, objectKey string) ([]byte, error) {
 	result, err := basics.S3Client.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 	})
 	if err != nil {
-		log.Printf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, objectKey, err)
-		return err
+		log.Error().Err(err).Msgf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, objectKey, err)
+		return nil, err
 	}
 	defer result.Body.Close()
-	file, err := os.Create(fileName)
-	if err != nil {
-		log.Printf("Couldn't create file %v. Here's why: %v\n", fileName, err)
-		return err
-	}
-	defer file.Close()
+
 	body, err := io.ReadAll(result.Body)
 	if err != nil {
-		log.Printf("Couldn't read object body from %v. Here's why: %v\n", objectKey, err)
+		log.Error().Err(err).Msgf("Couldn't read object body from %v. Here's why: %v\n", objectKey, err)
 	}
-	_, err = file.Write(body)
-	return err
+	return body, err
 }

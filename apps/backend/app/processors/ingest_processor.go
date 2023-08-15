@@ -1,14 +1,24 @@
 package processors
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
+	"os"
 	"strings"
+
+	"image"
+	"image/png"
+	_ "image/png"
 
 	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/storage"
 )
 
 // TODO - make sure I'm setting snapshot to failed & storing error if it does fail
@@ -35,7 +45,123 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 
 	// TODO - process the image changes
 
-	return db.SetSnapshotStatus(snapshot.ID, models.SNAPSHOT_STATUS_UNREVIEWED)
+	snapImg, err := db.GetSnapImage(snapshot.SnapId)
+
+	if err != nil {
+		return err
+	}
+
+	baseImg, err := db.GetSnapImage(baselineSnapshot.SnapId)
+
+	if err != nil {
+		return err
+	}
+
+	s3, err := storage.GetClient()
+
+	if err != nil {
+		return err
+	}
+
+	ch := make(chan []byte)
+
+	for _, img := range []models.SnapImage{snapImg, baseImg} {
+		go func(img models.SnapImage) {
+			log.Debug().Str("SnapshotID", snapshot.ID).Str("ImageID", img.ID).Msg("Getting image from S3")
+			path := fmt.Sprintf("snaps/%s/%s.png", img.ProjectID, img.Hash)
+
+			imgBytes, err := s3.DownloadFile(os.Getenv("S3_BUCKET"), path)
+
+			if err != nil {
+				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Str("ImageID", img.ID).Msg("Failed to get image from S3")
+				ch <- []byte{}
+				return
+			}
+
+			ch <- imgBytes
+		}(img)
+	}
+
+	snapBytes := <-ch
+
+	if len(snapBytes) == 0 {
+		return fmt.Errorf("failed to get snapshot image from S3")
+	}
+
+	baseBytes := <-ch
+
+	if len(baseBytes) == 0 {
+		return fmt.Errorf("failed to get baseline image from S3")
+	}
+
+	snapshotImage, _, err := image.Decode(bytes.NewReader(snapBytes))
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to decode snapshot image")
+		return err
+	}
+
+	baselineImage, _, err := image.Decode(bytes.NewReader(baseBytes))
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to decode baseline image")
+		return err
+	}
+
+	diffImage := imageDiff.Diff(snapshotImage, baselineImage, &imageDiff.Options{Threshold: 0})
+
+	if diffImage.Equal {
+		log.Info().Str("SnapshotID", snapshot.ID).Msg("Diff image is equal to baseline after comparing pixels, setting to unchanged")
+		return db.SetSnapshotStatus(snapshot.ID, models.SNAPSHOT_STATUS_UNCHANGED)
+	}
+
+	hasher := sha256.New()
+
+	buff := new(bytes.Buffer)
+
+	err = png.Encode(buff, diffImage.Image)
+
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to encode diff image")
+		return err
+	}
+
+	_, err = hasher.Write(buff.Bytes())
+
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to hash diff image")
+		return err
+	}
+
+	hash := hex.EncodeToString(hasher.Sum(nil))
+
+	diffPath := fmt.Sprintf("diffs/%s/%s.png", snapImg.ProjectID, hash)
+
+	exists, err := s3.FileExists(os.Getenv("S3_BUCKET"), diffPath)
+
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to check if diff image exists in S3")
+		return err
+	}
+
+	if !exists {
+		if err = s3.UploadFile(os.Getenv("S3_BUCKET"), diffPath, buff.Bytes()); err != nil {
+			log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to upload diff image to S3")
+			return err
+		}
+	}
+
+	diffImg := models.DiffImage{
+		Hash:      hash,
+		ProjectID: snapImg.ProjectID,
+	}
+
+	err = db.CreateDiffImage(&diffImg)
+
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to create diff image")
+		return err
+	}
+
+	return db.SetSnapshotDiff(snapshot.ID, diffImg.ID)
 }
 
 // group the snapshots into new, removed, changed and unchanged

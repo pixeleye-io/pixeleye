@@ -11,12 +11,22 @@ type SnapImageQueries struct {
 	*sqlx.DB
 }
 
-func (q *SnapImageQueries) GetSnapImage(hash string, projectID string) (models.SnapImage, error) {
+func (q *SnapImageQueries) GetSnapImageByHash(hash string, projectID string) (models.SnapImage, error) {
 	snapImage := models.SnapImage{}
 
 	query := `SELECT * FROM snap_image WHERE hash = $1 AND project_id = $2`
 
 	err := q.Get(&snapImage, query, hash, projectID)
+
+	return snapImage, err
+}
+
+func (q *SnapImageQueries) GetSnapImage(id string) (models.SnapImage, error) {
+	snapImage := models.SnapImage{}
+
+	query := `SELECT * FROM snap_image WHERE id = $1`
+
+	err := q.Get(&snapImage, query, id)
 
 	return snapImage, err
 }

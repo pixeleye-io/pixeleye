@@ -62,7 +62,7 @@ func GetUploadURL(c echo.Context) error {
 		return err
 	}
 
-	snap, err := db.GetSnapImage(hash, project.ID)
+	snap, err := db.GetSnapImageByHash(hash, project.ID)
 
 	if err == nil && fileExists {
 		// We already have this snapshot
@@ -134,7 +134,7 @@ func GetSnapURL(c echo.Context) error {
 		return err
 	}
 
-	if _, err = db.GetSnapImage(hash, project.ID); err != nil {
+	if _, err = db.GetSnapImageByHash(hash, project.ID); err != nil {
 		return echo.ErrNotFound
 	}
 

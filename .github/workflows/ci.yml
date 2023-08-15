@@ -152,6 +152,13 @@ jobs:
           - 5672:5672
           - 15672:15672
         options: --health-cmd "rabbitmq-diagnostics -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
+      minio:
+        image: minio/minio
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ROOT_USER: minio
+          MINIO_ROOT_PASSWORD: minio123
 
     steps:
       - name: Check out the repo
@@ -185,6 +192,11 @@ jobs:
           envkey_DB_MAX_IDLE_CONNECTIONS: 10
           envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
           envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
+          envkey_S3_BUCKET: pixeleye
+          envkey_S3_ENDPOINT: http://minio:9000
+          envkey_S3_KEY_SECRET: minio123
+          envkey_S3_ACCESS_KEY_ID: minio
+          
 
       - uses: pnpm/action-setup@v2
         with:

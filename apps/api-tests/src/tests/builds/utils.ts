@@ -2,6 +2,7 @@ import { Build, PartialSnapshot } from "@pixeleye/api";
 import { sleep } from "pactum";
 import { buildTokenAPI } from "../../routes/build";
 import { snapshotTokenAPI } from "../../routes/snapshots";
+import { fetch } from "undici";
 
 export interface CreateBuildOptions {
   token: string;
@@ -48,6 +49,8 @@ export async function createBuildWithSnapshots({
     snapshots.map(async ({ hash, img, name, target, variant }) => {
       let snap: PartialSnapshot | undefined;
 
+      let presigned: any;
+
       await snapshotTokenAPI
         .uploadSnapshot(hash, token)
         .returns(({ res }: any) => {
@@ -57,9 +60,25 @@ export async function createBuildWithSnapshots({
             target,
             variant,
           };
+          presigned = res.json;
         });
 
-      // TODO - actually upload the image
+      if (!presigned.URL) {
+        return presigned;
+      }
+
+      const blob = new Blob([img], { type: "image/png" });
+
+      await fetch(presigned.URL, {
+        method: presigned.Method,
+        headers: {
+          ...(presigned.SignedHeader
+            ? { Host: presigned.SignedHeader.Host.join(",") }
+            : {}),
+          contentType: "image/png",
+        },
+        body: blob,
+      });
 
       await buildTokenAPI.linkSnapshotsToBuild([snap!], build!.id, token);
     })

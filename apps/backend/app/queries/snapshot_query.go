@@ -114,6 +114,14 @@ func (q *SnapshotQueries) SetSnapshotStatus(id string, status string) error {
 	return err
 }
 
+func (q *SnapshotQueries) SetSnapshotDiff(id string, diffID string) error {
+	query := `UPDATE snapshot SET diff_image_id = $1, status = 'unreviewed', updated_at = $2 WHERE id = $3`
+
+	_, err := q.Exec(query, diffID, utils.CurrentTime(), id)
+
+	return err
+}
+
 func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot, error) {
 	snapshots := []models.Snapshot{}
 

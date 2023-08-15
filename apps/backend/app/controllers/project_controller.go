@@ -114,7 +114,6 @@ func GetProject(c echo.Context) error {
 	project := middleware.GetProject(c)
 
 	// We should remove the token via the struct but we also remove it here for safety.
-	// TODO - add test to ensure that the token is not returned.
 	project.Token = ""
 
 	return c.JSON(http.StatusOK, project)
@@ -185,7 +184,7 @@ func DeleteProject(c echo.Context) error {
 }
 
 type AddUserToProjectRequest struct {
-	UserID string `json:"userID" validate:"required"`
+	UserID string `json:"userID" validate:"required,nanoid"`
 	Role   string `json:"role" validate:"required,oneof=admin reviewer viewer"`
 }
 

@@ -1,9 +1,6 @@
 
 
 
-export function Connect(address: string) {
-
-    
-
-    
+export function ping() {
+    return fetch('/api/ping')
 }
