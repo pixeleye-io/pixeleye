@@ -197,7 +197,7 @@ jobs:
           envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
           envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
           envkey_S3_BUCKET: pixeleye
-          envkey_S3_ENDPOINT: http://minio
+          envkey_S3_ENDPOINT: http://127.0.0.1:9000
           envkey_S3_KEY_SECRET: minio123
           envkey_S3_ACCESS_KEY_ID: minio
 
