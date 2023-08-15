@@ -16,95 +16,95 @@ import {
 } from "@heroicons/react/20/solid";
 import { FeedItem, FeedSnapshotApproval } from "@pixeleye/api";
 
-const activity: FeedItem[] = [
-  {
-    id: "1",
-    type: "snapshot_approval",
-    createdAt: new Date().toUTCString(),
-    user: {
-      id: "1",
-      name: "John Doe",
-      avatar: "",
-    },
-    attributes: {
-      snapshotID: "1",
-    },
-  },
-  {
-    id: "2",
-    type: "snapshot_approval",
-    createdAt: new Date().toUTCString(),
-    user: {
-      id: "1",
-      name: "John Doe",
-      avatar: "",
-    },
-    attributes: {
-      snapshotID: "2",
-    },
-  },
-  {
-    id: "3",
-    type: "snapshot_rejection",
-    createdAt: new Date().toUTCString(),
-    user: {
-      id: "1",
-      name: "John Doe",
-      avatar: "",
-    },
-    attributes: {
-      snapshotID: "2",
-    },
-  },
-  {
-    id: "4",
-    type: "build_rejection",
-    createdAt: new Date().toUTCString(),
-    user: {
-      id: "1",
-      name: "John Doe",
-      avatar: "",
-    },
-    attributes: {
-      buildID: "1",
-    },
-  },
-];
+// const activity: FeedItem[] = [
+//   {
+//     id: "1",
+//     type: "snapshot_approval",
+//     createdAt: new Date().toUTCString(),
+//     user: {
+//       id: "1",
+//       name: "John Doe",
+//       avatar: "",
+//     },
+//     attributes: {
+//       snapshotID: "1",
+//     },
+//   },
+//   {
+//     id: "2",
+//     type: "snapshot_approval",
+//     createdAt: new Date().toUTCString(),
+//     user: {
+//       id: "1",
+//       name: "John Doe",
+//       avatar: "",
+//     },
+//     attributes: {
+//       snapshotID: "2",
+//     },
+//   },
+//   {
+//     id: "3",
+//     type: "snapshot_rejection",
+//     createdAt: new Date().toUTCString(),
+//     user: {
+//       id: "1",
+//       name: "John Doe",
+//       avatar: "",
+//     },
+//     attributes: {
+//       snapshotID: "2",
+//     },
+//   },
+//   {
+//     id: "4",
+//     type: "build_rejection",
+//     createdAt: new Date().toUTCString(),
+//     user: {
+//       id: "1",
+//       name: "John Doe",
+//       avatar: "",
+//     },
+//     attributes: {
+//       buildID: "1",
+//     },
+//   },
+// ];
 
-function SnapshotApproval({
-  activityItem,
-}: {
-  activityItem: FeedSnapshotApproval;
-}) {
-  return (
-    <>
-      <div>
-        <div className="relative px-1">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white">
-            <UserCircleIcon
-              className="h-5 w-5 text-gray-500"
-              aria-hidden="true"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="min-w-0 flex-1 py-1.5">
-        <div className="text-sm text-gray-500">
-          <span className="font-medium text-gray-900">
-            {activityItem.user.name}
-          </span>{" "}
-          approved{" "}
-          <span
-            className="font-medium text-gray-900"
-          >
-            {activityItem.attributes.snapshotID}{" "}
-          </span>{" "}
-          <span className="whitespace-nowrap">{activityItem.date}</span>
-        </div>
-      </div>
-    </>
-  );
-}
+// function SnapshotApproval({
+//   activityItem,
+// }: {
+//   activityItem: FeedSnapshotApproval;
+// }) {
+//   return (
+//     <>
+//       <div>
+//         <div className="relative px-1">
+//           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white">
+//             <UserCircleIcon
+//               className="h-5 w-5 text-gray-500"
+//               aria-hidden="true"
+//             />
+//           </div>
+//         </div>
+//       </div>
+//       <div className="min-w-0 flex-1 py-1.5">
+//         <div className="text-sm text-gray-500">
+//           <span className="font-medium text-gray-900">
+//             {activityItem.user.name}
+//           </span>{" "}
+//           approved{" "}
+//           <span
+//             className="font-medium text-gray-900"
+//           >
+//             {activityItem.attributes.snapshotID}{" "}
+//           </span>{" "}
+//           <span className="whitespace-nowrap">{activityItem.date}</span>
+//         </div>
+//       </div>
+//     </>
+//   );
+// }
 
 // export default function Example() {
 //   return (
