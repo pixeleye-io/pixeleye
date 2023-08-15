@@ -8,16 +8,8 @@ import * as url from "url";
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 const setup = async () => {
-  const tokens = await createAllSessions();
-
-  await writeFile(
-    __dirname + "/../fixtures/sessions.json",
-    JSON.stringify(tokens)
-  );
-
   let counter = 0;
   let isUp = false;
-
   for (let i = 0; i < 100; i++) {
     await fetch("http://127.0.0.1:5000/v1/ping", {
       method: "GET",
@@ -42,6 +34,13 @@ const setup = async () => {
   if (!isUp) {
     throw new Error("API is not up");
   }
+
+  const tokens = await createAllSessions();
+
+  await writeFile(
+    __dirname + "/../fixtures/sessions.json",
+    JSON.stringify(tokens)
+  );
 
   return async () => {
     await deleteUsers(tokens);
