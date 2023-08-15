@@ -71,7 +71,11 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 // TODO - make sure when approving a build that it is the latest build
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id, approved_by) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id, :approved_by)`
+	return q.CreateBuildRecursive(build, 0)
+}
+
+func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) error {
+	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id)`
 
 	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
 
@@ -94,13 +98,14 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 	// nolint:errcheck
 	defer tx.Rollback()
 
-	if _, err := tx.NamedExec(query, build); err != nil {
+	if _, err := tx.NamedExecContext(ctx, query, build); err != nil {
 		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
 			log.Error().Err(err).Msg("Failed to create build, build number already exists. Retrying...")
-			if _, err = tx.NamedExec(query, build); err != nil {
-				log.Error().Err(err).Msg("Failed to create build")
+			if level > 5 {
+				log.Error().Err(err).Msg("Failed to create build, build number already exists. Retried 5 times. Aborting...")
 				return err
 			}
+			return q.CreateBuildRecursive(build, level+1)
 		} else {
 			log.Error().Err(err).Msg("Failed to create build")
 			return err

@@ -5,7 +5,7 @@ import { describe, it } from "vitest";
 import { getSession } from "../../setup/getSession";
 import { like } from "pactum-matchers";
 
-describe.skip("User Accounts", () => {
+describe("User Accounts", () => {
   it("should return authenticated user jekyll", async () => {
     const session = getSession(IDs.jekyll);
     await usersAPI.getAuthenticatedUser().expectJsonMatch({

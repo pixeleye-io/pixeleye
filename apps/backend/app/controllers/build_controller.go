@@ -83,7 +83,11 @@ func CreateBuild(c echo.Context) error {
 
 func GetBuild(c echo.Context) error {
 
-	build := middleware.GetBuild(c)
+	build, err := middleware.GetBuild(c)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
 
 	return c.JSON(http.StatusOK, build)
 }
@@ -162,10 +166,10 @@ func SearchBuilds(c echo.Context) error {
 // @Param snapshots body models.Snapshot true "Snapshots"
 // @Router /v1/builds/{id}/upload [post]
 func UploadPartial(c echo.Context) error {
-	buildID := c.Param("id")
+	build, err := middleware.GetBuild(c)
 
-	if !utils.ValidateNanoid(buildID) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "build not found")
 	}
 
 	partial := models.Partial{}
@@ -179,7 +183,7 @@ func UploadPartial(c echo.Context) error {
 		return err
 	}
 
-	snapshots, err := db.CreateBatchSnapshots(partial.Snapshots, buildID)
+	snapshots, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
 
 	if err != nil {
 		return err
@@ -216,10 +220,10 @@ func UploadPartial(c echo.Context) error {
 // @Router /v1/builds/{id}/complete [post]
 func UploadComplete(c echo.Context) error {
 
-	buildID := c.Param("id")
+	build, err := middleware.GetBuild(c)
 
-	if !utils.ValidateNanoid(buildID) {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "build not found")
 	}
 
 	db, err := database.OpenDBConnection()
@@ -227,11 +231,11 @@ func UploadComplete(c echo.Context) error {
 		return err
 	}
 
-	build, err := db.CompleteBuild(buildID)
+	uploadedBuild, err := db.CompleteBuild(build.ID)
 
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusAccepted, build)
+	return c.JSON(http.StatusAccepted, uploadedBuild)
 }

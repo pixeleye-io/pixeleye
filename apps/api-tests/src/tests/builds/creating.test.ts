@@ -14,7 +14,7 @@ const projectData: ProjectBody = {
   source: "custom",
 };
 
-describe.skip("Creating a build", () => {
+describe("Creating a build", () => {
   let jekyllTeams: Team[];
 
   let jekyllsProject: Project;
@@ -52,7 +52,7 @@ describe.skip("Creating a build", () => {
     );
   });
 
-  it.only("Should be able to upload a build", async () => {
+  it("Should be able to upload a build", async () => {
     const buildData = {
       branch: "main",
       sha: "1234",
@@ -77,7 +77,7 @@ describe.skip("Creating a build", () => {
   it("Should be able to get build", async () => {
     await buildTokenAPI
       .getBuild(firstMainBuild.id, jekyllsToken)
-      .expectJsonMatchStrict(firstDevBuild);
+      .expectJsonMatchStrict(firstMainBuild);
   });
 
   it("Should not be able to get build with invalid token", async () => {
@@ -206,7 +206,7 @@ describe.skip("Creating a build", () => {
       });
 
     await buildTokenAPI
-      .linkSnapshotsToBuild([snap!], firstMainBuild.id, jekyllsToken)
+      .linkSnapshotsToBuild([snap!], firstDevBuild.id, jekyllsToken)
       .expectJsonMatch({
         message: "snapshots queued for processing",
       });
@@ -214,7 +214,7 @@ describe.skip("Creating a build", () => {
 
   it("Should be able to complete a build", async () => {
     await buildTokenAPI
-      .completeBuild(firstMainBuild.id, jekyllsToken)
+      .completeBuild(firstDevBuild.id, jekyllsToken)
       .expectJsonMatch({
         status: "orphaned",
       });

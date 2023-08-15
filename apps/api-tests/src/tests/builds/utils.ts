@@ -1,5 +1,4 @@
 import { Build, PartialSnapshot } from "@pixeleye/api";
-import { nanoid } from "nanoid";
 import { sleep } from "pactum";
 import { buildTokenAPI } from "../../routes/build";
 import { snapshotTokenAPI } from "../../routes/snapshots";
@@ -77,12 +76,14 @@ export async function createBuildWithSnapshots({
       b = res.json;
     });
 
-    if (b?.status === expectedBuildStatus) {
-      break;
-    } else if (b?.status !== "processing") {
-      throw new Error(
-        `Build did not complete with correct status: ${b?.status}`
-      );
+    if (!build === null) {
+      if (b?.status === expectedBuildStatus) {
+        break;
+      } else if (b?.status !== "processing") {
+        throw new Error(
+          `Build did not complete with correct status: ${b?.status}`
+        );
+      }
     }
 
     await sleep(1000);

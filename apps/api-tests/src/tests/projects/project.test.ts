@@ -12,7 +12,7 @@ handler.addExpectHandler("noToken", (ctx: any) => {
   expect(ctx.res.json.token).to.be.undefined;
 });
 
-describe.skip("Team projects", () => {
+describe("Team projects", () => {
   let jekyllTeams: Team[];
   let hydeTeams: Team[];
 

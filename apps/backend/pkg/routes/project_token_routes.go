@@ -12,15 +12,18 @@ func ProjectTokenRoutes(e *echo.Echo) {
 	tokenMiddleware := middleware.NewProjectMiddleware()
 
 	v1 := e.Group("/v1/client")
+	buildIDV1 := v1.Group("/builds/:build_id")
 
 	v1.Use(tokenMiddleware.ProjectToken)
+	buildIDV1.Use(middleware.LoadBuild)
+	buildIDV1.Use(tokenMiddleware.ProjectToken)
 
 	v1.POST("/builds/create", controllers.CreateBuild)
-	v1.POST("/builds/:id/upload", controllers.UploadPartial)
-	v1.POST("/builds/:id/complete", controllers.UploadComplete)
+	buildIDV1.POST("/upload", controllers.UploadPartial)
+	buildIDV1.POST("/complete", controllers.UploadComplete)
 	v1.POST("/snapshots/upload/:hash", controllers.GetUploadURL)
 	v1.POST("/builds", controllers.SearchBuilds)
 
-	v1.GET("/builds/:id", controllers.GetBuild)
+	buildIDV1.GET("", controllers.GetBuild)
 	v1.GET("/snapshots/:hash", controllers.GetSnapURL) //TODO move this out of project token routes
 }

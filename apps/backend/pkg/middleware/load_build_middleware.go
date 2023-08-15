@@ -3,6 +3,7 @@ package middleware
 import (
 	// TODO - upgrade to slices package when it's merged into the stdlib.
 
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,16 +13,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetBuild(c echo.Context) *models.Build {
+func GetBuild(c echo.Context) (*models.Build, error) {
 	build := c.Get("build")
 	if build == nil {
-		return nil
+		return nil, fmt.Errorf("build not found")
 	}
-	return build.(*models.Build)
-}
-
-func SetBuild(c echo.Context, build *models.Build) {
-	c.Set("build", build)
+	return build.(*models.Build), nil
 }
 
 func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
@@ -48,7 +45,7 @@ func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 
-		SetBuild(c, &build)
+		c.Set("build", &build)
 
 		return next(c)
 	}

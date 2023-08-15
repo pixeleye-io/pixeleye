@@ -26,7 +26,7 @@ func NewProjectPermissionsRequired(roles []string, teamRoles []string) *ProjectP
 func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		build := GetBuild(c)
+		build, _ := GetBuild(c)
 
 		var projectID string
 		if build == nil {

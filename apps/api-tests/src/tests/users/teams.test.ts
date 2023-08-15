@@ -16,7 +16,7 @@ handler.addExpectHandler("userTeam", (ctx: any) => {
   expect(personalTeams[0]).to.have.property("role", "owner");
 });
 
-describe.skip("User teams", () => {
+describe("User teams", () => {
   it("should return users teams", async () => {
     await usersAPI
       .getUsersTeams()
