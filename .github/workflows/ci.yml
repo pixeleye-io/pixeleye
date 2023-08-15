@@ -159,7 +159,7 @@ jobs:
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
-        options: --name=minio --health-cmd "curl http://localhost:9000/minio/health/live"
+        options: --health-cmd "curl http://localhost:9000/minio/health/live" -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
 
 
     steps:
