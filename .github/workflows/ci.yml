@@ -165,6 +165,7 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+        
 
       - name: Install Atlas
         run: |
@@ -196,8 +197,14 @@ jobs:
           envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
           envkey_S3_BUCKET: pixeleye
           envkey_S3_ENDPOINT: http://localstack
-          envkey_S3_KEY_SECRET: minio123
-          envkey_S3_ACCESS_KEY_ID: minio
+          envkey_S3_KEY_SECRET: localstack
+          envkey_S3_ACCESS_KEY_ID: localstack
+
+      - name: Make bucket
+        run: |
+          aws configure set aws_access_key_id localstack
+          aws configure set aws_secret_access_key localstack
+          aws mb s3://pixeleye --endpoint-url=http://localstack
 
       - uses: pnpm/action-setup@v2
         with:
