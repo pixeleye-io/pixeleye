@@ -155,17 +155,10 @@ jobs:
           - 5672:5672
           - 15672:15672
         options: --health-cmd "rabbitmq-diagnostics -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
-      localstack:
-        image: localstack/localstack
-        env:
-          SERVICES: s3
-        ports:
-          - "4566:4566"
 
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
-        
 
       - name: Install Atlas
         run: |
@@ -196,13 +189,23 @@ jobs:
           envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
           envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
           envkey_S3_BUCKET: pixeleye
-          envkey_S3_ENDPOINT: http://localstack
+          envkey_S3_ENDPOINT: http://s3.localhost.localstack.cloud:4566
           envkey_S3_KEY_SECRET: localstack
           envkey_S3_ACCESS_KEY_ID: localstack
 
+      - name: Start LocalStack
+        run: |
+          pip install localstack awscli-local[ver1] # install LocalStack cli and awslocal
+          docker pull localstack/localstack         # Make sure to pull the latest version of the image
+          localstack start -d -p 4566:4566                      # Start LocalStack in the background
+
+          echo "Waiting for LocalStack startup..."  # Wait 30 seconds for the LocalStack container
+          localstack wait -t 30                     # to become ready before timing out 
+          echo "Startup complete"
+
       - name: Make bucket
         run: |
-          aws mb s3://pixeleye --endpoint-url=http://localstack
+          awslocal s3api create-bucket --bucket pixeleye
 
       - uses: pnpm/action-setup@v2
         with:
