@@ -156,13 +156,13 @@ jobs:
           - 15672:15672
         options: --health-cmd "rabbitmq-diagnostics -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
       minio:
-        image: minio/minio:latest
+        image: minio/minio:edge-cicd
         ports:
           - 9000:9000
         env:
           MINIO_ROOT_USER: minio
           MINIO_ROOT_PASSWORD: minio123
-        options: --health-cmd "curl -I http://localhost:9000/minio/health/live" -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "curl -s http://localhost:9000/minio/health/live" -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Check out the repo
