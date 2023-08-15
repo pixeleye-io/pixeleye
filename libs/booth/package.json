@@ -6,8 +6,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "lint": "eslint",
-    "types": "tsc --noEmit",
-    "build": "node ./build.mjs"
+    "types": "tsc --noEmit"
   },
   "dependencies": {
     "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
