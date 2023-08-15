@@ -1,6 +1,6 @@
 import { Container } from "@pixeleye/ui";
 import { ProjectHeader } from "./projectHeader";
-import { RegisterSegment } from "../../breadcrumbStore";
+import { RegisterSegment } from "../breadcrumbStore";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { API } from "@/libs/api";
