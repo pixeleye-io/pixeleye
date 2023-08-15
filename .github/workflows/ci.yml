@@ -155,14 +155,6 @@ jobs:
           - 5672:5672
           - 15672:15672
         options: --health-cmd "rabbitmq-diagnostics -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
-      minio:
-        image: minio/minio:edge-cicd
-        ports:
-          - 9000:9000
-        env:
-          MINIO_ROOT_USER: minio
-          MINIO_ROOT_PASSWORD: minio123
-        options: --health-cmd "curl -s http://localhost:9000/minio/health/live" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Check out the repo
@@ -174,6 +166,19 @@ jobs:
           sudo chmod +x /usr/local/bin/mc
           mc alias set pxminio http://minio minio minio123
           mc mb pxminio/pixeleye
+
+      - name: Setup minio
+        run: |
+          docker run -d -p 9000:9000 --name minio 
+                     -e "MINIO_ACCESS_KEY=minio" 
+                     -e "MINIO_SECRET_KEY=minio123" 
+                     -v /tmp/data:/data 
+                     -v /tmp/config:/root/.minio 
+                     minio/minio server /data
+          export AWS_ACCESS_KEY_ID=minio
+          export AWS_SECRET_ACCESS_KEY=minio123
+          export AWS_EC2_METADATA_DISABLED=true
+          aws --endpoint-url http://127.0.0.1:9000/ s3 mb s3://pixeleye 
 
       - name: Install Atlas
         run: |
