@@ -160,13 +160,16 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: Setup minio
-        run: |
-          docker run -d -p 9000:9000 --name minio -e "MINIO_ACCESS_KEY=minio" -e "MINIO_SECRET_KEY=minio123" -v /tmp/data:/data -v /tmp/config:/root/.minio minio/minio server /data
-          export AWS_ACCESS_KEY_ID=minio
-          export AWS_SECRET_ACCESS_KEY=minio123
-          export AWS_EC2_METADATA_DISABLED=true
-          aws --endpoint-url http://127.0.0.1:9000/ s3 mb s3://pixeleye 
+      # - name: Setup minio
+      #   run: |
+      #     docker run -d -p 9000:9000 --name minio -e "MINIO_ACCESS_KEY=minio" -e "MINIO_SECRET_KEY=minio123" -v /tmp/data:/data -v /tmp/config:/root/.minio minio/minio server /data
+      #     export AWS_ACCESS_KEY_ID=minio
+      #     export AWS_SECRET_ACCESS_KEY=minio123
+      #     export AWS_EC2_METADATA_DISABLED=true
+      #     aws --endpoint-url http://127.0.0.1:9000/ s3 mb s3://pixeleye
+
+      - name: Setup s3 mock
+        run: docker run -p 9090:9090 -e initialBuckets=pixeleye -e debug=true -t adobe/s3mock
 
       - name: Install Atlas
         run: |
