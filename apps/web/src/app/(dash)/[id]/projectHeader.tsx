@@ -4,7 +4,7 @@ import { useEffect, useId } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Header, NavTab } from "@pixeleye/ui";
-import { useTeamStore } from "../../breadcrumbStore";
+import { useTeamStore } from "../breadcrumbStore";
 
 export function ProjectHeader({ projectId }: { projectId: string }) {
   const pathName = usePathname();
