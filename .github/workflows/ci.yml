@@ -1,5 +1,9 @@
 name: Pixeleye CI
 
+env:
+  AWS_HOST: localstack
+  SERVICES: s3
+
 on:
   push:
     branches: ["main"]
@@ -155,6 +159,27 @@ jobs:
           - 5672:5672
           - 15672:15672
         options: --health-cmd "rabbitmq-diagnostics -q check_running" --health-interval 10s --health-timeout 5s --health-retries 5
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566 # Localstack exposes all services on same port
+        env:
+          SERVICES: s3
+          DEBUG: ""
+          DATA_DIR: ""
+          LAMBDA_EXECUTOR: ""
+          KINESIS_ERROR_PROBABILITY: ""
+          DOCKER_HOST: unix:///var/run/docker.sock
+          HOST_TMP_FOLDER: "/tmp"
+          HOSTNAME_EXTERNAL:
+            localstack # Required so that resource urls are provided properly
+            # e.g sqs url will get localhost if we don't set this env to map our service
+        options: >-
+          --name=localstack
+          --health-cmd="curl -sS 127.0.0.1:4566 || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Check out the repo
@@ -192,16 +217,6 @@ jobs:
           envkey_S3_ENDPOINT: http://s3.localhost.localstack.cloud:4566
           envkey_S3_KEY_SECRET: localstack
           envkey_S3_ACCESS_KEY_ID: localstack
-
-      - name: Start LocalStack
-        run: |
-          pip install localstack awscli-local[ver1] # install LocalStack cli and awslocal
-          docker pull localstack/localstack         # Make sure to pull the latest version of the image
-          localstack start -d -p 4566:4566                      # Start LocalStack in the background
-
-          echo "Waiting for LocalStack startup..."  # Wait 30 seconds for the LocalStack container
-          localstack wait -t 30                     # to become ready before timing out 
-          echo "Startup complete"
 
       - name: Make bucket
         run: |
