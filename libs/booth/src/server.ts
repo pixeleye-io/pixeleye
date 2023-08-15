@@ -54,28 +54,28 @@ function notFoundHandler(res: Res) {
   res.end("Not found");
 }
 
-async function snapshotHandler(res: Res) {
-  const snaps = await takeScreenshots(browsers, data);
+// async function snapshotHandler(res: Res) {
+//   const snaps = await takeScreenshots(browsers, data);
 
-  const uploadSnaps = await Promise.all(
-    snaps.map(async (snap) => {
-      const { id } = await uploadSnapshot(ctx, snap.img);
+//   const uploadSnaps = await Promise.all(
+//     snaps.map(async (snap) => {
+//       const { id } = await uploadSnapshot(ctx, snap.img);
 
-      return {
-        name: snap.name,
-        variant: snap.variant,
-        target: snap.target,
-        viewport: snap.viewport,
-        snapID: id,
-      } as PartialSnapshot;
-    })
-  );
+//       return {
+//         name: snap.name,
+//         variant: snap.variant,
+//         target: snap.target,
+//         viewport: snap.viewport,
+//         snapID: id,
+//       } as PartialSnapshot;
+//     })
+//   );
 
-  // TODO - we should handle errors better
-  await linkSnapshotsToBuild(ctx, build, uploadSnaps).catch((err) => {
-    console.log(err);
-  });
-}
+//   // TODO - we should handle errors better
+//   await linkSnapshotsToBuild(ctx, build, uploadSnaps).catch((err) => {
+//     console.log(err);
+//   });
+// }
 
 export async function start({
   port = 3003,
