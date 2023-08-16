@@ -95,7 +95,7 @@ export async function upload(path: string, options: Config) {
   const snaps = await Promise.all(
     files.map((file) =>
       fs.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => {
-        const { id } = await uploadSnapshot(ctx, buffer);
+        const { id } = await uploadSnapshot(ctx, buffer, "image/png");
         return {
           imageId: id,
           name: file.name,

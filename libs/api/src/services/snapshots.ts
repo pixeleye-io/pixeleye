@@ -1,9 +1,17 @@
-import { Method, Routes } from "api-typify";
+import { Method } from "api-typify";
 import { SnapImage, PresignedURL } from "../models";
 
 type POST = Method<{
-  "/client/snapshots/upload/{hash}": {
-    res: SnapImage & Partial<PresignedURL>;
+  "/client/snapshots/upload": {
+    res: Record<string, SnapImage & Partial<PresignedURL>>;
+    req: {
+      snapshots: {
+        height: number;
+        width: number;
+        format: string;
+        hash: string;
+      }[];
+    };
   };
 }>;
 

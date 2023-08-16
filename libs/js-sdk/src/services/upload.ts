@@ -1,25 +1,40 @@
 import { Context, getAPI } from "../environment";
-import { generateHash } from "../utils";
+import { generateHash, getDimensions } from "../utils";
 import { Blob } from "buffer";
-import { fetch } from "undici"
+import { fetch } from "undici";
 
-export async function uploadSnapshot(ctx: Context, file: Buffer) {
+export async function uploadSnapshot(
+  ctx: Context,
+  file: Buffer,
+  format: string
+) {
   const api = getAPI(ctx);
 
   const hash = generateHash(file);
 
-  const presigned = await api.post("/client/snapshots/upload/{hash}", {
-    params: {
-      hash,
+  const { height, width } = await getDimensions(file);
+
+  const presignedMap = await api.post("/client/snapshots/upload", {
+    body: {
+      snapshots: [
+        {
+          hash,
+          format,
+          height,
+          width,
+        },
+      ],
     },
   });
+
+  const presigned = presignedMap[hash];
 
   // It's already been uploaded
   if (!presigned.URL) {
     return presigned;
   }
 
-  const blob = new Blob([file], { type: "image/png" });
+  const blob = new Blob([file], { type: format });
 
   await fetch(presigned.URL, {
     method: presigned.Method,
@@ -27,7 +42,7 @@ export async function uploadSnapshot(ctx: Context, file: Buffer) {
       ...(presigned.SignedHeader
         ? { Host: presigned.SignedHeader.Host.join(",") }
         : {}),
-      contentType: "image/png",
+      contentType: format,
     },
     body: blob,
   });

@@ -12,14 +12,16 @@ export default async function DashboardLayout({
 }) {
   const queryClient = getQueryClient();
 
+  const cookie = cookies().toString();
+
   const [user] = await Promise.all([
     API.get("/user/me", {
       headers: {
-        cookie: cookies().toString(),
+        cookie,
       },
     }),
-    queryClient.prefetchQuery(queries.user.me(cookies().toString())),
-    queryClient.prefetchQuery(queries.teams.list(cookies().toString())),
+    queryClient.prefetchQuery(queries.user.me(cookie)),
+    queryClient.prefetchQuery(queries.teams.list(cookie)),
   ]);
 
   const dehydratedState = dehydrate(queryClient);

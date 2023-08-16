@@ -61,7 +61,8 @@ export default async function Layout({
           },
         ]}
       />
-      <Container>{children}</Container>
+      <Divider />
+      {children}
     </HydrationBoundary>
   );
 }

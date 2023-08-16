@@ -21,6 +21,7 @@
     "framer-motion": "^10.15.1",
     "next": "13.4.13",
     "react": "18.2.0",
+    "react-hotkeys-hook": "^4.4.1",
     "zustand": "^4.4.1"
   }
 }

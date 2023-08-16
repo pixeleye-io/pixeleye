@@ -52,10 +52,10 @@ export async function createBuildWithSnapshots({
       let presigned: any;
 
       await snapshotTokenAPI
-        .uploadSnapshot(hash, token)
+        .uploadSnapshot(hash, 100, 100, token)
         .returns(({ res }: any) => {
           snap = {
-            snapID: res.json.id,
+            snapID: res.json[hash].id,
             name,
             target,
             variant,

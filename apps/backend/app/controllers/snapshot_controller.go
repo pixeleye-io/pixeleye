@@ -22,6 +22,107 @@ type UploadSnapReturn struct {
 	*v4.PresignedHTTPRequest
 }
 
+type SnapshotUpload struct {
+	Hash   string `json:"hash" validate:"required,len=64"`
+	Height int    `json:"height" validate:"required"`
+	Width  int    `json:"width" validate:"required"`
+	Format string `json:"format" validate:"required"`
+}
+
+type UploadSnapBody struct {
+	SnapshotUploads []SnapshotUpload `json:"snapshots" validate:"required,dive"`
+}
+
+func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, error) {
+	if data.Format != "image/png" {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "Only PNG format is currently supported")
+	}
+
+	validate := utils.NewValidator()
+
+	if err := validate.Struct(data); err != nil {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	project := middleware.GetProject(c)
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	s3, err := storage.GetClient()
+
+	if err != nil {
+		return nil, err
+	}
+
+	path := fmt.Sprintf("snaps/%s/%s.png", project.ID, data.Hash)
+
+	fileExists, err := s3.FileExists(os.Getenv("S3_BUCKET"), path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	snap, err := db.GetSnapImageByHash(data.Hash, project.ID)
+
+	if err == nil && fileExists {
+		// We already have this snapshot
+		return &UploadSnapReturn{
+			SnapImage: &snap,
+		}, nil
+	}
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	url, err := s3.PutObject(os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
+
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := nanoid.New()
+
+	if err != nil {
+		return nil, err
+	}
+
+	// We already have the snapshot but for some reason we don't have an upload
+	if snap.ID != "" {
+		log.Debug().Msg("We already have a snapshot but no file uploaded")
+		return &UploadSnapReturn{
+			SnapImage:            &snap,
+			PresignedHTTPRequest: url,
+		}, nil
+	}
+
+	snapImage := models.SnapImage{
+		ID:        id,
+		Hash:      data.Hash,
+		ProjectID: project.ID,
+		Height:    data.Height,
+		Width:     data.Width,
+		Format:    data.Format,
+		CreatedAt: utils.CurrentTime(),
+	}
+
+	if err := validate.Struct(snapImage); err != nil {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	if err := db.CreateSnapImage(&snapImage); err != nil {
+		return nil, err
+	}
+
+	return &UploadSnapReturn{
+		SnapImage:            &snapImage,
+		PresignedHTTPRequest: url,
+	}, nil
+}
+
 // Get a signed URL to upload a snapshot image.
 // @Description Get a signed URL to upload a snapshot image.
 // @Summary Get a signed URL to upload a snapshot image.
@@ -29,94 +130,29 @@ type UploadSnapReturn struct {
 // @Produce json
 // @Param hash path string true "Snapshot hash"
 // @Success 200 {object} UploadSnapReturn
-// @Router /v1/snapshots/upload/{hash} [post]
-func GetUploadURL(c echo.Context) error {
+// @Router /v1/snapshots/upload [post]
+func CreateUploadURL(c echo.Context) error {
 
-	// TODO - enable snapshot batching (multiple images in one request)
-	// This will be a very active endpoint, so we should batch the requests
+	body := UploadSnapBody{}
 
-	hash := c.Param("hash")
-
-	if len(hash) != 64 {
-		return echo.NewHTTPError(400, "Invalid hash, must be 64 characters long")
-	}
-
-	project := middleware.GetProject(c)
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
+	if err := c.Bind(&body); err != nil {
 		return err
 	}
 
-	s3, err := storage.GetClient()
+	uploadMap := map[string]*UploadSnapReturn{}
 
-	if err != nil {
-		return err
+	for _, data := range body.SnapshotUploads {
+
+		uploadData, err := createUploadURL(c, data)
+
+		if err != nil {
+			return err
+		}
+
+		uploadMap[data.Hash] = uploadData
 	}
 
-	path := fmt.Sprintf("snaps/%s/%s.png", project.ID, hash)
-
-	fileExists, err := s3.FileExists(os.Getenv("S3_BUCKET"), path)
-
-	if err != nil {
-		return err
-	}
-
-	snap, err := db.GetSnapImageByHash(hash, project.ID)
-
-	if err == nil && fileExists {
-		// We already have this snapshot
-		return c.JSON(http.StatusOK, UploadSnapReturn{
-			SnapImage: &snap,
-		})
-	}
-
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	url, err := s3.PutObject(os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
-
-	if err != nil {
-		return err
-	}
-
-	id, err := nanoid.New()
-
-	if err != nil {
-		return err
-	}
-
-	// We already have the snapshot but for some reason we don't have an upload
-	if snap.ID != "" {
-		log.Debug().Msg("We already have a snapshot but no file uploaded")
-		return c.JSON(http.StatusOK, UploadSnapReturn{
-			SnapImage:            &snap,
-			PresignedHTTPRequest: url,
-		})
-	}
-
-	snapImage := models.SnapImage{
-		ID:        id,
-		Hash:      hash,
-		ProjectID: project.ID,
-		CreatedAt: utils.CurrentTime(),
-	}
-
-	validate := utils.NewValidator()
-
-	if err := validate.Struct(snapImage); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
-	}
-
-	if err := db.CreateSnapImage(&snapImage); err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, UploadSnapReturn{
-		SnapImage:            &snapImage,
-		PresignedHTTPRequest: url,
-	})
+	return c.JSON(http.StatusOK, uploadMap)
 }
 
 func GetSnapURL(c echo.Context) error {

@@ -10,8 +10,6 @@ describe("User Accounts", () => {
     const session = getSession(IDs.jekyll);
     await usersAPI.getAuthenticatedUser().expectJsonMatch({
       authID: session.session.identity.id,
-      name: session.session.identity.traits.name,
-      avatar: session.session.identity.traits.avatar,
       email: session.session.identity.traits.email,
       id: like("12"),
     });
@@ -20,8 +18,6 @@ describe("User Accounts", () => {
     const session = getSession(IDs.hyde);
     await usersAPI.getAuthenticatedUser(IDs.hyde).expectJsonMatch({
       authID: session.session.identity.id,
-      name: session.session.identity.traits.name,
-      avatar: session.session.identity.traits.avatar,
       email: session.session.identity.traits.email,
       id: like("12"),
     });

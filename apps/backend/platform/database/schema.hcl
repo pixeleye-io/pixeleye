@@ -363,6 +363,22 @@ table "snap_image" {
     type = varchar(64)
     null = false
   }
+
+
+  column "width" {
+    type = integer
+    null = false
+  }
+  column "height" {
+    type = integer
+    null = false
+  }
+  column "format" {
+    type = varchar(255)
+    null = false
+  }
+
+
   column "project_id" {
     type = varchar(21)
     null = false
@@ -396,6 +412,20 @@ table "diff_image" {
     type = varchar(64)
     null = false
   }
+
+  column "width" {
+    type = integer
+    null = false
+  }
+  column "height" {
+    type = integer
+    null = false
+  }
+  column "format" {
+    type = varchar(255)
+    null = false
+  }
+
   column "project_id" {
     type = varchar(21)
     null = false

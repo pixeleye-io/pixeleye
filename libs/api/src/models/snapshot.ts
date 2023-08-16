@@ -36,3 +36,23 @@ export type PartialSnapshot = Pick<
   Snapshot,
   "snapID" | "name" | "variant" | "target" | "viewport"
 >;
+
+
+export const SnapshotPairZod = SnapshotZod.extend({
+  snapHash: z.string().optional(),
+  snapURL: z.string().optional(),
+  snapHeight: z.number().optional(),
+  snapWidth: z.number().optional(),
+
+  baselineHash: z.string().optional(),
+  baselineURL: z.string().optional(),
+  baselineHeight: z.number().optional(),
+  baselineWidth: z.number().optional(),
+
+  diffHash: z.string().optional(),
+  diffURL: z.string().optional(),
+  diffHeight: z.number().optional(),
+  diffWidth: z.number().optional(),
+});
+
+export type SnapshotPair = z.infer<typeof SnapshotPairZod>;

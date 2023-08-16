@@ -32,7 +32,7 @@ func (q *SnapImageQueries) GetSnapImage(id string) (models.SnapImage, error) {
 }
 
 func (q *SnapImageQueries) CreateSnapImage(snapImage *models.SnapImage) error {
-	query := `INSERT INTO snap_image (id, hash, project_id, created_at) VALUES (:id, :hash, :project_id, :created_at)`
+	query := `INSERT INTO snap_image (id, hash, project_id, created_at, height, width, format) VALUES (:id, :hash, :project_id, :created_at, :height, :width, :format)`
 
 	snapImage.CreatedAt = utils.CurrentTime()
 
