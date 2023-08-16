@@ -123,7 +123,7 @@ export async function start({
 
       const uploadSnaps = await Promise.all(
         snaps.map(async (snap) => {
-          const { id } = await uploadSnapshot(ctx, snap.img);
+          const { id } = await uploadSnapshot(ctx, snap.img, "image/png");
 
           return {
             name: snap.name,

@@ -110,9 +110,3 @@ const TabsContent = forwardRef<
 TabsContent.displayName = TabsPrimitive.Content.displayName;
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };
-
-export default Object.assign(Tabs, {
-  List: TabsList,
-  Trigger: TabsTrigger,
-  Content: TabsContent,
-});

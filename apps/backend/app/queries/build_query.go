@@ -27,7 +27,7 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	// TODO - We should make sure we ignore failed builds
 	build := models.Build{}
 
-	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`
+	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 AND status != 'uploading' ORDER BY build_number DESC LIMIT 1`
 
 	err := q.Get(&build, query, projectID, branch)
 
@@ -42,7 +42,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 		"shas":       shas,
 	}
 
-	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) AND status != 'uploading' ORDER BY build_number DESC LIMIT 1`, arg)
 	if err != nil {
 		return build, err
 	}
@@ -78,9 +78,17 @@ type PairedSnapshot struct {
 	BaselineHash *string `db:"baseline_hash" json:"baselineHash,omitempty"`
 	DiffHash     *string `db:"diff_hash" json:"diffHash,omitempty"`
 
-	SnapURL     *string `db:"snap_url" json:"snapUrl,omitempty"`
-	BaselineURL *string `db:"baseline_url" json:"baselineUrl,omitempty"`
-	DiffURL     *string `db:"diff_url" json:"diffUrl,omitempty"`
+	SnapURL    *string `db:"snap_url" json:"snapURL,omitempty"`
+	SnapHeight *int    `db:"snap_height" json:"snapHeight,omitempty"`
+	SnapWidth  *int    `db:"snap_width" json:"snapWidth,omitempty"`
+
+	BaselineURL    *string `db:"baseline_url" json:"baselineURL,omitempty"`
+	BaselineHeight *int    `db:"baseline_height" json:"baselineHeight,omitempty"`
+	BaselineWidth  *int    `db:"baseline_width" json:"baselineWidth,omitempty"`
+
+	DiffURL    *string `db:"diff_url" json:"diffURL,omitempty"`
+	DiffHeight *int    `db:"diff_height" json:"diffHeight,omitempty"`
+	DiffWidth  *int    `db:"diff_width" json:"diffWidth,omitempty"`
 }
 
 func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSnapshot, error) {
@@ -96,8 +104,16 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 		SELECT
 			snapshot.*,
 			snapshot_image.hash AS snap_hash,
+			snapshot_image.height AS snap_height,
+			snapshot_image.width AS snap_width,
+
 			baseline_image.hash AS baseline_hash,
-			diff_image.hash AS diff_hash
+			baseline_image.height AS baseline_height,
+			baseline_image.width AS baseline_width,
+
+			diff_image.hash AS diff_hash,
+			diff_image.height AS diff_height,
+			diff_image.width AS diff_width
 		FROM
 			snapshot
 		LEFT JOIN snap_image AS snapshot_image ON snapshot.snap_image_id = snapshot_image.id

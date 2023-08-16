@@ -17,9 +17,9 @@ import { PanelHeader } from "./shared";
 
 function InfoLine({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex justify-between py-3 text-sm font-medium">
+    <div className="flex justify-between py-3 text-sm font-medium space-x-2">
       <dt className="text-on-surface-variant">{label}</dt>
-      <dd className="text-on-surface">{children}</dd>
+      <dd className="text-on-surface truncate">{children}</dd>
     </div>
   );
 }

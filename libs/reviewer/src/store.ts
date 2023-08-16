@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { Panel } from "./panel";
-import { Build, Snapshot } from "@pixeleye/api";
+import { Build, SnapshotPair } from "@pixeleye/api";
 
 interface ReviewerState {
   panel: Panel;
   setPanel: (panel: Panel) => void;
   build: Build;
   setBuild: (build: Build) => void;
-  snapshots: Snapshot[];
-  setSnapshots: (snapshots: Snapshot[]) => void;
+  snapshots: SnapshotPair[];
+  setSnapshots: (snapshots: SnapshotPair[]) => void;
 }
 
 const defaultBuild: Build = {

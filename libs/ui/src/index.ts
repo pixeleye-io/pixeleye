@@ -23,7 +23,6 @@ export { default as Status } from "./status";
 export * from "./navTab";
 export { default as NavTab } from "./navTab";
 export * from "./tabs";
-export { default as Tabs } from "./tabs";
 export { default as Container } from "./container";
 export * from "./container";
 export { default as Table } from "./table";

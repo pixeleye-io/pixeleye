@@ -38,7 +38,7 @@ export function Panel() {
 
   return (
     <m.aside style={{ width: width }} className="flex relative z-0">
-      <div className="flex-1 z-10">
+      <div className="flex-1 z-10 overflow-hidden">
         <PanelComponent />
       </div>
       <span className="absolute inset-0 flex">
@@ -57,7 +57,7 @@ export function Panel() {
             backgroundColor: "rgb(var(--color-outline-variant))",
           }}
           style={{ x: width }}
-          className="w-1.5  relative inset-y-0 justify-center items-center group flex flex-col cursor-col-resize transition-colors"
+          className="w-1.5 relative inset-y-0 justify-center items-center group flex flex-col cursor-col-resize transition-colors"
         >
           <span className=" h-full w-px bg-outline-variant transition-colors" />
         </m.span>

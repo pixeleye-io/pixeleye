@@ -1,6 +1,6 @@
 "use client";
 
-import { Build, Snapshot } from "@pixeleye/api";
+import { Build, SnapshotPair } from "@pixeleye/api";
 
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
@@ -9,7 +9,7 @@ import { use, useEffect } from "react";
 
 export interface ReviewerProps {
   build: Build;
-  snapshots: Snapshot[];
+  snapshots: SnapshotPair[];
 }
 
 export function Reviewer({ build, snapshots }: ReviewerProps) {

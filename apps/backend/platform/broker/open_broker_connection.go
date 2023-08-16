@@ -33,6 +33,21 @@ func GetChannel() (*amqp.Channel, error) {
 	channel, err := connection.Channel()
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open a channel")
+		globalConnection.Close()
+		globalConnection = nil
+
+		connection, err := GetConnection()
+		if err != nil {
+			return nil, err
+		}
+
+		channel, err = connection.Channel()
+
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to open a channel")
+			return nil, err
+		}
+
 	}
 
 	return channel, err
@@ -53,7 +68,6 @@ func GetConnection() (*amqp.Connection, error) {
 		}
 	}
 
-	log.Info().Msg("Connected to RabbitMQ")
 	return globalConnection, nil
 }
 

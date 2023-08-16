@@ -214,6 +214,9 @@ importers:
       '@pixeleye/github':
         specifier: workspace:*
         version: link:../../libs/github
+      '@pixeleye/reviewer':
+        specifier: workspace:*
+        version: link:../../libs/reviewer
       '@pixeleye/ui':
         specifier: workspace:*
         version: link:../../libs/ui

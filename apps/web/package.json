@@ -29,6 +29,7 @@
     "@pixeleye/api": "workspace:*",
     "@pixeleye/github": "workspace:*",
     "@pixeleye/ui": "workspace:*",
+    "@pixeleye/reviewer": "workspace:*",
     "@t3-oss/env-nextjs": "^0.6.0",
     "@tanstack/react-query": "5.0.0-beta.15",
     "api-typify": "^0.3.2",

@@ -7,5 +7,11 @@ export function generateHash(img: Buffer) {
   return hash.update(img).digest("hex");
 }
 
+export const getDimensions = (img: Buffer) =>
+  jimp.read(img).then((image) => ({
+    width: image.getWidth(),
+    height: image.getHeight(),
+  }));
+
 export const convertImage = (img: Buffer) =>
   jimp.read(img).then((image) => image.getBufferAsync(jimp.MIME_PNG));

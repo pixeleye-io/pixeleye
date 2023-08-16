@@ -1,5 +1,5 @@
 module.exports = {
-  token: "KzUvi2LXLDBFB6-TNoGzO:uwFcizz5R6sB3E8-42SokCbjiEUkdaQR",
-  url: "https://pixeleye.sh",
+  token: "oxa4ypDlPjV271iAYp1qA:NDOiBBsaJ9Kv5zu0z8KJ1ImIL1ofdn_4",
+  url: "https://localhost:5000",
   port: 3004,
 };
