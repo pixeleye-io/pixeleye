@@ -1,6 +1,6 @@
 import { Method } from "api-typify";
 import { Build } from "../models/build";
-import { PartialSnapshot } from "../models";
+import { PartialSnapshot, Snapshot } from "../models";
 
 type GET = Method<{
   "/builds/{id}": {
@@ -12,6 +12,13 @@ type GET = Method<{
     queries?: {
       branch?: string;
     };
+  };
+  "/builds/{id}/snapshots": {
+    res: (Snapshot & {
+      snapHash?: string;
+      baselineHash?: string;
+      diffHash?: string;
+    })[];
   };
 }>;
 

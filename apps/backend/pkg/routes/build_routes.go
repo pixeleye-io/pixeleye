@@ -22,4 +22,6 @@ func BuildRoutes(e *echo.Echo) {
 	baseRoutes.Use(baseRoleMiddleware.ProjectRoleAccess)
 
 	baseRoutes.GET("", controllers.GetBuild)
+
+	baseRoutes.GET("/snapshots", controllers.GetBuildSnapshots)
 }

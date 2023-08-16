@@ -106,10 +106,10 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error 
 	return err
 }
 
-func (q *SnapshotQueries) SetSnapshotStatus(id string, status string) error {
-	query := `UPDATE snapshot SET status = $1, updated_at = $2 WHERE id = $3`
+func (q *SnapshotQueries) SetSnapshotStatusAndBaseline(id string, baseline string, status string) error {
+	query := `UPDATE snapshot SET status = $1, baseline_snapshot_id = $2, updated_at = $3 WHERE id = $4`
 
-	_, err := q.Exec(query, status, utils.CurrentTime(), id)
+	_, err := q.Exec(query, status, baseline, utils.CurrentTime(), id)
 
 	return err
 }

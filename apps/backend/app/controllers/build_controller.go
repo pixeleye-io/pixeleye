@@ -92,6 +92,29 @@ func GetBuild(c echo.Context) error {
 	return c.JSON(http.StatusOK, build)
 }
 
+func GetBuildSnapshots(c echo.Context) error {
+
+	build, err := middleware.GetBuild(c)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	pairs, err := db.GetBuildsPairedSnapshots(*build)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, pairs)
+}
+
 // Search Builds method for searching builds.
 // @Description Search builds.
 // @Summary search builds

@@ -2,13 +2,16 @@ package queries
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 )
 
@@ -66,6 +69,84 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 	err := q.Get(&build, query, id)
 
 	return build, err
+}
+
+type PairedSnapshot struct {
+	models.Snapshot
+	SnapHash *string `db:"snap_hash" json:"snapHash,omitempty"`
+
+	BaselineHash *string `db:"baseline_hash" json:"baselineHash,omitempty"`
+	DiffHash     *string `db:"diff_hash" json:"diffHash,omitempty"`
+
+	SnapURL     *string `db:"snap_url" json:"snapUrl,omitempty"`
+	BaselineURL *string `db:"baseline_url" json:"baselineUrl,omitempty"`
+	DiffURL     *string `db:"diff_url" json:"diffUrl,omitempty"`
+}
+
+func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSnapshot, error) {
+	pairs := []PairedSnapshot{}
+
+	s3, err := storage.GetClient()
+
+	if err != nil {
+		return pairs, err
+	}
+
+	query := `
+		SELECT
+			snapshot.*,
+			snapshot_image.hash AS snap_hash,
+			baseline_image.hash AS baseline_hash,
+			diff_image.hash AS diff_hash
+		FROM
+			snapshot
+		LEFT JOIN snap_image AS snapshot_image ON snapshot.snap_image_id = snapshot_image.id
+		LEFT JOIN snapshot AS baseline ON snapshot.baseline_snapshot_id = baseline.id
+		LEFT JOIN snap_image AS baseline_image ON baseline.snap_image_id = baseline_image.id
+		LEFT JOIN diff_image ON snapshot.diff_image_id = diff_image.id
+		WHERE
+			snapshot.build_id = $1
+	`
+
+	if err := q.Select(&pairs, query, build.ID); err != nil {
+		return pairs, err
+	}
+
+	bucketName := os.Getenv("S3_BUCKET")
+	for i := range pairs {
+		if pairs[i].SnapHash != nil {
+			hash := *pairs[i].SnapHash
+			path := fmt.Sprintf("snaps/%s/%s.png", build.ProjectID, hash)
+			snapURL, err := s3.GetObject(bucketName, path, 3600)
+			if err == nil {
+				pairs[i].SnapURL = &snapURL.URL
+			} else {
+				log.Error().Err(err).Msgf("Failed to get snapshot url for %s", path)
+			}
+		}
+		if pairs[i].BaselineHash != nil {
+			hash := *pairs[i].BaselineHash
+			path := fmt.Sprintf("snaps/%s/%s.png", build.ProjectID, hash)
+			baselineURL, err := s3.GetObject(bucketName, path, 3600)
+			if err == nil {
+				pairs[i].BaselineURL = &baselineURL.URL
+			} else {
+				log.Error().Err(err).Msgf("Failed to get baseline url for %s", path)
+			}
+		}
+		if pairs[i].DiffHash != nil {
+			hash := *pairs[i].DiffHash
+			path := fmt.Sprintf("diffs/%s/%s.png", build.ProjectID, hash)
+			diffURL, err := s3.GetObject(bucketName, path, 3600)
+			if err == nil {
+				pairs[i].DiffURL = &diffURL.URL
+			} else {
+				log.Error().Err(err).Msgf("Failed to get diff url for %s", path)
+			}
+		}
+	}
+
+	return pairs, nil
 }
 
 // TODO - make sure when approving a build that it is the latest build

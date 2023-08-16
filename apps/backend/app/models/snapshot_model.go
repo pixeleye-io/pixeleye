@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 )
 
@@ -28,17 +27,17 @@ type Snapshot struct {
 	Target   string `db:"target" json:"target,omitempty"`
 	Viewport string `db:"viewport" json:"viewport,omitempty" validate:"omitempty,viewport"`
 
-	SnapId string         `db:"snap_image_id" json:"snapID" validate:"required"`
-	DiffId sql.NullString `db:"diff_image_id" json:"diffID,omitempty"`
+	SnapID string  `db:"snap_image_id" json:"snapID" validate:"required"`
+	DiffID *string `db:"diff_image_id" json:"diffID,omitempty"`
 
-	BaselineID sql.NullString `db:"baseline_snapshot_id" json:"baselineID,omitempty" validate:"omitempty,nanoid"`
+	BaselineID *string `db:"baseline_snapshot_id" json:"baselineID,omitempty" validate:"omitempty,nanoid"`
 
 	Depth int `db:"depth" json:"-"` // Used for sorting when calculating approval history
 
 	Status string `db:"status" json:"status" validate:"required,oneof=processing failed aborted approved rejected unreviewed unchanged orphaned"`
 
-	ReviewerID sql.NullString `db:"reviewer_id" json:"reviewerID,omitempty" validate:"omitempty,nanoid"`
-	ReviewedAt *time.Time     `db:"reviewed_at" json:"reviewedAt,omitempty"`
+	ReviewerID *string    `db:"reviewer_id" json:"reviewerID,omitempty" validate:"omitempty,nanoid"`
+	ReviewedAt *time.Time `db:"reviewed_at" json:"reviewedAt,omitempty"`
 }
 
 func CompareSnaps(a Snapshot, b Snapshot) bool {

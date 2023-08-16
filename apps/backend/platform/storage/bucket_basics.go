@@ -57,12 +57,13 @@ func (basics BucketClient) FileExists(bucketName string, objectKey string) (bool
 }
 
 // UploadFile reads from a file and puts the data into an object in a bucket.
-func (basics BucketClient) UploadFile(bucketName string, objectKey string, file []byte) error {
+func (basics BucketClient) UploadFile(bucketName string, objectKey string, file []byte, contentType string) error {
 
 	_, err := basics.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-		Body:   bytes.NewReader(file),
+		Bucket:      aws.String(bucketName),
+		Key:         aws.String(objectKey),
+		Body:        bytes.NewReader(file),
+		ContentType: &contentType,
 	})
 	if err != nil {
 		log.Error().Err(err).Msgf("Couldn't upload file to %v:%v. Here's why: %v\n",

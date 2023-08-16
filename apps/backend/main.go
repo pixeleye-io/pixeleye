@@ -25,8 +25,6 @@ func main() {
 
 	e := echo.New()
 
-	//TODO - get csrf working
-
 	e.Use(middleware.Logger())
 
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
@@ -48,7 +46,7 @@ func main() {
 	if os.Getenv("STAGE_STATUS") == "dev" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 
-		go ingest.StartIngestServer()
+		go ingest.StartIngestServer() // For small environments, we can start ingest server in the same process.
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
