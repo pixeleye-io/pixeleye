@@ -13,8 +13,6 @@ export const createJohnSmithIdentityBody = (id: string): CreateIdentityBody => {
     state: "active",
     traits: {
       email,
-      name: "John Smith",
-      avatar: "https://assets.pixeleye.io/some-avatar.png",
     },
     credentials: {
       password: {
