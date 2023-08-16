@@ -5,6 +5,8 @@ import { Build, SnapshotPair } from "@pixeleye/api";
 interface ReviewerState {
   panel: Panel;
   setPanel: (panel: Panel) => void;
+  optimize: boolean;
+  setOptimize: (optimize: boolean) => void;
   build: Build;
   setBuild: (build: Build) => void;
   snapshots: SnapshotPair[];
@@ -26,6 +28,8 @@ const defaultBuild: Build = {
 export const useReviewerStore = create<ReviewerState>()((set) => ({
   panel: "snapshots",
   setPanel: (panel) => set({ panel }),
+  optimize: false,
+  setOptimize: (optimize) => set({ optimize }),
   build: defaultBuild,
   setBuild: (build) => set({ build }),
   snapshots: [],
