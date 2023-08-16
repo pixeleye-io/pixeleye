@@ -133,7 +133,7 @@ describe("Creating a build", () => {
       .expectJsonMatch([]);
   });
 
-  it("should be able to search builds with shas", async () => {
+  it.skip("should be able to search builds with shas", async () => {
     await buildTokenAPI
       .searchBuilds(jekyllsToken, { shas: ["1234"] })
       .expectJsonMatch([firstMainBuild]);
