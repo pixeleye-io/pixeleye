@@ -44,12 +44,17 @@ export type DraggableImageRef = {
 };
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
-  function DraggableImage({ base, overlay, x, y, scale, onTap, className }, ref) {
+  function DraggableImage(
+    { base, overlay, x, y, scale, onTap, className },
+    ref
+  ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const draggableRef = useRef<HTMLDivElement>(null);
 
     const optimize = useReviewerStore((state) => state.optimize);
     const showOverlay = useReviewerStore((state) => state.showDiff);
+
+    const cancelTap = useRef(false);
 
     const mouseOver = useRef(false);
 
@@ -114,7 +119,9 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     });
 
     return (
-      <DottedBackground className={cx("h-full w-full bg-surface-container-low", className)}>
+      <DottedBackground
+        className={cx("h-full w-full bg-surface-container-low", className)}
+      >
         <m.div
           onMouseEnter={() => {
             mouseOver.current = true;
@@ -150,10 +157,12 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               y.jump(newY);
             });
           }}
-          onTap={onTap}
+          onTap={() => !cancelTap.current && onTap?.()}
+          onTapStart={() => (cancelTap.current = false)}
           onPan={(_, info) => {
             x.jump(x.get() + info.delta.x);
             y.jump(y.get() + info.delta.y);
+            cancelTap.current = true;
           }}
           ref={containerRef}
           className="relative grow-0 w-full h-full overflow-hidden max-h-fit cursor-grab outline-none rounded border border-outline-variant z-0"
