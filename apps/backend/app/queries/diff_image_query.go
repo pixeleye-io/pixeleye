@@ -22,7 +22,7 @@ func (q *DiffImageQueries) GetDiffImage(hash string) (models.DiffImage, error) {
 }
 
 func (q *DiffImageQueries) CreateDiffImage(diffImage *models.DiffImage) error {
-	query := `INSERT INTO diff_image (id, hash, project_id, created_at) VALUES (:id, :hash, :project_id, :created_at)`
+	query := `INSERT INTO diff_image (id, hash, project_id, created_at, width, height, format) VALUES (:id, :hash, :project_id, :created_at, :width, :height, :format)`
 
 	diffImage.CreatedAt = utils.CurrentTime()
 

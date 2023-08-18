@@ -3,9 +3,7 @@ import { SnapshotPair } from "@pixeleye/api";
 import { useReviewerStore } from "../store";
 import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
-import { useRef, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useHotkeys } from "react-hotkeys-hook";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
 
 interface SnapButtonProps {
@@ -69,9 +67,8 @@ function SnapButton({
 
 function ShortcutHint() {
   return (
-    <div className="absolute inset-0 z-10 pointer-events-none">
-      <div className="h-[calc(max(100vh-4.5rem,100%))]"></div>
-      <div className="sticky flex justify-center px-2 py-1 mx-4 rounded-lg shadow bg-surface-container-low bottom-4">
+    <div className="sticky inset-x-0 bottom-4 z-10 pointer-events-none">
+      <div className="flex justify-center px-2 py-1 mx-4 rounded-lg shadow bg-surface-container-low">
         <p className="space-x-4 text-on-surface-variant">
           <kbd>
             <kbd>Ctrl</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
@@ -85,59 +82,24 @@ function ShortcutHint() {
 
 export default function SnapshotsPanel() {
   const snapshots = useReviewerStore((state) => state.snapshots);
-  const build = useReviewerStore((state) => state.build);
+  const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
 
-  const searchParams = useSearchParams();
-
-  const snapshotId = searchParams.get("s");
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (
-      snapshots.length > 0 &&
-      (!snapshotId || !snapshots.find((s) => s.id === snapshotId))
-    ) {
-      router.replace(`/builds/${build.id}?s=${snapshots[0]!.id}`);
-    }
-  }, [snapshotId, snapshots, build, router]);
-
-  const setCurrentSnapshot = useCallback(
-    (index: number) => {
-      router.replace(`/builds/${build.id}?s=${snapshots[index]!.id}`);
-    },
-    [build, snapshots, router]
-  );
-
-  const currentSnapshotIndex = snapshots.findIndex((s) => s.id === snapshotId);
-
-  useHotkeys(
-    "ctrl+ArrowDown",
-    () =>
-      setCurrentSnapshot(
-        Math.min(currentSnapshotIndex + 1, snapshots.length - 1)
-      ),
-    [currentSnapshotIndex, snapshots.length, setCurrentSnapshot]
-  );
-
-  useHotkeys(
-    "ctrl+ArrowUp",
-    () => setCurrentSnapshot(Math.max(currentSnapshotIndex - 1, 0)),
-    [currentSnapshotIndex, setCurrentSnapshot]
+  const setCurrentSnapshot = useReviewerStore(
+    (state) => state.setCurrentSnapshot
   );
 
   return (
-    <div className="px-4 pt-4 flex flex-col">
+    <div className="px-4 pt-4 flex flex-col grow">
       <PanelHeader title="Snapshots" />
-      <nav className="grow-1 mt-4">
-        <ul className="flex flex-col space-y-4">
+      <nav className="grow mt-4 flex pb-12">
+        <ul className="flex flex-col space-y-4 overflow-y-auto  grow">
           {snapshots.map((snapshot, i) => (
             <li className="h-fit" key={snapshot.id}>
               <SnapButton
-                active={snapshot.id === snapshotId}
+                active={snapshot.id === currentSnapshot?.id}
                 index={i}
                 total={snapshots.length}
-                setIndex={setCurrentSnapshot}
+                setIndex={(i) => setCurrentSnapshot(snapshots.at(i))}
                 snapshot={snapshot}
               />
             </li>

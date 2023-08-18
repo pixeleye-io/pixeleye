@@ -2,7 +2,6 @@
 
 import {
   Button,
-  Dialog,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -21,12 +20,18 @@ import {
   HandThumbDownIcon,
   HandThumbUpIcon,
 } from "@heroicons/react/24/solid";
+import {
+  InformationCircleIcon as InformationCircleOutlineIcon,
+  QueueListIcon as QueueListOutlineIcon,
+  ChatBubbleBottomCenterTextIcon as ChatBubbleBottomCenterTextOutlineIcon,
+} from "@heroicons/react/24/outline";
 import { Panel } from "./panel";
 import { useReviewerStore } from "./store";
 import { cx } from "class-variance-authority";
 
 interface SidebarItem {
   name: string;
+  IconActive: typeof InformationCircleIcon;
   Icon: typeof InformationCircleIcon;
   id: Panel;
 }
@@ -34,17 +39,20 @@ interface SidebarItem {
 const SidebarNav: SidebarItem[] = [
   {
     name: "Snapshots",
-    Icon: QueueListIcon,
+    IconActive: QueueListIcon,
+    Icon: QueueListOutlineIcon,
     id: "snapshots",
   },
   {
     name: "Build info",
-    Icon: InformationCircleIcon,
+    IconActive: InformationCircleIcon,
+    Icon: InformationCircleOutlineIcon,
     id: "build-info",
   },
   {
     name: "Feed",
-    Icon: ChatBubbleBottomCenterTextIcon,
+    IconActive: ChatBubbleBottomCenterTextIcon,
+    Icon: ChatBubbleBottomCenterTextOutlineIcon,
     id: "feed",
   },
 ];
@@ -119,17 +127,25 @@ export function Sidebar() {
   const setPanel = useReviewerStore((state) => state.setPanel);
   const panel = useReviewerStore((state) => state.panel);
 
+  const setPanelOpen = useReviewerStore((state) => state.setPanelOpen);
+
   return (
-    <div className="w-16 border-r border-outline-variant flex-col flex items-center pt-2">
+    <div className="w-16 border-r border-outline-variant flex-col flex items-center pt-2 shrink-0">
       <nav>
         <ul role="list" className="space-y-2">
           {SidebarNav.map((item) => (
             <li key={item.id}>
               <TooltipProvider>
                 <Tooltip delayDuration={100}>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Button
-                      onClick={() => setPanel(item.id)}
+                      onClick={() => {
+                        if (panel === item.id) setPanelOpen((state) => !state);
+                        else {
+                          setPanel(item.id);
+                          setPanelOpen(() => true);
+                        }
+                      }}
                       variant="ghost"
                       className={cx(
                         "hover:text-on-surface",
@@ -138,7 +154,11 @@ export function Sidebar() {
                           : "text-on-surface-variant"
                       )}
                     >
-                      <item.Icon className="h-7 w-7 " />
+                      {panel === item.id ? (
+                        <item.IconActive className="h-7 w-7 " />
+                      ) : (
+                        <item.Icon className="h-7 w-7 " />
+                      )}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">

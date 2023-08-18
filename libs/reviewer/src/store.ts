@@ -11,6 +11,12 @@ interface ReviewerState {
   setBuild: (build: Build) => void;
   snapshots: SnapshotPair[];
   setSnapshots: (snapshots: SnapshotPair[]) => void;
+  currentSnapshot?: SnapshotPair;
+  setCurrentSnapshot: (snapshot?: SnapshotPair) => void;
+  showDiff: boolean;
+  setShowDiff: (showDiff: boolean) => void;
+  panelOpen: boolean;
+  setPanelOpen: (panelOpen: (state: boolean) => boolean) => void;
 }
 
 const defaultBuild: Build = {
@@ -34,4 +40,13 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   setBuild: (build) => set({ build }),
   snapshots: [],
   setSnapshots: (snapshots) => set({ snapshots }),
+  currentSnapshot: undefined,
+  setCurrentSnapshot: (currentSnapshot) => set({ currentSnapshot }),
+  showDiff: true,
+  setShowDiff: (showDiff) => set({ showDiff }),
+  panelOpen: true,
+  setPanelOpen: (panelOpen) =>
+    set((state) => ({
+      panelOpen: panelOpen(state.panelOpen),
+    })),
 }));

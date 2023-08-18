@@ -6,6 +6,7 @@ import BuildInfoPanel from "./panels/buildInfo";
 import SnapshotsPanel from "./panels/snapshots";
 import FeedPanel from "./panels/feed";
 import { useReviewerStore } from "./store";
+import OverlayScrollbar from "@pixeleye/ui/src/scrollArea/scrollArea";
 
 export type Panel = "snapshots" | "build-info" | "feed";
 
@@ -16,14 +17,14 @@ const panelRepo: Record<Panel, FC> = {
 };
 
 function initialWidth() {
-  if (typeof window === "undefined") return 300;
+  if (typeof window === "undefined") return 250;
   const width = localStorage.getItem("panelWidth");
 
   if (width && !isNaN(Number(width))) {
     return Number(width);
   }
 
-  return 300;
+  return 250;
 }
 
 export function Panel() {
@@ -37,17 +38,17 @@ export function Panel() {
   });
 
   return (
-    <m.aside style={{ width: width }} className="flex relative z-0">
-      <div className="flex-1 z-10 overflow-hidden">
+    <m.aside style={{ width: width }} className="flex relative z-10 shrink-0	">
+      <OverlayScrollbar className="flex grow z-10 overflow-y-auto">
         <PanelComponent />
-      </div>
+      </OverlayScrollbar>
       <span className="absolute inset-0 flex">
         <m.span
           drag="x"
           dragElastic={0.025}
           dragMomentum={false}
           dragConstraints={{
-            left: 200,
+            left: 150,
             right: 450,
           }}
           whileDrag={{
