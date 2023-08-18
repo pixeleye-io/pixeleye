@@ -39,7 +39,7 @@ export default function BuildInfoPanel() {
   ).length;
 
   return (
-    <div className="px-4 pt-4 flex flex-col">
+    <div className="px-4 pt-4 flex flex-col w-full">
       <PanelHeader title="Build info" />
       <div className="mt-4">
         <h3 className="font-medium text-on-surface">Details</h3>

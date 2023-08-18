@@ -1,14 +1,13 @@
 import { useReviewerStore } from "../store";
-import { DraggableImage } from "./draggableImage";
-import { MotionValue } from "framer-motion";
+import { DraggableImage, DraggableImageRef } from "./draggableImage";
+import { useMotionValue } from "framer-motion";
+import { RefObject } from "react";
 
 interface DoubleProps {
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-  scale: MotionValue<number>;
+  draggableImageRef?: RefObject<DraggableImageRef>;
 }
 
-export function Double({ x, y, scale }: DoubleProps) {
+export function Double({ draggableImageRef }: DoubleProps) {
   const snapshot = useReviewerStore((state) => state.currentSnapshot)!;
 
   const validSnapshot = Boolean(
@@ -23,6 +22,12 @@ export function Double({ x, y, scale }: DoubleProps) {
     snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
   );
 
+  const scale = useMotionValue(
+    0
+  );
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(8);
   // TODO - add placeholder for invalid snapshot
 
   return (
@@ -31,6 +36,7 @@ export function Double({ x, y, scale }: DoubleProps) {
       <div className="flex h-full w-full space-x-8 overflow-hidden">
         {validBaseline && (
           <DraggableImage
+            ref={draggableImageRef}
             base={{
               src: snapshot.baselineURL!,
               width: snapshot.baselineWidth!,
@@ -44,6 +50,7 @@ export function Double({ x, y, scale }: DoubleProps) {
         )}
         {validSnapshot && (
           <DraggableImage
+            ref={draggableImageRef}
             base={{
               src: snapshot.snapURL!,
               width: snapshot.snapWidth!,

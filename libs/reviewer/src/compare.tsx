@@ -7,12 +7,12 @@ import {
   TabsTrigger,
   Toggle,
 } from "@pixeleye/ui";
-import { useReviewerStore } from "./store";
-import { useCallback, useEffect, useState } from "react";
+import { CompareTab, useReviewerStore } from "./store";
+import { useCallback, useEffect, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
-import { Double, Single } from "./comparisons";
-import { SnapshotPair } from "@pixeleye/api";
+import { Double, DraggableImageRef, Single } from "./comparisons";
 import { useMotionValue } from "framer-motion";
+import { ExtendedSnapshotPair } from "./reviewer";
 
 function TabSwitcher() {
   return (
@@ -26,13 +26,13 @@ function TabSwitcher() {
         >
           <path
             stroke="currentColor"
-            stroke-width="4"
+            strokeWidth="4"
             d="M41 4H7a3 3 0 0 0-3 3v34a3 3 0 0 0 3 3h34a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Z"
           />
           <path
             stroke="currentColor"
-            stroke-linecap="round"
-            stroke-width="4"
+            strokeLinecap="round"
+            strokeWidth="4"
             d="M24 4v40"
           />
         </svg>
@@ -46,7 +46,7 @@ function TabSwitcher() {
         >
           <path
             stroke="currentColor"
-            stroke-width="4"
+            strokeWidth="4"
             d="M41 4H7a3 3 0 0 0-3 3v34a3 3 0 0 0 3 3h34a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Z"
           />
         </svg>
@@ -56,25 +56,30 @@ function TabSwitcher() {
 }
 
 interface DisplayOptionsProps {
-  resetAlignment: () => void;
+  resetAlignment: (type?: "single" | "double") => void;
 }
 function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
   const setShowDiff = useReviewerStore((state) => state.setShowDiff);
   const showDiff = useReviewerStore((state) => state.showDiff);
+  const activeTab = useReviewerStore((state) => state.activeCompareTab);
 
   return (
     <div className="flex">
       <Toggle pressed={showDiff} onPressedChange={setShowDiff}>
         <EyeIcon className="w-6 h-6" />
       </Toggle>
-      <Button variant="ghost" size="icon" onClick={() => resetAlignment()}>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => resetAlignment(activeTab)}
+      >
         <ArrowsPointingInIcon className="w-6 h-6" />
       </Button>
     </div>
   );
 }
 
-function Title({ snapshot }: { snapshot: SnapshotPair }) {
+function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
   return (
     <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold">
       {snapshot.name}
@@ -108,24 +113,20 @@ function Title({ snapshot }: { snapshot: SnapshotPair }) {
 export function Compare() {
   const snapshot = useReviewerStore((state) => state.currentSnapshot);
 
-  const [activeTab, setActiveTab] = useState<string>("double");
+  const activeTab = useReviewerStore((state) => state.activeCompareTab);
+  const setActiveTab = useReviewerStore((state) => state.setActiveCompareTab);
 
-  const scaleSingle = useMotionValue(1);
-  const xSingle = useMotionValue(0);
-  const ySingle = useMotionValue(0);
+  const singleRef = useRef<DraggableImageRef>(null);
+  const doubleRef = useRef<DraggableImageRef>(null);
 
-  const scaleDouble = useMotionValue(1);
-  const xDouble = useMotionValue(0);
-  const yDouble = useMotionValue(0);
-
-  const resetAlignment = useCallback(() => {
-    scaleSingle.set(1);
-    xSingle.set(0);
-    ySingle.set(0);
-    scaleDouble.set(1);
-    xDouble.set(0);
-    yDouble.set(0);
-  }, [scaleSingle, xSingle, ySingle, scaleDouble, xDouble, yDouble]);
+  const resetAlignment = useCallback((type?: CompareTab) => {
+    if (!type || type === "single") {
+      singleRef.current?.center();
+    }
+    if (!type || type === "double") {
+      doubleRef.current?.center();
+    }
+  }, []);
 
   useEffect(() => {
     resetAlignment();
@@ -139,7 +140,7 @@ export function Compare() {
     <main className="w-full ml-1 z-0 h-full grow-0 flex relative">
       <Tabs
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={setActiveTab as (value: string) => void}
         defaultValue="double"
         className=" w-full h-full grow-0 relative max-h-full"
       >
@@ -168,10 +169,14 @@ export function Compare() {
         </header>
         <div className="p-4 w-full h-[calc(100%-6.25rem-1px)]">
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
-            <Single x={xSingle} y={ySingle} scale={scaleSingle} />
+            <Single
+              draggableImageRef={singleRef}
+            />
           </TabsContent>
           <TabsContent className="w-full h-full !mt-0 grow-0" value="double">
-            <Double x={xDouble} y={yDouble} scale={scaleDouble} />
+            <Double
+              draggableImageRef={doubleRef}
+            />
           </TabsContent>
         </div>
       </Tabs>

@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { Panel } from "./panel";
-import { Build, SnapshotPair } from "@pixeleye/api";
+import { Build } from "@pixeleye/api";
+import { ExtendedSnapshotPair } from "./reviewer";
+
+export type CompareTab = "single" | "double";
+
+export type SingleSnapshot = "baseline" | "head";
 
 interface ReviewerState {
   panel: Panel;
@@ -9,14 +14,20 @@ interface ReviewerState {
   setOptimize: (optimize: boolean) => void;
   build: Build;
   setBuild: (build: Build) => void;
-  snapshots: SnapshotPair[];
-  setSnapshots: (snapshots: SnapshotPair[]) => void;
-  currentSnapshot?: SnapshotPair;
-  setCurrentSnapshot: (snapshot?: SnapshotPair) => void;
+  snapshots: ExtendedSnapshotPair[];
+  setSnapshots: (snapshots: ExtendedSnapshotPair[]) => void;
+  currentSnapshot?: ExtendedSnapshotPair;
+  setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
   showDiff: boolean;
   setShowDiff: (showDiff: boolean) => void;
   panelOpen: boolean;
   setPanelOpen: (panelOpen: (state: boolean) => boolean) => void;
+  activeCompareTab: CompareTab;
+  setActiveCompareTab: (activeCompareTab: CompareTab) => void;
+  framerLoaded: boolean;
+  setFramerLoaded: () => void;
+  singleSnapshot: SingleSnapshot;
+  setSingleSnapshot: (singleSnapshot: SingleSnapshot) => void;
 }
 
 const defaultBuild: Build = {
@@ -49,4 +60,10 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
     set((state) => ({
       panelOpen: panelOpen(state.panelOpen),
     })),
+  activeCompareTab: "double",
+  setActiveCompareTab: (activeCompareTab) => set({ activeCompareTab }),
+  framerLoaded: false,
+  setFramerLoaded: () => set({ framerLoaded: true }),
+  singleSnapshot: "head",
+  setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
 }));

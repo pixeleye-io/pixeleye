@@ -5,20 +5,33 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
 import { useReviewerStore } from "./store";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { cx } from "class-variance-authority";
+import { StaticImageData } from "next/image";
+
+export type ExtendedSnapshotPair = Omit<
+  SnapshotPair,
+  "baselineURL" | "snapURL" | "diffURL"
+> & {
+  baselineURL?: StaticImageData | string;
+  snapURL?: StaticImageData | string;
+  diffURL?: StaticImageData | string;
+};
 
 export interface ReviewerProps {
   build: Build;
-  snapshots: SnapshotPair[];
+  snapshots: ExtendedSnapshotPair[];
   optimize?: boolean;
+  className?: string;
 }
 
 export function Reviewer({
   build,
   snapshots,
   optimize = false,
+  className = "h-[calc(100vh-3rem-1px)]",
 }: ReviewerProps) {
   const setBuild = useReviewerStore((state) => state.setBuild);
   const setSnapshots = useReviewerStore((state) => state.setSnapshots);
@@ -60,17 +73,21 @@ export function Reviewer({
 
   useHotkeys(
     "ctrl+ArrowDown",
-    () =>
+    (e) => {
       setCurrentSnapshot(
         snapshots.at(Math.min(currentSnapshotIndex + 1, snapshots.length - 1))
-      ),
+      );
+      e.preventDefault();
+    },
     [currentSnapshotIndex, snapshots.length, snapshots]
   );
 
   useHotkeys(
     "ctrl+ArrowUp",
-    () =>
-      setCurrentSnapshot(snapshots.at(Math.max(currentSnapshotIndex - 1, 0))),
+    (e) => {
+      setCurrentSnapshot(snapshots.at(Math.max(currentSnapshotIndex - 1, 0)));
+      e.preventDefault();
+    },
     [currentSnapshotIndex, setCurrentSnapshot, snapshots]
   );
 
@@ -81,7 +98,7 @@ export function Reviewer({
   }, [build, setBuild, setSnapshots, snapshots, setOptimize, optimize]);
 
   return (
-    <div className="h-[calc(100vh-3rem-1px)] w-full flex">
+    <div className={cx("w-full flex", className)}>
       <Sidebar />
       {panelOpen && <Panel />}
       <Compare />

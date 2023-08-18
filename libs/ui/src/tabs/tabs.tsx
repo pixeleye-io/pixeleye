@@ -11,7 +11,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { m } from "framer-motion";
+import { LayoutGroup, m } from "framer-motion";
 
 const TabsContext = createContext<{
   layoutId?: string;
@@ -61,15 +61,18 @@ const Tabs = forwardRef<
 const TabsList = forwardRef<
   ElementRef<typeof TabsPrimitive.List>,
   ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cx(
       "inline-flex h-10 items-center justify-center rounded-md bg-surface-container p-1 text-on-surface-variant",
       className
     )}
+    asChild
     {...props}
-  />
+  >
+    <m.div layoutRoot layout>{children}</m.div>
+  </TabsPrimitive.List>
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
 
@@ -88,7 +91,12 @@ const TabsTrigger = forwardRef<
         )}
         {...props}
       />
-      {selected === props.value && <m.span layoutId={layoutId} className="bg-surface shadow-sm absolute -z-10 inset-0 rounded-sm" />}
+      {selected === props.value && (
+        <m.span
+          layoutId={layoutId}
+          className="bg-surface shadow-sm absolute -z-10 inset-0 rounded-sm"
+        />
+      )}
     </div>
   );
 });
