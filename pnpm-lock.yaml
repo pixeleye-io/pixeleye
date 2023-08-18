@@ -121,8 +121,8 @@ importers:
         specifier: ^1.11.9
         version: 1.11.9
       framer-motion:
-        specifier: ^10.15.1
-        version: 10.15.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^10.16.0
+        version: 10.16.0(react-dom@18.2.0)(react@18.2.0)
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -233,8 +233,8 @@ importers:
         specifier: ^1.11.9
         version: 1.11.9
       framer-motion:
-        specifier: ^10.15.1
-        version: 10.15.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^10.16.0
+        version: 10.16.0(react-dom@18.2.0)(react@18.2.0)
       next:
         specifier: 13.4.13
         version: 13.4.13(react-dom@18.2.0)(react@18.2.0)
@@ -603,6 +603,9 @@ importers:
       '@pixeleye/ui':
         specifier: workspace:*
         version: link:../ui
+      '@types/react-dom':
+        specifier: 18.2.7
+        version: 18.2.7
       '@use-gesture/react':
         specifier: ^10.2.27
         version: 10.2.27(react@18.2.0)
@@ -610,14 +613,17 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0
       framer-motion:
-        specifier: ^10.15.1
-        version: 10.15.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^10.16.0
+        version: 10.16.0(react-dom@18.2.0)(react@18.2.0)
       next:
         specifier: 13.4.13
         version: 13.4.13(react-dom@18.2.0)(react@18.2.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
       react-hotkeys-hook:
         specifier: ^4.4.1
         version: 4.4.1(react-dom@18.2.0)(react@18.2.0)
@@ -683,8 +689,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(@types/react@18.2.19)(react-dom@18.2.0)(react@18.2.0)
       framer-motion:
-        specifier: ^10.15.1
-        version: 10.15.1(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^10.16.0
+        version: 10.16.0(react-dom@18.2.0)(react@18.2.0)
       next:
         specifier: 13.4.13
         version: 13.4.13(react-dom@18.2.0)(react@18.2.0)
@@ -4972,8 +4978,8 @@ packages:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
     dev: true
 
-  /framer-motion@10.15.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-6avJj/Uftblw0fMmo6jDHkKRH4TBdkMX/FiyR3G/hFe3hQHE4BUNJCqlMPKg9EzfI5jyqDOwO5oDnU+bW5y0eg==}
+  /framer-motion@10.16.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-R+88Mkr/1dr7XHjacwptfJyrywRzQ1HZX3YSZtN4tFMBq1O8GGCbDEv31Nf/H08o0hUXLC87GkxsR/1bZgwXfw==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0

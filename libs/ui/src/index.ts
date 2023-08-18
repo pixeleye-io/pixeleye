@@ -43,3 +43,5 @@ export * from "./toggle";
 export { default as Toggle } from "./toggle";
 export * from "./scrollArea";
 export { default as ScrollArea } from "./scrollArea";
+export * from "./dottedBackground";
+export { default as DottedBackground } from "./dottedBackground";

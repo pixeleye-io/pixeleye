@@ -28,7 +28,7 @@
     "@radix-ui/react-tooltip": "^1.0.6",
     "class-variance-authority": "^0.7.0",
     "cmdk": "^0.2.0",
-    "framer-motion": "^10.15.1",
+    "framer-motion": "^10.16.0",
     "next": "13.4.13",
     "overlayscrollbars-react": "^0.5.1",
     "react": "18.2.0"

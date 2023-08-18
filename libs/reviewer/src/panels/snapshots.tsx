@@ -1,13 +1,12 @@
-/* eslint-disable @next/next/no-img-element */
-import { SnapshotPair } from "@pixeleye/api";
 import { useReviewerStore } from "../store";
 import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
 import { useRef, useEffect } from "react";
 import Image from "next/image";
+import { ExtendedSnapshotPair } from "../reviewer";
 
 interface SnapButtonProps {
-  snapshot: SnapshotPair;
+  snapshot: ExtendedSnapshotPair;
   index: number;
   active: boolean;
   total: number;
@@ -54,6 +53,8 @@ function SnapButton({
       )}
     >
       <Image
+        quality={50}
+        placeholder={optimize ? "blur" : "empty"}
         unoptimized={!optimize}
         src={snapshot.snapURL || ""}
         width={snapshot.snapWidth}
@@ -67,7 +68,7 @@ function SnapButton({
 
 function ShortcutHint() {
   return (
-    <div className="sticky inset-x-0 bottom-4 z-10 pointer-events-none">
+    <div className="sticky inset-x-4 bottom-4 z-10 pointer-events-none">
       <div className="flex justify-center px-2 py-1 mx-4 rounded-lg shadow bg-surface-container-low">
         <p className="space-x-4 text-on-surface-variant">
           <kbd>
