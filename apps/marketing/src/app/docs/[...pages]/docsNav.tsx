@@ -1,7 +1,7 @@
 "use client";
 
 import NextLink from "next/link";
-import clsx from "clsx";
+import { cx } from "class-variance-authority";
 import { usePathname } from "next/navigation";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
@@ -36,7 +36,7 @@ export function DocsNavDesktop({ sections }: DocsNavProps) {
                 <li key={link.href} className="relative">
                   <NextLink
                     href={link.href}
-                    className={clsx(
+                    className={cx(
                       "block w-full capitalize pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full",
                       link.href === pathname
                         ? "before:bg-tertiary font-semibold text-tertiary"
@@ -59,7 +59,8 @@ export function DocsNavMobile({ sections }: DocsNavProps) {
   return (
     <Collapsible.Root className="bg-surface/90 backdrop-blur-sm fixed w-full inset-x-0 top-16 data-[state=open]:bottom-0">
       <Collapsible.Trigger className="flex group py-3.5 border-b data-[state=open]:border-none border-outline-variant px-6 items-center text-on-surface text-sm w-full">
-        <ChevronDownIcon className="h-4 w-4 group-data-[state=open]:rotate-180 mr-2" /> Menu
+        <ChevronDownIcon className="h-4 w-4 group-data-[state=open]:rotate-180 mr-2" />{" "}
+        Menu
       </Collapsible.Trigger>
       <Collapsible.Content className="fixed lg:hidden w-full overflow-y-auto px-6 py-4 ">
         <DocsNavDesktop sections={sections} />

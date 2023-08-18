@@ -152,6 +152,9 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 	diffImg := models.DiffImage{
 		Hash:      hash,
 		ProjectID: snapImg.ProjectID,
+		Width:     diffImage.Image.Bounds().Dx(),
+		Height:    diffImage.Image.Bounds().Dy(),
+		Format:    "image/png",
 	}
 
 	err = db.CreateDiffImage(&diffImg)

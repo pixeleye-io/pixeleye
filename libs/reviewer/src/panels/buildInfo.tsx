@@ -46,14 +46,14 @@ export default function BuildInfoPanel() {
         <dl className="mt-2 divide-y divide-outline-variant  border-b border-t border-outline-variant">
           <InfoLine label="Title">{build.title}</InfoLine>
           <InfoLine label="Created">{(new Date(build.createdAt)).toLocaleDateString()}</InfoLine>
-          <InfoLine label="Commit">{build.sha}</InfoLine>
+          <InfoLine label="Sha">{build.sha}</InfoLine>
           <InfoLine label="Message">{build.message ?? "No message"}</InfoLine>
-          <InfoLine label="Screenshot count">{snapshotCount}</InfoLine>
-          <InfoLine label="Snapshots changed">{snapshotsChangedCount}</InfoLine>
+          <InfoLine label="Snap count">{snapshotCount}</InfoLine>
+          <InfoLine label="Snaps changed">{snapshotsChangedCount}</InfoLine>
           <InfoLine label="Parent builds">
             {build.parentBuildIDs?.join(", ") ?? "None"}
           </InfoLine>
-          <InfoLine label="Target build">
+          <InfoLine label="Target">
             {build.targetBuildID ?? "None"}
           </InfoLine>
         </dl>
