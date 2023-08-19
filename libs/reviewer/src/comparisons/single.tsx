@@ -18,10 +18,6 @@ export function Single({ draggableImageRef }: SingleProps) {
     snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight
   );
 
-  const validBaselineSnapshot = Boolean(
-    snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
-  );
-
   const validDiff = Boolean(
     snapshot.diffURL && snapshot.diffWidth && snapshot.diffHeight
   );
