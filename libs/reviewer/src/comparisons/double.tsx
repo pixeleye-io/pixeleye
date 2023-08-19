@@ -22,10 +22,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
     snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
   );
 
-  const scale = useMotionValue(
-    0
-  );
-
+  const scale = useMotionValue(0);
   const x = useMotionValue(0);
   const y = useMotionValue(8);
   // TODO - add placeholder for invalid snapshot

@@ -18,10 +18,6 @@ export function Single({ draggableImageRef }: SingleProps) {
     snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight
   );
 
-  const validBaselineSnapshot = Boolean(
-    snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
-  );
-
   const validDiff = Boolean(
     snapshot.diffURL && snapshot.diffWidth && snapshot.diffHeight
   );
@@ -38,8 +34,9 @@ export function Single({ draggableImageRef }: SingleProps) {
       <div className="flex h-full w-full overflow-hidden">
         {validHeadSnapshot && (
           <DraggableImage
-            className={singleSnapshot === "head" ? "" : "hidden"}
-            onTap={() => setSingleSnapshot("baseline")}
+            onTap={() =>
+              setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head")
+            }
             ref={draggableImageRef}
             x={x}
             y={y}
@@ -50,6 +47,13 @@ export function Single({ draggableImageRef }: SingleProps) {
               height: snapshot.snapHeight!,
               alt: "Head snapshot",
             }}
+            secondBase={{
+              src: snapshot.baselineURL!,
+              width: snapshot.baselineWidth!,
+              height: snapshot.baselineHeight!,
+              alt: "Baseline snapshot",
+            }}
+            showSecondBase={singleSnapshot === "baseline"}
             overlay={
               validDiff
                 ? {
@@ -60,22 +64,6 @@ export function Single({ draggableImageRef }: SingleProps) {
                   }
                 : undefined
             }
-          />
-        )}
-        {validBaselineSnapshot && (
-          <DraggableImage
-            className={singleSnapshot === "baseline" ? "" : "hidden"}
-            onTap={() => setSingleSnapshot("head")}
-            ref={draggableImageRef}
-            x={x}
-            y={y}
-            scale={scale}
-            base={{
-              src: snapshot.baselineURL!,
-              width: snapshot.baselineWidth!,
-              height: snapshot.baselineHeight!,
-              alt: "Baseline snapshot",
-            }}
           />
         )}
       </div>

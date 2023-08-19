@@ -1,5 +1,5 @@
 import { cx } from "class-variance-authority";
-import { DetailedHTMLProps } from "react";
+import { DetailedHTMLProps, forwardRef } from "react";
 import { HTMLAttributes, useId } from "react";
 
 export interface DottedBackgroundProps
@@ -10,42 +10,44 @@ export interface DottedBackgroundProps
 /**
  * Adds a dotted background to the parent element
  */
-export default function DottedBackground({
-  className,
-  svgClasses,
-  children,
-  ...props
-}: DottedBackgroundProps) {
-  const id = useId();
-  return (
-    <div className={cx("relative z-0", className)} {...props}>
-      <svg
-        className={cx(
-          "absolute w-full h-full text-outline-variant/75 -z-10",
-          svgClasses
-        )}
-      >
-        <pattern
-          id={`${id}-pattern-circles`}
-          x="0"
-          y="0"
-          width="50"
-          height="26"
-          patternUnits="userSpaceOnUse"
-          patternContentUnits="userSpaceOnUse"
+const DottedBackground = forwardRef<HTMLDivElement, DottedBackgroundProps>(
+  function DottedBackground(
+    { className, svgClasses, children, ...props },
+    ref
+  ) {
+    const id = useId();
+    return (
+      <div ref={ref} className={cx("relative z-0", className)} {...props}>
+        <svg
+          className={cx(
+            "absolute w-full h-full text-outline-variant/75 -z-10",
+            svgClasses
+          )}
         >
-          <circle cx="1" cy="1" r="1" fill="currentColor" />
-          <circle cx="26" cy="14" r="1" fill="currentColor" />
-        </pattern>
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
-          fill={`url(#${id}-pattern-circles)`}
-        />
-      </svg>
-      {children}
-    </div>
-  );
-}
+          <pattern
+            id={`${id}-pattern-circles`}
+            x="0"
+            y="0"
+            width="50"
+            height="26"
+            patternUnits="userSpaceOnUse"
+            patternContentUnits="userSpaceOnUse"
+          >
+            <circle cx="1" cy="1" r="1" fill="currentColor" />
+            <circle cx="26" cy="14" r="1" fill="currentColor" />
+          </pattern>
+          <rect
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            fill={`url(#${id}-pattern-circles)`}
+          />
+        </svg>
+        {children}
+      </div>
+    );
+  }
+);
+
+export default DottedBackground;
