@@ -38,7 +38,7 @@ func getQueueDurability(t brokerTypes.QueueType) bool {
 	switch t {
 	case brokerTypes.BuildProcess:
 		return true
-	case brokerTypes.BuildUpdate:
+	case brokerTypes.ProjectUpdate:
 		return false
 	}
 	return false
@@ -48,7 +48,7 @@ func getQueueAutoDelete(t brokerTypes.QueueType) bool {
 	switch t {
 	case brokerTypes.BuildProcess:
 		return false
-	case brokerTypes.BuildUpdate:
+	case brokerTypes.ProjectUpdate:
 		return true
 	}
 	return false
@@ -58,10 +58,20 @@ func getMandatory(t brokerTypes.QueueType) bool {
 	switch t {
 	case brokerTypes.BuildProcess:
 		return true
-	case brokerTypes.BuildUpdate:
+	case brokerTypes.ProjectUpdate:
 		return false
 	}
 	return false
+}
+
+func getExchangeType(t brokerTypes.QueueType) string {
+	switch t {
+	case brokerTypes.BuildProcess:
+		return "fanout"
+	case brokerTypes.ProjectUpdate:
+		return "topic"
+	}
+	return "topic"
 }
 
 func getQueueName(queueType brokerTypes.QueueType, name string) string {
@@ -94,18 +104,70 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 
 	return queue
 }
+func CreateExchange(channelRabbitMQ *amqp.Channel, queueType brokerTypes.QueueType) error {
+	// Get queue name.
+	exchangeName, err := getExchangeName(queueType)
+
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to get queue name")
+	}
+
+	if exchangeName == "" {
+		return nil
+	}
+
+	// Create a new queue.
+	err = channelRabbitMQ.ExchangeDeclare(
+		exchangeName,                  // queue name
+		getExchangeType(queueType),    // type
+		getQueueDurability(queueType), // durable
+		getQueueAutoDelete(queueType), // delete when unused
+		false,                         // internal
+		false,                         // no-wait
+		nil,                           // arguments
+	)
+
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to declare an exchange")
+	}
+
+	return err
+}
 
 func getDeliveryMode(queueType brokerTypes.QueueType) uint8 {
 	switch queueType {
 	case brokerTypes.BuildProcess:
 		return amqp.Persistent
-	case brokerTypes.BuildUpdate:
+	case brokerTypes.ProjectUpdate:
 		return amqp.Transient
 	}
 	return amqp.Transient
 }
 
+func getExchangeName(queueType brokerTypes.QueueType) (string, error) {
+
+	switch queueType {
+	case brokerTypes.BuildProcess:
+		return "", nil
+	case brokerTypes.ProjectUpdate:
+		return queueType.String()
+	default:
+		return "", fmt.Errorf("queue type '%v' is not supported", queueType)
+	}
+}
+
 func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.QueueType, body []byte) error {
+
+	// Create exchange.
+	if err := CreateExchange(channelRabbitMQ, queueType); err != nil {
+		return err
+	}
+
+	exchangeName, err := getExchangeName(queueType)
+
+	if err != nil {
+		return err
+	}
 
 	// Get queue.
 	queue := getQueue(channelRabbitMQ, name, queueType)
@@ -114,8 +176,8 @@ func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTyp
 	defer cancel()
 
 	// Publish a message.
-	err := channelRabbitMQ.PublishWithContext(ctx,
-		"",                      // exchange
+	return channelRabbitMQ.PublishWithContext(ctx,
+		exchangeName,            // exchange
 		queue.Name,              // routing key
 		getMandatory(queueType), // mandatory
 		false,                   // immediate
@@ -125,8 +187,6 @@ func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTyp
 			Body:         []byte(body),               // body
 		},
 	)
-
-	return err
 }
 
 func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, quit chan bool) error {
@@ -138,10 +198,34 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
+	if err := CreateExchange(channel, queueType); err != nil {
+		return err
+	}
+
 	// Get queue.
 	queue := getQueue(channel, name, queueType)
 
 	consumer := uuid.New().String()
+
+	// TODO - we shouldn't auto ack ingest messages, we should ack after we've processed the message
+
+	exchangeName, err := getExchangeName(queueType)
+
+	if err != nil {
+		return err
+	}
+
+	if exchangeName != "" {
+		if err := channel.QueueBind(
+			queue.Name, // queue name
+			queue.Name,
+			exchangeName, // exchange
+			false,
+			nil,
+		); err != nil {
+			return err
+		}
+	}
 
 	// Create a new consumer.
 	messages, err := channel.Consume(

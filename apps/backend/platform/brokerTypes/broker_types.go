@@ -5,8 +5,8 @@ import "fmt"
 type QueueType int
 
 const (
-	BuildUpdate QueueType = iota
-	BuildProcess
+	BuildProcess QueueType = iota
+	ProjectUpdate
 )
 
 type Send func(queueType QueueType, queueName string, body []byte) error
@@ -22,8 +22,8 @@ func (t QueueType) String() (string, error) {
 	switch t {
 	case BuildProcess:
 		return "build_process", nil
-	case BuildUpdate:
-		return "build_update", nil
+	case ProjectUpdate:
+		return "project_update", nil
 	}
 	return "", fmt.Errorf("queue type '%v' is not supported", t)
 }

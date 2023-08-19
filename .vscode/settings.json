@@ -4,6 +4,7 @@
     "datetime",
     "devs",
     "frontmatter",
+    "gochecknoglobals",
     "godotenv",
     "hasher",
     "hostable",

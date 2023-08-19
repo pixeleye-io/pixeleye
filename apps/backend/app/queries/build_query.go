@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
+	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
@@ -27,7 +28,7 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	// TODO - We should make sure we ignore failed builds
 	build := models.Build{}
 
-	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 AND status != 'uploading' ORDER BY build_number DESC LIMIT 1`
+	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`
 
 	err := q.Get(&build, query, projectID, branch)
 
@@ -42,7 +43,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 		"shas":       shas,
 	}
 
-	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) AND status != 'uploading' ORDER BY build_number DESC LIMIT 1`, arg)
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
 	if err != nil {
 		return build, err
 	}
@@ -168,9 +169,20 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 // TODO - make sure when approving a build that it is the latest build
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	return q.CreateBuildRecursive(build, 0)
+	err := q.CreateBuildRecursive(build, 0)
+
+	if err != nil {
+		return err
+	}
+
+	// We don't care if this fails, since it's just a notification
+	notifier, _ := events.GetNotifier(nil)
+	notifier.NewBuild(*build)
+
+	return nil
 }
 
+// This can fail if the build number already exists, so we need to retry; hence the recursion
 func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) error {
 	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id)`
 
@@ -334,11 +346,23 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 		return build, nil
 	}
 
-	build.Status = status
-	build.UpdatedAt = utils.CurrentTime()
+	if status == build.Status {
 
-	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
-		return build, err
+		build.Status = status
+		build.UpdatedAt = utils.CurrentTime()
+
+		if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+			return build, err
+		}
+
+		if err := tx.Commit(); err != nil {
+			return build, err
+		}
+
+		// We don't care if this fails, since it's just a notification
+		notifier, _ := events.GetNotifier(nil)
+		notifier.BuildStatusChange(build)
+		return build, nil
 	}
 
 	return build, tx.Commit()
@@ -379,17 +403,25 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 		return build, err
 	}
 
-	build.Status = status
+	if status != build.Status {
+		build.Status = status
 
-	build.UpdatedAt = utils.CurrentTime()
+		build.UpdatedAt = utils.CurrentTime()
 
-	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
-		return build, err
+		if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+			return build, err
+		}
+
+		if err = tx.Commit(); err != nil {
+			return build, err
+		}
+
+		// We don't care if this fails, since it's just a notification
+		notifier, _ := events.GetNotifier(nil)
+		notifier.BuildStatusChange(build)
+
+		return build, nil
 	}
 
-	if err = tx.Commit(); err != nil {
-		return build, err
-	}
-
-	return build, nil
+	return build, tx.Commit()
 }
