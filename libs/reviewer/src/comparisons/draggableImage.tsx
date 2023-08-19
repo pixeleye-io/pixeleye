@@ -4,18 +4,27 @@ import { MotionValue, m, useMotionValueEvent } from "framer-motion";
 import {
   useEffect,
   useRef,
-  useLayoutEffect,
   useCallback,
   forwardRef,
   useImperativeHandle,
-  useState,
 } from "react";
-import { flushSync } from "react-dom";
 import { DottedBackground } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
+import {
+  createUseGesture,
+  dragAction,
+  pinchAction,
+  wheelAction,
+} from "@use-gesture/react";
 
 interface ImageProps {
   base: {
+    src: string | StaticImageData;
+    alt: string;
+    width: number;
+    height: number;
+  };
+  secondBase?: {
     src: string | StaticImageData;
     alt: string;
     width: number;
@@ -27,6 +36,7 @@ interface ImageProps {
     width: number;
     height: number;
   };
+  showSecondBase?: boolean;
   x: MotionValue<number>;
   y: MotionValue<number>;
   scale: MotionValue<number>;
@@ -45,9 +55,20 @@ export type DraggableImageRef = {
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
-    { base, overlay, x, y, scale, onTap, className },
+    {
+      base,
+      overlay,
+      x,
+      y,
+      scale,
+      onTap,
+      className,
+      secondBase,
+      showSecondBase = false,
+    },
     ref
   ) {
+    const parentRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const draggableRef = useRef<HTMLDivElement>(null);
 
@@ -56,36 +77,29 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     const cancelTap = useRef(false);
 
-    const mouseOver = useRef(false);
-
-    useEffect(() => {
-      const handler = (e: WheelEvent) => {
-        if (mouseOver.current && !e.ctrlKey) e.preventDefault();
-      };
-
-      window.addEventListener("wheel", handler, {
-        passive: false,
-      });
-
-      return () => {
-        window.removeEventListener("wheel", handler);
-      };
-    }, [scale]);
-
     const getDefaults = useCallback(() => {
-      if (!containerRef.current)
+      if (!parentRef.current)
         return {
           x: 0,
           y: 8,
           scale: 1,
         };
 
-      const { width, height } = containerRef.current.getBoundingClientRect();
+      const { width, height } = parentRef.current.getBoundingClientRect();
 
       const { width: baseWidth, height: baseHeight } = base;
 
+      const aspect = width / baseWidth;
+
+      const adjustedHeight = baseHeight * aspect;
+      const adjustedWidth = baseWidth * aspect;
+
       const scale = Math.max(
-        Math.min((baseWidth / width) * 2, (height / baseHeight) * 2, 0.95),
+        Math.min(
+          (width - 16) / adjustedWidth,
+          (height - 16) / adjustedHeight,
+          10
+        ),
         0.25
       );
 
@@ -104,68 +118,114 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       y.set(dY);
     }, [getDefaults, scale, x, y]);
 
-    useEffect(() => {
-      center();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     useImperativeHandle(ref, () => ({
       center,
       getDefaults,
     }));
 
+    const zoom = useCallback(
+      (
+        event: {
+          clientX: number;
+          clientY: number;
+        },
+        delta: number
+      ) => {
+        const prevS = scale.get();
+        const s = Math.max(0.1, prevS - delta);
+
+        const {
+          left: containerLeft,
+          top: containerTop,
+          width,
+        } = draggableRef.current!.getBoundingClientRect();
+
+        const dx = event.clientX - containerLeft - width / 2;
+        const dy = event.clientY - containerTop;
+
+        const newX = x.get() - dx * (s / prevS - 1);
+        const newY = y.get() - dy * (s / prevS - 1);
+
+        scale.set(s);
+        x.set(newX);
+        y.set(newY);
+      },
+      [scale, x, y]
+    );
+
+    const useGesture = createUseGesture([dragAction, wheelAction, pinchAction]);
+
+    useGesture(
+      {
+        onDrag: ({ delta: [dx, dy], pinching, tap }) => {
+          if (pinching) return;
+
+          if (tap && onTap && !cancelTap.current) {
+            return onTap();
+          }
+
+          x.set(dx + x.get());
+          y.set(dy + y.get());
+        },
+        onDragEnd: () => (cancelTap.current = false),
+        onWheel: ({
+          event,
+          delta: [dX, dY],
+          pinching,
+          ctrlKey,
+          altKey,
+          shiftKey,
+        }) => {
+          if (pinching) return;
+
+          event.preventDefault();
+          cancelTap.current = true;
+
+          if (altKey || shiftKey || ctrlKey) {
+            x.set(x.get() - dX);
+            y.set(y.get() - dY);
+            return;
+          }
+
+          zoom(event, dY / 1000);
+        },
+        onPinch: ({ event, delta: [d], origin: [oX, oY], wheeling }) => {
+          event.preventDefault();
+          cancelTap.current = true;
+
+          zoom(
+            {
+              clientX: oX,
+              clientY: oY,
+            },
+            -d
+          );
+        },
+      },
+      { target: containerRef, wheel: { eventOptions: { passive: false } } }
+    );
+
+    useEffect(() => {
+      center();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Framer motion is lazy loading the image, so we need to re-center it once it's loaded
     useMotionValueEvent(scale, "change", (latest) => {
       if (latest === 0) scale.set(getDefaults().scale);
     });
 
     return (
       <DottedBackground
-        className={cx("h-full w-full bg-surface-container-low", className)}
+        ref={parentRef}
+        className={cx(
+          "h-full w-full bg-surface-container-low rounded border border-outline-variant overflow-hidden",
+          className
+        )}
       >
-        <m.div
-          onMouseEnter={() => {
-            mouseOver.current = true;
-          }}
-          onMouseLeave={() => {
-            mouseOver.current = false;
-          }}
-          onWheel={(e) => {
-            flushSync(() => {
-              if (e.altKey || e.shiftKey) {
-                // Allows users to quickly pan around the image
-                x.jump(x.get() - e.deltaX);
-                y.jump(y.get() - e.deltaY);
-                return;
-              }
-              const prevS = scale.get();
-              const s = Math.min(10, Math.max(prevS - e.deltaY / 1000, 0.1));
-
-              const {
-                left: containerLeft,
-                top: containerTop,
-                width,
-              } = draggableRef.current!.getBoundingClientRect();
-
-              const dx = e.clientX - containerLeft - width / 2;
-              const dy = e.clientY - containerTop;
-
-              const newX = x.get() - dx * (s / prevS - 1);
-              const newY = y.get() - dy * (s / prevS - 1);
-
-              scale.jump(s);
-              x.set(newX);
-              y.jump(newY);
-            });
-          }}
-          onTap={() => !cancelTap.current && onTap?.()}
-          onTapStart={() => (cancelTap.current = false)}
-          onPan={(_, info) => {
-            x.jump(x.get() + info.delta.x);
-            y.jump(y.get() + info.delta.y);
-            cancelTap.current = true;
-          }}
+        <div
           ref={containerRef}
-          className="relative grow-0 w-full h-full overflow-hidden max-h-fit cursor-grab outline-none rounded border border-outline-variant z-0"
+          className="grow-0 w-full h-full cursor-grab z-0 select-non touch-none	active:cursor-grabbing"
         >
           <m.div
             ref={draggableRef}
@@ -180,23 +240,43 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
             className="relative z-0 pointer-events-none"
           >
             <NextImage
-              key={`double-base-${base.src.toString()}`}
+              key={`base-${base.src.toString()}`}
               quality={100}
               priority
-              className="pointer-events-none z-0 select-none z-0 absolute inset-0"
+              className={cx(
+                "pointer-events-none z-0 select-none z-0 absolute inset-0",
+                showSecondBase && "opacity-0",
+                showOverlay && overlay && "brightness-75"
+              )}
               draggable={false}
               alt={base.alt}
               src={base.src}
               fill
               unoptimized={!optimize}
             />
+            {secondBase && (
+              <NextImage
+                key={`second-base-${secondBase.src.toString()}`}
+                quality={100}
+                priority
+                className={cx(
+                  "pointer-events-none z-0 select-none z-0 absolute inset-0 ",
+                  !showSecondBase && "opacity-0"
+                )}
+                draggable={false}
+                alt={secondBase.alt}
+                src={secondBase.src}
+                fill
+                unoptimized={!optimize}
+              />
+            )}
             {overlay && (
               <NextImage
-                key={`double-overlay-${overlay.src.toString()}`}
+                key={`overlay-${overlay.src.toString()}`}
                 priority
                 quality={100}
                 className={cx(
-                  !showOverlay && "opacity-0",
+                  (!showOverlay || showSecondBase) && "opacity-0",
                   "pointer-events-none select-none z-10 absolute inset-0 z-10"
                 )}
                 draggable={false}
@@ -207,7 +287,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               />
             )}
           </m.div>
-        </m.div>
+        </div>
       </DottedBackground>
     );
   }
