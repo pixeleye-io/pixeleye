@@ -22,10 +22,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
     snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
   );
 
-  const scale = useMotionValue(
-    0
-  );
-
+  const scale = useMotionValue(0);
   const x = useMotionValue(0);
   const y = useMotionValue(8);
   // TODO - add placeholder for invalid snapshot
@@ -33,7 +30,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
   return (
     <div className="overflow-hidden w-full h-full">
       <div></div>
-      <div className="flex h-full w-full space-x-8 overflow-hidden">
+      <div className="flex h-full w-full space-x-4 overflow-hidden">
         {validBaseline && (
           <DraggableImage
             ref={draggableImageRef}
