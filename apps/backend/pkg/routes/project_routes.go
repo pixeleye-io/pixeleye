@@ -23,6 +23,8 @@ func ProjectRoutes(e *echo.Echo) {
 	baseRoutes.GET("", controllers.GetProject)
 	baseRoutes.GET("/builds", controllers.GetProjectBuilds)
 
+	baseRoutes.Any("/events", controllers.SubscribeToProject)
+
 	// Admin routes.
 	adminRoutes := common.Group("/admin")
 

@@ -11,6 +11,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 )
@@ -27,7 +28,7 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	// TODO - We should make sure we ignore failed builds
 	build := models.Build{}
 
-	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 AND status != 'uploading' ORDER BY build_number DESC LIMIT 1`
+	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`
 
 	err := q.Get(&build, query, projectID, branch)
 
@@ -42,7 +43,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 		"shas":       shas,
 	}
 
-	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) AND status != 'uploading' ORDER BY build_number DESC LIMIT 1`, arg)
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
 	if err != nil {
 		return build, err
 	}
@@ -334,6 +335,28 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 		return build, nil
 	}
 
+	if status != build.Status {
+		// Notify listeners that the build status has changed
+
+		broker, err := broker.GetBroker()
+
+		event := models.ProjectEvent{
+			Type: "build_status_change",
+			Data: models.BuildStatusBody{
+				BuildID: id,
+				Status:  status,
+			},
+		}
+
+		// We shouldn't hold up the build process if we can't connect to the broker
+		if err == nil {
+			if err := broker.QueueProjectEvent(build.ProjectID, event); err != nil {
+				log.Error().Err(err).Msg("Failed to publish build complete message")
+			}
+		}
+
+	}
+
 	build.Status = status
 	build.UpdatedAt = utils.CurrentTime()
 
@@ -377,6 +400,28 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 
 	if err != nil {
 		return build, err
+	}
+
+	if status != build.Status {
+		// Notify listeners that the build status has changed
+
+		broker, err := broker.GetBroker()
+
+		event := models.ProjectEvent{
+			Type: "build_status_change",
+			Data: models.BuildStatusBody{
+				BuildID: id,
+				Status:  status,
+			},
+		}
+
+		// We shouldn't hold up the build process if we can't connect to the broker
+		if err == nil {
+			if err := broker.QueueProjectEvent(build.ProjectID, event); err != nil {
+				log.Error().Err(err).Msg("Failed to publish build complete message")
+			}
+		}
+
 	}
 
 	build.Status = status

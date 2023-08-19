@@ -12,6 +12,7 @@ import (
 // Queries struct for collect all app queries.
 type Queues struct {
 	*queues.IngestQueue
+	*queues.ProjectEventQueue
 }
 
 // nolint:gochecknoglobals
@@ -100,6 +101,9 @@ func GetBroker() (*Queues, error) {
 
 	return &Queues{
 		IngestQueue: &queues.IngestQueue{
+			Broker: broker,
+		},
+		ProjectEventQueue: &queues.ProjectEventQueue{
 			Broker: broker,
 		},
 	}, nil
