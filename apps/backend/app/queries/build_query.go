@@ -9,9 +9,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/lib/pq"
+	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
-	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 )
@@ -169,9 +169,20 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 // TODO - make sure when approving a build that it is the latest build
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	return q.CreateBuildRecursive(build, 0)
+	err := q.CreateBuildRecursive(build, 0)
+
+	if err != nil {
+		return err
+	}
+
+	// We don't care if this fails, since it's just a notification
+	notifier, _ := events.GetNotifier(nil)
+	notifier.NewBuild(*build)
+
+	return nil
 }
 
+// This can fail if the build number already exists, so we need to retry; hence the recursion
 func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) error {
 	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id)`
 
@@ -335,33 +346,23 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 		return build, nil
 	}
 
-	if status != build.Status {
-		// Notify listeners that the build status has changed
+	if status == build.Status {
 
-		broker, err := broker.GetBroker()
+		build.Status = status
+		build.UpdatedAt = utils.CurrentTime()
 
-		event := models.ProjectEvent{
-			Type: "build_status_change",
-			Data: models.BuildStatusBody{
-				BuildID: id,
-				Status:  status,
-			},
+		if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+			return build, err
 		}
 
-		// We shouldn't hold up the build process if we can't connect to the broker
-		if err == nil {
-			if err := broker.QueueProjectEvent(build.ProjectID, event); err != nil {
-				log.Error().Err(err).Msg("Failed to publish build complete message")
-			}
+		if err := tx.Commit(); err != nil {
+			return build, err
 		}
 
-	}
-
-	build.Status = status
-	build.UpdatedAt = utils.CurrentTime()
-
-	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
-		return build, err
+		// We don't care if this fails, since it's just a notification
+		notifier, _ := events.GetNotifier(nil)
+		notifier.BuildStatusChange(build)
+		return build, nil
 	}
 
 	return build, tx.Commit()
@@ -403,38 +404,24 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 	}
 
 	if status != build.Status {
-		// Notify listeners that the build status has changed
+		build.Status = status
 
-		broker, err := broker.GetBroker()
+		build.UpdatedAt = utils.CurrentTime()
 
-		event := models.ProjectEvent{
-			Type: "build_status_change",
-			Data: models.BuildStatusBody{
-				BuildID: id,
-				Status:  status,
-			},
+		if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+			return build, err
 		}
 
-		// We shouldn't hold up the build process if we can't connect to the broker
-		if err == nil {
-			if err := broker.QueueProjectEvent(build.ProjectID, event); err != nil {
-				log.Error().Err(err).Msg("Failed to publish build complete message")
-			}
+		if err = tx.Commit(); err != nil {
+			return build, err
 		}
 
+		// We don't care if this fails, since it's just a notification
+		notifier, _ := events.GetNotifier(nil)
+		notifier.BuildStatusChange(build)
+
+		return build, nil
 	}
 
-	build.Status = status
-
-	build.UpdatedAt = utils.CurrentTime()
-
-	if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
-		return build, err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return build, err
-	}
-
-	return build, nil
+	return build, tx.Commit()
 }

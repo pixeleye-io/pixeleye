@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -10,6 +12,52 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type (
+	Text struct {
+		Text string `json:"text"`
+	}
+)
+
+type (
+	Geolocation struct {
+		Altitude  float64
+		Latitude  float64
+		Longitude float64
+	}
+)
+
+var (
+	locations = []Geolocation{
+		{-97, 37.819929, -122.478255},
+		{1899, 39.096849, -120.032351},
+		{2619, 37.865101, -119.538329},
+		{42, 33.812092, -117.918974},
+		{15, 37.77493, -122.419416},
+	}
+)
+
+func EventTest(c echo.Context) error {
+	c.Response().Header().Set("Content-Type", "text/event-stream")
+	c.Response().WriteHeader(http.StatusOK)
+
+	// enc := json.NewEncoder(c.Response().Writer)
+
+	// c.Response().Writer
+
+	for _, _ = range locations {
+		// if err := enc.Encode(l); err != nil {
+		// 	return err
+		// }
+		_, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", "Hello")
+		if err != nil {
+			log.Error().Err(err)
+		}
+		c.Response().Flush()
+		time.Sleep(1 * time.Second)
+	}
+	return nil
+}
+
 // TODO - investigate if we should only have 1 subscriber and then broadcast to all clients
 func SubscribeToProject(c echo.Context) error {
 
@@ -17,17 +65,11 @@ func SubscribeToProject(c echo.Context) error {
 
 	project := middleware.GetProject(c)
 
-	flusher, ok := c.Response().Writer.(http.Flusher)
-
-	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Streaming unsupported!")
-	}
-
 	c.Response().Header().Set("Content-Type", "text/event-stream")
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	c.Response().Header().Set("Connection", "keep-alive")
-	// c.Response().Header().Set("Access-Control-Allow-Origin", "localhost:4000")
-	c.Response().Header().Set("X-Accel-Buffering", "no")
+
+	c.Response().WriteHeader(http.StatusOK)
 
 	connection, err := broker.GetConnection()
 
@@ -35,40 +77,26 @@ func SubscribeToProject(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get connection")
 	}
 
-	_, err = c.Response().Write([]byte("{data: 'Connected'}"))
-	if err != nil {
-		return err
-	}
-
-	// Flush the data immediatly instead of buffering it for later.
-	flusher.Flush()
-
 	quit := make(chan bool)
 
-	go func(quit chan bool) {
+	// Subscribe to the channel
+	err = broker.SubscribeToQueue(connection, project.ID, brokerTypes.ProjectUpdate, func(msg []byte) error {
 
-		// Subscribe to the channel
-		err = broker.SubscribeToQueue(connection, project.ID, brokerTypes.ProjectUpdate, func(msg []byte) error {
+		log.Debug().Msg("Received message from project events")
 
-			log.Debug().Msg("Received message from project events")
-
-			// Write to the ResponseWriter
-			_, err := c.Response().Write(msg)
-			if err != nil {
-				return err
-			}
-
-			// Flush the data immediatly instead of buffering it for later.
-			flusher.Flush()
-
-			return nil
-		}, quit)
-
-		if err != nil {
-			log.Error().Err(err)
-			quit <- true
+		if _, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", string(msg)); err != nil {
+			return err
 		}
-	}(quit)
+
+		c.Response().Flush()
+
+		return nil
+	}, quit)
+
+	if err != nil {
+		log.Error().Err(err)
+		quit <- true
+	}
 
 	<-quit
 

@@ -13,24 +13,24 @@ export function ProjectHeader({ projectId }: { projectId: string }) {
 
   const layoutId = useId();
 
-  const sse = new EventSource(
-    `http://localhost:5000/v1/projects/${projectId}/events`,
-    { withCredentials: true }
-  );
+  useEffect(() => {
+    const sse = new EventSource(
+      `http://localhost:5000/v1/projects/${projectId}/events`,
+      { withCredentials: true }
+    );
 
-  sse.addEventListener("message", (event) => {
-    const data = JSON.parse(event.data);
-    console.log("data", event.data);
-  });
+    sse.onmessage = (event) => {
+      console.log("message", event);
+    };
 
-  sse.addEventListener("error", (event) => {
-    console.log("error", event);
-  });
+    sse.addEventListener("open", (event) => {
+      console.log("open", event);
+    });
 
-  sse.addEventListener("open", (event) => {
-    console.log("open", event);
-  });
-  
+    sse.addEventListener("message", (event) => {
+      console.log("message 2", event);
+    });
+  }, []);
 
   return (
     <>
