@@ -1,12 +1,13 @@
 "use client";
 
 import { m, useMotionValue, useMotionValueEvent } from "framer-motion";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import BuildInfoPanel from "./panels/buildInfo";
 import SnapshotsPanel from "./panels/snapshots";
 import FeedPanel from "./panels/feed";
 import { useReviewerStore } from "./store";
 import OverlayScrollbar from "@pixeleye/ui/src/scrollArea/scrollArea";
+import { useWindowSize } from "usehooks-ts";
 
 export type Panel = "snapshots" | "build-info" | "feed";
 
@@ -39,7 +40,7 @@ export function Panel() {
 
   return (
     <m.aside style={{ width: width }} className="flex relative z-10 shrink-0	">
-      <OverlayScrollbar className="flex grow z-10 overflow-y-auto [&>*:nth-child(2)]:flex" >
+      <OverlayScrollbar className="flex grow z-10 overflow-y-auto [&>*:nth-child(2)]:flex">
         <PanelComponent />
       </OverlayScrollbar>
       <span className="absolute inset-0 flex">

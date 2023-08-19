@@ -30,6 +30,8 @@ interface ReviewerState {
   setSingleSnapshot: (singleSnapshot: SingleSnapshot) => void;
 }
 
+const isBrowser = typeof window !== "undefined";
+
 const defaultBuild: Build = {
   id: "",
   branch: "",
@@ -55,7 +57,7 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   setCurrentSnapshot: (currentSnapshot) => set({ currentSnapshot }),
   showDiff: true,
   setShowDiff: (showDiff) => set({ showDiff }),
-  panelOpen: true,
+  panelOpen: isBrowser && window?.innerWidth > 768,
   setPanelOpen: (panelOpen) =>
     set((state) => ({
       panelOpen: panelOpen(state.panelOpen),

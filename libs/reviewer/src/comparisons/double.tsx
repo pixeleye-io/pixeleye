@@ -33,7 +33,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
   return (
     <div className="overflow-hidden w-full h-full">
       <div></div>
-      <div className="flex h-full w-full space-x-8 overflow-hidden">
+      <div className="flex flex-col sm:flex-row h-full w-full space-y-4 sm:space-x-4 sm:space-y-0 overflow-hidden">
         {validBaseline && (
           <DraggableImage
             ref={draggableImageRef}
