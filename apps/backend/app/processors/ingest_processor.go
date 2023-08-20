@@ -152,19 +152,26 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 		}
 	}
 
-	diffImg := models.DiffImage{
-		Hash:      hash,
-		ProjectID: snapImg.ProjectID,
-		Width:     diffImage.Image.Bounds().Dx(),
-		Height:    diffImage.Image.Bounds().Dy(),
-		Format:    "image/png",
+	diffImg, err := db.GetDiffImage(hash)
+
+	if err != nil && err != sql.ErrNoRows {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to get diff image from DB")
+		return err
 	}
 
-	err = db.CreateDiffImage(&diffImg)
+	if err == sql.ErrNoRows {
+		diffImg := models.DiffImage{
+			Hash:      hash,
+			ProjectID: snapImg.ProjectID,
+			Width:     diffImage.Image.Bounds().Dx(),
+			Height:    diffImage.Image.Bounds().Dy(),
+			Format:    "image/png",
+		}
 
-	if err != nil {
-		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to create diff image")
-		return err
+		if err = db.CreateDiffImage(&diffImg); err != nil {
+			log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to create diff image")
+			return err
+		}
 	}
 
 	snapshot.DiffID = &diffImg.ID
