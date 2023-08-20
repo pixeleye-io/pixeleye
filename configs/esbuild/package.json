@@ -5,6 +5,6 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "esbuild": "^0.19.0"
+    "esbuild": "^0.19.2"
   }
 }

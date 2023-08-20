@@ -12,6 +12,7 @@
     "labstack",
     "mapstructure",
     "markdoc",
+    "Msgf",
     "nolint",
     "oneof",
     "pactum",

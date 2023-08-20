@@ -10,10 +10,20 @@ type ProjectEvent struct {
 	*broker.Queues
 }
 
+const (
+	ProjectEvent_BuildStatus = "build_status"
+	ProjectEvent_NewBuild    = "new_build"
+)
+
+type BuildStatusBody struct {
+	BuildID string `json:"buildID"`
+	Status  string `json:"status"`
+}
+
 func (b *ProjectEvent) BuildStatusChange(build models.Build) {
-	event := models.ProjectEvent{
-		Type: models.ProjectEvent_BuildStatus,
-		Data: models.BuildStatusBody{
+	event := EventPayload{
+		Type: ProjectEvent_BuildStatus,
+		Data: BuildStatusBody{
 			BuildID: build.ID,
 			Status:  build.Status,
 		},
@@ -25,11 +35,9 @@ func (b *ProjectEvent) BuildStatusChange(build models.Build) {
 }
 
 func (b *ProjectEvent) NewBuild(build models.Build) {
-	event := models.ProjectEvent{
-		Type: models.ProjectEvent_NewBuild,
-		Data: models.NewBuildBody{
-			BuildID: build.ID,
-		},
+	event := EventPayload{
+		Type: ProjectEvent_NewBuild,
+		Data: build,
 	}
 
 	if err := b.QueueProjectEvent(build.ProjectID, event); err != nil {

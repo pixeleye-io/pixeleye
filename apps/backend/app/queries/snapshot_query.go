@@ -106,18 +106,13 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error 
 	return err
 }
 
-func (q *SnapshotQueries) SetSnapshotStatusAndBaseline(id string, baseline string, status string) error {
-	query := `UPDATE snapshot SET status = $1, baseline_snapshot_id = $2, updated_at = $3 WHERE id = $4`
+// We shouldn't need to update name, variant, target, or viewport
+func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
+	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at WHERE id = :id`
 
-	_, err := q.Exec(query, status, baseline, utils.CurrentTime(), id)
+	snapshot.UpdatedAt = utils.CurrentTime()
 
-	return err
-}
-
-func (q *SnapshotQueries) SetSnapshotDiff(id string, diffID string) error {
-	query := `UPDATE snapshot SET diff_image_id = $1, status = 'unreviewed', updated_at = $2 WHERE id = $3`
-
-	_, err := q.Exec(query, diffID, utils.CurrentTime(), id)
+	_, err := q.NamedExec(query, snapshot)
 
 	return err
 }

@@ -6,5 +6,11 @@ export const env = createEnv({
   server: {
     ...serverEnvs,
   },
-  experimental__runtimeEnv: {},
+  client: {
+    NEXT_PUBLIC_SERVER_URL: z.string(),
+  },
+  experimental__runtimeEnv: {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    NEXT_PUBLIC_SERVER_URL: process.env.NEXT_PUBLIC_SERVER_URL,
+  },
 });

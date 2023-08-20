@@ -29,24 +29,34 @@ func SubscribeToProject(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get connection")
 	}
 
-	quit := make(chan bool)
-
-	err = broker.SubscribeToQueue(connection, project.ID, brokerTypes.ProjectUpdate, func(msg []byte) error {
-
-		log.Debug().Msg("Received message from project events")
-
-		if _, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", string(msg)); err != nil {
-			return err
-		}
-
-		c.Response().Flush()
-
-		return nil
-	}, quit)
-
-	if err != nil {
-		log.Error().Err(err)
+	if _, err := fmt.Fprintf(c.Response().Writer, "data: \"connected\"\n\n"); err != nil {
+		return err
 	}
+
+	c.Response().Flush()
+
+	quit := make(chan bool)
+	go func(quit chan bool) {
+		err = broker.SubscribeToQueue(connection, project.ID, brokerTypes.ProjectUpdate, func(msg []byte) error {
+
+			log.Debug().Msgf("Received message from project events:%s", msg)
+
+			if _, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", msg); err != nil {
+				return err
+			}
+			c.Response().Flush()
+
+			return nil
+		}, quit)
+
+		if err != nil {
+			log.Error().Err(err)
+		}
+	}(quit)
+
+	<-c.Request().Context().Done()
+
+	quit <- true
 
 	return nil
 }

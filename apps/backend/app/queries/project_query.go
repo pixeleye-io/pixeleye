@@ -216,7 +216,7 @@ func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string
 }
 
 func (q *ProjectQueries) GetProjectBuilds(projectID string, branch string) ([]models.Build, error) {
-	query := `SELECT * FROM build WHERE project_id = $1`
+	query := `SELECT * FROM build WHERE project_id = $1 ORDER BY created_at DESC`
 	queryBranches := `SELECT * FROM build WHERE project_id = $1 AND branch = $2`
 
 	builds := []models.Build{}

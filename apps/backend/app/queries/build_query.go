@@ -184,7 +184,7 @@ func (q *BuildQueries) CreateBuild(build *models.Build) error {
 
 // This can fail if the build number already exists, so we need to retry; hence the recursion
 func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) error {
-	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id)`
+	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id) RETURNING *`
 
 	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
 
@@ -207,7 +207,9 @@ func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) erro
 	// nolint:errcheck
 	defer tx.Rollback()
 
-	if _, err := tx.NamedExecContext(ctx, query, build); err != nil {
+	returnedBuild, err := tx.NamedQuery(query, build)
+
+	if err != nil {
 		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
 			log.Error().Err(err).Msg("Failed to create build, build number already exists. Retrying...")
 			if level > 5 {
@@ -220,6 +222,18 @@ func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) erro
 			return err
 		}
 	}
+
+	if ok := returnedBuild.Next(); !ok {
+		log.Error().Msg("Failed to get returned build")
+		return err
+	}
+
+	if err := returnedBuild.StructScan(build); err != nil {
+		log.Err(err).Msg("Failed to scan returned build")
+		return err
+	}
+
+	returnedBuild.Close()
 
 	buildHistoryEntries := []models.BuildHistory{}
 
