@@ -280,7 +280,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 		snap[0].DiffID = snap[1].DiffID
 
 		if err := db.UpdateSnapshot(snap[0]); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snap)
+			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snap[0].ID)
 			// We don't want to return this error because we still want to process the remaining snapshots
 		}
 	}
