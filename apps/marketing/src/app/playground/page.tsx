@@ -1,5 +1,5 @@
 import { ExtendedSnapshotPair, Reviewer } from "@pixeleye/reviewer";
-import { Build, Snapshot, SnapshotPair } from "@pixeleye/api";
+import { Build } from "@pixeleye/api";
 import ukWiki from "./assets/uk-wiki.png";
 import HomeBase from "./assets/home-baseline.png";
 import HomeChanged from "./assets/home-changed.png";
@@ -77,6 +77,7 @@ export default function PlaygroundPage() {
       className="h-[calc(100vh-4rem-1px)]"
       build={dummyBuild}
       snapshots={dummySnapshots}
+      optimize
     />
   );
 }

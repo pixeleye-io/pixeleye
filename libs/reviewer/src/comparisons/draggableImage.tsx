@@ -253,6 +253,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               src={base.src}
               fill
               unoptimized={!optimize}
+              placeholder={optimize ? "blur" : "empty"}
             />
             {secondBase && (
               <NextImage
@@ -267,6 +268,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
                 alt={secondBase.alt}
                 src={secondBase.src}
                 fill
+                placeholder={optimize ? "blur" : "empty"}
                 unoptimized={!optimize}
               />
             )}
@@ -283,6 +285,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
                 alt={overlay.alt}
                 src={overlay.src}
                 fill
+                placeholder={optimize ? "blur" : "empty"}
                 unoptimized={!optimize}
               />
             )}
