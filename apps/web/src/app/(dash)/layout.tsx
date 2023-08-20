@@ -2,8 +2,7 @@ import { cookies } from "next/headers";
 import { Navbar } from "./navbar";
 import { API } from "@/libs";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import getQueryClient from "../getQueryClient";
-import { queries } from "@/queries";
+import { queries, getQueryClient } from "@/queries";
 
 export default async function DashboardLayout({
   children,

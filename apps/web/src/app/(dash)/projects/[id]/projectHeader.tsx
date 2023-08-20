@@ -1,36 +1,14 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useId } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Header, NavTab } from "@pixeleye/ui";
-import { useTeamStore } from "../../breadcrumbStore";
 
 export function ProjectHeader({ projectId }: { projectId: string }) {
   const pathName = usePathname();
 
-  const setTeamId = useTeamStore((state) => state.setTeamId);
-
   const layoutId = useId();
-
-  useEffect(() => {
-    const sse = new EventSource(
-      `http://localhost:5000/v1/projects/${projectId}/events`,
-      { withCredentials: true }
-    );
-
-    sse.onmessage = (event) => {
-      console.log("message", event);
-    };
-
-    sse.addEventListener("open", (event) => {
-      console.log("open", event);
-    });
-
-    sse.addEventListener("message", (event) => {
-      console.log("message 2", event);
-    });
-  }, []);
 
   return (
     <>

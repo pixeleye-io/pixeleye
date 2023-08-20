@@ -34,6 +34,7 @@ export default async function Layout({
           name: project.name,
           value: `/projects/${projectId}`,
         }}
+        teamId={project.teamID}
       />
       <ProjectHeader projectId={projectId} />
       <Container>{children}</Container>

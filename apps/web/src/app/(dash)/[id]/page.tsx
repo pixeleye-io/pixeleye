@@ -1,5 +1,5 @@
 import { API } from "@/libs";
-import { Template } from "@/ui/template";
+import { Template } from "@/components/template";
 import {
   Table,
   TableHeader,

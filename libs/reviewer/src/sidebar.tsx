@@ -68,6 +68,7 @@ function BatchApprove() {
                 variant="ghost"
                 className="text-on-surface-variant hover:text-on-surface"
               >
+                <span className="sr-only">Batch actions</span>
                 <svg
                   viewBox="3.511 18.9804 486.131 481.0199"
                   className="h-7 w-7"
@@ -154,6 +155,7 @@ export function Sidebar() {
                           : "text-on-surface-variant"
                       )}
                     >
+                      <span className="sr-only">{item.name}</span>
                       {panel === item.id ? (
                         <item.IconActive className="h-7 w-7 " />
                       ) : (

@@ -4,7 +4,8 @@
     "KRATOS_PUBLIC_URL",
     "ORY_SDK_URL",
     "KRATOS_BROWSER_URL",
-    "GITHUB_DOCS_TOKEN"
+    "GITHUB_DOCS_TOKEN",
+    "NEXT_PUBLIC_SERVER_URL"
   ],
   "pipeline": {
     "deploy": {

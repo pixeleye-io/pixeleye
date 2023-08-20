@@ -27,15 +27,12 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.12.13 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.13 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.20.0 // indirect
-	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
-	github.com/r3labs/sse/v2 v2.10.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -45,7 +42,6 @@ require (
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
-	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 )
 
 require (
@@ -75,7 +71,6 @@ require (
 	github.com/ory/client-go v1.1.41
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/rabbitmq/amqp091-go v1.8.1
-	github.com/redis/go-redis/v9 v9.0.5
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/zerolog v1.29.1
 	github.com/savsgio/dictpool v0.0.0-20221023140959-7bf2e61cea94 // indirect

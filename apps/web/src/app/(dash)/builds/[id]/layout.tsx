@@ -4,8 +4,7 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { API } from "@/libs/api";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import getQueryClient from "@/app/getQueryClient";
-import { queries } from "@/queries";
+import { queries, getQueryClient } from "@/queries";
 
 export default async function Layout({
   children,
