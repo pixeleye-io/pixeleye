@@ -67,6 +67,9 @@ function updateBuildStatus(
         status: data.data.status,
       }
     );
+    queryClient.invalidateQueries(
+      queries.builds.detail(data.data.buildID)
+    );
   }
 }
 

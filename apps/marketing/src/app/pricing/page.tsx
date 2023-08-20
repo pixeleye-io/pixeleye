@@ -24,7 +24,7 @@ const tiers = [
     id: "tier-hobby",
     href: "#",
     priceMonthly: "Free",
-    cta: "Buy plan",
+    cta: "Get started",
     description:
       "More than enough for side projects or evaluating the platform.",
     features: [
@@ -44,7 +44,7 @@ const tiers = [
     cta: "Buy plan",
     features: [
       "5000 free monthly snapshots",
-      "Unlimited snapshots",
+      "$0.003 per snapshot after",
       "Unlimited projects",
       "Unlimited collaborators",
     ],
