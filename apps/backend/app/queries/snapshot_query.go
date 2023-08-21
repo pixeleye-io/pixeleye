@@ -156,6 +156,8 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 // TODO - refactor build status updates to use a single function so we can centralize the notifications
 
 // TODO - handle scenario where build is stuck in uploading
+// We should add a mechanism to ensure the build is not stuck in uploading, maybe sse?
+// If connection is lost, then we mark the build as failed
 
 // Assumes we have no duplicate snapshots passed in
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
