@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 )
@@ -169,15 +171,30 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 // TODO - make sure when approving a build that it is the latest build
 
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-	err := q.CreateBuildRecursive(build, 0)
 
-	if err != nil {
+	parent, err := q.GetBuild(build.TargetParentID)
+
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
-	// We don't care if this fails, since it's just a notification
-	notifier, _ := events.GetNotifier(nil)
-	notifier.NewBuild(*build)
+	if err != sql.ErrNoRows && !models.IsBuildComplete(parent) {
+		// We can't start processing this build until the parent build has finished processing
+		build.Status = models.BUILD_STATUS_QUEUED_UPLOADING
+	}
+
+	if err := q.CreateBuildRecursive(build, 0); err != nil {
+		return err
+	}
+
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(*build)
 
 	return nil
 }
@@ -275,7 +292,7 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 		return "", err
 	}
 
-	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
+	if models.IsBuildPreProcessing(build) {
 		// Build isn't processing, so we don't need to do anything
 		return build.Status, nil
 	}
@@ -322,7 +339,7 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 	return worstStatus, nil
 }
 
-func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build, error) {
+func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) error {
 
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
@@ -334,31 +351,38 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return build, err
+		return err
 	}
 
 	// nolint:errcheck
 	defer tx.Rollback()
 
 	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
-		return build, err
+		return err
 	}
 
-	if build.Status == models.BUILD_STATUS_UPLOADING || build.Status == models.BUILD_STATUS_ABORTED {
+	if models.IsBuildPreProcessing(build) {
 		// Build is still uploading, so we don't need to do anything
-		return build, nil
+		return nil
 	}
 
 	status, err := tryGetBuildStatus(tx, ctx, id)
 
 	if err != nil {
-		return build, err
+		return err
 	}
 
-	if status == models.BUILD_STATUS_PROCESSING {
+	if status == models.BUILD_STATUS_PROCESSING || status == models.BUILD_STATUS_QUEUED_PROCESSING {
 		// Build is still processing, so we don't need to do anything
-		return build, nil
+		return nil
 	}
+
+	// This build is no longer processing so we can check if there are any queued builds that we can start processing
+	go func(q *BuildQueries, build models.Build) {
+		if err := q.CheckAndProcessQueuedBuilds(build.ID); err != nil {
+			log.Error().Err(err).Msgf("Failed to check and process queued builds for build %s", build.ID)
+		}
+	}(q, build)
 
 	if status == build.Status {
 
@@ -366,20 +390,121 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) (models.Build,
 		build.UpdatedAt = utils.CurrentTime()
 
 		if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
-			return build, err
+			return err
 		}
 
 		if err := tx.Commit(); err != nil {
-			return build, err
+			return err
 		}
 
-		// We don't care if this fails, since it's just a notification
-		notifier, _ := events.GetNotifier(nil)
-		notifier.BuildStatusChange(build)
-		return build, nil
+		go func(build models.Build) {
+			notifier, err := events.GetNotifier(nil)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get notifier")
+				return
+			}
+			notifier.BuildStatusChange(build)
+		}(build)
+
+		return nil
 	}
 
-	return build, tx.Commit()
+	return tx.Commit()
+}
+
+func (q *BuildQueries) CheckAndProcessQueuedBuilds(build_id string) error {
+	builds := []models.Build{}
+
+	query := `SELECT * FROM build WHERE (target_parent_id = $1 OR target_build_id = $1) AND (status = $2 OR status = $3) FOR UPDATE`
+
+	ctx := context.Background()
+
+	tx, err := q.BeginTxx(ctx, nil)
+
+	if err != nil {
+		return err
+	}
+
+	// nolint:errcheck
+	defer tx.Rollback()
+
+	if err := tx.SelectContext(ctx, &builds, query, build_id, models.BUILD_STATUS_QUEUED_PROCESSING, models.BUILD_STATUS_QUEUED_UPLOADING); err != nil {
+		return err
+	}
+
+	for _, build := range builds {
+
+		if err := q.StartProcessingQueuedBuild(tx, ctx, build); err != nil {
+			log.Error().Err(err).Msgf("Failed to start processing queued build %s", build.ID)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	b, err := broker.GetBroker()
+
+	if err != nil {
+		return err
+	}
+
+	for _, build := range builds {
+		go func(b *broker.Queues, build models.Build) {
+			notifier, err := events.GetNotifier(b)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get notifier")
+				return
+			}
+			notifier.BuildStatusChange(build)
+		}(b, build)
+	}
+
+	return nil
+}
+
+// TODO - We should attach errors to the build & snapshots
+func (q *BuildQueries) StartProcessingQueuedBuild(tx *sqlx.Tx, ctx context.Context, build models.Build) error {
+
+	selectSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1 AND status = $2 FOR UPDATE`
+	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
+
+	if build.Status != models.BUILD_STATUS_QUEUED_PROCESSING {
+		// Build is not queued for processing, so we don't need to do anything
+		return nil
+	}
+
+	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
+		// Build is queued for uploading, so we can start processing already queued snapshots
+		build.Status = models.BUILD_STATUS_UPLOADING
+	} else {
+		build.Status = models.BUILD_STATUS_PROCESSING
+	}
+
+	build.UpdatedAt = utils.CurrentTime()
+
+	snapshots := []models.Snapshot{}
+
+	if err := tx.SelectContext(ctx, &snapshots, selectSnapshotsQuery, build.ID, models.SNAPSHOT_STATUS_QUEUED); err != nil {
+		return err
+	}
+
+	if _, err := tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+		return err
+	}
+
+	// We need to queue the snapshots to be ingested
+	if len(snapshots) > 0 {
+		channel, err := broker.GetBroker()
+		if err != nil {
+			return err
+		}
+		if err := channel.QueueSnapshotsIngest(snapshots); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
@@ -406,7 +531,7 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 
 	log.Debug().Msgf("Completing build %v", build)
 
-	if build.Status != models.BUILD_STATUS_UPLOADING && build.Status != models.BUILD_STATUS_ABORTED {
+	if !models.IsBuildPreProcessing(build) {
 		// Build has already been marked as complete
 		return build, echo.NewHTTPError(http.StatusBadRequest, "build has already been marked as complete")
 	}
@@ -430,9 +555,20 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 			return build, err
 		}
 
-		// We don't care if this fails, since it's just a notification
-		notifier, _ := events.GetNotifier(nil)
-		notifier.BuildStatusChange(build)
+		go func(build models.Build) {
+			notifier, err := events.GetNotifier(nil)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get notifier")
+				return
+			}
+			notifier.BuildStatusChange(build)
+		}(build)
+
+		go func(build models.Build, q *BuildQueries) {
+			if err := q.CheckAndProcessQueuedBuilds(build.ID); err != nil {
+				log.Error().Err(err).Msgf("Failed to check and process queued builds for build %s", build.ID)
+			}
+		}(build, q)
 
 		return build, nil
 	}

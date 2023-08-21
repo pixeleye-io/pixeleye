@@ -8,15 +8,17 @@ import (
 
 // status enum
 const (
-	BUILD_STATUS_UPLOADING  = "uploading"
-	BUILD_STATUS_PROCESSING = "processing"
-	BUILD_STATUS_FAILED     = "failed"
-	BUILD_STATUS_ABORTED    = "aborted"
-	BUILD_STATUS_APPROVED   = "approved"
-	BUILD_STATUS_REJECTED   = "rejected"
-	BUILD_STATUS_UNREVIEWED = "unreviewed"
-	BUILD_STATUS_UNCHANGED  = "unchanged"
-	BUILD_STATUS_ORPHANED   = "orphaned"
+	BUILD_STATUS_UPLOADING         = "uploading"
+	BUILD_STATUS_QUEUED_UPLOADING  = "queued-uploading"  // We are still uploading snapshots to this build but we aren't asynchronously processing them yet.
+	BUILD_STATUS_QUEUED_PROCESSING = "queued-processing" // We are have finished uploading snapshots to this build but we are still waiting for the previous build to finish processing.
+	BUILD_STATUS_PROCESSING        = "processing"
+	BUILD_STATUS_FAILED            = "failed"
+	BUILD_STATUS_ABORTED           = "aborted"
+	BUILD_STATUS_APPROVED          = "approved"
+	BUILD_STATUS_REJECTED          = "rejected"
+	BUILD_STATUS_UNREVIEWED        = "unreviewed"
+	BUILD_STATUS_UNCHANGED         = "unchanged"
+	BUILD_STATUS_ORPHANED          = "orphaned"
 )
 
 // Build struct for build model.
@@ -37,7 +39,7 @@ type Build struct {
 	Branch             string         `db:"branch" json:"branch" validate:"required"`
 	Title              string         `db:"title" json:"title,omitempty"`
 	Message            string         `db:"message" json:"message,omitempty"`
-	Status             string         `db:"status" json:"status" validate:"required,oneof=uploading processing failed aborted approved rejected unreviewed unchanged orphaned"`
+	Status             string         `db:"status" json:"status" validate:"required,oneof=uploading processing failed aborted approved rejected unreviewed unchanged orphaned queued-uploading queued-processing"`
 	Errors             pq.StringArray `db:"errors" json:"errors,omitempty"`
 	Warnings           pq.StringArray `db:"warnings" json:"warnings,omitempty"`
 	DeletedSnapshotIDs pq.StringArray `db:"deleted_snapshot_ids" json:"deletedSnapshotIDs,omitempty"`
@@ -46,4 +48,16 @@ type Build struct {
 type BuildHistory struct {
 	ParentID string `db:"parent_id" json:"parentID" validate:"required,nanoid"`
 	ChildID  string `db:"child_id" json:"childID" validate:"required,nanoid"`
+}
+
+func IsBuildPreProcessing(build Build) bool {
+	return build.Status == BUILD_STATUS_UPLOADING || build.Status == BUILD_STATUS_QUEUED_UPLOADING
+}
+
+func IsBuildProcessing(build Build) bool {
+	return build.Status == BUILD_STATUS_PROCESSING || build.Status == BUILD_STATUS_QUEUED_PROCESSING || build.Status == BUILD_STATUS_ABORTED
+}
+
+func IsBuildComplete(build Build) bool {
+	return !IsBuildPreProcessing(build) && !IsBuildProcessing(build)
 }

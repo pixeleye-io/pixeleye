@@ -372,10 +372,9 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	}
 
-	// TODO - I need to do a lot of work around error handling with builds. Although not catastrophic, we want to avoid infinitely processing builds & snapshots
-	// Maybe adding a counter to build table to track how many snapshots we've attempted to process and if it's equal to the number of snapshots in the build, then we can mark the build as processed
-	// nolint:errcheck
-	db.CheckAndUpdateStatusAccordingly(build.ID)
+	if err := db.CheckAndUpdateStatusAccordingly(build.ID); err != nil {
+		return err
+	}
 
 	return nil
 }

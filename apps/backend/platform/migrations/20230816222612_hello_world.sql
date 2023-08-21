@@ -7,9 +7,9 @@ CREATE TYPE "public"."project_source" AS ENUM ('github', 'gitlab', 'bitbucket', 
 -- Create enum type "project_member_role"
 CREATE TYPE "public"."project_member_role" AS ENUM ('admin', 'reviewer', 'viewer');
 -- Create enum type "build_status"
-CREATE TYPE "public"."build_status" AS ENUM ('uploading', 'processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
+CREATE TYPE "public"."build_status" AS ENUM ('uploading',  'queued-uploading', 'queued-processing', 'processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 -- Create enum type "snapshot_status"
-CREATE TYPE "public"."snapshot_status" AS ENUM ('processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
+CREATE TYPE "public"."snapshot_status" AS ENUM ('queued', 'processing', 'failed', 'aborted', 'approved', 'rejected', 'unreviewed', 'unchanged', 'orphaned');
 -- Add new schema named "private"
 CREATE SCHEMA "private";
 -- Create "user_deletion_request" table

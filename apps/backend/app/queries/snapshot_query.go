@@ -9,8 +9,10 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/rs/zerolog/log"
 )
 
 type SnapshotQueries struct {
@@ -151,6 +153,10 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 	return errTxt
 }
 
+// TODO - refactor build status updates to use a single function so we can centralize the notifications
+
+// TODO - handle scenario where build is stuck in uploading
+
 // Assumes we have no duplicate snapshots passed in
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
@@ -179,7 +185,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		return nil, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
 	}
 
-	if build.Status != models.BUILD_STATUS_ABORTED && build.Status != models.BUILD_STATUS_UPLOADING {
+	if !models.IsBuildPreProcessing(build) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has completed. You cannot continue to add snapshots to it", buildId)
 	}
 
@@ -237,7 +243,11 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 			time := utils.CurrentTime()
 			snap.CreatedAt = time
 			snap.UpdatedAt = time
-			snap.Status = models.SNAPSHOT_STATUS_PROCESSING
+			if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
+				snap.Status = models.SNAPSHOT_STATUS_QUEUED
+			} else {
+				snap.Status = models.SNAPSHOT_STATUS_PROCESSING
+			}
 
 			if err != nil {
 				return nil, err
@@ -267,6 +277,24 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		if _, err := tx.NamedExecContext(ctx, buildQuery, build); err != nil {
 			return nil, err
 		}
+
+		go func(build models.Build) {
+			bq := BuildQueries{q.DB}
+
+			if err := bq.CheckAndProcessQueuedBuilds(build.ID); err != nil {
+				log.Error().Err(err).Msg("error processing queued builds")
+			}
+		}(build)
+
+		go func(build models.Build) {
+			notifier, err := events.GetNotifier(nil)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get notifier")
+				return
+			}
+			notifier.BuildStatusChange(build)
+		}(build)
+
 	}
 
 	if _, err = tx.NamedExecContext(ctx, snapQuery, newSnapshots); err != nil {

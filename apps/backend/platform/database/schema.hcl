@@ -233,7 +233,7 @@ table "project_users" {
 
 enum "build_status" {
   schema = schema.public
-  values = ["uploading", "processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
+  values = ["uploading", "queued-uploading", "queued-processing", "processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
 }
 
 table "build" {
@@ -445,7 +445,7 @@ table "diff_image" {
 
 enum "snapshot_status" {
   schema = schema.public
-  values = ["processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
+  values = ["queued", "processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
 }
 
 table "snapshot" {
