@@ -30,6 +30,7 @@ async function waitForBuildStatus(
   statuses: Build["status"][]
 ) {
   return new Promise<void>((resolve, reject) => {
+    let didProcess = false;
     const es = new EventSource(
       `${env.SERVER_ENDPOINT}/v1/client/builds/${build?.id}/events`,
       {
@@ -38,13 +39,19 @@ async function waitForBuildStatus(
       }
     );
     let nextStatus = statuses.shift();
-    es.onmessage = (event) => {
+
+    es.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "build_status") {
         const newStatus = data.data.status;
 
-        if (nextStatus === newStatus) {
-          if (statuses.length === 0) {
+        if (
+          nextStatus === newStatus ||
+          (newStatus === "processing" && !didProcess)
+        ) {
+          if (newStatus === "processing" && !didProcess) {
+            didProcess = true;
+          } else if (statuses.length === 0) {
             es.close();
             resolve();
           } else {
@@ -58,7 +65,7 @@ async function waitForBuildStatus(
           );
         }
       }
-    };
+    });
 
     es.onerror = (err) => {
       reject(err);
@@ -136,32 +143,20 @@ export async function createBuildWithSnapshots({
     )
   );
 
-  console.log("HIII asdf");
-
-  const buildPromise = waitForBuildStatus(
-    token,
-    build,
-    expectedBuildStatus
-  ).catch((err) => {
-    throw err;
-  });
-
-  await Promise.all(
-    snaps.map(
-      async (snap) =>
-        await buildTokenAPI.linkSnapshotsToBuild([snap!], build!.id, token)
-    )
-  );
-
-  console.log("HIII 3221asdf");
-
-
-  buildTokenAPI.completeBuild(build!.id, token);
-
-  await buildPromise;
-
-  console.log("HIII 3221asd 2222222222f");
-
+  await Promise.all([
+    waitForBuildStatus(token, build, expectedBuildStatus).catch((err) => {
+      throw err;
+    }),
+    (async () => {
+      await Promise.all(
+        snaps.map(
+          async (snap) =>
+            await buildTokenAPI.linkSnapshotsToBuild([snap!], build!.id, token)
+        )
+      );
+      await buildTokenAPI.completeBuild(build!.id, token);
+    })(),
+  ]);
 
   return build!;
 }

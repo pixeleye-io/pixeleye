@@ -2,6 +2,7 @@ package processors
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
@@ -16,12 +17,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
+	build_queries "github.com/pixeleye-io/pixeleye/app/queries/build"
 	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 )
-
-// TODO - make sure I'm setting snapshot to failed & storing error if it does fail
 
 // 1) Check in build history for an approved snapshot, get first
 // 2) If the approved snapshot is the same as the baseline, then we can approve this snapshot
@@ -256,12 +256,35 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 
 	if len(removedSnapshots) > 0 {
 
-		// We can go ahead and mark the removed snapshots as removed
-		build.DeletedSnapshotIDs = append(build.DeletedSnapshotIDs, removedSnapshots...)
+		ctx := context.TODO()
 
-		if err := db.UpdateBuild(&build); err != nil {
-			log.Error().Err(err).Str("Snapshots", strings.Join(removedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to update build with removed snapshots")
-			// We don't want to return this error because we still want to process the remaining snapshots
+		tx, err := build_queries.NewBuildTx(db.BuildQueries.DB, ctx)
+
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to create build tx")
+		} else {
+
+			defer tx.Rollback()
+
+			latestBuild, err := tx.GetBuildForUpdate(ctx, build.ID)
+
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get build for update")
+			} else {
+
+				// We can go ahead and mark the removed snapshots as removed
+				build.DeletedSnapshotIDs = append(latestBuild.DeletedSnapshotIDs, removedSnapshots...)
+
+				if err := tx.UpdateBuild(ctx, &latestBuild); err != nil {
+					log.Error().Err(err).Str("Snapshots", strings.Join(removedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to update build with removed snapshots")
+					// We don't want to return this error because we still want to process the remaining snapshots
+				}
+
+				if err := tx.Commit(); err != nil {
+					log.Error().Err(err).Msg("Failed to commit build tx")
+				}
+
+			}
 		}
 
 	}
@@ -292,13 +315,14 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	for _, snap := range changedSnapshots {
 		err := processSnapshot(snap[0], snap[1], db)
 
+		// TODO attach error to snapshot
+
 		if err != nil {
 			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
 		}
 	}
 
 	return nil
-
 }
 
 // Steps:
@@ -376,7 +400,9 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	}
 
-	if err := db.CheckAndUpdateStatusAccordingly(build.ID); err != nil {
+	ctx := context.TODO()
+
+	if err := db.CheckAndUpdateStatusAccordingly(ctx, build.ID); err != nil {
 		return err
 	}
 

@@ -1,4 +1,4 @@
-package queries
+package snapshot_queries
 
 import (
 	"context"
@@ -9,89 +9,30 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
-	"github.com/rs/zerolog/log"
 )
 
-type SnapshotQueries struct {
-	*sqlx.DB
+// We shouldn't need to update name, variant, target, or viewport
+func (tx *SnapshotQueriesTx) UpdateSnapshot(ctx context.Context, snapshot *models.Snapshot) error {
+	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at WHERE id = :id`
+
+	snapshot.UpdatedAt = utils.CurrentTime()
+
+	_, err := tx.NamedExecContext(ctx, query, snapshot)
+
+	return err
 }
 
-func (q *SnapshotQueries) GetSnapshot(id string) (models.Snapshot, error) {
-	snapshot := models.Snapshot{}
+// We shouldn't need to update name, variant, target, or viewport
+func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
+	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at WHERE id = :id`
 
-	query := `SELECT * FROM snapshot WHERE id = $1`
+	snapshot.UpdatedAt = utils.CurrentTime()
 
-	err := q.Get(&snapshot, query, id)
+	_, err := q.NamedExec(query, snapshot)
 
-	return snapshot, err
-}
-
-func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, error) {
-	snapshot := models.Snapshot{}
-
-	query := `WITH RECURSIVE find_approved_snapshot AS (
-		-- Anchor query: Get the initial snapshot with the given snapshot_id
-		SELECT
-		  s.id,
-		  s.name,
-		  s.variant,
-		  s.target,
-		  s.viewport,
-		  s.status,
-		  0 AS depth
-		FROM snapshot s
-		WHERE s.id = $1
-	  
-		UNION ALL
-	  
-		-- Recursive query: Join with build_history to get the next snapshot in the build history
-		SELECT
-		  s.id,
-		  s.name,
-		  s.variant,
-		  s.target,
-		  s.viewport,
-		  s.status,
-		  f.depth + 1
-		FROM find_approved_snapshot f
-		INNER JOIN build_history bh ON f.id = bh.parent_id
-		INNER JOIN snapshot s ON bh.child_id = s.id
-		WHERE (s.status = 'approved' OR s.status = 'orphaned') -- Considering only approved snapshots in the build history
-		  AND s.name = f.name -- Matching name with the starting snapshot
-		  AND s.variant = f.variant -- Matching variant with the starting snapshot
-		  AND s.target = f.target -- Matching target with the starting snapshot
-		  AND s.viewport = f.viewport -- Matching viewport with the starting snapshot
-	  )
-	  -- Final query: Select the first approved snapshot with matching name, variant, and target
-	  SELECT *
-	  FROM find_approved_snapshot
-	  WHERE status = 'approved'
-	  ORDER BY depth ASC
-	  LIMIT 1;
-	  `
-
-	err := q.Get(&snapshot, query, id)
-
-	return snapshot, err
-}
-
-func (q *SnapshotQueries) GetSnapshots(ids []string) ([]models.Snapshot, error) {
-	snapshots := []models.Snapshot{}
-
-	query, args, err := sqlx.In(`SELECT * FROM snapshot WHERE id IN (?)`, ids)
-
-	if err != nil {
-		return nil, err
-	}
-
-	query = q.Rebind(query)
-
-	err = q.Select(&snapshots, query, args...)
-
-	return snapshots, err
+	return err
 }
 
 func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error {
@@ -108,25 +49,19 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error 
 	return err
 }
 
-// We shouldn't need to update name, variant, target, or viewport
-func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
-	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at WHERE id = :id`
+func (tx *SnapshotQueriesTx) BatchUpdateSnapshotStatus(ctx context.Context, snapshotIDs []string, status string) error {
 
-	snapshot.UpdatedAt = utils.CurrentTime()
+	query, args, err := sqlx.In(`UPDATE snapshot SET status = ?, updated_at = ? WHERE id IN (?)`, status, utils.CurrentTime(), snapshotIDs)
 
-	_, err := q.NamedExec(query, snapshot)
+	if err != nil {
+		return err
+	}
+
+	query = tx.Rebind(query)
+
+	_, err = tx.ExecContext(ctx, query, args...)
 
 	return err
-}
-
-func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot, error) {
-	snapshots := []models.Snapshot{}
-
-	query := `SELECT * FROM snapshot WHERE build_id = $1`
-
-	err := q.Select(&snapshots, query, buildID)
-
-	return snapshots, err
 }
 
 func getDuplicateSnapError(snap models.Snapshot) string {
@@ -153,21 +88,19 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 	return errTxt
 }
 
-// TODO - refactor build status updates to use a single function so we can centralize the notifications
-
 // TODO - handle scenario where build is stuck in uploading
 // We should add a mechanism to ensure the build is not stuck in uploading, maybe sse?
 // If connection is lost, then we mark the build as failed
 
 // Assumes we have no duplicate snapshots passed in
-func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
+func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, bool, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
 	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id, status) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id, :status)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
 	if len(snapshots) == 0 {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "no snapshots to create")
+		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "no snapshots to create")
 	}
 
 	ctx := context.Background()
@@ -175,7 +108,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	// nolint:errcheck
@@ -184,17 +117,17 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	build := models.Build{}
 
 	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil {
-		return nil, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
+		return nil, false, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
 	}
 
 	if !models.IsBuildPreProcessing(build.Status) {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has already been marked as completed. You cannot continue to add snapshots to it", buildId)
+		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has already been marked as completed. You cannot continue to add snapshots to it", buildId)
 	}
 
 	existingSnapshots := []models.Snapshot{}
 
 	if err = tx.SelectContext(ctx, &existingSnapshots, selectExistingSnapshotsQuery, buildId); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	newSnapshots := []models.Snapshot{}
@@ -215,7 +148,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 				if !utils.ContainsString(build.Errors, errorTxt) {
 					// No need to update build if the error for this snapshot already exists.
 					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_ABORTED
+					build.Status = models.BUILD_STATUS_ABORTED_UPLOADING
 					updateBuild = true
 				}
 				break // No need to check for anymore duplicates of this snapshot.
@@ -234,7 +167,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 				if !utils.ContainsString(build.Errors, errorTxt) {
 					// No need to update build if the error for this snapshot already exists.
 					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_ABORTED
+					build.Status = models.BUILD_STATUS_ABORTED_UPLOADING
 					updateBuild = true
 				}
 			}
@@ -243,7 +176,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		if !isDup {
 			snap.ID, err = nanoid.New()
 			if err != nil {
-				return nil, err
+				return nil, false, err
 			}
 			time := utils.CurrentTime()
 			snap.CreatedAt = time
@@ -261,7 +194,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	}
 
 	if len(newSnapshots) == 0 {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "no new snapshots to upload")
+		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "no new snapshots to upload")
 	}
 
 	validate := utils.NewValidator()
@@ -272,43 +205,23 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 	if err := validate.Struct(partial); err != nil {
 		msg, _ := json.Marshal(utils.ValidatorErrors(err))
-		return nil, echo.NewHTTPError(http.StatusBadRequest, string(msg))
+		return nil, false, echo.NewHTTPError(http.StatusBadRequest, string(msg))
 	}
 
 	if updateBuild {
 		build.UpdatedAt = utils.CurrentTime()
 		if _, err := tx.NamedExecContext(ctx, buildQuery, build); err != nil {
-			return nil, err
+			return nil, false, err
 		}
-
-		if models.IsBuildComplete(build.Status) {
-			go func(build models.Build) {
-				bq := BuildQueries{q.DB}
-
-				if err := bq.CheckAndProcessQueuedBuilds(build.ID); err != nil {
-					log.Error().Err(err).Msg("error processing queued builds")
-				}
-			}(build)
-		}
-
-		go func(build models.Build) {
-			notifier, err := events.GetNotifier(nil)
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to get notifier")
-				return
-			}
-			notifier.BuildStatusChange(build)
-		}(build)
-
 	}
 
 	if _, err = tx.NamedExecContext(ctx, snapQuery, newSnapshots); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return newSnapshots, nil
+	return newSnapshots, updateBuild, nil
 }

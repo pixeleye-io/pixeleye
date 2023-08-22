@@ -8,7 +8,6 @@ const (
 	SNAPSHOT_STATUS_QUEUED     = "queued"
 	SNAPSHOT_STATUS_PROCESSING = "processing"
 	SNAPSHOT_STATUS_FAILED     = "failed"
-	SNAPSHOT_STATUS_ABORTED    = "aborted"
 	SNAPSHOT_STATUS_APPROVED   = "approved"
 	SNAPSHOT_STATUS_REJECTED   = "rejected"
 	SNAPSHOT_STATUS_UNREVIEWED = "unreviewed"

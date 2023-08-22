@@ -3,12 +3,14 @@ package database
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/queries"
+	build_queries "github.com/pixeleye-io/pixeleye/app/queries/build"
+	snapshot_queries "github.com/pixeleye-io/pixeleye/app/queries/snapshot"
 )
 
 // Queries struct for collect all app queries.
 type Queries struct {
-	*queries.BuildQueries
-	*queries.SnapshotQueries
+	*build_queries.BuildQueries
+	*snapshot_queries.SnapshotQueries
 	*queries.ProjectQueries
 	*queries.SnapImageQueries
 	*queries.DiffImageQueries
@@ -33,8 +35,8 @@ func OpenDBConnection() (*Queries, error) {
 
 	return &Queries{
 		// Set queries from models:
-		BuildQueries:     &queries.BuildQueries{DB: db},
-		SnapshotQueries:  &queries.SnapshotQueries{DB: db},
+		BuildQueries:     &build_queries.BuildQueries{DB: db},
+		SnapshotQueries:  &snapshot_queries.SnapshotQueries{DB: db},
 		ProjectQueries:   &queries.ProjectQueries{DB: db},
 		SnapImageQueries: &queries.SnapImageQueries{DB: db},
 		DiffImageQueries: &queries.DiffImageQueries{DB: db},

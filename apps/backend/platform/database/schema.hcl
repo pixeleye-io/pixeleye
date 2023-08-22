@@ -452,7 +452,7 @@ table "diff_image" {
 
 enum "snapshot_status" {
   schema = schema.public
-  values = ["queued", "processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
+  values = ["queued", "processing", "failed", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
 }
 
 table "snapshot" {

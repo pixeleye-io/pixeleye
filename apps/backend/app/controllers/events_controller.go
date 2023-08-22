@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/events"
+	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
@@ -93,7 +94,7 @@ func SubscribeToBuild(c echo.Context) error {
 	c.Response().Flush()
 
 	quit := make(chan bool)
-	go func(quit chan bool) {
+	go func(quit chan bool, build *models.Build, res *echo.Response) {
 		err = broker.SubscribeToQueue(connection, build.ProjectID, brokerTypes.ProjectUpdate, func(msg []byte) error {
 
 			log.Debug().Msgf("Received message from project events:%s", msg)
@@ -109,10 +110,10 @@ func SubscribeToBuild(c echo.Context) error {
 			if event.Type == events.ProjectEvent_BuildStatus {
 				if event.Data.(map[string]interface{})["buildID"] == build.ID {
 					log.Debug().Msgf("Sending message to build events subscribers:%s", msg)
-					if _, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", msg); err != nil {
+					if _, err := fmt.Fprintf(res.Writer, "data: %s\n\n", msg); err != nil {
 						return err
 					}
-					c.Response().Flush()
+					res.Flush()
 				}
 			}
 
@@ -122,7 +123,7 @@ func SubscribeToBuild(c echo.Context) error {
 		if err != nil {
 			log.Error().Err(err)
 		}
-	}(quit)
+	}(quit, build, c.Response())
 
 	<-c.Request().Context().Done()
 
