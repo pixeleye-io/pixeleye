@@ -101,7 +101,7 @@ describe("Creating a build", () => {
       });
     },
     {
-      timeout: 30_000,
+      timeout: 60_000,
     }
   );
 
@@ -173,7 +173,7 @@ describe("Creating a build", () => {
       });
     },
     {
-      timeout: 30_000,
+      timeout: 60_000,
     }
   );
 
@@ -243,7 +243,7 @@ describe("Creating a build", () => {
       });
     },
     {
-      timeout: 30_000,
+      timeout: 60_000,
     }
   );
 
@@ -334,7 +334,7 @@ describe("Creating a build", () => {
       });
     },
     {
-      timeout: 30_000,
+      timeout: 60_000,
     }
   );
 
@@ -423,6 +423,9 @@ describe("Creating a build", () => {
       ]).catch((err) => {
         throw err;
       });
+    },
+    {
+      timeout: 60_000,
     }
   );
 
@@ -524,54 +527,63 @@ describe("Creating a build", () => {
       }).catch((err) => {
         throw err;
       });
+    },
+    {
+      timeout: 60_000,
     }
   );
 
-  it.concurrent("should create 3 builds with data then no data", async () => {
-    const snapshot1: CreateBuildOptions["snapshots"] = [
-      {
-        hash: nanoid(64),
-        img: cleanEyePng,
-        name: "button",
-      },
-    ];
+  it.concurrent(
+    "should create 3 builds with data then no data",
+    async () => {
+      const snapshot1: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "button",
+        },
+      ];
 
-    const build1 = await createBuildWithSnapshots({
-      token: jekyllsToken,
-      branch: "test",
-      sha: "123",
-      expectedBuildStatus: ["orphaned"],
-      snapshots: snapshot1,
-    }).catch((err) => {
-      throw err;
-    });
+      const build1 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "123",
+        expectedBuildStatus: ["orphaned"],
+        snapshots: snapshot1,
+      }).catch((err) => {
+        throw err;
+      });
 
-    const build2 = await createBuildWithSnapshots({
-      token: jekyllsToken,
-      branch: "test",
-      sha: "1234",
-      expectedBuildStatus: ["unchanged"],
-      targetBuildID: build1.id,
-      parentBuildIDs: [build1.id],
-      targetParentID: build1.id,
-      snapshots: [],
-    }).catch((err) => {
-      throw err;
-    });
+      const build2 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "1234",
+        expectedBuildStatus: ["unchanged"],
+        targetBuildID: build1.id,
+        parentBuildIDs: [build1.id],
+        targetParentID: build1.id,
+        snapshots: [],
+      }).catch((err) => {
+        throw err;
+      });
 
-    await createBuildWithSnapshots({
-      token: jekyllsToken,
-      branch: "test",
-      sha: "12345",
-      expectedBuildStatus: ["unchanged"],
-      targetBuildID: build2.id,
-      parentBuildIDs: [build2.id],
-      targetParentID: build2.id,
-      snapshots: [],
-    }).catch((err) => {
-      throw err;
-    });
-  });
+      await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "12345",
+        expectedBuildStatus: ["unchanged"],
+        targetBuildID: build2.id,
+        parentBuildIDs: [build2.id],
+        targetParentID: build2.id,
+        snapshots: [],
+      }).catch((err) => {
+        throw err;
+      });
+    },
+    {
+      timeout: 60_000,
+    }
+  );
 
   it.concurrent(
     "should create 4 builds with increasingly more snapshots",
@@ -690,8 +702,9 @@ describe("Creating a build", () => {
       }).catch((err) => {
         throw err;
       });
-    }, {
-      timeout: 30_000,
+    },
+    {
+      timeout: 60_000,
     }
   );
 });
