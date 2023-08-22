@@ -52,17 +52,6 @@ func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([
 	return projects, nil
 }
 
-// TODO - not sure we need this query and some others in this file
-func (q *ProjectQueries) GetUsersProjects(userID string) ([]models.Project, error) {
-	query := `SELECT project.* FROM project JOIN project_users ON project.id = project_users.project_id WHERE project_users.user_id = $1`
-
-	projects := []models.Project{}
-
-	err := q.Select(&projects, query, userID)
-
-	return projects, err
-}
-
 // There is no access control on this query, so becareful where you use it
 func (q *ProjectQueries) GetProject(id string) (models.Project, error) {
 	project := models.Project{}

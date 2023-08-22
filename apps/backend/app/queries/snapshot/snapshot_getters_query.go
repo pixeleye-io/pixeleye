@@ -28,43 +28,53 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 
 	query := `WITH RECURSIVE find_approved_snapshot AS (
 		-- Anchor query: Get the initial snapshot with the given snapshot_id
-		SELECT
-		  s.id,
-		  s.name,
-		  s.variant,
-		  s.target,
-		  s.viewport,
-		  s.status,
-		  0 AS depth
-		FROM snapshot s
-		WHERE s.id = $1
-	  
-		UNION ALL
-	  
-		-- Recursive query: Join with build_history to get the next snapshot in the build history
-		SELECT
-		  s.id,
-		  s.name,
-		  s.variant,
-		  s.target,
-		  s.viewport,
-		  s.status,
-		  f.depth + 1
-		FROM find_approved_snapshot f
-		INNER JOIN build_history bh ON f.id = bh.parent_id
-		INNER JOIN snapshot s ON bh.child_id = s.id
-		WHERE (s.status = 'approved' OR s.status = 'orphaned') -- Considering only approved snapshots in the build history
-		  AND s.name = f.name -- Matching name with the starting snapshot
-		  AND s.variant = f.variant -- Matching variant with the starting snapshot
-		  AND s.target = f.target -- Matching target with the starting snapshot
-		  AND s.viewport = f.viewport -- Matching viewport with the starting snapshot
-	  )
-	  -- Final query: Select the first approved snapshot with matching name, variant, and target
-	  SELECT *
-	  FROM find_approved_snapshot
-	  WHERE status = 'approved'
-	  ORDER BY depth ASC
-	  LIMIT 1;
+		SELECT 
+		  snap.id, 
+		  snap.build_id, 
+		  snap.name, 
+		  snap.variant, 
+		  snap.target, 
+		  snap.viewport, 
+		  snap.status, 
+		  snap.snap_image_id,
+		  0 AS depth 
+		FROM 
+		  snapshot snap 
+		WHERE 
+		  snap.id = $1
+		UNION ALL 
+		  -- Recursive query: Join with build_history to get the next snapshot in the build history
+		SELECT 
+		  s.id, 
+		  s.build_id, 
+		  s.name, 
+		  s.variant, 
+		  s.target, 
+		  s.viewport, 
+		  s.status, 
+		  s.snap_image_id,
+		  f.depth + 1 
+		FROM 
+		  snapshot s 
+		  INNER JOIN build_history bh ON bh.parent_id = s.build_id 
+		  INNER JOIN find_approved_snapshot f ON f.build_id = bh.child_id 
+		WHERE 
+		  s.name = f.name 
+		  AND s.variant = f.variant 
+		  AND s.viewport = f.viewport 
+		  AND s.target = f.target
+	  ) -- Final query: Select the first approved snapshot with matching name, variant, and target
+	  SELECT 
+		* 
+	  FROM 
+		find_approved_snapshot 
+	  WHERE 
+		status = 'approved' 
+		or status = 'orphaned' 
+	  ORDER BY 
+		depth ASC 
+	  LIMIT 
+		1
 	  `
 
 	err := q.Get(&snapshot, query, id)

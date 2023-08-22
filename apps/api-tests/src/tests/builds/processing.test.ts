@@ -8,6 +8,8 @@ import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { sleep } from "pactum";
 
+// TODO - I should add checks to ensure each snapshot has the correct status, not just the build
+
 const projectData: ProjectBody = {
   name: "Some project for testing",
   url: "https://pixeleye.sh",
@@ -112,6 +114,12 @@ describe("Creating a build", () => {
           img: cleanEyePng,
           name: "button",
         },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "button",
+          variant: "hover",
+        },
       ];
 
       const snapshot2: CreateBuildOptions["snapshots"] = [
@@ -119,6 +127,12 @@ describe("Creating a build", () => {
           hash: nanoid(64),
           img: dirtyEyePng,
           name: "button",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "buton",
+          variant: "hover",
         },
       ];
 
@@ -172,6 +186,11 @@ describe("Creating a build", () => {
           img: cleanEyePng,
           name: "button",
         },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+        },
       ];
 
       const snapshot2: CreateBuildOptions["snapshots"] = [
@@ -179,6 +198,11 @@ describe("Creating a build", () => {
           hash: nanoid(64),
           img: dirtyEyePng,
           name: "button",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
         },
       ];
 
@@ -210,7 +234,7 @@ describe("Creating a build", () => {
         branch: "test",
         sha: "12345",
         expectedBuildStatus: ["unchanged"],
-        targetBuildID: build1.id,
+        targetBuildID: build2.id,
         parentBuildIDs: [build2.id],
         targetParentID: build2.id,
         snapshots: snapshot1,
@@ -310,6 +334,363 @@ describe("Creating a build", () => {
       });
     },
     {
+      timeout: 30_000,
+    }
+  );
+
+  it.concurrent(
+    "should create 3 builds which are all queued up asap and then back to the original",
+    async () => {
+      const snapshot1: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "button",
+        },
+      ];
+
+      const snapshot2: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: dirtyEyePng,
+          name: "button",
+        },
+      ];
+
+      let rawBuild1: Build | undefined;
+      await buildTokenAPI
+        .createBuild(jekyllsToken, {
+          branch: "dev asap",
+          sha: "123",
+        })
+        .returns(({ res }: any) => {
+          rawBuild1 = res.json;
+        });
+
+      let rawBuild2: Build | undefined;
+      await buildTokenAPI
+        .createBuild(jekyllsToken, {
+          branch: "dev",
+          sha: "1234",
+          targetBuildID: rawBuild1!.id,
+          parentBuildIDs: [rawBuild1!.id],
+          targetParentID: rawBuild1!.id,
+        })
+        .returns(({ res }: any) => {
+          rawBuild2 = res.json;
+        });
+
+      await Promise.all([
+        createBuildWithSnapshots({
+          build: rawBuild2,
+          token: jekyllsToken,
+          branch: "dev asap",
+          sha: "1234",
+          expectedBuildStatus: ["queued-processing", "unreviewed"],
+          targetBuildID: rawBuild1!.id,
+          parentBuildIDs: [rawBuild1!.id],
+          targetParentID: rawBuild1!.id,
+          snapshots: snapshot2,
+        }).catch((err) => {
+          throw err;
+        }),
+        createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "dev asap",
+          sha: "12345",
+          expectedBuildStatus: ["queued-processing", "unchanged"],
+          targetBuildID: rawBuild2!.id,
+          parentBuildIDs: [rawBuild2!.id],
+          targetParentID: rawBuild2!.id,
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        }),
+        (async () => {
+          // We want to make sure the build above finsihes uploading
+          await sleep(5000);
+          await createBuildWithSnapshots({
+            build: rawBuild1,
+            token: jekyllsToken,
+            branch: "dev asap",
+            sha: "123",
+            expectedBuildStatus: ["orphaned"],
+            snapshots: snapshot1,
+          }).catch((err) => {
+            throw err;
+          });
+        })(),
+      ]).catch((err) => {
+        throw err;
+      });
+    }
+  );
+
+  it.concurrent(
+    "creates 3 builds each with decreasing number of snapshots",
+    async () => {
+      const snapshot1: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "button",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+          target: "chrome",
+        },
+      ];
+
+      const snapshot2: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: dirtyEyePng,
+          name: "button",
+        },
+        {
+          hash: snapshot1[1].hash,
+          img: cleanEyePng,
+          name: "input",
+        },
+        {
+          hash: snapshot1[3].hash,
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+          target: "chrome",
+        },
+      ];
+
+      const snapshot3: CreateBuildOptions["snapshots"] = [
+        {
+          hash: snapshot1[0].hash,
+          img: cleanEyePng,
+          name: "button",
+        },
+        {
+          hash: snapshot1[2].hash,
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+        },
+      ];
+
+      const build1 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "123",
+        expectedBuildStatus: ["orphaned"],
+        snapshots: snapshot1,
+      }).catch((err) => {
+        throw err;
+      });
+
+      const build2 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "1234",
+        expectedBuildStatus: ["unreviewed"],
+        targetBuildID: build1.id,
+        parentBuildIDs: [build1.id],
+        targetParentID: build1.id,
+        snapshots: snapshot2,
+      }).catch((err) => {
+        throw err;
+      });
+
+      await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "12345",
+        expectedBuildStatus: ["unchanged"],
+        targetBuildID: build2.id,
+        parentBuildIDs: [build2.id],
+        targetParentID: build2.id,
+        snapshots: snapshot3,
+      }).catch((err) => {
+        throw err;
+      });
+    }
+  );
+
+  it.concurrent("should create 3 builds with data then no data", async () => {
+    const snapshot1: CreateBuildOptions["snapshots"] = [
+      {
+        hash: nanoid(64),
+        img: cleanEyePng,
+        name: "button",
+      },
+    ];
+
+    const build1 = await createBuildWithSnapshots({
+      token: jekyllsToken,
+      branch: "test",
+      sha: "123",
+      expectedBuildStatus: ["orphaned"],
+      snapshots: snapshot1,
+    }).catch((err) => {
+      throw err;
+    });
+
+    const build2 = await createBuildWithSnapshots({
+      token: jekyllsToken,
+      branch: "test",
+      sha: "1234",
+      expectedBuildStatus: ["unchanged"],
+      targetBuildID: build1.id,
+      parentBuildIDs: [build1.id],
+      targetParentID: build1.id,
+      snapshots: [],
+    }).catch((err) => {
+      throw err;
+    });
+
+    await createBuildWithSnapshots({
+      token: jekyllsToken,
+      branch: "test",
+      sha: "12345",
+      expectedBuildStatus: ["unchanged"],
+      targetBuildID: build2.id,
+      parentBuildIDs: [build2.id],
+      targetParentID: build2.id,
+      snapshots: [],
+    }).catch((err) => {
+      throw err;
+    });
+  });
+
+  it.concurrent(
+    "should create 4 builds with increasingly more snapshots",
+    async () => {
+      const snapshot1: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "button",
+        },
+      ];
+
+      const snapshot2: CreateBuildOptions["snapshots"] = [
+        {
+          hash: snapshot1[0].hash,
+          img: cleanEyePng,
+          name: "button",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+        },
+      ];
+
+      const snapshot3: CreateBuildOptions["snapshots"] = [
+        {
+          hash: snapshot2[0].hash,
+          img: cleanEyePng,
+          name: "button",
+        },
+        {
+          hash: snapshot2[1].hash,
+          img: cleanEyePng,
+          name: "input",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+        },
+      ];
+
+      const snapshot4: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(64),
+          img: dirtyEyePng,
+          name: "button",
+        },
+        {
+          hash: snapshot3[1].hash,
+          img: cleanEyePng,
+          name: "input",
+        },
+        {
+          hash: snapshot3[2].hash,
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+        },
+        {
+          hash: nanoid(64),
+          img: cleanEyePng,
+          name: "input",
+          variant: "hover",
+          target: "chrome",
+        },
+      ];
+
+      const build1 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "123",
+        expectedBuildStatus: ["orphaned"],
+        snapshots: snapshot1,
+      }).catch((err) => {
+        throw err;
+      });
+
+      const build2 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "1234",
+        expectedBuildStatus: ["unchanged"],
+        targetBuildID: build1.id,
+        parentBuildIDs: [build1.id],
+        targetParentID: build1.id,
+        snapshots: snapshot2,
+      }).catch((err) => {
+        throw err;
+      });
+
+      const build3 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "12345",
+        expectedBuildStatus: ["unchanged"],
+        targetBuildID: build2.id,
+        parentBuildIDs: [build2.id],
+        targetParentID: build2.id,
+        snapshots: snapshot3,
+      }).catch((err) => {
+        throw err;
+      });
+
+      await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "test",
+        sha: "123456",
+        expectedBuildStatus: ["unreviewed"],
+        targetBuildID: build3.id,
+        parentBuildIDs: [build3.id],
+        targetParentID: build3.id,
+        snapshots: snapshot4,
+      }).catch((err) => {
+        throw err;
+      });
+    }, {
       timeout: 30_000,
     }
   );

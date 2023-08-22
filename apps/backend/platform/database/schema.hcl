@@ -320,11 +320,6 @@ table "build" {
     null = true
   }
 
-  column "deleted_snapshot_ids" {
-    type = sql("text[]")
-    null = true
-  }
-
   index "idx_build-build_number__project_id" {
     columns = [column.project_id, column.build_number]
     unique  = true

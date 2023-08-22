@@ -17,7 +17,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
-	build_queries "github.com/pixeleye-io/pixeleye/app/queries/build"
 	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
@@ -32,14 +31,18 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 
 	lastApprovedSnapshot, err := db.GetLastApprovedInHistory(snapshot.ID)
 
-	if err != sql.ErrNoRows {
-		if err != nil {
-			return err
-		}
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
 
-		if lastApprovedSnapshot.SnapID == baselineSnapshot.SnapID {
-			log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is the same as the baseline, approving")
-			snapshot.Status = models.SNAPSHOT_STATUS_APPROVED
+	log.Debug().Str("SnapshotID", snapshot.ID).Interface("LastApprovedSnapshot", lastApprovedSnapshot).Msg("Last approved snapshot")
+
+	if err != sql.ErrNoRows {
+		if lastApprovedSnapshot.SnapID == snapshot.SnapID {
+
+			log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is the same as the last approved snapshot, approving")
+			snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
+			snapshot.BaselineID = &lastApprovedSnapshot.ID
 
 			return db.UpdateSnapshot(snapshot)
 		}
@@ -181,11 +184,10 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 	return db.UpdateSnapshot(snapshot)
 }
 
-// group the snapshots into new, removed, changed and unchanged
+// group the snapshots into new, changed and unchanged
 // We also pair the snapshots with their baselines if they exist
-func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (newSnapshots []string, removedSnapshots []string, unchangedSnapshots [][2]models.Snapshot, unreviewedSnapshots [][2]models.Snapshot, changedSnapshots [][2]models.Snapshot) {
+func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (newSnapshots []string, unchangedSnapshots [][2]models.Snapshot, unreviewedSnapshots [][2]models.Snapshot, changedSnapshots [][2]models.Snapshot) {
 	newSnapshots = []string{}
-	removedSnapshots = []string{}
 	unchangedSnapshots = [][2]models.Snapshot{}
 	changedSnapshots = [][2]models.Snapshot{}
 	unreviewedSnapshots = [][2]models.Snapshot{}
@@ -216,34 +218,19 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 
 	}
 
-	// Now we need to find the snapshots that have been removed
-	for _, baseline := range baselines {
-		found := false
-		for _, snapshot := range snapshots {
-			if models.CompareSnaps(snapshot, baseline) {
-				found = true
-			}
-		}
-
-		if !found {
-			removedSnapshots = append(removedSnapshots, baseline.ID)
-		}
-	}
-
 	log.Debug().
 		Str("New", strings.Join(newSnapshots, ", ")).
-		Str("Removed", strings.Join(removedSnapshots, ", ")).
 		Str("Unchanged", fmt.Sprintf("%v", unchangedSnapshots)).
 		Str("Unreviewed", fmt.Sprintf("%v", unreviewedSnapshots)).
 		Str("Changed", fmt.Sprintf("%v", changedSnapshots)).
 		Msg("Grouped snapshots")
 
-	return newSnapshots, removedSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots
+	return newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots
 }
 
 func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
 
-	newSnapshots, removedSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots := groupSnapshots(snapshots, baselines)
+	newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots := groupSnapshots(snapshots, baselines)
 
 	if len(newSnapshots) > 0 {
 		// We can go ahead and mark the new snapshots as orphaned
@@ -252,41 +239,6 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 			log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
 			// We don't want to return this error because we still want to process the remaining snapshots
 		}
-	}
-
-	if len(removedSnapshots) > 0 {
-
-		ctx := context.TODO()
-
-		tx, err := build_queries.NewBuildTx(db.BuildQueries.DB, ctx)
-
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to create build tx")
-		} else {
-
-			defer tx.Rollback()
-
-			latestBuild, err := tx.GetBuildForUpdate(ctx, build.ID)
-
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to get build for update")
-			} else {
-
-				// We can go ahead and mark the removed snapshots as removed
-				build.DeletedSnapshotIDs = append(latestBuild.DeletedSnapshotIDs, removedSnapshots...)
-
-				if err := tx.UpdateBuild(ctx, &latestBuild); err != nil {
-					log.Error().Err(err).Str("Snapshots", strings.Join(removedSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to update build with removed snapshots")
-					// We don't want to return this error because we still want to process the remaining snapshots
-				}
-
-				if err := tx.Commit(); err != nil {
-					log.Error().Err(err).Msg("Failed to commit build tx")
-				}
-
-			}
-		}
-
 	}
 
 	for _, snap := range unchangedSnapshots {
