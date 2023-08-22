@@ -11,6 +11,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/rs/zerolog/log"
 )
 
 // Create Build method for creating a new build.
@@ -68,13 +69,6 @@ func CreateBuild(c echo.Context) error {
 	}
 
 	if err := db.CreateBuild(&build); err != nil {
-		return err
-	}
-
-	// We have triggers in postgres so we need to refetch the build
-	build, err = db.GetBuild(build.ID)
-
-	if err != nil {
 		return err
 	}
 
@@ -210,6 +204,14 @@ func UploadPartial(c echo.Context) error {
 
 	if err != nil {
 		return err
+	}
+
+	log.Debug().Msgf("Queuing %v snapshots for processing", snapshots)
+
+	if len(snapshots) == 0 {
+		return echo.NewHTTPError(http.StatusOK, "no snapshots to process")
+	} else if snapshots[0].Status == models.SNAPSHOT_STATUS_QUEUED {
+		return echo.NewHTTPError(http.StatusOK, "snapshots will begin processing once dependencies have been processed")
 	}
 
 	channel, err := broker.GetBroker()

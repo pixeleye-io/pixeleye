@@ -50,14 +50,14 @@ type BuildHistory struct {
 	ChildID  string `db:"child_id" json:"childID" validate:"required,nanoid"`
 }
 
-func IsBuildPreProcessing(build Build) bool {
-	return build.Status == BUILD_STATUS_UPLOADING || build.Status == BUILD_STATUS_QUEUED_UPLOADING
+func IsBuildPreProcessing(status string) bool {
+	return status == BUILD_STATUS_UPLOADING || status == BUILD_STATUS_QUEUED_UPLOADING
 }
 
-func IsBuildProcessing(build Build) bool {
-	return build.Status == BUILD_STATUS_PROCESSING || build.Status == BUILD_STATUS_QUEUED_PROCESSING || build.Status == BUILD_STATUS_ABORTED
+func IsBuildProcessing(status string) bool {
+	return status == BUILD_STATUS_PROCESSING || status == BUILD_STATUS_QUEUED_PROCESSING || status == BUILD_STATUS_ABORTED
 }
 
-func IsBuildComplete(build Build) bool {
-	return !IsBuildPreProcessing(build) && !IsBuildProcessing(build)
+func IsBuildComplete(status string) bool {
+	return !IsBuildPreProcessing(status) && !IsBuildProcessing(status)
 }

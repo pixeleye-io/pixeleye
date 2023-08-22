@@ -16,6 +16,7 @@ type IngestQueue struct {
 const batchSize = 15
 
 func (q *IngestQueue) QueueSnapshotsIngest(snapshots []models.Snapshot) error {
+	log.Debug().Msgf("Queueing %d snapshots for ingest", len(snapshots))
 
 	var err error
 

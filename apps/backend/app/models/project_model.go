@@ -20,10 +20,12 @@ type Project struct {
 
 	TeamID string `db:"team_id" json:"teamID" validate:"required"`
 
-	Name           string     `db:"name" json:"name" validate:"required"`
-	URL            string     `db:"url" json:"url,omitempty" validate:"omitempty,url"`
-	Source         GitSource  `json:"source" db:"source" validate:"required,oneof=github gitlab bitbucket custom"`
-	SourceID       string     `json:"sourceID,omitempty" db:"source_id"`
+	Name       string    `db:"name" json:"name" validate:"required"`
+	URL        string    `db:"url" json:"url,omitempty" validate:"omitempty,url"`
+	Source     GitSource `json:"source" db:"source" validate:"required,oneof=github gitlab bitbucket custom"`
+	SourceID   string    `json:"sourceID,omitempty" db:"source_id"`
+	BuildCount int       `db:"build_count" json:"buildCount"`
+
 	Token          string     `db:"token" json:"-"`
 	RawToken       string     `json:"token,omitempty" db:"-"` // This is used for sending the token to the client. It should only be populated when a project is first created
 	LatestActivity *time.Time `db:"-" json:"lastActivity"`

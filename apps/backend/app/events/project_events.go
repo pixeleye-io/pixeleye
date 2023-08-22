@@ -21,6 +21,7 @@ type BuildStatusBody struct {
 }
 
 func (b *ProjectEvent) BuildStatusChange(build models.Build) {
+	log.Debug().Msgf("Build status changed to %v", build)
 	event := EventPayload{
 		Type: ProjectEvent_BuildStatus,
 		Data: BuildStatusBody{

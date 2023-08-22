@@ -11,12 +11,12 @@ type DiffImageQueries struct {
 	*sqlx.DB
 }
 
-func (q *DiffImageQueries) GetDiffImage(hash string) (models.DiffImage, error) {
+func (q *DiffImageQueries) GetDiffImage(hash string, projectID string) (models.DiffImage, error) {
 	diffImage := models.DiffImage{}
 
-	query := `SELECT * FROM diff_image WHERE hash = $1`
+	query := `SELECT * FROM diff_image WHERE hash = $1 AND project_id = $2`
 
-	err := q.Get(&diffImage, query, hash)
+	err := q.Get(&diffImage, query, hash, projectID)
 
 	return diffImage, err
 }

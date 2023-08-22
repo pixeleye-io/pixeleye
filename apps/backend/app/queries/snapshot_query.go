@@ -163,7 +163,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
-	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id)`
+	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id, status) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id, :status)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
 	if len(snapshots) == 0 {
@@ -183,12 +183,12 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 	build := models.Build{}
 
-	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil || build.ID == "" {
+	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil {
 		return nil, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
 	}
 
-	if !models.IsBuildPreProcessing(build) {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has completed. You cannot continue to add snapshots to it", buildId)
+	if !models.IsBuildPreProcessing(build.Status) {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has already been marked as completed. You cannot continue to add snapshots to it", buildId)
 	}
 
 	existingSnapshots := []models.Snapshot{}
@@ -242,18 +242,19 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 		if !isDup {
 			snap.ID, err = nanoid.New()
+			if err != nil {
+				return nil, err
+			}
 			time := utils.CurrentTime()
 			snap.CreatedAt = time
 			snap.UpdatedAt = time
+			// We can't start asynchronously processing the build until our dependant builds are done
 			if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
 				snap.Status = models.SNAPSHOT_STATUS_QUEUED
 			} else {
 				snap.Status = models.SNAPSHOT_STATUS_PROCESSING
 			}
 
-			if err != nil {
-				return nil, err
-			}
 			snap.BuildID = build.ID
 			newSnapshots = append(newSnapshots, snap)
 		}
@@ -280,13 +281,15 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 			return nil, err
 		}
 
-		go func(build models.Build) {
-			bq := BuildQueries{q.DB}
+		if models.IsBuildComplete(build.Status) {
+			go func(build models.Build) {
+				bq := BuildQueries{q.DB}
 
-			if err := bq.CheckAndProcessQueuedBuilds(build.ID); err != nil {
-				log.Error().Err(err).Msg("error processing queued builds")
-			}
-		}(build)
+				if err := bq.CheckAndProcessQueuedBuilds(build.ID); err != nil {
+					log.Error().Err(err).Msg("error processing queued builds")
+				}
+			}(build)
+		}
 
 		go func(build models.Build) {
 			notifier, err := events.GetNotifier(nil)

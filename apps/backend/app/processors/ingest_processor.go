@@ -113,6 +113,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 	if diffImage.Equal {
 		log.Info().Str("SnapshotID", snapshot.ID).Msg("Diff image is equal to baseline after comparing pixels, setting to unchanged")
 		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
+		snapshot.BaselineID = nil
 		return db.UpdateSnapshot(snapshot)
 	}
 
@@ -152,7 +153,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 		}
 	}
 
-	diffImg, err := db.GetDiffImage(hash)
+	diffImg, err := db.GetDiffImage(hash, snapImg.ProjectID)
 
 	if err != nil && err != sql.ErrNoRows {
 		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to get diff image from DB")
@@ -160,7 +161,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 	}
 
 	if err == sql.ErrNoRows {
-		diffImg := models.DiffImage{
+		diffImg = models.DiffImage{
 			Hash:      hash,
 			ProjectID: snapImg.ProjectID,
 			Width:     diffImage.Image.Bounds().Dx(),
@@ -200,11 +201,12 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 					if baseline.Status == models.SNAPSHOT_STATUS_UNCHANGED || baseline.Status == models.SNAPSHOT_STATUS_APPROVED || baseline.Status == models.SNAPSHOT_STATUS_ORPHANED {
 						unchangedSnapshots = append(unchangedSnapshots, [2]models.Snapshot{snapshot, baseline})
 					} else {
-						unreviewedSnapshots = append(unchangedSnapshots, [2]models.Snapshot{snapshot, baseline})
+						unreviewedSnapshots = append(unreviewedSnapshots, [2]models.Snapshot{snapshot, baseline})
 					}
 				} else {
 					changedSnapshots = append(changedSnapshots, [2]models.Snapshot{snapshot, baseline})
 				}
+				break
 			}
 		}
 
@@ -231,7 +233,7 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 	log.Debug().
 		Str("New", strings.Join(newSnapshots, ", ")).
 		Str("Removed", strings.Join(removedSnapshots, ", ")).
-		Str("Unchanged", fmt.Sprintf("%v", changedSnapshots)).
+		Str("Unchanged", fmt.Sprintf("%v", unchangedSnapshots)).
 		Str("Unreviewed", fmt.Sprintf("%v", unreviewedSnapshots)).
 		Str("Changed", fmt.Sprintf("%v", changedSnapshots)).
 		Msg("Grouped snapshots")
@@ -265,22 +267,24 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	}
 
 	for _, snap := range unchangedSnapshots {
-		snap[0].BaselineID = &snap[1].ID
-		snap[0].Status = models.SNAPSHOT_STATUS_UNCHANGED
+		snapshot := snap[0]
+		snapshot.BaselineID = &snap[1].ID
+		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
 
-		if err := db.UpdateSnapshot(snap[0]); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unchanged, SnapshotID %s", snap[0].ID)
+		if err := db.UpdateSnapshot(snapshot); err != nil {
+			log.Error().Err(err).Msgf("Failed to set snapshots status to unchanged, SnapshotID %s", snapshot.ID)
 			// We don't want to return this error because we still want to process the remaining snapshots
 		}
 	}
 
 	for _, snap := range unreviewedSnapshots {
-		snap[0].BaselineID = &snap[1].ID
-		snap[0].Status = models.SNAPSHOT_STATUS_UNREVIEWED
-		snap[0].DiffID = snap[1].DiffID
+		snapshot := snap[0]
+		snapshot.BaselineID = snap[1].BaselineID
+		snapshot.Status = models.SNAPSHOT_STATUS_UNREVIEWED
+		snapshot.DiffID = snap[1].DiffID
 
-		if err := db.UpdateSnapshot(snap[0]); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snap[0].ID)
+		if err := db.UpdateSnapshot(snapshot); err != nil {
+			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snapshot.ID)
 			// We don't want to return this error because we still want to process the remaining snapshots
 		}
 	}

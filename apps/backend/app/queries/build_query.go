@@ -5,16 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
-	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/app/stores"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
-	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,7 +20,7 @@ type BuildQueries struct {
 	*sqlx.DB
 }
 
-// TODO - Add returns to queries like user queries
+// TODO - Queued builds needs to be reworked when we add pull request support
 
 // This assumes that the user hasn't renamed their branches
 // You should always check that the builds commit sha is in the history of head
@@ -74,6 +72,16 @@ func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 	return build, err
 }
 
+func (q *BuildQueries) GetBuildForUpdate(tx *sqlx.Tx, ctx context.Context, id string) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
+
+	err := tx.GetContext(ctx, &build, query, id)
+
+	return build, err
+}
+
 type PairedSnapshot struct {
 	models.Snapshot
 	SnapHash *string `db:"snap_hash" json:"snapHash,omitempty"`
@@ -94,10 +102,12 @@ type PairedSnapshot struct {
 	DiffWidth  *int    `db:"diff_width" json:"diffWidth,omitempty"`
 }
 
+// Fetches all snapshots for a build and includes their comparisons
+// Primary use is for our reviewer ui
 func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSnapshot, error) {
 	pairs := []PairedSnapshot{}
 
-	s3, err := storage.GetClient()
+	imageStore, err := stores.GetImageStore(nil)
 
 	if err != nil {
 		return pairs, err
@@ -131,36 +141,32 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 		return pairs, err
 	}
 
-	bucketName := os.Getenv("S3_BUCKET")
 	for i := range pairs {
 		if pairs[i].SnapHash != nil {
 			hash := *pairs[i].SnapHash
-			path := fmt.Sprintf("snaps/%s/%s.png", build.ProjectID, hash)
-			snapURL, err := s3.GetObject(bucketName, path, 3600)
+			snapURL, err := imageStore.GetSnapURL(hash, build.ProjectID)
 			if err == nil {
 				pairs[i].SnapURL = &snapURL.URL
 			} else {
-				log.Error().Err(err).Msgf("Failed to get snapshot url for %s", path)
+				log.Error().Err(err).Msgf("Failed to get snapshot hash %s and projectID %s", hash, build.ProjectID)
 			}
 		}
 		if pairs[i].BaselineHash != nil {
 			hash := *pairs[i].BaselineHash
-			path := fmt.Sprintf("snaps/%s/%s.png", build.ProjectID, hash)
-			baselineURL, err := s3.GetObject(bucketName, path, 3600)
+			baselineURL, err := imageStore.GetSnapURL(hash, build.ProjectID)
 			if err == nil {
 				pairs[i].BaselineURL = &baselineURL.URL
 			} else {
-				log.Error().Err(err).Msgf("Failed to get baseline url for %s", path)
+				log.Error().Err(err).Msgf("Failed to get baseline hash %s and projectID %s", hash, build.ProjectID)
 			}
 		}
 		if pairs[i].DiffHash != nil {
 			hash := *pairs[i].DiffHash
-			path := fmt.Sprintf("diffs/%s/%s.png", build.ProjectID, hash)
-			diffURL, err := s3.GetObject(bucketName, path, 3600)
+			diffURL, err := imageStore.GetDiffURL(hash, build.ProjectID)
 			if err == nil {
 				pairs[i].DiffURL = &diffURL.URL
 			} else {
-				log.Error().Err(err).Msgf("Failed to get diff url for %s", path)
+				log.Error().Err(err).Msgf("Failed to get diff hash %s and projectID %s", hash, build.ProjectID)
 			}
 		}
 	}
@@ -168,52 +174,14 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 	return pairs, nil
 }
 
-// TODO - make sure when approving a build that it is the latest build
-
+// Creates a new build and updates the build history table accordingly
 func (q *BuildQueries) CreateBuild(build *models.Build) error {
-
-	parent, err := q.GetBuild(build.TargetParentID)
-
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	if err != sql.ErrNoRows && !models.IsBuildComplete(parent) {
-		// We can't start processing this build until the parent build has finished processing
-		build.Status = models.BUILD_STATUS_QUEUED_UPLOADING
-	}
-
-	if err := q.CreateBuildRecursive(build, 0); err != nil {
-		return err
-	}
-
-	go func(build models.Build) {
-		notifier, err := events.GetNotifier(nil)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get notifier")
-			return
-		}
-		notifier.BuildStatusChange(build)
-	}(*build)
-
-	return nil
-}
-
-// This can fail if the build number already exists, so we need to retry; hence the recursion
-func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) error {
-	query := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id) RETURNING *`
-
+	selectProjectQuery := `SELECT * FROM project WHERE id = $1 FOR UPDATE`
+	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id, :build_number) RETURNING *`
 	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
+	updateBuildNumber := `UPDATE project SET build_count = $1 WHERE id = $2`
 
-	time := utils.CurrentTime()
-	build.CreatedAt = time
-	build.UpdatedAt = time
-
-	if err := utils.TrimStruct(&build); err != nil {
-		return err
-	}
-
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	tx, err := q.BeginTxx(ctx, nil)
 
@@ -224,33 +192,51 @@ func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) erro
 	// nolint:errcheck
 	defer tx.Rollback()
 
-	returnedBuild, err := tx.NamedQuery(query, build)
+	parent, err := q.GetBuildForUpdate(tx, ctx, build.TargetParentID)
 
-	if err != nil {
-		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
-			log.Error().Err(err).Msg("Failed to create build, build number already exists. Retrying...")
-			if level > 5 {
-				log.Error().Err(err).Msg("Failed to create build, build number already exists. Retried 5 times. Aborting...")
-				return err
-			}
-			return q.CreateBuildRecursive(build, level+1)
-		} else {
-			log.Error().Err(err).Msg("Failed to create build")
-			return err
-		}
-	}
-
-	if ok := returnedBuild.Next(); !ok {
-		log.Error().Msg("Failed to get returned build")
+	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
+	if err != sql.ErrNoRows && !models.IsBuildComplete(parent.Status) {
+		// We can't start processing this build until the parent build has finished processing
+		build.Status = models.BUILD_STATUS_QUEUED_UPLOADING
+	}
+
+	time := utils.CurrentTime()
+	build.CreatedAt = time
+	build.UpdatedAt = time
+
+	if err := utils.TrimStruct(&build); err != nil {
+		return err
+	}
+
+	project := models.Project{}
+	if err = tx.GetContext(ctx, &project, selectProjectQuery, build.ProjectID); err != nil {
+		return err
+	}
+
+	build.BuildNumber = project.BuildCount + 1
+
+	returnedBuild, err := tx.NamedQuery(insertBuildQuery, build)
+
+	if err != nil {
+		return err
+	}
+
+	if ok := returnedBuild.Next(); !ok {
+		return fmt.Errorf("failed to get returned build after creation")
+	}
+
 	if err := returnedBuild.StructScan(build); err != nil {
-		log.Err(err).Msg("Failed to scan returned build")
 		return err
 	}
 
 	returnedBuild.Close()
+
+	if _, err := tx.ExecContext(ctx, updateBuildNumber, build.BuildNumber, build.ProjectID); err != nil {
+		return err
+	}
 
 	buildHistoryEntries := []models.BuildHistory{}
 
@@ -265,7 +251,21 @@ func (q *BuildQueries) CreateBuildRecursive(build *models.Build, level int) erro
 		}
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	// We can notify all our subscribers that a new build has been created
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(*build)
+
+	return nil
 }
 
 func (q *BuildQueries) UpdateBuild(build *models.Build) error {
@@ -282,19 +282,22 @@ func (q *BuildQueries) UpdateBuild(build *models.Build) error {
 	return err
 }
 
-func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, error) {
-	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
+func (q *BuildQueries) tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string, complete bool) (string, error) {
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
 
-	build := models.Build{}
+	build, err := q.GetBuildForUpdate(tx, ctx, id)
 
-	if err := tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
+	if err != nil {
 		return "", err
 	}
 
-	if models.IsBuildPreProcessing(build) {
+	if models.IsBuildPreProcessing(build.Status) && !complete {
 		// Build isn't processing, so we don't need to do anything
 		return build.Status, nil
+	}
+
+	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
+		return models.BUILD_STATUS_QUEUED_PROCESSING, nil
 	}
 
 	if build.TargetBuildID == "" && build.TargetParentID == "" {
@@ -329,9 +332,10 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 			// This is the 'worst' status, so we can break out of the loop.
 			return models.BUILD_STATUS_FAILED, nil
 		}
-		if status == models.SNAPSHOT_STATUS_PROCESSING {
+		if status == models.SNAPSHOT_STATUS_PROCESSING || status == models.SNAPSHOT_STATUS_QUEUED {
+			// We can assume queued snapshots here are about to be processed
 			worstStatus = models.BUILD_STATUS_PROCESSING
-		} else if status == models.SNAPSHOT_STATUS_UNREVIEWED && build.Status != models.BUILD_STATUS_PROCESSING {
+		} else if status == models.SNAPSHOT_STATUS_UNREVIEWED && worstStatus != models.BUILD_STATUS_PROCESSING {
 			worstStatus = models.BUILD_STATUS_UNREVIEWED
 		}
 	}
@@ -341,12 +345,9 @@ func tryGetBuildStatus(tx *sqlx.Tx, ctx context.Context, id string) (string, err
 
 func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) error {
 
-	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
 
 	ctx := context.Background()
-
-	build := models.Build{}
 
 	tx, err := q.BeginTxx(ctx, nil)
 
@@ -357,22 +358,18 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) error {
 	// nolint:errcheck
 	defer tx.Rollback()
 
-	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
+	build, err := q.GetBuildForUpdate(tx, ctx, id)
+	if err != nil {
 		return err
 	}
 
-	if models.IsBuildPreProcessing(build) {
-		// Build is still uploading, so we don't need to do anything
-		return nil
-	}
-
-	status, err := tryGetBuildStatus(tx, ctx, id)
+	status, err := q.tryGetBuildStatus(tx, ctx, id, false)
 
 	if err != nil {
 		return err
 	}
 
-	if status == models.BUILD_STATUS_PROCESSING || status == models.BUILD_STATUS_QUEUED_PROCESSING {
+	if models.IsBuildProcessing(status) {
 		// Build is still processing, so we don't need to do anything
 		return nil
 	}
@@ -384,7 +381,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) error {
 		}
 	}(q, build)
 
-	if status == build.Status {
+	if status != build.Status {
 
 		build.Status = status
 		build.UpdatedAt = utils.CurrentTime()
@@ -409,7 +406,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(id string) error {
 		return nil
 	}
 
-	return tx.Commit()
+	return tx.Rollback()
 }
 
 func (q *BuildQueries) CheckAndProcessQueuedBuilds(build_id string) error {
@@ -432,11 +429,17 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(build_id string) error {
 		return err
 	}
 
-	for _, build := range builds {
+	snapshots := [][]models.Snapshot{}
 
-		if err := q.StartProcessingQueuedBuild(tx, ctx, build); err != nil {
+	for i, build := range builds {
+		snaps, err := q.StartProcessingQueuedBuild(tx, ctx, &build)
+		if err != nil {
 			log.Error().Err(err).Msgf("Failed to start processing queued build %s", build.ID)
 		}
+		builds[i] = build
+
+		snapshots = append(snapshots, snaps)
+
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -449,36 +452,38 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(build_id string) error {
 		return err
 	}
 
-	for _, build := range builds {
-		go func(b *broker.Queues, build models.Build) {
+	for i, build := range builds {
+		go func(b *broker.Queues, build models.Build, snaps []models.Snapshot) {
 			notifier, err := events.GetNotifier(b)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to get notifier")
 				return
 			}
 			notifier.BuildStatusChange(build)
-		}(b, build)
+
+			// We need to queue the snapshots to be ingested
+			if len(snapshots) > 0 {
+				if err := b.QueueSnapshotsIngest(snaps); err != nil {
+					log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
+				}
+			}
+		}(b, build, snapshots[i])
+
 	}
 
 	return nil
 }
 
 // TODO - We should attach errors to the build & snapshots
-func (q *BuildQueries) StartProcessingQueuedBuild(tx *sqlx.Tx, ctx context.Context, build models.Build) error {
+func (q *BuildQueries) StartProcessingQueuedBuild(tx *sqlx.Tx, ctx context.Context, build *models.Build) ([]models.Snapshot, error) {
 
 	selectSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1 AND status = $2 FOR UPDATE`
+	updateSnapshotsQuery := `UPDATE snapshot SET status = $1, updated_at = $2 WHERE id = $3`
 	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
 
-	if build.Status != models.BUILD_STATUS_QUEUED_PROCESSING {
+	if build.Status != models.BUILD_STATUS_QUEUED_PROCESSING && build.Status != models.BUILD_STATUS_QUEUED_UPLOADING {
 		// Build is not queued for processing, so we don't need to do anything
-		return nil
-	}
-
-	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
-		// Build is queued for uploading, so we can start processing already queued snapshots
-		build.Status = models.BUILD_STATUS_UPLOADING
-	} else {
-		build.Status = models.BUILD_STATUS_PROCESSING
+		return nil, nil
 	}
 
 	build.UpdatedAt = utils.CurrentTime()
@@ -486,57 +491,70 @@ func (q *BuildQueries) StartProcessingQueuedBuild(tx *sqlx.Tx, ctx context.Conte
 	snapshots := []models.Snapshot{}
 
 	if err := tx.SelectContext(ctx, &snapshots, selectSnapshotsQuery, build.ID, models.SNAPSHOT_STATUS_QUEUED); err != nil {
-		return err
+		return nil, err
+	}
+
+	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
+		// Build is queued for uploading, so we can start processing already queued snapshots
+		build.Status = models.BUILD_STATUS_UPLOADING
+	} else {
+		buildStatus, err := q.tryGetBuildStatus(tx, ctx, build.ID, false)
+
+		if err != nil {
+			return nil, err
+		}
+
+		build.Status = buildStatus
 	}
 
 	if _, err := tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
-		return err
+		return nil, err
 	}
 
-	// We need to queue the snapshots to be ingested
-	if len(snapshots) > 0 {
-		channel, err := broker.GetBroker()
-		if err != nil {
-			return err
+	for _, snapshot := range snapshots {
+		snapshot.Status = models.SNAPSHOT_STATUS_PROCESSING
+		snapshot.UpdatedAt = utils.CurrentTime()
+
+		if _, err := tx.ExecContext(ctx, updateSnapshotsQuery, snapshot.Status, snapshot.UpdatedAt, snapshot.ID); err != nil {
+			return nil, err
 		}
-		if err := channel.QueueSnapshotsIngest(snapshots); err != nil {
-			return err
-		}
+
 	}
 
-	return nil
+	log.Debug().Msgf("Starting processing for build %v", build)
+	log.Debug().Msgf("Starting processing for snapshots %v", snapshots)
+
+	return snapshots, nil
 }
 
 func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
-
-	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	updateBuildQuery := `UPDATE build SET status = $1, updated_at = $2 WHERE id = $3`
-
-	build := models.Build{}
 
 	ctx := context.Background()
 
 	tx, err := q.BeginTxx(ctx, nil)
 
 	if err != nil {
-		return build, err
+		return models.Build{}, err
 	}
 
 	// nolint:errcheck
 	defer tx.Rollback()
 
-	if err = tx.GetContext(ctx, &build, selectBuildQuery, id); err != nil {
-		return build, echo.NewHTTPError(http.StatusNotFound, "build with given ID not found")
+	build, err := q.GetBuildForUpdate(tx, ctx, id)
+
+	if err != nil {
+		return build, err
 	}
 
 	log.Debug().Msgf("Completing build %v", build)
 
-	if !models.IsBuildPreProcessing(build) {
+	if !models.IsBuildPreProcessing(build.Status) {
 		// Build has already been marked as complete
 		return build, echo.NewHTTPError(http.StatusBadRequest, "build has already been marked as complete")
 	}
 
-	status, err := tryGetBuildStatus(tx, ctx, id)
+	status, err := q.tryGetBuildStatus(tx, ctx, id, true)
 
 	if err != nil {
 		return build, err
@@ -545,9 +563,7 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 	if status != build.Status {
 		build.Status = status
 
-		build.UpdatedAt = utils.CurrentTime()
-
-		if _, err = tx.ExecContext(ctx, updateBuildQuery, build.Status, build.UpdatedAt, build.ID); err != nil {
+		if _, err = tx.ExecContext(ctx, updateBuildQuery, status, utils.CurrentTime(), build.ID); err != nil {
 			return build, err
 		}
 
@@ -564,11 +580,13 @@ func (q *BuildQueries) CompleteBuild(id string) (models.Build, error) {
 			notifier.BuildStatusChange(build)
 		}(build)
 
-		go func(build models.Build, q *BuildQueries) {
-			if err := q.CheckAndProcessQueuedBuilds(build.ID); err != nil {
-				log.Error().Err(err).Msgf("Failed to check and process queued builds for build %s", build.ID)
-			}
-		}(build, q)
+		if models.IsBuildComplete(build.Status) {
+			go func(build models.Build, q *BuildQueries) {
+				if err := q.CheckAndProcessQueuedBuilds(build.ID); err != nil {
+					log.Error().Err(err).Msgf("Failed to check and process queued builds for build %s", build.ID)
+				}
+			}(build, q)
+		}
 
 		return build, nil
 	}

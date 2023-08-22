@@ -2,16 +2,19 @@ import { Build, PartialSnapshot } from "@pixeleye/api";
 import { sleep } from "pactum";
 import { buildTokenAPI } from "../../routes/build";
 import { snapshotTokenAPI } from "../../routes/snapshots";
-import { fetch } from "undici";
+import { fetch, request } from "undici";
+import EventSource from "eventsource";
+import { env } from "../../env";
 
 export interface CreateBuildOptions {
+  build?: Build;
   token: string;
   branch: string;
   sha: string;
   targetParentID?: string;
   targetBuildID?: string;
   parentBuildIDs?: string[];
-  expectedBuildStatus?: Build["status"];
+  expectedBuildStatus: Build["status"][];
   snapshots: {
     hash: string;
     name: string;
@@ -21,7 +24,50 @@ export interface CreateBuildOptions {
   }[];
 }
 
+async function waitForBuildStatus(
+  token: string,
+  build: Build | undefined,
+  statuses: Build["status"][]
+) {
+  return new Promise<void>((resolve, reject) => {
+    const es = new EventSource(
+      `${env.SERVER_ENDPOINT}/v1/client/builds/${build?.id}/events`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      }
+    );
+    let nextStatus = statuses.shift();
+    es.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "build_status") {
+        const newStatus = data.data.status;
+
+        if (nextStatus === newStatus) {
+          if (statuses.length === 0) {
+            es.close();
+            resolve();
+          } else {
+            nextStatus = statuses.shift();
+          }
+        } else {
+          reject(
+            new Error(
+              `Build status was ${newStatus} but expected ${nextStatus}`
+            )
+          );
+        }
+      }
+    };
+
+    es.onerror = (err) => {
+      reject(err);
+    };
+  });
+}
+
 export async function createBuildWithSnapshots({
+  build,
   token,
   branch,
   sha,
@@ -31,87 +77,91 @@ export async function createBuildWithSnapshots({
   targetBuildID,
   snapshots,
 }: CreateBuildOptions) {
-  let build: Build | undefined;
-
-  await buildTokenAPI
-    .createBuild(token, {
-      branch,
-      sha,
-      targetParentID,
-      parentBuildIDs,
-      targetBuildID,
-    })
-    .returns(({ res }: any) => {
-      build = res.json;
-    });
-
-  await Promise.all(
-    snapshots.map(async ({ hash, img, name, target, variant }) => {
-      let snap: PartialSnapshot | undefined;
-
-      let presigned: any;
-
-      await snapshotTokenAPI
-        .uploadSnapshot(hash, 100, 100, token)
-        .returns(({ res }: any) => {
-          snap = {
-            snapID: res.json[hash].id,
-            name,
-            target,
-            variant,
-          };
-          presigned = res.json;
-        });
-
-      if (!presigned.URL) {
-        return presigned;
-      }
-
-      const blob = new Blob([img], { type: "image/png" });
-
-      await fetch(presigned.URL, {
-        method: presigned.Method,
-        headers: {
-          ...(presigned.SignedHeader
-            ? { Host: presigned.SignedHeader.Host.join(",") }
-            : {}),
-          contentType: "image/png",
-        },
-        body: blob,
+  if (build === undefined) {
+    await buildTokenAPI
+      .createBuild(token, {
+        branch,
+        sha,
+        targetParentID,
+        parentBuildIDs,
+        targetBuildID,
+      })
+      .returns(({ res }: any) => {
+        build = res.json;
       });
+  }
 
-      await buildTokenAPI.linkSnapshotsToBuild([snap!], build!.id, token);
-    })
+  const snaps = await Promise.all(
+    snapshots.map(
+      async ({
+        hash,
+        img,
+        name,
+        target,
+        variant,
+      }): Promise<PartialSnapshot> => {
+        let snap: PartialSnapshot | undefined;
+
+        let presigned: any;
+
+        await snapshotTokenAPI
+          .uploadSnapshot(hash, 100, 100, token)
+          .returns(({ res }: any) => {
+            snap = {
+              snapID: res.json[hash].id,
+              name,
+              target,
+              variant,
+            };
+            presigned = res.json[hash];
+          });
+
+        if (presigned.URL) {
+          const blob = new Blob([img], { type: "image/png" });
+
+          await fetch(presigned.URL, {
+            method: presigned.Method,
+            headers: {
+              ...(presigned.SignedHeader
+                ? { Host: presigned.SignedHeader.Host.join(",") }
+                : {}),
+              contentType: "image/png",
+            },
+            body: blob,
+          });
+        }
+
+        return snap!;
+      }
+    )
   );
 
-  await buildTokenAPI.completeBuild(build!.id, token);
+  console.log("HIII asdf");
 
-  // TODO - when we have websocket support, we can wait for the build to complete
-  let counter = 0;
-  while (counter < 5) {
-    let b: Build | undefined;
+  const buildPromise = waitForBuildStatus(
+    token,
+    build,
+    expectedBuildStatus
+  ).catch((err) => {
+    throw err;
+  });
 
-    await buildTokenAPI.getBuild(build!.id, token).returns(({ res }: any) => {
-      b = res.json;
-    });
+  await Promise.all(
+    snaps.map(
+      async (snap) =>
+        await buildTokenAPI.linkSnapshotsToBuild([snap!], build!.id, token)
+    )
+  );
 
-    if (!build === null) {
-      if (b?.status === expectedBuildStatus) {
-        break;
-      } else if (b?.status !== "processing") {
-        throw new Error(
-          `Build did not complete with correct status: ${b?.status}`
-        );
-      }
-    }
+  console.log("HIII 3221asdf");
 
-    await sleep(1000);
-    counter++;
-  }
 
-  if (counter === 10) {
-    throw new Error("Build did not complete");
-  }
+  buildTokenAPI.completeBuild(build!.id, token);
+
+  await buildPromise;
+
+  console.log("HIII 3221asd 2222222222f");
+
 
   return build!;
 }

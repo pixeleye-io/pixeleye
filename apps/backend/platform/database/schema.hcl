@@ -195,6 +195,13 @@ table "project" {
     type = varchar(255)
     null = false
   }
+
+  // we use this to track the number of builds for a project & it allows us to create a unique index on build_number since we can lock the row 
+  column "build_count" {
+    type    = integer
+    null    = false
+    default = 0
+  }
 }
 
 enum "project_member_role" {
