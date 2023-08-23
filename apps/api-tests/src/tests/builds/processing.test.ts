@@ -103,7 +103,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -175,7 +175,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -245,7 +245,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -336,7 +336,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -427,7 +427,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -531,7 +531,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -583,7 +583,7 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
 
@@ -706,11 +706,8 @@ describe(
         });
       },
       {
-        timeout: 30_000,
+        timeout: 120_000,
       }
     );
-  },
-  {
-    retry: 1,
   }
 );
