@@ -5,9 +5,9 @@ import (
 )
 
 const (
+	SNAPSHOT_STATUS_QUEUED     = "queued"
 	SNAPSHOT_STATUS_PROCESSING = "processing"
 	SNAPSHOT_STATUS_FAILED     = "failed"
-	SNAPSHOT_STATUS_ABORTED    = "aborted"
 	SNAPSHOT_STATUS_APPROVED   = "approved"
 	SNAPSHOT_STATUS_REJECTED   = "rejected"
 	SNAPSHOT_STATUS_UNREVIEWED = "unreviewed"
@@ -34,7 +34,7 @@ type Snapshot struct {
 
 	Depth int `db:"depth" json:"-"` // Used for sorting when calculating approval history
 
-	Status string `db:"status" json:"status" validate:"required,oneof=processing failed aborted approved rejected unreviewed unchanged orphaned"`
+	Status string `db:"status" json:"status" validate:"required,oneof=processing failed approved rejected unreviewed unchanged orphaned queued"`
 
 	ReviewerID *string    `db:"reviewer_id" json:"reviewerID,omitempty" validate:"omitempty,nanoid"`
 	ReviewedAt *time.Time `db:"reviewed_at" json:"reviewedAt,omitempty"`

@@ -195,6 +195,13 @@ table "project" {
     type = varchar(255)
     null = false
   }
+
+  // we use this to track the number of builds for a project & it allows us to create a unique index on build_number since we can lock the row 
+  column "build_count" {
+    type    = integer
+    null    = false
+    default = 0
+  }
 }
 
 enum "project_member_role" {
@@ -233,7 +240,7 @@ table "project_users" {
 
 enum "build_status" {
   schema = schema.public
-  values = ["uploading", "processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
+  values = ["uploading", "queued-uploading", "queued-processing", "processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
 }
 
 table "build" {
@@ -309,11 +316,6 @@ table "build" {
   }
 
   column "errors" {
-    type = sql("text[]")
-    null = true
-  }
-
-  column "deleted_snapshot_ids" {
     type = sql("text[]")
     null = true
   }
@@ -445,7 +447,7 @@ table "diff_image" {
 
 enum "snapshot_status" {
   schema = schema.public
-  values = ["processing", "failed", "aborted", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
+  values = ["queued", "processing", "failed", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
 }
 
 table "snapshot" {

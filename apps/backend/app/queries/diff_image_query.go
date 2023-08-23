@@ -11,18 +11,18 @@ type DiffImageQueries struct {
 	*sqlx.DB
 }
 
-func (q *DiffImageQueries) GetDiffImage(hash string) (models.DiffImage, error) {
+func (q *DiffImageQueries) GetDiffImage(hash string, projectID string) (models.DiffImage, error) {
 	diffImage := models.DiffImage{}
 
-	query := `SELECT * FROM diff_image WHERE hash = $1`
+	query := `SELECT * FROM diff_image WHERE hash = $1 AND project_id = $2`
 
-	err := q.Get(&diffImage, query, hash)
+	err := q.Get(&diffImage, query, hash, projectID)
 
 	return diffImage, err
 }
 
 func (q *DiffImageQueries) CreateDiffImage(diffImage *models.DiffImage) error {
-	query := `INSERT INTO diff_image (id, hash, project_id, created_at, width, height, format) VALUES (:id, :hash, :project_id, :created_at, :width, :height, :format)`
+	query := `INSERT INTO diff_image (id, hash, project_id, created_at, width, height, format) VALUES (:id, :hash, :project_id, :created_at, :width, :height, :format) ON CONFLICT DO NOTHING`
 
 	diffImage.CreatedAt = utils.CurrentTime()
 

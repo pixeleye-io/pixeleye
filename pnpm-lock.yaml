@@ -38,6 +38,9 @@ importers:
       '@pixeleye/js-sdk':
         specifier: workspace:*
         version: link:../../libs/js-sdk
+      eventsource:
+        specifier: ^2.0.2
+        version: 2.0.2
       nanoid:
         specifier: ^4.0.2
         version: 4.0.2
@@ -57,6 +60,9 @@ importers:
       '@t3-oss/env-core':
         specifier: ^0.6.1
         version: 0.6.1(typescript@5.1.6)(zod@3.22.2)
+      '@types/eventsource':
+        specifier: ^1.1.11
+        version: 1.1.11
       '@types/node':
         specifier: 20.5.1
         version: 20.5.1
@@ -3175,6 +3181,10 @@ packages:
       '@types/node': 20.5.1
     dev: false
 
+  /@types/eventsource@1.1.11:
+    resolution: {integrity: sha512-L7wLDZlWm5mROzv87W0ofIYeQP5K2UhoFnnUyEWLKM6UBb0ZNRgAqp98qE5DkgfBXdWfc2kYmw9KZm4NLjRbsw==}
+    dev: true
+
   /@types/js-yaml@4.0.5:
     resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
     dev: true
@@ -4821,6 +4831,11 @@ packages:
   /esutils@2.0.3:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
+
+  /eventsource@2.0.2:
+    resolution: {integrity: sha512-IzUmBGPR3+oUG9dUeXynyNmf91/3zUSJg1lCktzKw47OXuhco54U3r9B7O4XX+Rb1Itm9OZ2b0RkTs10bICOxA==}
+    engines: {node: '>=12.0.0'}
+    dev: false
 
   /execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}

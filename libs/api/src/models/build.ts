@@ -27,6 +27,8 @@ export const BuildZod = z.object({
     "rejected",
     "unreviewed",
     "unchanged",
+    "queued-processing",
+    "queued-uploading",
   ]),
   errors: z.array(z.string()),
 });

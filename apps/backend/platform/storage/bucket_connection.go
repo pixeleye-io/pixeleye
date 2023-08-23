@@ -71,5 +71,4 @@ func GetClient() (*BucketClient, error) {
 	}
 
 	return globalClient, nil
-
 }

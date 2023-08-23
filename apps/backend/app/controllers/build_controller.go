@@ -1,16 +1,19 @@
 package controllers
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/rs/zerolog/log"
 )
 
 // Create Build method for creating a new build.
@@ -29,7 +32,6 @@ import (
 // @Router /v1/builds/create [post]
 func CreateBuild(c echo.Context) error {
 
-	// TODO - add check to ensure parent build has finished processing
 	// TODO - handle case where we already have a build for this commit
 
 	build := models.Build{}
@@ -54,7 +56,6 @@ func CreateBuild(c echo.Context) error {
 	}
 
 	build.ProjectID = project.ID
-
 	build.Status = models.BUILD_STATUS_UPLOADING
 
 	if build.TargetBuildID == "" {
@@ -67,16 +68,19 @@ func CreateBuild(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	if err := db.CreateBuild(&build); err != nil {
+	if err := db.CreateBuild(c.Request().Context(), &build); err != nil {
 		return err
 	}
 
-	// We have triggers in postgres so we need to refetch the build
-	build, err = db.GetBuild(build.ID)
-
-	if err != nil {
-		return err
-	}
+	// We can notify all our subscribers that a new build has been created
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.NewBuild(build)
+	}(build)
 
 	return c.JSON(http.StatusCreated, build)
 }
@@ -206,10 +210,29 @@ func UploadPartial(c echo.Context) error {
 		return err
 	}
 
-	snapshots, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
+	snapshots, updateBuild, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
 
 	if err != nil {
 		return err
+	}
+
+	if updateBuild {
+		go func(build models.Build) {
+			notifier, err := events.GetNotifier(nil)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get notifier")
+				return
+			}
+			notifier.BuildStatusChange(build)
+		}(*build)
+	}
+
+	log.Debug().Msgf("Queuing %v snapshots for processing", snapshots)
+
+	if len(snapshots) == 0 {
+		return echo.NewHTTPError(http.StatusOK, "no snapshots to process")
+	} else if snapshots[0].Status == models.SNAPSHOT_STATUS_QUEUED {
+		return echo.NewHTTPError(http.StatusOK, "snapshots will begin processing once dependencies have been processed")
 	}
 
 	channel, err := broker.GetBroker()
@@ -254,11 +277,33 @@ func UploadComplete(c echo.Context) error {
 		return err
 	}
 
-	uploadedBuild, err := db.CompleteBuild(build.ID)
+	log.Debug().Msgf("Completing build %v", build)
+
+	if !models.IsBuildPreProcessing(build.Status) {
+		return echo.NewHTTPError(http.StatusBadRequest, "build has already been completed")
+	}
+
+	uploadedBuild, err := db.CompleteBuild(c.Request().Context(), build.ID)
 
 	if err != nil {
 		return err
 	}
+
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(uploadedBuild)
+
+	go func(db *database.Queries, buildID string) {
+		ctx := context.Background()
+		if err := db.CheckAndUpdateStatusAccordingly(ctx, buildID); err != nil {
+			log.Error().Err(err).Msg("Failed to check and update build status")
+		}
+	}(db, uploadedBuild.ID)
 
 	return c.JSON(http.StatusAccepted, uploadedBuild)
 }

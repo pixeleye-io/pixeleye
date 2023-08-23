@@ -67,9 +67,9 @@ func getMandatory(t brokerTypes.QueueType) bool {
 func getExchangeType(t brokerTypes.QueueType) string {
 	switch t {
 	case brokerTypes.BuildProcess:
-		return "fanout"
-	case brokerTypes.ProjectUpdate:
 		return "topic"
+	case brokerTypes.ProjectUpdate:
+		return "fanout"
 	}
 	return "topic"
 }
@@ -202,18 +202,23 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
-	// Get queue.
-	queue := getQueue(channel, name, queueType)
-
-	consumer := uuid.New().String()
-
-	// TODO - we shouldn't auto ack ingest messages, we should ack after we've processed the message
-
 	exchangeName, err := getExchangeName(queueType)
 
 	if err != nil {
 		return err
 	}
+
+	consumer := uuid.New().String()
+
+	// Get queue.
+	var queue amqp.Queue
+	if exchangeName == "" {
+		queue = getQueue(channel, name, queueType)
+	} else {
+		queue = getQueue(channel, name+consumer, queueType)
+	}
+
+	// TODO - we shouldn't auto ack ingest messages, we should ack after we've processed the message
 
 	if exchangeName != "" {
 		if err := channel.QueueBind(
