@@ -34,7 +34,7 @@ type Snapshot struct {
 
 	Depth int `db:"depth" json:"-"` // Used for sorting when calculating approval history
 
-	Status string `db:"status" json:"status" validate:"required,oneof=processing failed aborted approved rejected unreviewed unchanged orphaned queued"`
+	Status string `db:"status" json:"status" validate:"required,oneof=processing failed approved rejected unreviewed unchanged orphaned queued"`
 
 	ReviewerID *string    `db:"reviewer_id" json:"reviewerID,omitempty" validate:"omitempty,nanoid"`
 	ReviewedAt *time.Time `db:"reviewed_at" json:"reviewedAt,omitempty"`

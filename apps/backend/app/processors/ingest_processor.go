@@ -116,7 +116,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 	if diffImage.Equal {
 		log.Info().Str("SnapshotID", snapshot.ID).Msg("Diff image is equal to baseline after comparing pixels, setting to unchanged")
 		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
-		snapshot.BaselineID = nil
+		snapshot.BaselineID = baselineSnapshot.BaselineID
 		return db.UpdateSnapshot(snapshot)
 	}
 
