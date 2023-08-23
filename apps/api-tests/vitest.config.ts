@@ -8,6 +8,6 @@ export default defineConfig({
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     singleThread: (process.env.CI ?? false) as boolean,
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    maxConcurrency: process.env.CI ?? false ? 1 : 5,
+    maxConcurrency: process.env.CI ?? false ? 2 : 5,
   },
 });
