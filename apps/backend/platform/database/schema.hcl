@@ -104,6 +104,64 @@ table "team" {
   }
 }
 
+enum "git_installation_type" {
+  schema = schema.public
+  values = ["github", "gitlab", "bitbucket"]
+}
+
+table "git_installation" {
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "updated_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "team_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "team_id" {
+    columns     = [column.team_id]
+    ref_columns = [table.team.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "type" {
+    type = enum.git_installation_type
+    null = false
+  }
+
+  column "installation_id" {
+    type = integer
+    null = false
+  }
+
+  column "access_token" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "expires_at" {
+    type = timestamptz
+    null = false
+  }
+
+}
+
 enum "team_member_role" {
   schema = schema.public
   values = ["owner", "admin", "accountant", "member"]

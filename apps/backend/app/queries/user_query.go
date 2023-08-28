@@ -11,6 +11,7 @@ import (
 	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/rs/zerolog/log"
 )
@@ -68,7 +69,7 @@ func (q *UserQueries) CreateUser(userID string, userTraits models.UserTraits) (m
 	return user, nil
 }
 
-func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
+func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Team, error) {
 	query := `SELECT team.*, team_users.role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team_users.user_id = $1`
 
 	teams := []models.Team{}
@@ -85,11 +86,24 @@ func (q *UserQueries) GetUsersTeams(id string) ([]models.Team, error) {
 		}
 	}
 
-	qt := TeamQueries{q.DB}
-
 	if !personalTeamExists {
+
+		tx, err := q.BeginTxx(ctx, nil)
+
+		if err != nil {
+			return teams, err
+		}
+
+		qt := team_queries.TeamQueriesTx{Tx: tx}
+
+		team := models.Team{
+			Type:      models.TEAM_TYPE_USER,
+			Name:      "Personal",
+			AvatarURL: "",
+		}
+
 		// This is a new user, so we need to create a new team for them.
-		team, err := qt.CreateTeam(id, models.TEAM_TYPE_USER, "Personal")
+		team, err = qt.CreateTeam(ctx, team, id)
 
 		if driverErr, ok := err.(*pq.Error); ok {
 			if driverErr.Code == pq.ErrorCode("23505") {

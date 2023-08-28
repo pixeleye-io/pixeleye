@@ -4,18 +4,21 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/queries"
 	build_queries "github.com/pixeleye-io/pixeleye/app/queries/build"
+	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
 	snapshot_queries "github.com/pixeleye-io/pixeleye/app/queries/snapshot"
+	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 )
 
 // Queries struct for collect all app queries.
 type Queries struct {
 	*build_queries.BuildQueries
 	*snapshot_queries.SnapshotQueries
+	*github_queries.GithubQueries
+	*team_queries.TeamQueries
 	*queries.ProjectQueries
 	*queries.SnapImageQueries
 	*queries.DiffImageQueries
 	*queries.UserQueries
-	*queries.TeamQueries
 }
 
 // OpenDBConnection func for opening database connection.
@@ -41,6 +44,7 @@ func OpenDBConnection() (*Queries, error) {
 		SnapImageQueries: &queries.SnapImageQueries{DB: db},
 		DiffImageQueries: &queries.DiffImageQueries{DB: db},
 		UserQueries:      &queries.UserQueries{DB: db},
-		TeamQueries:      &queries.TeamQueries{DB: db},
+		TeamQueries:      &team_queries.TeamQueries{DB: db},
+		GithubQueries:    &github_queries.GithubQueries{DB: db},
 	}, nil
 }
