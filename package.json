@@ -1,8 +1,6 @@
 {
   "name": "pixeleye",
-  "scripts": {
-    "docker:web": "docker build -f apps/web/Dockerfile ."
-  },
+  "scripts": {},
   "license": "AGPL-3.0",
   "devDependencies": {
     "eslint": "^8.47.0",
