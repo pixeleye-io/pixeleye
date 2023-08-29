@@ -16,10 +16,11 @@ type GitInstallation struct {
 
 type GitRepo struct {
 	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Private     bool      `json:"private"`
-	URL         string    `json:"url"`
+	Name        *string   `json:"name"`
+	Private     *bool     `json:"private"`
+	URL         *string   `json:"url"`
 	LastUpdated time.Time `json:"lastUpdated"`
+	Description *string   `json:"description"`
 }
 
 const (

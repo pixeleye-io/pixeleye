@@ -3,6 +3,9 @@ import { RegisterSegment } from "../../breadcrumbStore";
 import { cookies } from "next/headers";
 import { getTeam } from "@/serverLibs";
 import { RepoList } from "../repos";
+import { DataTable } from "@pixeleye/ui";
+import { redirect } from "next/navigation";
+import { columns } from "../columns";
 
 export default async function AddGithubProjectPage({
   searchParams,
@@ -23,7 +26,7 @@ export default async function AddGithubProjectPage({
       },
     });
 
-    console.log("install", install);
+    // redirect("/add/github");
   }
 
   const team = await getTeam(searchParams);
@@ -35,8 +38,7 @@ export default async function AddGithubProjectPage({
     headers: {
       cookie,
     },
-  })
-    
+  });
 
   return (
     <>
@@ -49,6 +51,9 @@ export default async function AddGithubProjectPage({
         }}
       />
       <RepoList repos={repos} />
+      {/* <div className="container mx-auto py-10">
+        <DataTable columns={columns} data={repos} />
+      </div> */}
     </>
   );
 }
