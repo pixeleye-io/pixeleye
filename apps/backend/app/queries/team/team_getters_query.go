@@ -1,6 +1,7 @@
 package Team_queries
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -42,4 +43,24 @@ func (q *TeamQueries) GetTeam(teamID string, userID string) (models.Team, error)
 	}
 
 	return team, nil
+}
+
+func (q *TeamQueries) GetTeamFromExternalID(ctx context.Context, externalID string) (models.Team, error) {
+	query := `SELECT * FROM team WHERE external_id = $1`
+
+	team := models.Team{}
+
+	err := q.GetContext(ctx, &team, query, externalID)
+
+	return team, err
+}
+
+func (q *TeamQueries) GetTeamInstallation(ctx context.Context, teamID string) (models.GitInstallation, error) {
+	query := `SELECT * FROM git_installation WHERE team_id = $1`
+
+	installation := models.GitInstallation{}
+
+	err := q.GetContext(ctx, &installation, query, teamID)
+
+	return installation, err
 }

@@ -12,9 +12,14 @@ type GitInstallation struct {
 	Type string `db:"type" validate:"required,oneof=github gitlab bitbucket"`
 
 	InstallationID string `db:"installation_id" validate:"required"`
+}
 
-	AccessToken string `db:"access_token" validate:"required"`
-	ExpiresAt   int64  `db:"expires_at" validate:"required"`
+type GitRepo struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Private     bool      `json:"private"`
+	URL         string    `json:"url"`
+	LastUpdated time.Time `json:"lastUpdated"`
 }
 
 const (

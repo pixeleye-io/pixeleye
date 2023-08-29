@@ -97,6 +97,16 @@ table "team" {
     on_delete   = CASCADE
   }
 
+  column "external_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  index "idx_unique_team_external_id" {
+    columns = [column.external_id]
+    unique  = true
+  }
+
   index "idx_unqiue_user_team" {
     columns = [column.type, column.owner_id]
     where   = "type = 'user'"
@@ -110,6 +120,7 @@ enum "git_installation_type" {
 }
 
 table "git_installation" {
+  schema = schema.public
   column "id" {
     type = varchar(21)
     null = false
@@ -147,16 +158,6 @@ table "git_installation" {
 
   column "installation_id" {
     type = integer
-    null = false
-  }
-
-  column "access_token" {
-    type = varchar(255)
-    null = false
-  }
-
-  column "expires_at" {
-    type = timestamptz
     null = false
   }
 

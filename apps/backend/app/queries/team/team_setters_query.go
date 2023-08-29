@@ -9,8 +9,8 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
-func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team models.Team, creatorID string) (models.Team, error) {
-	createTeamQuery := `INSERT INTO team (id, name, type, avatar_url, url, created_at, updated_at, owner_id) VALUES (:id, :name, :type, :avatar_url, :url, :created_at, :updated_at, :owner_id)`
+func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creatorID string) error {
+	createTeamQuery := `INSERT INTO team (id, name, type, avatar_url, url, created_at, updated_at, owner_id, external_id) VALUES (:id, :name, :type, :avatar_url, :url, :created_at, :updated_at, :owner_id, :external_id)`
 	createUserOnTeamQuery := `INSERT INTO team_users (team_id, user_id, role) VALUES (:team_id, :user_id, :role)`
 
 	timeNow := utils.CurrentTime()
@@ -18,12 +18,13 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team models.Team, creato
 	id, err := nanoid.New()
 
 	if err != nil {
-		return team, err
+		return err
 	}
 
 	team.ID = id
 	team.CreatedAt = timeNow
 	team.UpdatedAt = timeNow
+	team.Role = models.TEAM_MEMBER_ROLE_OWNER
 
 	if team.Type == models.TEAM_TYPE_USER {
 		// This ensures that the a user can only ever have one personal team.
@@ -32,7 +33,7 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team models.Team, creato
 	}
 
 	if _, err = q.NamedExecContext(ctx, createTeamQuery, team); err != nil {
-		return team, err
+		return err
 	}
 
 	userOnTeam := models.TeamMember{
@@ -42,8 +43,8 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team models.Team, creato
 	}
 
 	if _, err = q.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam); err != nil {
-		return team, err
+		return err
 	}
 
-	return team, nil
+	return nil
 }

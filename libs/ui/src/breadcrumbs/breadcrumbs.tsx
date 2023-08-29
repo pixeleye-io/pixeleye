@@ -10,7 +10,7 @@ export interface BreadcrumbsProps {
 
 const Breadcrumbs: FC<BreadcrumbsProps> = ({ className, children }) => {
   return (
-    <ol role="list" className={cx("flex items-center space-x-3", className)}>
+    <ol role="list" className={cx("flex items-center", className)}>
       {children}
     </ol>
   );
@@ -30,7 +30,7 @@ const Item: FC<ItemProps> = ({
 }) => {
   const Component = asChild ? Slot : "a";
   return (
-    <li className={cx("flex items-center", className)}>
+    <li className={cx("flex items-center text-sm", className)}>
       {!hideLeadingSlash && (
         <svg
           className="flex-shrink-0 w-6 h-6 text-outline"

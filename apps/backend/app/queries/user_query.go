@@ -103,7 +103,12 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 		}
 
 		// This is a new user, so we need to create a new team for them.
-		team, err = qt.CreateTeam(ctx, team, id)
+
+		if err := qt.CreateTeam(ctx, &team, id); err != nil {
+			return teams, err
+		}
+
+		err = qt.Commit()
 
 		if driverErr, ok := err.(*pq.Error); ok {
 			if driverErr.Code == pq.ErrorCode("23505") {
@@ -122,6 +127,22 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 	}
 
 	return teams, nil
+}
+
+func (q *UserQueries) GetUsersPersonalTeam(ctx context.Context, id string) (models.Team, error) {
+	teams, err := q.GetUsersTeams(ctx, id)
+
+	if err != nil {
+		return models.Team{}, err
+	}
+
+	for _, team := range teams {
+		if team.Type == models.TEAM_TYPE_USER && team.OwnerID == id {
+			return team, nil
+		}
+	}
+
+	return models.Team{}, errors.New("user does not have a personal team")
 }
 
 func (q *UserQueries) CreateUserDeleteRequest(id string, expiriesAt time.Time) error {

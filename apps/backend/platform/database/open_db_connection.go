@@ -9,6 +9,8 @@ import (
 	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 )
 
+// TODO - create something similar for tx (transaction) queries.
+
 // Queries struct for collect all app queries.
 type Queries struct {
 	*build_queries.BuildQueries

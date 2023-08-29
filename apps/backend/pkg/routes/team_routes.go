@@ -21,4 +21,6 @@ func TeamRoutes(e *echo.Echo) {
 	v1.POST("/projects", controllers.CreateProject)
 
 	v1.GET("/projects", controllers.GetTeamsProjects)
+
+	v1.GET("/repos", controllers.GetRepos)
 }

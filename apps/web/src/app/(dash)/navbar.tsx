@@ -58,7 +58,7 @@ export function Navbar({ user }: NavbarProps) {
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
-          <div className="flex items-center">
+          <div className="flex items-center ">
             <TeamSwitcher
               personal={{
                 label: user.name || user.email,
@@ -83,7 +83,7 @@ export function Navbar({ user }: NavbarProps) {
             <Breadcrumbs.Item key={segment.value} asChild>
               <Link
                 href={segment.value}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 text-sm"
               >
                 {segment.status && <Status status={segment.status} />}
                 <span>{segment.name}</span>

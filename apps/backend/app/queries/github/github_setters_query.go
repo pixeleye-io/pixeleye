@@ -34,7 +34,7 @@ func (q *GithubQueriesTx) CreateGithubAppInstallation(context context.Context, i
 		return models.GitInstallation{}, err
 	}
 
-	if _, err := q.NamedExecContext(context, query, installationID); err != nil {
+	if _, err := q.NamedExecContext(context, query, installation); err != nil {
 		return models.GitInstallation{}, err
 	}
 
