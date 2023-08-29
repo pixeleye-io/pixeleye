@@ -16,7 +16,5 @@ export async function getTeam(searchParams: { team?: string }): Promise<Team> {
     }
   }
 
-  console.log(teams)
-
   return teams.find((team) => team.role === "owner" && team.type === "user")!;
 }

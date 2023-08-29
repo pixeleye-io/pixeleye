@@ -1,15 +1,38 @@
 "use client";
 
+import { useThrottle } from "@/libs/useThrottle";
 import {
   LockClosedIcon,
   LockOpenIcon,
   ArrowTopRightOnSquareIcon,
   ChevronRightIcon,
+  HandThumbDownIcon,
+  HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
 import { Repo } from "@pixeleye/api";
-import { Input } from "@pixeleye/ui";
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+  Input,
+} from "@pixeleye/ui";
+import { InputBase } from "@pixeleye/ui/src/input";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 dayjs.extend(relativeTime);
 
@@ -77,22 +100,73 @@ interface RepoListProps {
 }
 
 export function RepoList({ repos }: RepoListProps) {
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<"name" | "lastUpdated">("lastUpdated");
+
+  const deferredSearch = useDeferredValue(search);
+
+  const filteredRepos = useMemo(() => {
+    if (!deferredSearch) return repos;
+    return repos.filter((repo) =>
+      repo.name.toLowerCase().includes(deferredSearch.toLowerCase())
+    );
+  }, [deferredSearch, repos]);
+
+  const sortedRepos = useMemo(() => {
+    if (sort === "name") {
+      return filteredRepos.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      return filteredRepos.sort((a, b) =>
+        dayjs(a.lastUpdated).isBefore(dayjs(b.lastUpdated)) ? 1 : -1
+      );
+    }
+  }, [filteredRepos, sort]);
+
   return (
-    <div>
-
-      <div>
-        <Input />
-        </div>
-
-    <ul className="divide-y divide-surface-container container">
-      {repos.map((repo) => (
-        <RepoItem
-          key={repo.id}
-          repo={repo}
-          handleRepoSelect={() => undefined}
+    <div className="max-w-4xl mx-auto  mb-24">
+      <div className="flex items-center justify-end space-x-4 my-8">
+        <InputBase
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Find a repository..."
+          aria-label="Search for repo names"
+          className="max-w-md"
         />
-      ))}
-    </ul>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>Sort</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Select order</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={sort} onValueChange={setSort as any}>
+                <DropdownMenuRadioItem value="name">Name</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="lastUpdated">
+                  Last updated
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenuPortal>
+        </DropdownMenu>
+      </div>
+      {sortedRepos.length === 0 && (
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <p className="text-on-surface-variant">
+            No repositories found. Try a different search.
+          </p>
+        </div>
+      )}
+      {sortedRepos.length > 0 && (
+        <ul className="divide-y divide-surface-container rounded border border-outline-variant">
+          {sortedRepos.map((repo) => (
+            <RepoItem
+              key={repo.id}
+              repo={repo}
+              handleRepoSelect={() => undefined}
+            />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

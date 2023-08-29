@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/google/go-github/github"
 	"github.com/labstack/echo/v4"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -37,17 +38,6 @@ func GetTeamsProjects(c echo.Context) error {
 }
 
 func GetRepos(c echo.Context) error {
-	page := c.QueryParam("page")
-
-	if page == "" {
-		page = "0"
-	}
-
-	pageInt, err := strconv.Atoi(page)
-
-	if err != nil {
-		return err
-	}
 
 	team := middleware.GetTeam(c)
 
@@ -73,26 +63,39 @@ func GetRepos(c echo.Context) error {
 			return err
 		}
 
-		repos, err := ghClient.GetInstallationRepositories(c.Request().Context(), pageInt)
+		allRepos := make([]models.GitRepo, 0)
 
-		if err != nil {
-			return err
-		}
+		hasNext := true
+		page := 0
 
-		formattedRepos := make([]models.GitRepo, len(repos))
+		for hasNext {
 
-		for i, repo := range repos {
-			formattedRepos[i] = models.GitRepo{
-				ID:          strconv.FormatInt(utils.SafeDeref(repo.ID), 10),
-				Name:        repo.Name,
-				Private:     repo.Private,
-				URL:         repo.URL,
-				LastUpdated: repo.UpdatedAt.Time,
-				Description: repo.Description,
+			var repos []*github.Repository
+			repos, hasNext, err = ghClient.GetInstallationRepositories(c.Request().Context(), page)
+
+			page += 1
+
+			if err != nil {
+				return err
 			}
+
+			formattedRepos := make([]models.GitRepo, len(repos))
+
+			for i, repo := range repos {
+				formattedRepos[i] = models.GitRepo{
+					ID:          strconv.FormatInt(utils.SafeDeref(repo.ID), 10),
+					Name:        repo.Name,
+					Private:     repo.Private,
+					URL:         repo.URL,
+					LastUpdated: repo.UpdatedAt.Time,
+					Description: repo.Description,
+				}
+			}
+
+			allRepos = append(allRepos, formattedRepos...)
 		}
 
-		return c.JSON(http.StatusOK, formattedRepos)
+		return c.JSON(http.StatusOK, allRepos)
 
 	}
 
