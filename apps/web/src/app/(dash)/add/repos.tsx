@@ -7,6 +7,7 @@ import {
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import { Repo } from "@pixeleye/api";
+import { Input } from "@pixeleye/ui";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -78,7 +79,11 @@ interface RepoListProps {
 export function RepoList({ repos }: RepoListProps) {
   return (
     <div>
-      
+
+      <div>
+        <Input />
+        </div>
+
     <ul className="divide-y divide-surface-container container">
       {repos.map((repo) => (
         <RepoItem
@@ -88,5 +93,6 @@ export function RepoList({ repos }: RepoListProps) {
         />
       ))}
     </ul>
+    </div>
   );
 }
