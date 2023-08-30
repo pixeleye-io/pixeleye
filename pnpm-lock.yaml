@@ -658,6 +658,9 @@ importers:
       '@heroicons/react':
         specifier: ^2.0.18
         version: 2.0.18(react@18.2.0)
+      '@pixeleye/api':
+        specifier: workspace:*
+        version: link:../api
       '@radix-ui/react-avatar':
         specifier: ^1.0.3
         version: 1.0.3(@types/react@18.2.20)(react-dom@18.2.0)(react@18.2.0)
@@ -722,56 +725,6 @@ importers:
       '@types/react':
         specifier: 18.2.20
         version: 18.2.20
-
-  services/postgres:
-    dependencies:
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.3.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
-      is-port-reachable:
-        specifier: ^4.0.0
-        version: 4.0.0
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.5.1)(typescript@5.1.6)
-    devDependencies:
-      '@pixeleye/eslint-config':
-        specifier: workspace:*
-        version: link:../../configs/eslint-config
-      '@pixeleye/tsconfig':
-        specifier: workspace:*
-        version: link:../../configs/tsconfig
-      '@types/node':
-        specifier: 20.5.1
-        version: 20.5.1
-
-  services/rabbitmq:
-    dependencies:
-      dotenv:
-        specifier: ^16.3.1
-        version: 16.3.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
-      is-port-reachable:
-        specifier: ^4.0.0
-        version: 4.0.0
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.5.1)(typescript@5.1.6)
-    devDependencies:
-      '@pixeleye/eslint-config':
-        specifier: workspace:*
-        version: link:../../configs/eslint-config
-      '@pixeleye/tsconfig':
-        specifier: workspace:*
-        version: link:../../configs/tsconfig
-      '@types/node':
-        specifier: 20.5.1
-        version: 20.5.1
 
 packages:
 
@@ -4283,11 +4236,6 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /dotenv@16.3.1:
-    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
-    engines: {node: '>=12'}
-    dev: false
-
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
     dev: false
@@ -5608,11 +5556,6 @@ packages:
   /is-plain-object@5.0.0:
     resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
     engines: {node: '>=0.10.0'}
-    dev: false
-
-  /is-port-reachable@4.0.0:
-    resolution: {integrity: sha512-9UoipoxYmSk6Xy7QFgRv2HDyaysmgSG75TFQs6S+3pDM7ZhKTF/bskZV+0UlABHzKjNVhPjYCLfeZUEg1wXxig==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: false
 
   /is-regex@1.1.4:

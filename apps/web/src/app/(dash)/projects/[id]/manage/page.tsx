@@ -1,6 +1,8 @@
 import { Button } from "@pixeleye/ui";
 import { FormEventHandler } from "react";
-import { SecuritySection } from "./sections";
+import { DeleteProjectSection, SecuritySection } from "./sections";
+import { API } from "@/libs";
+import { cookies } from "next/headers";
 
 function Section({
   children,
@@ -39,15 +41,31 @@ function Section({
   );
 }
 
-export default function Page({ params }: { params: { id: string }}) {
+export default async function Page({ params }: { params: { id: string } }) {
   const projectId = params.id;
+
+  const project = await API.get("/projects/{id}", {
+    params: {
+      id: projectId,
+    },
+    headers: {
+      cookie: cookies().toString(),
+    },
+  });
+
   return (
-    <div className="space-y-10 divide-y divide-outline mt-12">
+    <div className="space-y-10 mt-12">
       <Section
         title="Security"
         description="The API token is used by our clients to upload the snapshot. Keep this safe"
       >
-        <SecuritySection id={projectId} />
+        <SecuritySection id={project.id} />
+      </Section>
+      <Section
+        title="Danger zone"
+        description="These actions are dangerous. Please be careful."
+      >
+        <DeleteProjectSection project={project} />
       </Section>
     </div>
   );

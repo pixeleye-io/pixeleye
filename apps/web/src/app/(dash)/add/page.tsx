@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { cx } from "class-variance-authority";
 import Link from "next/link";
+import { useTeamStore } from "../breadcrumbStore";
+import { getTeam } from "@/serverLibs";
+import { redirect } from "next/navigation";
 
 interface ImportCardProps {
   name: string;
@@ -30,7 +33,17 @@ const sources: ImportCardProps[] = [
   },
 ];
 
-export default function AddProjectPage() {
+export default async function AddProjectPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string>;
+}) {
+  const params = new URLSearchParams(searchParams);
+
+  const team = await getTeam(searchParams);
+
+  if (team.type !== "user") redirect(`/add/${team.type}?${params.toString()}`);
+
   return (
     <div className="p-16">
       <ul className="flex gap-8 justify-center flex-wrap">
@@ -64,7 +77,7 @@ export default function AddProjectPage() {
                 {source.connected ? "Connected" : "Not connected"}
               </span>
               <Link
-                href={`/add/${source.name}`}
+                href={`/add/${source.name}?${params.toString()}`}
                 className="absolute inset-0 w-full h-full"
               >
                 <span className="sr-only">

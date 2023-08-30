@@ -89,13 +89,15 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 			Tx: tx.Tx,
 		}
 
+		log.Debug().Msgf("App: %+v", app)
+
 		team = models.Team{
 			Type:       models.TEAM_TYPE_GITHUB,
-			Name:       *app.Account.Name,
-			URL:        *app.Account.HTMLURL,
-			AvatarURL:  *app.Account.AvatarURL,
+			Name:       app.Account.GetLogin(),
+			URL:        app.Account.GetOrganizationsURL(),
+			AvatarURL:  app.Account.GetHTMLURL(),
 			Role:       models.TEAM_MEMBER_ROLE_OWNER,
-			ExternalID: strconv.Itoa(int(*app.Account.ID)),
+			ExternalID: strconv.Itoa(int(app.Account.GetID())),
 		}
 
 		err = ttx.CreateTeam(c.Request().Context(), &team, user.ID)
@@ -105,6 +107,26 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 
 	} else if err != nil {
 		return models.GitInstallation{}, err
+	}
+
+	existingInstallation, err := tx.GetGithubAPpInstallationByTeamIDForUpdate(c.Request().Context(), team.ID)
+
+	if err != nil && err != sql.ErrNoRows {
+		return models.GitInstallation{}, err
+	}
+
+	if err != sql.ErrNoRows {
+		// Installation already exists, we can update it
+
+		existingInstallation.InstallationID = installationID
+
+		err := tx.UpdateGithubAppInstallation(c.Request().Context(), &existingInstallation)
+
+		if err != nil {
+			return models.GitInstallation{}, err
+		}
+
+		return existingInstallation, tx.Commit()
 	}
 
 	log.Debug().Msgf("Team: %+v", team)
@@ -121,6 +143,11 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 }
 
 func GithubAppInstallation(c echo.Context) error {
+
+	type response struct {
+		Installation models.GitInstallation `json:"installation"`
+		Team         models.Team            `json:"team"`
+	}
 
 	installationID := c.QueryParam("installation_id")
 
@@ -146,7 +173,23 @@ func GithubAppInstallation(c echo.Context) error {
 	}
 
 	if installation.ID != "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Installation already exists")
+
+		user, err := middleware.GetUser(c)
+
+		if err != nil {
+			return err
+		}
+
+		team, err := db.GetTeam(c.Request().Context(), installation.TeamID, user.ID)
+
+		if err != nil {
+			return err
+		}
+
+		return echo.NewHTTPError(http.StatusOK, response{
+			Installation: installation,
+			Team:         team,
+		})
 	}
 
 	ghClient, err := git_github.NewGithubAppClient()
@@ -175,5 +218,20 @@ func GithubAppInstallation(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Unknown owner type")
 	}
 
-	return c.JSON(http.StatusOK, installation)
+	user, err := middleware.GetUser(c)
+
+	if err != nil {
+		return err
+	}
+
+	team, err := db.GetTeam(c.Request().Context(), installation.TeamID, user.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response{
+		Installation: installation,
+		Team:         team,
+	})
 }

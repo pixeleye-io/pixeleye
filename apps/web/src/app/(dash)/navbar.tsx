@@ -22,18 +22,52 @@ import {
 } from "@pixeleye/ui";
 
 import Link from "next/link";
-import { useSelectedLayoutSegments } from "next/navigation";
-import { Segment, useBreadcrumbStore } from "./breadcrumbStore";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+  useSelectedLayoutSegments,
+} from "next/navigation";
+import { Segment, useBreadcrumbStore, useTeamStore } from "./breadcrumbStore";
 import Avatar from "@pixeleye/ui/src/avatar/avatar";
-import { User } from "@pixeleye/api";
+import { Team, User } from "@pixeleye/api";
 import { useTheme } from "next-themes";
+import React, { useCallback } from "react";
 
 export interface NavbarProps {
   user: User;
+  teams: Team[];
 }
 
-export function Navbar({ user }: NavbarProps) {
+function useTeamNavigation() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams()!;
+
+  return useCallback(
+    (team: Team) => {
+      const params = new URLSearchParams(searchParams);
+
+      if (team.type === "user" && team.role === "owner") {
+        params.delete("team");
+      } else {
+        params.set("team", team.id);
+      }
+
+      if (pathname.startsWith("/builds") || pathname.startsWith("/projects")) {
+        return router.push("/dashboard?" + params.toString());
+      }
+
+      router.push(pathname + "?" + params.toString());
+    },
+    [router, pathname, searchParams]
+  );
+}
+
+export function Navbar({ user, teams }: NavbarProps) {
   const segmentRepo = useBreadcrumbStore((state) => state.segmentRepo);
+  const selectedTeamID = useTeamStore((state) => state.teamId);
+  const setSelectedTeamID = useTeamStore((state) => state.setTeamId);
   const selectedSegments = useSelectedLayoutSegments();
 
   const { theme, setTheme } = useTheme();
@@ -49,32 +83,52 @@ export function Navbar({ user }: NavbarProps) {
     ? user.name.split(" ")
     : user.email.split("@")[0].split(".");
 
+  const [personalTeam, groupTeams] = teams.reduce(
+    (acc, team) => {
+      if (team.type === "user" && team.role === "owner") {
+        acc[0] = team;
+      } else {
+        acc[1].push(team);
+      }
+      return acc;
+    },
+    [undefined, []] as [Team | undefined, Team[]]
+  );
+
+  const searchParams = useSearchParams();
+
+  const params = new URLSearchParams(searchParams);
+
+  const navigate = useTeamNavigation();
+
+  const selectedTeam =
+    teams.find((team) => team.id === selectedTeamID) || personalTeam!;
+
+  if (selectedTeam.type === "user" && selectedTeam.role === "owner")
+  params.delete("team");
+  else params.set("team", selectedTeam.id);
+
   return (
     <nav className="flex justify-between px-4 pt-2 pb-1 bg-background">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
-          <Link href="/dashboard" className="flex items-center">
+          <Link
+            href={`/dashboard?` + params.toString()}
+            className="flex items-center"
+          >
             <Logo className="h-7 w-7 text-on-surface hover:text-primary" />
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
           <div className="flex items-center ">
             <TeamSwitcher
-              personal={{
-                label: user.name || user.email,
-                id: user.id,
-                avatar: user.avatar,
+              personal={personalTeam!}
+              teams={groupTeams}
+              selectedTeam={selectedTeam}
+              setSelectedTeam={(team) => {
+                setSelectedTeamID(team.id);
+                navigate(team);
               }}
-              teams={[
-                {
-                  label: "Some org",
-                  id: "123",
-                },
-                {
-                  label: "Pixeleye",
-                  id: "342",
-                },
-              ]}
             />
           </div>
         </Breadcrumbs.Item>
@@ -118,7 +172,9 @@ export function Navbar({ user }: NavbarProps) {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href="/settings">Settings</Link>
+              <Link href={`/settings?` + params.toString()}>
+                Settings
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

@@ -15,6 +15,10 @@ func (c *GithubClient) GetInstallationRepositories(ctx context.Context, page int
 
 	repos, res, err := c.Apps.ListRepos(ctx, opts)
 
+	if err != nil {
+		return nil, false, err
+	}
+
 	return repos, res.LastPage > page, err
 }
 

@@ -81,7 +81,7 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 	personalTeamExists := false
 
 	for _, team := range teams {
-		if team.Type == "user" && team.OwnerID == id {
+		if team.Type == "user" && utils.SafeDeref(team.OwnerID) == id {
 			personalTeamExists = true
 		}
 	}
@@ -137,7 +137,7 @@ func (q *UserQueries) GetUsersPersonalTeam(ctx context.Context, id string) (mode
 	}
 
 	for _, team := range teams {
-		if team.Type == models.TEAM_TYPE_USER && team.OwnerID == id {
+		if team.Type == models.TEAM_TYPE_USER && utils.SafeDeref(team.OwnerID) == id {
 			return team, nil
 		}
 	}

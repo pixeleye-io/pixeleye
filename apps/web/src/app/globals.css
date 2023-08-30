@@ -13,6 +13,6 @@
 
   html,
   body {
-    @apply h-full;
+    @apply h-full overflow-auto;
   }
 }

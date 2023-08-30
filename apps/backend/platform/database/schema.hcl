@@ -103,7 +103,7 @@ table "team" {
   }
 
   index "idx_unique_team_external_id" {
-    columns = [column.external_id]
+    columns = [column.external_id, column.type]
     unique  = true
   }
 

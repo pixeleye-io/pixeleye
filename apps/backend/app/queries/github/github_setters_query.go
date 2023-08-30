@@ -40,3 +40,23 @@ func (q *GithubQueriesTx) CreateGithubAppInstallation(context context.Context, i
 
 	return installation, nil
 }
+
+func (q *GithubQueriesTx) UpdateGithubAppInstallation(context context.Context, installation *models.GitInstallation) error {
+	query := `UPDATE git_installation SET installation_id = :installation_id, updated_at = :updated_at, team_id = :team_id WHERE id = :id`
+
+	time := utils.CurrentTime()
+
+	installation.UpdatedAt = time
+
+	validate := utils.NewValidator()
+
+	if err := validate.Struct(installation); err != nil {
+		return err
+	}
+
+	if _, err := q.NamedExecContext(context, query, installation); err != nil {
+		return err
+	}
+
+	return nil
+}

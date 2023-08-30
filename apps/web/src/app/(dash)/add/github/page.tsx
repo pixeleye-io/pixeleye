@@ -3,6 +3,7 @@ import { RegisterSegment } from "../../breadcrumbStore";
 import { cookies } from "next/headers";
 import { getTeam } from "@/serverLibs";
 import { RepoList } from "../repos";
+import { redirect } from "next/navigation";
 
 export default async function AddGithubProjectPage({
   searchParams,
@@ -13,8 +14,16 @@ export default async function AddGithubProjectPage({
 
   const cookie = cookies().toString();
 
+  if (searchParams.setup_action === "update") {
+    const params = new URLSearchParams(searchParams);
+    params.delete("installation_id");
+    params.delete("setup_action");
+
+    redirect("/add/github");
+  }
+
   if (installation_id) {
-    const install = await API.post("/git/github", {
+    const { team } = await API.post("/git/github", {
       queries: {
         installation_id,
       },
@@ -23,18 +32,37 @@ export default async function AddGithubProjectPage({
       },
     });
 
-    // redirect("/add/github");
+    const params = new URLSearchParams(searchParams);
+    params.delete("installation_id");
+    params.delete("setup_action");
+    params.append("team", team.id);
+
+    redirect("/add/github?" + params.toString());
   }
 
   const team = await getTeam(searchParams);
 
-  const repos = await API.get("/teams/{teamID}/repos", {
-    params: {
-      teamID: team.id,
-    },
-    headers: {
-      cookie,
-    },
+  const [repos, projects] = await Promise.all([
+    API.get("/teams/{teamID}/repos", {
+      params: {
+        teamID: team.id,
+      },
+      headers: {
+        cookie,
+      },
+    }),
+    API.get("/teams/{teamID}/projects", {
+      params: {
+        teamID: team.id,
+      },
+      headers: {
+        cookie,
+      },
+    }),
+  ]);
+
+  const filteredRepos = repos.filter((repo) => {
+    return !projects.some((project) => project.sourceID === repo.id);
   });
 
   return (
@@ -47,7 +75,21 @@ export default async function AddGithubProjectPage({
           value: "/add/github",
         }}
       />
-      <RepoList repos={repos} team={team} source="github" />
+      <div className="max-w-4xl mx-auto mt-8">
+        <p className="text-on-surface-variant">
+          Not seeing your repo or organization?{" "}
+          <a
+            className="text-blue-400 dark:text-blue-300"
+            href="https://github.com/apps/pixeleye-io/installations/new"
+            target="_blank"
+          >
+            Install/configure
+          </a>{" "}
+          the Pixeleye GitHub App
+        </p>
+      </div>
+
+      <RepoList repos={filteredRepos} team={team} source="github" />
     </>
   );
 }

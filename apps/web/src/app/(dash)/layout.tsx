@@ -13,8 +13,13 @@ export default async function DashboardLayout({
 
   const cookie = cookies().toString();
 
-  const [user] = await Promise.all([
+  const [user, teams] = await Promise.all([
     API.get("/user/me", {
+      headers: {
+        cookie,
+      },
+    }),
+    API.get("/user/teams", {
       headers: {
         cookie,
       },
@@ -27,7 +32,7 @@ export default async function DashboardLayout({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <Navbar user={user} />
+      <Navbar user={user} teams={teams} />
       {children}
     </HydrationBoundary>
   );

@@ -30,12 +30,12 @@ func (q *TeamQueries) GetTeamsProjects(teamID string, userID string, isAdmin boo
 	return projects, err
 }
 
-func (q *TeamQueries) GetTeam(teamID string, userID string) (models.Team, error) {
+func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string) (models.Team, error) {
 	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1 AND team_users.user_id = $2`
 
 	team := models.Team{}
 
-	if err := q.Get(&team, query, teamID, userID); err != nil {
+	if err := q.GetContext(ctx, &team, query, teamID, userID); err != nil {
 		if err == sql.ErrNoRows {
 			return team, fmt.Errorf("team not found")
 		}
