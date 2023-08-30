@@ -1,38 +1,29 @@
 "use client";
 
-import { useThrottle } from "@/libs/useThrottle";
+import { API } from "@/libs";
+import { useKeyStore } from "@/stores/apiKeyStore";
 import {
-  LockClosedIcon,
-  LockOpenIcon,
   ArrowTopRightOnSquareIcon,
   ChevronRightIcon,
-  HandThumbDownIcon,
-  HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
-import { Repo } from "@pixeleye/api";
+import { Project, Repo, Team } from "@pixeleye/api";
 import {
   Button,
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-  Input,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
+import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useRouter } from "next/navigation";
+import router from "next/router";
+import { useDeferredValue, useMemo, useState } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -97,11 +88,17 @@ function RepoItem({ repo, handleRepoSelect }: RepoItemProps) {
 
 interface RepoListProps {
   repos: Repo[];
+  team: Team;
+  source: Project["source"];
 }
 
-export function RepoList({ repos }: RepoListProps) {
+export function RepoList({ repos, team, source }: RepoListProps) {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"name" | "lastUpdated">("lastUpdated");
+
+  const router = useRouter();
+
+  const setKey = useKeyStore((state) => state.setKey);
 
   const deferredSearch = useDeferredValue(search);
 
@@ -122,9 +119,29 @@ export function RepoList({ repos }: RepoListProps) {
     }
   }, [filteredRepos, sort]);
 
+  const { mutate: createProject } = useMutation({
+    mutationFn: (repo: Repo) => {
+      return API.post("/teams/{teamID}/projects", {
+        body: {
+          name: repo.name,
+          source,
+          sourceID: repo.id,
+          url: repo.url,
+        },
+        params: {
+          teamID: team?.id ?? "",
+        },
+      })
+    },
+    onSuccess: (project) => {
+        setKey(project.id, project.token!);
+        router.push(`/projects/${project.id}`);
+      },
+  });
+
   return (
-    <div className="max-w-4xl mx-auto  mb-24">
-      <div className="flex items-center justify-end space-x-4 my-8">
+    <div className="max-w-4xl mx-auto pb-8">
+      <div className="flex items-center justify-end space-x-4 my-8 ">
         <InputBase
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -139,7 +156,10 @@ export function RepoList({ repos }: RepoListProps) {
           <DropdownMenuPortal>
             <DropdownMenuContent>
               <DropdownMenuLabel>Select order</DropdownMenuLabel>
-              <DropdownMenuRadioGroup value={sort} onValueChange={setSort as any}>
+              <DropdownMenuRadioGroup
+                value={sort}
+                onValueChange={setSort as any}
+              >
                 <DropdownMenuRadioItem value="name">Name</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="lastUpdated">
                   Last updated
@@ -157,12 +177,12 @@ export function RepoList({ repos }: RepoListProps) {
         </div>
       )}
       {sortedRepos.length > 0 && (
-        <ul className="divide-y divide-surface-container rounded border border-outline-variant">
+        <ul className="divide-y divide-surface-container rounded border border-outline-variant ">
           {sortedRepos.map((repo) => (
             <RepoItem
               key={repo.id}
               repo={repo}
-              handleRepoSelect={() => undefined}
+              handleRepoSelect={() => createProject(repo)}
             />
           ))}
         </ul>

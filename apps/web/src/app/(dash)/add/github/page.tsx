@@ -1,11 +1,8 @@
-import { API, useTeam } from "@/libs";
+import { API } from "@/libs";
 import { RegisterSegment } from "../../breadcrumbStore";
 import { cookies } from "next/headers";
 import { getTeam } from "@/serverLibs";
 import { RepoList } from "../repos";
-import { DataTable } from "@pixeleye/ui";
-import { redirect } from "next/navigation";
-import { columns } from "../columns";
 
 export default async function AddGithubProjectPage({
   searchParams,
@@ -50,10 +47,7 @@ export default async function AddGithubProjectPage({
           value: "/add/github",
         }}
       />
-      <RepoList repos={repos} />
-      {/* <div className="container mx-auto py-10">
-        <DataTable columns={columns} data={repos} />
-      </div> */}
+      <RepoList repos={repos} team={team} source="github" />
     </>
   );
 }
