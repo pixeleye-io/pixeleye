@@ -54,7 +54,7 @@ func DeleteUser(c echo.Context) error {
 		return err
 	}
 
-	teams, err := db.GetUsersTeams(user.ID)
+	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
 
 	if err != sql.ErrNoRows && err != nil {
 		return err
@@ -123,7 +123,7 @@ func GetUsersTeams(c echo.Context) error {
 		return err
 	}
 
-	teams, err := db.GetUsersTeams(user.ID)
+	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
 
 	if err != nil {
 		return err

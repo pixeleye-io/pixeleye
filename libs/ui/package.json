@@ -14,6 +14,7 @@
     "@types/react": "18.2.20"
   },
   "dependencies": {
+    "@pixeleye/api": "workspace:*",
     "@heroicons/react": "^2.0.18",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",
@@ -26,6 +27,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.6",
+    "@tanstack/react-table": "^8.9.3",
     "class-variance-authority": "^0.7.0",
     "cmdk": "^0.2.0",
     "framer-motion": "^10.16.0",

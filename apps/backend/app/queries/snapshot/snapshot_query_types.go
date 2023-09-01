@@ -14,7 +14,7 @@ type SnapshotQueriesTx struct {
 	*sqlx.Tx
 }
 
-func NewBuildTx(db *sqlx.DB, ctx context.Context) (*SnapshotQueriesTx, error) {
+func NewSnapshotTx(db *sqlx.DB, ctx context.Context) (*SnapshotQueriesTx, error) {
 	tx, err := db.BeginTxx(ctx, nil)
 
 	if err != nil {

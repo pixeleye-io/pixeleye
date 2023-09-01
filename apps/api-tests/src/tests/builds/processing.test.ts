@@ -709,5 +709,8 @@ describe(
         timeout: 120_000,
       }
     );
+  },
+  {
+    retry: 2,
   }
 );

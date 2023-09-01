@@ -42,6 +42,7 @@ func main() {
 	routes.ProjectRoutes(e)
 	routes.TeamRoutes(e)
 	routes.BuildRoutes(e)
+	routes.GitRoutes(e)
 
 	// Start server (with or without graceful shutdown).
 	if os.Getenv("STAGE_STATUS") == "dev" {

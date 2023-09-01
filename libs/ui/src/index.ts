@@ -45,3 +45,5 @@ export * from "./scrollArea";
 export { default as ScrollArea } from "./scrollArea";
 export * from "./dottedBackground";
 export { default as DottedBackground } from "./dottedBackground";
+export * from "./dataTable";
+export { default as DataTable } from "./dataTable";

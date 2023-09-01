@@ -23,7 +23,9 @@ type Team struct {
 	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
 	URL       string `db:"url" json:"url" validate:"omitempty,url"`
 
-	OwnerID string `db:"owner_id" json:"-"` // Used to ensure a user only has 1 personal team
+	ExternalID string `db:"external_id" json:"externalID" validate:"omitempty"` // Used for GitHub, GitLab, Bitbucket
+
+	OwnerID *string `db:"owner_id" json:"-"` // Used to ensure a user only has 1 personal team
 
 	Role string `db:"role" json:"role,omitempty" validate:"omitempty,oneof=owner admin accountant member"` // only for user scoped queries
 }

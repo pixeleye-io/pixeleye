@@ -67,7 +67,7 @@ func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.Handler
 			return err
 		}
 
-		team, err := db.GetTeam(teamID, user.ID)
+		team, err := db.GetTeam(c.Request().Context(), teamID, user.ID)
 
 		if err != nil {
 			return err

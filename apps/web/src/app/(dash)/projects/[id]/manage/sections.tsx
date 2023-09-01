@@ -1,10 +1,14 @@
 "use client";
 
 import { useKeyStore } from "@/stores/apiKeyStore";
-import { KeyIcon } from "@heroicons/react/24/outline";
+import { KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { API } from "@/libs";
 import { Button } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { Project } from "@pixeleye/api";
+
 
 export function SecuritySection({ id }: { id: string }) {
   const setKey = useKeyStore((state) => state.setKey);
@@ -46,6 +50,39 @@ export function SecuritySection({ id }: { id: string }) {
           docs.
         </p>
       </div>
+    </div>
+  );
+}
+
+export function DeleteProjectSection({ project }: { project: Project }) {
+  const router = useRouter();
+  const { mutate: deletedProject } = useMutation({
+    mutationFn: () =>
+      API.delete("/projects/{id}/admin", {
+        params: { id: project.id },
+        body: {
+          name: project.name,
+        },
+      }),
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+  });
+
+  return (
+    <div className="flex flex-col">
+      <p className="text-on-surface-variant">
+        Deleting a project is permanent. All snapshots and data will be deleted.
+      </p>
+      <Button
+        variant="destructive"
+        className="mt-4 w-fit"
+        onClick={() => {
+          deletedProject();
+        }}
+      >
+        Delete Project
+      </Button>
     </div>
   );
 }

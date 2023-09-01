@@ -29,7 +29,17 @@ type POST = Method<{
   };
 }>;
 
+type DELETE = Method<{
+  "/projects/{id}/admin": {
+    res: undefined;
+    req: {
+      name: string;
+    }
+  };
+}>;
+
 export interface ProjectAPI {
   GET: GET;
   POST: POST;
+  DELETE: DELETE;
 }
