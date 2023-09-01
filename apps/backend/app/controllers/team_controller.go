@@ -15,7 +15,12 @@ import (
 )
 
 func GetTeamsProjects(c echo.Context) error {
-	team := middleware.GetTeam(c)
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
 	user, err := middleware.GetUser(c)
 
 	if err != nil {
@@ -39,7 +44,11 @@ func GetTeamsProjects(c echo.Context) error {
 
 func GetRepos(c echo.Context) error {
 
-	team := middleware.GetTeam(c)
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
 
 	db, err := database.OpenDBConnection()
 

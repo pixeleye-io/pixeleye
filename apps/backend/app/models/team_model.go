@@ -37,8 +37,14 @@ const (
 	TEAM_MEMBER_ROLE_MEMBER     = "member"
 )
 
+const (
+	TEAM_MEMBER_TYPE_INVITED = "invited"
+	TEAM_MEMBER_TYPE_GIT     = "git"
+)
+
 type TeamMember struct {
-	TeamID string `db:"team_id" json:"teamID" validate:"required,nanoid"`
-	UserID string `db:"user_id" json:"userID" validate:"required,nanoid"`
-	Role   string `db:"role" json:"role" validate:"required,oneof=owner admin accountant member"`
+	TeamID string  `db:"team_id" json:"teamID" validate:"required,nanoid"`
+	UserID string  `db:"user_id" json:"userID" validate:"required,nanoid"`
+	Role   string  `db:"role" json:"role" validate:"required,oneof=owner admin accountant member"`
+	Type   *string `db:"type" json:"type" validate:"required,oneof=invited git"`
 }

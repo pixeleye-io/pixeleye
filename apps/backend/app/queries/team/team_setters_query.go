@@ -30,6 +30,8 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 		// This ensures that the a user can only ever have one personal team.
 		// They can own as many other teams as they want.
 		team.OwnerID = &creatorID
+	} else {
+		team.Type = models.TEAM_MEMBER_TYPE_GIT
 	}
 
 	if _, err = q.NamedExecContext(ctx, createTeamQuery, team); err != nil {

@@ -29,7 +29,11 @@ func CreateProject(c echo.Context) error {
 
 	project := models.Project{}
 
-	team := middleware.GetTeam(c)
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
 
 	if err := c.Bind(&project); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

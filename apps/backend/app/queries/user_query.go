@@ -220,3 +220,18 @@ func (q *UserQueries) DeleteUsers() error {
 
 	return nil
 }
+
+func (q *UserQueries) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
+	query := `SELECT * FROM users WHERE email = $1`
+
+	user := models.User{}
+
+	if err := q.GetContext(ctx, &user, query, email); err != nil {
+		if err == sql.ErrNoRows {
+			return user, fmt.Errorf("user not found")
+		}
+		return user, err
+	}
+
+	return user, nil
+}

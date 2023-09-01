@@ -43,6 +43,11 @@ table "users" {
     columns = [column.auth_id]
     unique  = true
   }
+
+  index "idx_unique_user_email" {
+    columns = [column.email]
+    unique  = true
+  }
 }
 
 enum "team_type" {
@@ -203,7 +208,7 @@ table "team_users" {
 
   column "type" {
     type = enum.team_member_type
-    null = false
+    null = true
   }
 }
 
