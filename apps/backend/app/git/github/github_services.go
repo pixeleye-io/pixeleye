@@ -41,3 +41,38 @@ func IsUserInstallation(app github.Installation) bool {
 func IsOrgInstallation(app github.Installation) bool {
 	return app.Account.Type != nil && *app.Account.Type == "Organization"
 }
+
+func GetOrgMembers(ctx context.Context, client *github.Client, org string) ([]*github.User, error) {
+	opts := &github.ListMembersOptions{
+		PublicOnly: false,
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+	}
+
+	page := 1
+
+	var members []*github.User
+
+	for {
+
+		opts.Page = page
+
+		users, res, err := client.Organizations.ListMembers(ctx, org, opts)
+
+		if err != nil {
+			return nil, err
+		}
+
+		members = append(members, users...)
+
+		if res.NextPage == 0 {
+			break
+		}
+
+		page = res.NextPage
+
+	}
+
+	return members, nil
+}
