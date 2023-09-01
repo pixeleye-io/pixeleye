@@ -168,6 +168,11 @@ enum "team_member_role" {
   values = ["owner", "admin", "accountant", "member"]
 }
 
+enum "team_member_type" {
+  schema = schema.public
+  values = ["invited", "git"]
+}
+
 table "team_users" {
   schema = schema.public
   column "team_id" {
@@ -193,6 +198,11 @@ table "team_users" {
 
   column "role" {
     type = enum.team_member_role
+    null = false
+  }
+
+  column "type" {
+    type = enum.team_member_type
     null = false
   }
 }
