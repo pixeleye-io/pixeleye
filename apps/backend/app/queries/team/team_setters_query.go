@@ -3,6 +3,8 @@ package Team_queries
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -47,4 +49,36 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	}
 
 	return nil
+}
+
+func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, memberIDs []string) error {
+	query := `DELETE FROM team_users WHERE id IN (?)`
+
+	query, args, err := sqlx.In(query, pq.StringArray(memberIDs))
+
+	if err != nil {
+		return err
+	}
+
+	query = q.Rebind(query)
+
+	_, err = q.ExecContext(ctx, query, args...)
+
+	return err
+}
+
+func (q *TeamQueries) RemoveTeamMember(ctx context.Context, memberID string) error {
+	query := `DELETE FROM team_users WHERE id = ?`
+
+	_, err := q.ExecContext(ctx, query, memberID)
+
+	return err
+}
+
+func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamMember) error {
+	query := `INSERT INTO team_users (team_id, user_id, role) VALUES (:team_id, :user_id, :role)`
+
+	_, err := q.NamedExecContext(ctx, query, members)
+
+	return err
 }

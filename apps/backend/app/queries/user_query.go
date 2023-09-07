@@ -254,3 +254,15 @@ func (q *UserQueries) DeleteUsers() error {
 
 	return nil
 }
+
+func (q *UserQueries) GetUserByGithubID(ctx context.Context, id string) (models.User, error) {
+	query := `SELECT * FROM users WHERE github_id = $1`
+
+	user := models.User{}
+
+	if err := q.GetContext(ctx, &user, query, id); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
