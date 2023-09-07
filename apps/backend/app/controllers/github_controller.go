@@ -293,7 +293,7 @@ func SyncMembers(c echo.Context) error {
 		found := false
 
 		for _, teamMember := range teamMembers {
-			if teamMember. == strconv.Itoa(int(member.GetID())) {
+			if teamMember.ID == strconv.Itoa(int(member.GetID())) {
 				found = true
 				break
 			}
@@ -303,21 +303,24 @@ func SyncMembers(c echo.Context) error {
 			continue
 		}
 
-		user, err := db.GetUserByEmail(c.Request().Context(), member.GetEmail())
+		// user, err := db.GetUserByEmail(c.Request().Context(), member.GetEmail())
 
-		if err != nil && err != sql.ErrNoRows {
-			return err
-		}
+		// if err != nil && err != sql.ErrNoRows {
+		// 	return err
+		// }
 
-		if err != sql.ErrNoRows {
-			// User exists, we add it to the team
+		// if err != sql.ErrNoRows {
+		// User exists, we add it to the team
 
-			err = db.AddUserToTeam(c.Request().Context(), team.ID, user.ID, models.TEAM_MEMBER_ROLE_MEMBER)
+		// err = db.AddUserToTeam(c.Request().Context(), team.ID, user.ID, models.TEAM_MEMBER_ROLE_MEMBER)
 
-			if err != nil {
-				return err
-			}
-		}
+		// if err != nil {
+		// 	return err
+		// }
+		// }
+
 	}
+
+	return echo.NewHTTPError(http.StatusBadRequest, "User does not exist")
 
 }

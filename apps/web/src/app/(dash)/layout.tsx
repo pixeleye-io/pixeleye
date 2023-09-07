@@ -18,6 +18,9 @@ export default async function DashboardLayout({
       headers: {
         cookie,
       },
+    }).then((res) => {
+      console.log(res);
+      return res;
     }),
     API.get("/user/teams", {
       headers: {

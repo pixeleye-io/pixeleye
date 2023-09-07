@@ -17,6 +17,21 @@ table "users" {
     null = false
   }
 
+  column "github_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "gitlab_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "bitbucket_id" {
+    type = varchar(255)
+    null = false
+  }
+
   column "created_at" {
     type = timestamptz
     null = false

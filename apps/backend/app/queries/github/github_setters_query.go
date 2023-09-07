@@ -100,8 +100,8 @@ func (q *GithubQueries) SyncTeamMembers(context context.Context, team models.Tea
 		return err
 	}
 
-	newMembers := []models.TeamMember{}
-	prevInvitedMembers := []models.TeamMember{}
+	// newMembers := []models.TeamMember{}
+	// prevInvitedMembers := []models.TeamMember{}
 
 	for _, gitMember := range gitMembers {
 		found := false
@@ -116,7 +116,7 @@ func (q *GithubQueries) SyncTeamMembers(context context.Context, team models.Tea
 			}
 		}
 
-		memberType := models.TEAM_MEMBER_TYPE_GIT
+		// memberType := models.TEAM_MEMBER_TYPE_GIT
 
 		if !found {
 			// TODO add user to team
