@@ -43,8 +43,9 @@ const (
 )
 
 type TeamMember struct {
-	TeamID string  `db:"team_id" json:"teamID" validate:"required,nanoid"`
-	UserID string  `db:"user_id" json:"userID" validate:"required,nanoid"`
-	Role   string  `db:"role" json:"role" validate:"required,oneof=owner admin accountant member"`
-	Type   *string `db:"type" json:"type" validate:"required,oneof=invited git"`
+	TeamID   string  `db:"team_id" json:"teamID" validate:"required,nanoid"`
+	UserID   string  `db:"user_id" json:"userID" validate:"required,nanoid"`
+	Role     string  `db:"role" json:"role" validate:"required,oneof=owner admin accountant member"`
+	RoleSync bool    `db:"role_sync" json:"roleSync"`
+	Type     *string `db:"type" json:"type" validate:"required,oneof=invited git"`
 }

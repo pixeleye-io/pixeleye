@@ -77,12 +77,13 @@ func (q *TeamQueries) GetGitTeamUsers(ctx context.Context, teamID string) ([]mod
 
 type UserOnTeam struct {
 	*models.User
-	Type *string `db:"type"`
-	Role string  `db:"role"`
+	Type     *string `db:"type"`
+	Role     string  `db:"role"`
+	RoleSync bool    `db:"role_sync"`
 }
 
 func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOnTeam, error) {
-	query := `SELECT users.*, team_users.type, team_users.role FROM team_users JOIN users ON team_users.user_id = users.id WHERE team_id = $1`
+	query := `SELECT users.*, team_users.type, team_users.role, team_users.role_sync FROM team_users JOIN users ON team_users.user_id = users.id WHERE team_id = $1`
 
 	users := []UserOnTeam{}
 

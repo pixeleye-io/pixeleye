@@ -53,6 +53,7 @@ func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.Us
 		ListOptions: github.ListOptions{
 			PerPage: 100,
 		},
+		Role: "all",
 	}
 
 	page := 1
@@ -140,12 +141,29 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 	log.Debug().Msgf("Git Members: %+v", gitMembers)
 
 	var membersToRemove []string
+	// var existingMembers []string
 
 	for _, currentMember := range currentMembers {
 		found := false
 		for _, gitMember := range gitMembers {
 			if strconv.Itoa(int(gitMember.GetID())) == currentMember.GithubID {
 				found = true
+
+				// existingMembers = append(existingMembers, currentMember.ID)
+
+				if currentMember.RoleSync {
+					if gitMember.GetSiteAdmin() && currentMember.Role != models.TEAM_MEMBER_ROLE_ADMIN {
+						if err := db.UpdateUserRoleOnTeam(ctx, currentMember.ID, models.TEAM_MEMBER_ROLE_ADMIN); err != nil {
+							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
+							break
+						}
+					} else if !gitMember.GetSiteAdmin() && currentMember.Role != models.TEAM_MEMBER_ROLE_MEMBER {
+						if err := db.UpdateUserRoleOnTeam(ctx, currentMember.ID, models.TEAM_MEMBER_ROLE_MEMBER); err != nil {
+							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
+							break
+						}
+					}
+				}
 				break
 			}
 		}
@@ -179,18 +197,25 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 			}
 
 			memberType := models.TEAM_MEMBER_TYPE_GIT
+			role := models.TEAM_MEMBER_ROLE_MEMBER
+			if gitMember.GetSiteAdmin() {
+				role = models.TEAM_MEMBER_ROLE_ADMIN
+			}
 			membersToAdd = append(membersToAdd, models.TeamMember{
-				UserID: user.ID,
-				Type:   &memberType,
-				Role:   models.TEAM_MEMBER_ROLE_MEMBER,
-				TeamID: team.ID,
+				UserID:   user.ID,
+				Type:     &memberType,
+				Role:     role,
+				RoleSync: true,
+				TeamID:   team.ID,
 			})
 		}
 	}
 
+	// TODO - add list of users to edit perms for
+
 	if len(membersToRemove) > 0 {
 		log.Debug().Msgf("Removing %d members from team %s", len(membersToRemove), team.ID)
-		err = db.RemoveTeamMembers(ctx, membersToRemove)
+		err = db.RemoveTeamMembers(ctx, team.ID, membersToRemove)
 		if err != nil {
 			return err
 		}

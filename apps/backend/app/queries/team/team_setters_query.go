@@ -51,8 +51,8 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	return nil
 }
 
-func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, memberIDs []string) error {
-	query := `DELETE FROM team_users WHERE id IN (?)`
+func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
+	query := `DELETE FROM team_users WHERE team_id = ? AND id IN (?)`
 
 	query, args, err := sqlx.In(query, pq.StringArray(memberIDs))
 
@@ -79,6 +79,14 @@ func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamM
 	query := `INSERT INTO team_users (team_id, user_id, role) VALUES (:team_id, :user_id, :role)`
 
 	_, err := q.NamedExecContext(ctx, query, members)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, memberID string, role string) error {
+	query := `UPDATE team_users SET role = $1, WHERE id = $2`
+
+	_, err := q.ExecContext(ctx, query, role, memberID)
 
 	return err
 }

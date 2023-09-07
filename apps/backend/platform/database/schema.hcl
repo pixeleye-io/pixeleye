@@ -124,7 +124,7 @@ table "team" {
 
   index "idx_unique_team_external_id" {
     columns = [column.external_id, column.type]
-    where  = "type != 'user'"
+    where   = "type != 'user'"
     unique  = true
   }
 
@@ -220,6 +220,12 @@ table "team_users" {
   column "role" {
     type = enum.team_member_role
     null = false
+  }
+
+  column "role_sync" {
+    type    = boolean
+    default = false
+    null    = false
   }
 
   column "type" {
@@ -318,13 +324,19 @@ table "project_users" {
 
   foreign_key "user_id" {
     columns     = [column.user_id]
-    ref_columns = [table.users.column.id]
+    ref_columns = [table.team_users.column.user_id]
     on_delete   = CASCADE
   }
 
   column "role" {
     type = enum.project_member_role
     null = false
+  }
+
+  column "role_sync" {
+    type    = boolean
+    default = false
+    null    = false
   }
 }
 
