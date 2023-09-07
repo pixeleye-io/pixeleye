@@ -8,24 +8,12 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
 
-// isAdmin bool is for check user is admin. If user is admin, user can see all projects in team.
-// If user is not admin, user can see only projects that user is member of.
-func (q *TeamQueries) GetTeamsProjects(teamID string, userID string, isAdmin bool) ([]models.Project, error) {
-	query := `SELECT * FROM project JOIN project_users ON project.id = project_users.project_id WHERE project.team_id = $1 project_users.user_id = $2`
-	queryAdmin := `SELECT * FROM project WHERE team_id = $1`
+func (q *TeamQueries) GetTeamsProjects(ctx context.Context, teamID string) ([]models.Project, error) {
+	query := `SELECT * FROM project WHERE team_id = $1`
 
 	projects := []models.Project{}
 
-	var err error
-	if isAdmin {
-		err = q.Select(&projects, queryAdmin, teamID, userID)
-	} else {
-		err = q.Select(&projects, query, teamID, userID)
-	}
-
-	if err != nil && err != sql.ErrNoRows {
-		return projects, err
-	}
+	err := q.SelectContext(ctx, &projects, query, teamID)
 
 	return projects, err
 }
@@ -100,4 +88,32 @@ func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([
 	err := q.SelectContext(ctx, &installations, query, teamID)
 
 	return installations, err
+}
+
+func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, gitType string, isUserTeam bool) (models.GitInstallation, error) {
+	installations, err := q.GetGitInstallations(ctx, teamID)
+
+	if err != nil {
+		return models.GitInstallation{}, err
+	}
+
+	if len(installations) == 0 {
+		return models.GitInstallation{}, fmt.Errorf("no git installations found for team %s", teamID)
+	} else if !isUserTeam && len(installations) > 1 {
+		return models.GitInstallation{}, fmt.Errorf("multiple installations found for team %s. Only 1 per non user team allowed", teamID)
+	}
+
+	var installation models.GitInstallation
+	for _, i := range installations {
+		if i.Type == gitType {
+			installation = i
+			break
+		}
+	}
+
+	if installation.ID == "" {
+		return models.GitInstallation{}, fmt.Errorf("no git installation found for type %s", gitType)
+	}
+
+	return installation, nil
 }

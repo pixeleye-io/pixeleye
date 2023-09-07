@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	Team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
@@ -83,7 +84,226 @@ func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.Us
 	return members, nil
 }
 
+func ListCollaborators(ctx context.Context, client *github.Client, org string, repo string) ([]*github.User, error) {
+	opts := &github.ListCollaboratorsOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 100,
+		},
+		Affiliation: "all",
+	}
+
+	page := 1
+
+	var collaborators []*github.User
+
+	for {
+
+		opts.Page = page
+
+		collaboratorsList, res, err := client.Repositories.ListCollaborators(ctx, org, repo, opts)
+
+		if err != nil {
+			return nil, err
+		}
+
+		collaborators = append(collaborators, collaboratorsList...)
+
+		if res.NextPage == 0 {
+			break
+		}
+
+		page = res.NextPage
+
+	}
+
+	return collaborators, nil
+}
+
+func syncGithubProjectMembers(ctx context.Context, db *database.Queries, team models.Team, teamUsers []Team_queries.UserOnTeam, project models.Project) error {
+
+	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB, false)
+	if err != nil {
+		return err
+	}
+
+	ghClient, err := NewGithubInstallClient(installation.InstallationID)
+	if err != nil {
+		return err
+	}
+
+	repoID, err := strconv.ParseInt(project.SourceID, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	repo, _, err := ghClient.Repositories.GetByID(ctx, repoID)
+	if err != nil {
+		return err
+	}
+
+	collaborators, err := ListCollaborators(ctx, ghClient.Client, repo.GetOwner().GetLogin(), repo.GetName())
+	if err != nil {
+		return err
+	}
+
+	var collaboratorsToRemove []string
+
+	for _, collaborator := range collaborators {
+		found := false
+		for _, user := range teamUsers {
+			if user.GithubID == strconv.Itoa(int(collaborator.GetID())) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			collaboratorsToRemove = append(collaboratorsToRemove, collaborator.GetLogin())
+		}
+
+	}
+
+	var viewerCollaborators []string
+	var reviewerCollaborators []string
+	var adminCollaborators []string
+
+	for _, user := range teamUsers {
+		found := false
+		githubUser := &github.User{}
+		for _, collaborator := range collaborators {
+			if user.GithubID == strconv.Itoa(int(collaborator.GetID())) {
+				found = true
+				githubUser = collaborator
+				break
+			}
+		}
+
+		if !found {
+			continue
+		}
+
+		projectMember, err := db.GetUserOnProject(ctx, project.ID, user.ID)
+		if err != nil {
+			return err
+		}
+
+		if !projectMember.RoleSync {
+			continue
+		}
+
+		if githubUser.GetSiteAdmin() {
+			adminCollaborators = append(adminCollaborators, githubUser.GetLogin())
+			continue
+		}
+
+		perms := githubUser.GetPermissions()
+		if perms == nil {
+			continue
+		}
+
+		log.Debug().Msgf("User %s perms: %+v", githubUser.GetLogin(), perms)
+
+		if perms["write"] {
+			reviewerCollaborators = append(reviewerCollaborators, githubUser.GetLogin())
+			continue
+		}
+
+		if perms["read"] {
+			viewerCollaborators = append(viewerCollaborators, githubUser.GetLogin())
+			continue
+		}
+	}
+
+	if len(collaboratorsToRemove) > 0 {
+		log.Debug().Msgf("Removing %d collaborators from project %s", len(collaboratorsToRemove), project.ID)
+		err = db.RemoveUsersFromProject(ctx, project.ID, collaboratorsToRemove)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to remove users from project %s", project.ID)
+			return err
+		}
+	}
+
+	if len(viewerCollaborators) > 0 {
+		log.Debug().Msgf("Adding %d viewers to project %s", len(viewerCollaborators), project.ID)
+		err = db.AddUsersToProject(ctx, project.ID, viewerCollaborators, models.PROJECT_MEMBER_ROLE_VIEWER, true)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
+			return err
+		}
+	}
+
+	if len(reviewerCollaborators) > 0 {
+		log.Debug().Msgf("Adding %d reviewers to project %s", len(reviewerCollaborators), project.ID)
+		err = db.AddUsersToProject(ctx, project.ID, reviewerCollaborators, models.PROJECT_MEMBER_ROLE_REVIEWER, true)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
+			return err
+		}
+	}
+
+	if len(adminCollaborators) > 0 {
+		log.Debug().Msgf("Adding %d admins to project %s", len(adminCollaborators), project.ID)
+		err = db.AddUsersToProject(ctx, project.ID, adminCollaborators, models.PROJECT_MEMBER_ROLE_ADMIN, true)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func SyncProjectMembers(ctx context.Context, team models.Team) error {
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	members, err := db.GetTeamUsers(ctx, team.ID)
+	if err != nil {
+		return err
+	}
+
+	projects, err := db.GetTeamsProjects(ctx, team.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	} else if len(projects) == 0 {
+		return nil
+	}
+
+	for _, project := range projects {
+		switch project.Source {
+		case models.GIT_TYPE_GITHUB:
+			if err := syncGithubProjectMembers(ctx, db, team, members, project); err != nil {
+				log.Error().Err(err).Msgf("Failed to sync github project members for project %s", project.ID)
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
 func SyncTeamMembers(ctx context.Context, team models.Team) error {
+	log.Debug().Msgf("Syncing team members for team %s", team.ID)
+
+	var err error
+	switch team.Type {
+	case models.TEAM_TYPE_GITHUB:
+		err = SyncGithubTeamMembers(ctx, team)
+
+	}
+
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
+		return err
+	}
+
+	return SyncProjectMembers(ctx, team)
+}
+
+func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	log.Debug().Msgf("Syncing team members for team %s", team.ID)
 	if team.Type != models.TEAM_TYPE_GITHUB {
 		return fmt.Errorf("team is not a github team")
@@ -94,22 +314,9 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 		return err
 	}
 
-	installations, err := db.GetGitInstallations(ctx, team.ID)
-
+	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB, false)
 	if err != nil {
 		return err
-	}
-
-	if len(installations) == 0 {
-		return fmt.Errorf("no github installations found for team %s", team.ID)
-	} else if len(installations) > 1 {
-		return fmt.Errorf("multiple installations found for team %s. Only 1 per non user team allowed", team.ID)
-	}
-
-	installation := installations[0]
-
-	if installation.Type != models.GIT_TYPE_GITHUB {
-		return fmt.Errorf("installation is not a github installation")
 	}
 
 	ghAppClient, err := NewGithubAppClient()
@@ -187,12 +394,7 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 		if !found {
 
 			user, err := db.GetUserByGithubID(ctx, strconv.Itoa(int(gitMember.GetID())))
-
 			if err != nil {
-				continue
-			}
-
-			if err == sql.ErrNoRows {
 				continue
 			}
 

@@ -104,7 +104,7 @@ func GetProjectBuilds(c echo.Context) error {
 
 	branch := c.QueryParam("branch")
 
-	builds, err := db.GetProjectBuilds(project.ID, branch)
+	builds, err := db.GetProjectBuilds(c.Request().Context(), project.ID, branch)
 
 	if err != nil {
 		return err

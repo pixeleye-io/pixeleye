@@ -188,10 +188,39 @@ func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userI
 	return tx.Commit()
 }
 
+func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string, userIDs []string, role string, roleSync bool) error {
+	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (?, ?, ?)`
+	query, args, err := sqlx.In(query, projectID, userIDs, role, roleSync)
+	if err != nil {
+		return err
+	}
+
+	query = q.Rebind(query)
+
+	_, err = q.ExecContext(ctx, query, args...)
+
+	return err
+}
+
 func (q *ProjectQueries) RemoveUserFromProject(projectID string, userID string) error {
 	query := `DELETE FROM project_users WHERE project_id = $1 AND user_id = $2`
 
 	_, err := q.Exec(query, projectID, userID)
+
+	return err
+}
+
+func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID string, userIDs []string) error {
+	query := `DELETE FROM project_users WHERE project_id = $1 AND user_id IN (?)`
+
+	query, args, err := sqlx.In(query, projectID, userIDs)
+	if err != nil {
+		return err
+	}
+
+	query = q.Rebind(query)
+
+	_, err = q.ExecContext(ctx, query, args...)
 
 	return err
 }
@@ -204,7 +233,7 @@ func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string
 	return err
 }
 
-func (q *ProjectQueries) GetProjectBuilds(projectID string, branch string) ([]models.Build, error) {
+func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {
 	query := `SELECT * FROM build WHERE project_id = $1 ORDER BY created_at DESC`
 	queryBranches := `SELECT * FROM build WHERE project_id = $1 AND branch = $2`
 
@@ -218,4 +247,14 @@ func (q *ProjectQueries) GetProjectBuilds(projectID string, branch string) ([]mo
 	}
 
 	return builds, err
+}
+
+func (q *ProjectQueries) GetUserOnProject(ctx context.Context, projectID string, userID string) (models.ProjectMember, error) {
+	query := `SELECT * FROM project_users WHERE project_id = $1 AND user_id = $2`
+
+	projectUser := models.ProjectMember{}
+
+	err := q.GetContext(ctx, &projectUser, query, projectID, userID)
+
+	return projectUser, err
 }
