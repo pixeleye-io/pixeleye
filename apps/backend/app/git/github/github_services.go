@@ -42,7 +42,7 @@ func IsOrgInstallation(app github.Installation) bool {
 	return app.Account.Type != nil && *app.Account.Type == "Organization"
 }
 
-func GetOrgMembers(ctx context.Context, client *github.Client, org string) ([]*github.User, error) {
+func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.User, error) {
 	opts := &github.ListMembersOptions{
 		PublicOnly: false,
 		ListOptions: github.ListOptions{
@@ -58,7 +58,7 @@ func GetOrgMembers(ctx context.Context, client *github.Client, org string) ([]*g
 
 		opts.Page = page
 
-		users, res, err := client.Organizations.ListMembers(ctx, org, opts)
+		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
 
 		if err != nil {
 			return nil, err

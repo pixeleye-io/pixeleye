@@ -235,3 +235,80 @@ func GithubAppInstallation(c echo.Context) error {
 		Team:         team,
 	})
 }
+
+func SyncMembers(c echo.Context) error {
+
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
+	if team.Type != models.TEAM_TYPE_GITHUB {
+		return echo.NewHTTPError(http.StatusBadRequest, "Team is not a Github team")
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	installation, err := db.GetTeamInstallation(c.Request().Context(), team.ID)
+
+	if err != nil {
+		return err
+	}
+
+	ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
+
+	if err != nil {
+		return err
+	}
+
+	org, err := ghClient.GetInstallationInfo(c.Request().Context(), installation.InstallationID)
+
+	if err != nil {
+		return err
+	}
+
+	members, err := ghClient.GetMembers(c.Request().Context(), org.GetAccount().GetLogin())
+
+	if err != nil {
+		return err
+	}
+
+	log.Debug().Msgf("Members: %+v", members)
+
+	teamMembers, err := db.GetTeamUsers(c.Request().Context(), team.ID)
+
+	if err != nil {
+		return err
+	}
+
+	log.Debug().Msgf("Team Members: %+v", teamMembers)
+
+	// We need to go through all members not already in the team and check if they have a pixeleye account
+	// If they do, we add them to the team
+	// If They are already a member but not as git member, we update their type to git member
+
+	for _, member := range members {
+
+		found := false
+
+		for _, teamMember := range teamMembers {
+			if teamMember.ID == strconv.Itoa(int(member.GetID())) {
+				found = true
+				break
+			}
+		}
+
+		if found {
+			continue
+		}
+
+	}
+
+	return echo.NewHTTPError(http.StatusBadRequest, "User does not exist")
+
+}

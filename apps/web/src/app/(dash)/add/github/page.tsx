@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { getTeam } from "@/serverLibs";
 import { RepoList } from "../repos";
 import { redirect } from "next/navigation";
+import { env } from "@/env";
 
 export default async function AddGithubProjectPage({
   searchParams,
@@ -80,7 +81,7 @@ export default async function AddGithubProjectPage({
           Not seeing your repo or organization?{" "}
           <a
             className="text-blue-400 dark:text-blue-300"
-            href="https://github.com/apps/pixeleye-io/installations/new"
+            href={`https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`}
             target="_blank"
           >
             Install/configure

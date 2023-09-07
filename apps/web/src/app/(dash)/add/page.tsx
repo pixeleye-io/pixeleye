@@ -4,20 +4,27 @@ import Link from "next/link";
 import { useTeamStore } from "../breadcrumbStore";
 import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
+import { API } from "@/libs";
+import { cookies } from "next/headers";
+import { env } from "@/env";
 
 interface ImportCardProps {
   name: string;
   connected?: boolean;
+  installUrl?: string;
+  type: string;
   imageUrl: {
     light: string;
     dark: string;
   };
 }
 
-const sources: ImportCardProps[] = [
+const defaultSources: ImportCardProps[] = [
   {
     name: "github",
-    connected: true,
+    type: "github",
+    installUrl: `https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`,
+    connected: false,
     imageUrl: {
       light: "/github-mark.svg",
       dark: "/github-mark-white.svg",
@@ -25,7 +32,8 @@ const sources: ImportCardProps[] = [
   },
   {
     name: "basic git",
-    connected: false,
+    type: "custom",
+    connected: true,
     imageUrl: {
       light: "/git.svg",
       dark: "/git-white.svg",
@@ -43,6 +51,29 @@ export default async function AddProjectPage({
   const team = await getTeam(searchParams);
 
   if (team.type !== "user") redirect(`/add/${team.type}?${params.toString()}`);
+
+  const installations = await API.get("/teams/{teamID}/installations", {
+    params: {
+      teamID: team.id,
+    },
+    headers: {
+      cookie: cookies().toString(),
+    },
+  });
+
+  const sources = defaultSources.map((source) => {
+    const installation = installations.find(
+      (installation) => installation.type === source.type
+    );
+
+    if (installation) {
+      return {
+        ...source,
+        connected: true,
+      };
+    }
+    return source;
+  });
 
   return (
     <div className="p-16">
@@ -77,7 +108,11 @@ export default async function AddProjectPage({
                 {source.connected ? "Connected" : "Not connected"}
               </span>
               <Link
-                href={`/add/${source.name}?${params.toString()}`}
+                href={
+                  source.connected
+                    ? `/add/${source.name}?${params.toString()}`
+                    : source.installUrl!
+                }
                 className="absolute inset-0 w-full h-full"
               >
                 <span className="sr-only">

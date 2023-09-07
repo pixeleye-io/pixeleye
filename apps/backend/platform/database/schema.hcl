@@ -17,6 +17,21 @@ table "users" {
     null = false
   }
 
+  column "github_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "gitlab_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "bitbucket_id" {
+    type = varchar(255)
+    null = false
+  }
+
   column "created_at" {
     type = timestamptz
     null = false
@@ -41,6 +56,11 @@ table "users" {
 
   index "idx_unique_user_auth_id" {
     columns = [column.auth_id]
+    unique  = true
+  }
+
+  index "idx_unique_user_email" {
+    columns = [column.email]
     unique  = true
   }
 }
@@ -169,6 +189,11 @@ enum "team_member_role" {
   values = ["owner", "admin", "accountant", "member"]
 }
 
+enum "team_member_type" {
+  schema = schema.public
+  values = ["invited", "git"]
+}
+
 table "team_users" {
   schema = schema.public
   column "team_id" {
@@ -195,6 +220,11 @@ table "team_users" {
   column "role" {
     type = enum.team_member_role
     null = false
+  }
+
+  column "type" {
+    type = enum.team_member_type
+    null = true
   }
 }
 

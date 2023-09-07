@@ -25,22 +25,22 @@ func getTeamKey(teamId string, userId string) string {
 	return fmt.Sprintf("team:%s:user:%s", teamId, userId)
 }
 
-func GetTeam(c echo.Context) models.Team {
+func GetTeam(c echo.Context) (models.Team, error) {
 	teamID := c.Param("team_id")
 
 	user, err := GetUser(c)
 
 	if err != nil {
-		return models.Team{}
+		return models.Team{}, err
 	}
 
 	team := c.Get(getTeamKey(teamID, user.ID))
 
 	if team == nil {
-		return models.Team{}
+		return models.Team{}, err
 	}
 
-	return team.(models.Team)
+	return team.(models.Team), nil
 }
 
 func (p *PermissionsRequired) TeamRoleAccess(next echo.HandlerFunc) echo.HandlerFunc {

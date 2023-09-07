@@ -15,7 +15,12 @@ import (
 )
 
 func GetTeamsProjects(c echo.Context) error {
-	team := middleware.GetTeam(c)
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
 	user, err := middleware.GetUser(c)
 
 	if err != nil {
@@ -39,7 +44,11 @@ func GetTeamsProjects(c echo.Context) error {
 
 func GetRepos(c echo.Context) error {
 
-	team := middleware.GetTeam(c)
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
 
 	db, err := database.OpenDBConnection()
 
@@ -100,4 +109,27 @@ func GetRepos(c echo.Context) error {
 	}
 
 	return c.String(http.StatusBadRequest, "Team type not supported")
+}
+
+func GetInstallations(c echo.Context) error {
+
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	installations, err := db.GetGitInstallations(c.Request().Context(), team.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, installations)
 }

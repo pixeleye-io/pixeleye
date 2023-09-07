@@ -27,7 +27,6 @@
     "@ory/integrations": "^1.1.4",
     "@ory/kratos-client": "^0.13.1",
     "@pixeleye/api": "workspace:*",
-    "@pixeleye/github": "workspace:*",
     "@pixeleye/reviewer": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.6.1",

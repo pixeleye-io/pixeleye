@@ -20,7 +20,7 @@ function getOryAuthAPI(): FrontendApi {
   }
   oryAuthAPI = new FrontendApi(
     new Configuration({
-      accessToken: env.ORY_API_KEY,
+      accessToken: `bearer ${env.ORY_API_KEY}`,
     }),
     env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT
   );
@@ -35,7 +35,7 @@ async function createOryIdentity(id: IDs = IDs.jekyll) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: env.ORY_API_KEY,
+        Authorization: `bearer ${env.ORY_API_KEY}`,
       },
       body: JSON.stringify(createJohnSmithIdentityBody(id)),
     }

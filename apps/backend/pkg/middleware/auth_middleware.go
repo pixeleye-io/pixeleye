@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -84,7 +83,7 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				return err
 			}
 
-			user, err = db.CreateUser(session.Identity.GetId(), *userTraits)
+			user, err = db.CreateUser(c.Request().Context(), session.Identity.GetId(), *userTraits)
 
 			if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
 				log.Error().Err(err).Msg("Error creating user, user already exists")
@@ -123,7 +122,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 		authorization = authorization[7:]
 
-		resp, _, err := k.ory.FrontendApi.ToSession(context.Background()).XSessionToken(authorization).Execute()
+		resp, _, err := k.ory.FrontendApi.ToSession(r.Context()).XSessionToken(authorization).Execute()
 		if err != nil {
 			log.Err(err).Msg("Error validating session")
 			return nil, err
@@ -133,7 +132,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 	cookies := r.Header.Get("Cookie")
 
-	resp, _, err := k.ory.FrontendApi.ToSession(context.Background()).Cookie(cookies).Execute()
+	resp, _, err := k.ory.FrontendApi.ToSession(r.Context()).Cookie(cookies).Execute()
 	if err != nil {
 		return nil, err
 	}

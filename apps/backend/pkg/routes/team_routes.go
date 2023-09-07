@@ -23,4 +23,6 @@ func TeamRoutes(e *echo.Echo) {
 	v1.GET("/projects", controllers.GetTeamsProjects)
 
 	v1.GET("/repos", controllers.GetRepos)
+
+	v1.GET("/installations", controllers.GetInstallations)
 }

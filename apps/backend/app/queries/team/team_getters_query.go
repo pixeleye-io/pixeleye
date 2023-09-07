@@ -64,3 +64,39 @@ func (q *TeamQueries) GetTeamInstallation(ctx context.Context, teamID string) (m
 
 	return installation, err
 }
+
+func (q *TeamQueries) GetGitTeamUsers(ctx context.Context, teamID string) ([]models.TeamMember, error) {
+	query := `SELECT * FROM team_users WHERE team_id = $1 AND type = $2`
+
+	users := []models.TeamMember{}
+
+	err := q.SelectContext(ctx, &users, query, teamID, models.TEAM_MEMBER_TYPE_GIT)
+
+	return users, err
+}
+
+type UserOnTeam struct {
+	*models.User
+	Type *string `db:"type"`
+	Role string  `db:"role"`
+}
+
+func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOnTeam, error) {
+	query := `SELECT users.*, team_users.type, team_users.role FROM team_users JOIN users ON team_users.user_id = users.id WHERE team_id = $1`
+
+	users := []UserOnTeam{}
+
+	err := q.SelectContext(ctx, &users, query, teamID)
+
+	return users, err
+}
+
+func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([]models.GitInstallation, error) {
+	query := `SELECT * FROM git_installation WHERE team_id = $1`
+
+	installations := []models.GitInstallation{}
+
+	err := q.SelectContext(ctx, &installations, query, teamID)
+
+	return installations, err
+}

@@ -13,6 +13,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/identity"
 	"github.com/rs/zerolog/log"
 )
 
@@ -32,8 +33,9 @@ func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
 	return user, nil
 }
 
-func (q *UserQueries) CreateUser(userID string, userTraits models.UserTraits) (models.User, error) {
-	query := `INSERT INTO users (id, name, email, avatar_url, auth_id, created_at, updated_at) VALUES (:id, :name, :email, :avatar_url, :auth_id, :created_at, :updated_at)`
+func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits models.UserTraits) (models.User, error) {
+
+	query := `INSERT INTO users (id, name, email, avatar_url, auth_id, created_at, updated_at, github_id, gitlab_id, bitbucket_id) VALUES (:id, :name, :email, :avatar_url, :auth_id, :created_at, :updated_at, :github_id, :gitlab_id, :bitbucket_id)`
 
 	time := utils.CurrentTime()
 
@@ -44,6 +46,38 @@ func (q *UserQueries) CreateUser(userID string, userTraits models.UserTraits) (m
 		Name:      userTraits.Name,
 		Email:     userTraits.Email,
 		Avatar:    userTraits.Avatar,
+	}
+
+	tokens, err := identity.GetTokens(ctx, userID)
+
+	if err != nil {
+		return user, err
+	}
+
+	log.Debug().Msgf("Tokens: %v", tokens)
+
+	configsRaw, ok := tokens.GetConfig()["providers"]
+
+	if ok {
+		configs, ok := configsRaw.([]interface{})
+
+		if !ok {
+			return user, errors.New("failed to cast providers to map")
+		}
+
+		for _, c := range configs {
+
+			config, ok := c.(map[string]interface{})
+
+			if !ok {
+				continue
+			}
+
+			switch config["provider"] {
+			case "github":
+				user.GithubID = config["subject"].(string)
+			}
+		}
 	}
 
 	id, err := nanoid.New()

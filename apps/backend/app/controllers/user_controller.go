@@ -85,7 +85,7 @@ func DeleteUser(c echo.Context) error {
 	}
 
 	// Update user field in ory on behalf of user.
-	if err = identity.SetState(user.ID, false); err != nil {
+	if err = identity.SetState(c.Request().Context(), user.ID, false); err != nil {
 		return err
 	}
 
