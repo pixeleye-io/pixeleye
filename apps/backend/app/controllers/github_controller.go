@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
@@ -130,7 +131,7 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 			return existingInstallation, err
 		}
 
-		return existingInstallation, git_github.SyncTeamMembers(c.Request().Context(), team)
+		return existingInstallation, git.SyncTeamMembers(c.Request().Context(), team)
 	}
 
 	log.Debug().Msgf("Team: %+v", team)
@@ -147,7 +148,7 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 		return installation, err
 	}
 
-	return installation, git_github.SyncTeamMembers(c.Request().Context(), team)
+	return installation, git.SyncTeamMembers(c.Request().Context(), team)
 }
 
 func GithubAppInstallation(c echo.Context) error {
@@ -194,7 +195,7 @@ func GithubAppInstallation(c echo.Context) error {
 			return err
 		}
 
-		if err := git_github.SyncTeamMembers(c.Request().Context(), team); err != nil {
+		if err := git.SyncTeamMembers(c.Request().Context(), team); err != nil {
 			return err
 		}
 

@@ -2,7 +2,6 @@ package git_github
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -119,7 +118,7 @@ func ListCollaborators(ctx context.Context, client *github.Client, org string, r
 	return collaborators, nil
 }
 
-func syncGithubProjectMembers(ctx context.Context, db *database.Queries, team models.Team, teamUsers []Team_queries.UserOnTeam, project models.Project) error {
+func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team models.Team, teamUsers []Team_queries.UserOnTeam, project models.Project) error {
 
 	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB, false)
 	if err != nil {
@@ -251,56 +250,6 @@ func syncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 	}
 
 	return nil
-}
-
-func SyncProjectMembers(ctx context.Context, team models.Team) error {
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	members, err := db.GetTeamUsers(ctx, team.ID)
-	if err != nil {
-		return err
-	}
-
-	projects, err := db.GetTeamsProjects(ctx, team.ID)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	} else if len(projects) == 0 {
-		return nil
-	}
-
-	for _, project := range projects {
-		switch project.Source {
-		case models.GIT_TYPE_GITHUB:
-			if err := syncGithubProjectMembers(ctx, db, team, members, project); err != nil {
-				log.Error().Err(err).Msgf("Failed to sync github project members for project %s", project.ID)
-				continue
-			}
-		}
-	}
-
-	return nil
-}
-
-func SyncTeamMembers(ctx context.Context, team models.Team) error {
-	log.Debug().Msgf("Syncing team members for team %s", team.ID)
-
-	var err error
-	switch team.Type {
-	case models.TEAM_TYPE_GITHUB:
-		err = SyncGithubTeamMembers(ctx, team)
-
-	}
-
-	if err != nil {
-		log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
-		return err
-	}
-
-	return SyncProjectMembers(ctx, team)
 }
 
 func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
