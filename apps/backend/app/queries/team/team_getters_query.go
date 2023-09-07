@@ -90,3 +90,13 @@ func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOn
 
 	return users, err
 }
+
+func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([]models.GitInstallation, error) {
+	query := `SELECT * FROM git_installation WHERE team_id = $1`
+
+	installations := []models.GitInstallation{}
+
+	err := q.SelectContext(ctx, &installations, query, teamID)
+
+	return installations, err
+}

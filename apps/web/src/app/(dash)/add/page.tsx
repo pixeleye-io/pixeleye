@@ -17,7 +17,7 @@ interface ImportCardProps {
 const sources: ImportCardProps[] = [
   {
     name: "github",
-    connected: true,
+    connected: false,
     imageUrl: {
       light: "/github-mark.svg",
       dark: "/github-mark-white.svg",
