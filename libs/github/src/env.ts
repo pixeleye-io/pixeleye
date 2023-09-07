@@ -6,6 +6,7 @@ export const serverEnvs = {
   GITHUB_PRIVATE_KEY: z.string(),
   GITHUB_APP_CLIENT_ID: z.string(),
   GITHUB_APP_CLIENT_SECRET: z.string(),
+  GITHUB_APP_NAME: z.string(),
 };
 
 export const env = createEnv({
