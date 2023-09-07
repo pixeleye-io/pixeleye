@@ -1,10 +1,9 @@
-import { serverEnvs } from "@pixeleye/github";
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    GITHUB_APP_NAME: serverEnvs.GITHUB_APP_NAME,
+    GITHUB_APP_NAME: z.string(),
   },
   client: {
     NEXT_PUBLIC_SERVER_URL: z.string(),
