@@ -58,27 +58,25 @@ func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits 
 
 	configsRaw, ok := tokens.GetConfig()["providers"]
 
-	if !ok {
-		return user, errors.New("failed to get providers from config")
-	}
-
-	configs, ok := configsRaw.([]interface{})
-
-	if !ok {
-		return user, errors.New("failed to cast providers to map")
-	}
-
-	for _, c := range configs {
-
-		config, ok := c.(map[string]interface{})
+	if ok {
+		configs, ok := configsRaw.([]interface{})
 
 		if !ok {
-			continue
+			return user, errors.New("failed to cast providers to map")
 		}
 
-		switch config["provider"] {
-		case "github":
-			user.GithubID = config["subject"].(string)
+		for _, c := range configs {
+
+			config, ok := c.(map[string]interface{})
+
+			if !ok {
+				continue
+			}
+
+			switch config["provider"] {
+			case "github":
+				user.GithubID = config["subject"].(string)
+			}
 		}
 	}
 
