@@ -5,9 +5,7 @@ import (
 
 	nanoid "github.com/matoous/go-nanoid/v2"
 
-	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
-	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
@@ -66,66 +64,66 @@ func (q *GithubQueriesTx) UpdateGithubAppInstallation(context context.Context, i
 
 func (q *GithubQueries) SyncTeamMembers(context context.Context, team models.Team) error {
 
-	tq := team_queries.TeamQueries{
-		DB: q.DB,
-	}
+	// tq := team_queries.TeamQueries{
+	// 	DB: q.DB,
+	// }
 
-	installation, err := tq.GetTeamInstallation(context, team.ID)
+	// installation, err := tq.GetTeamInstallation(context, team.ID)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
-	ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
+	// ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
-	org, err := ghClient.GetInstallationInfo(context, installation.InstallationID)
+	// org, err := ghClient.GetInstallationInfo(context, installation.InstallationID)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
-	gitMembers, err := ghClient.GetMembers(context, org.GetAccount().GetLogin())
+	// gitMembers, err := ghClient.GetMembers(context, org.GetAccount().GetLogin())
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
-	currentMembers, err := tq.GetTeamUsers(context, team.ID)
+	// currentMembers, err := tq.GetTeamUsers(context, team.ID)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
 	// newMembers := []models.TeamMember{}
 	// prevInvitedMembers := []models.TeamMember{}
 
-	for _, gitMember := range gitMembers {
-		found := false
-		wasInvited := false
-		for _, currentMember := range currentMembers {
-			if gitMember.GetEmail() == currentMember.Email && currentMember.Type == nil {
-				found = true
-				break
-			} else if currentMember.ID == gitMember.GetLogin() && utils.SafeDeref(currentMember.Type) == models.TEAM_MEMBER_TYPE_INVITED {
-				wasInvited = true
-				break
-			}
-		}
+	// for _, gitMember := range gitMembers {
+	// 	found := false
+	// 	wasInvited := false
+	// 	for _, currentMember := range currentMembers {
+	// 		if gitMember.GetEmail() == currentMember.Email && currentMember.Type == nil {
+	// 			found = true
+	// 			break
+	// 		} else if currentMember.ID == gitMember.GetLogin() && utils.SafeDeref(currentMember.Type) == models.TEAM_MEMBER_TYPE_INVITED {
+	// 			wasInvited = true
+	// 			break
+	// 		}
+	// 	}
 
-		// memberType := models.TEAM_MEMBER_TYPE_GIT
+	// 	// memberType := models.TEAM_MEMBER_TYPE_GIT
 
-		if !found {
-			// TODO add user to team
+	// 	// if !found {
+	// 	// 	// TODO add user to team
 
-		} else if wasInvited {
-			// TODO update user type to git member
-		}
+	// 	// } else if wasInvited {
+	// 	// 	// TODO update user type to git member
+	// 	// }
 
-	}
+	// }
 
 	return nil
 }

@@ -56,14 +56,6 @@ func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits 
 
 	log.Debug().Msgf("Tokens: %v", tokens)
 
-	type Config struct {
-		Provider            string `json:"provider"`
-		Subject             string `json:"subject"`
-		InitialAccessToken  string `json:"initial_access_token"`
-		InitialRefreshToken string `json:"initial_refresh_token"`
-		InitialIDToken      string `json:"initial_id_token"`
-	}
-
 	configsRaw, ok := tokens.GetConfig()["providers"]
 
 	if !ok {
@@ -76,9 +68,9 @@ func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits 
 		return user, errors.New("failed to cast providers to map")
 	}
 
-	for _, config := range configs {
+	for _, c := range configs {
 
-		config, ok := config.(map[string]interface{})
+		config, ok := c.(map[string]interface{})
 
 		if !ok {
 			continue

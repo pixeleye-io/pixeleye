@@ -256,6 +256,10 @@ func SyncMembers(c echo.Context) error {
 
 	installation, err := db.GetTeamInstallation(c.Request().Context(), team.ID)
 
+	if err != nil {
+		return err
+	}
+
 	ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
 
 	if err != nil {
