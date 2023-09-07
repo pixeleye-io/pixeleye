@@ -303,22 +303,6 @@ func SyncMembers(c echo.Context) error {
 			continue
 		}
 
-		// user, err := db.GetUserByEmail(c.Request().Context(), member.GetEmail())
-
-		// if err != nil && err != sql.ErrNoRows {
-		// 	return err
-		// }
-
-		// if err != sql.ErrNoRows {
-		// User exists, we add it to the team
-
-		// err = db.AddUserToTeam(c.Request().Context(), team.ID, user.ID, models.TEAM_MEMBER_ROLE_MEMBER)
-
-		// if err != nil {
-		// 	return err
-		// }
-		// }
-
 	}
 
 	return echo.NewHTTPError(http.StatusBadRequest, "User does not exist")
