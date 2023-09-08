@@ -95,8 +95,8 @@ func GetRepos(c echo.Context) error {
 					ID:          strconv.FormatInt(utils.SafeDeref(repo.ID), 10),
 					Name:        repo.Name,
 					Private:     repo.Private,
-					URL:         repo.URL,
-					LastUpdated: repo.UpdatedAt.Time,
+					URL:         repo.HTMLURL,
+					LastUpdated: repo.GetPushedAt().Time,
 					Description: repo.Description,
 				}
 			}
