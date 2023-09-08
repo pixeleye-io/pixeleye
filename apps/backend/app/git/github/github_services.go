@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/app/queries"
 	Team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
@@ -145,28 +146,33 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 		return err
 	}
 
-	// projectMembers, err := db.GetProjectUsers(ctx, project.ID)
-	// if err != nil {
-	// 	return err
-	// }
+	projectMembers, err := db.GetProjectUsers(ctx, project.ID)
+	if err != nil {
+		return err
+	}
 
 	log.Debug().Msgf("Collaborators: %+v", collaborators)
 
-	var collaboratorsToRemove []string
+	var membersToRemove []string
 
-	for _, collaborator := range collaborators {
+	for _, projectMember := range projectMembers {
+
+		// We don't want to remove users added manually
+		if !projectMember.RoleSync {
+			continue
+		}
+
 		found := false
-		for _, user := range teamUsers {
-			if user.GithubID == strconv.Itoa(int(collaborator.GetID())) {
+		for _, collaborator := range collaborators {
+			if projectMember.GithubID == strconv.Itoa(int(collaborator.GetID())) {
 				found = true
 				break
 			}
 		}
 
-		if !found {
-			collaboratorsToRemove = append(collaboratorsToRemove, collaborator.GetLogin())
+		if !found && projectMember.RoleSync {
+			membersToRemove = append(membersToRemove, projectMember.ID)
 		}
-
 	}
 
 	var viewerCollaborators []string
@@ -188,18 +194,22 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 			continue
 		}
 
-		// projectMember, err := db.GetUserOnProject(ctx, project.ID, user.ID)
-		// if err != nil && err != sql.ErrNoRows {
-		// 	log.Error().Err(err).Msgf("Failed to get user on project %s", project.ID)
-		// 	continue
-		// }
-
-		// if !projectMember.RoleSync {
-		// 	continue
-		// }
-
 		perms := githubUser.GetPermissions()
 		if perms == nil {
+			continue
+		}
+
+		userOnProject := queries.UserOnProject{}
+
+		for _, projectMember := range projectMembers {
+			if projectMember.GithubID == user.GithubID {
+				userOnProject = projectMember
+				break
+			}
+		}
+
+		if userOnProject.User != nil && !userOnProject.RoleSync {
+			// User is already on team and their role is not synced
 			continue
 		}
 
@@ -207,28 +217,21 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 		if perms["admin"] {
 			adminCollaborators = append(adminCollaborators, user.ID)
-			continue
-		}
-
-		if perms["push"] {
+		} else if perms["push"] {
 			reviewerCollaborators = append(reviewerCollaborators, user.ID)
-			continue
-		}
-
-		if perms["pull"] {
+		} else if perms["pull"] {
 			viewerCollaborators = append(viewerCollaborators, user.ID)
-			continue
 		}
 	}
 
-	// if len(collaboratorsToRemove) > 0 {
-	// 	log.Debug().Msgf("Removing %d collaborators from project %s", len(collaboratorsToRemove), project.ID)
-	// 	err = db.RemoveUsersFromProject(ctx, project.ID, collaboratorsToRemove)
-	// 	if err != nil {
-	// 		log.Error().Err(err).Msgf("Failed to remove users from project %s", project.ID)
-	// 		return err
-	// 	}
-	// }
+	if len(membersToRemove) > 0 {
+		log.Debug().Msgf("Removing %d collaborators from project %s", len(membersToRemove), project.ID)
+		err = db.RemoveUsersFromProject(ctx, project.ID, membersToRemove)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to remove users from project %s", project.ID)
+			return err
+		}
+	}
 
 	if len(viewerCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d viewers to project %s", len(viewerCollaborators), project.ID)
@@ -256,6 +259,8 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 			return err
 		}
 	}
+
+	log.Debug().Msgf("Synced project members for project %s", project.ID)
 
 	return nil
 }

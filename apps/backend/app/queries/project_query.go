@@ -144,10 +144,16 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 	return err
 }
 
-func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]models.ProjectMember, error) {
-	query := `SELECT * FROM project_users WHERE project_id = $1`
+type UserOnProject struct {
+	*models.User
+	Role     string `db:"role"`
+	RoleSync bool   `db:"role_sync"`
+}
 
-	projectUsers := []models.ProjectMember{}
+func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {
+	query := `SELECT users.*, project_users.role, project_users.role_sync FROM users JOIN project_users ON project_users.user_id = users.id WHERE project_id = $1`
+
+	projectUsers := []UserOnProject{}
 
 	err := q.Select(&projectUsers, query, projectID)
 
@@ -188,18 +194,26 @@ func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userI
 	return tx.Commit()
 }
 
+// Assumes that the user is already on the team
 func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string, userIDs []string, role string, roleSync bool) error {
-	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (?, ?, ?, ?)`
-	query, args, err := sqlx.In(query, projectID, userIDs, role, roleSync)
-	if err != nil {
-		return err
+	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (:project_id, :user_id, :role, :role_sync) ON CONFLICT (project_id, user_id) DO UPDATE SET role = :role, role_sync = :role_sync`
+
+	for _, userID := range userIDs {
+		projectUser := models.ProjectMember{
+			ProjectID: projectID,
+			UserID:    userID,
+			Role:      role,
+			RoleSync:  roleSync,
+		}
+
+		_, err := q.NamedExecContext(ctx, query, projectUser)
+
+		if err != nil {
+			return err
+		}
 	}
 
-	query = q.Rebind(query)
-
-	_, err = q.ExecContext(ctx, query, args...)
-
-	return err
+	return nil
 }
 
 func (q *ProjectQueries) RemoveUserFromProject(projectID string, userID string) error {
