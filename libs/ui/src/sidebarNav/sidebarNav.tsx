@@ -39,12 +39,12 @@ export default function SidebarNav({
           href={item.href}
           className={cx(
             buttonVariants({ variant: "ghost" }),
-            pathname !== item.href && "hover:underline",
+            pathname !== item.href.split("?")[0] && "hover:underline",
             "justify-start relative z-0  hover:!bg-transparent"
           )}
         >
           {item.title}
-          {pathname === item.href && (
+          {pathname === item.href.split("?")[0] && (
             <m.span
               className="bg-surface-container absolute inset-0 rounded-md -z-10"
               layoutId={layoutId}

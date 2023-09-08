@@ -1,12 +1,20 @@
 import { RegisterSegment } from "@/app/(dash)/breadcrumbStore";
 import { Input } from "@pixeleye/ui";
 import { SettingsTemplate } from "../../settingsTemplate";
+import { getTeam } from "@/serverLibs";
+import { redirect } from "next/navigation";
 
-export default function OrgMemberSettings({
+export default async function OrgMemberSettings({
   searchParams,
 }: {
   searchParams: Record<string, string>;
 }) {
+  const team = await getTeam(searchParams);
+
+  if (team.type === "user") {
+    redirect("/settings");
+  }
+
   return (
     <>
       <SettingsTemplate

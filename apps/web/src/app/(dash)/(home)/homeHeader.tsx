@@ -45,7 +45,7 @@ export function HomeHeader() {
           >
             <Link
               scroll={false}
-              href={"/settings" + ((teamId && `?team=${teamId}`) || "")}
+              href={"/settings" + ((teamId && `/org?team=${teamId}`) || "")}
             >
               Settings
             </Link>
