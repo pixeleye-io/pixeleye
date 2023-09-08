@@ -9,7 +9,6 @@ import (
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
@@ -92,7 +91,7 @@ func GetRepos(c echo.Context) error {
 
 			for i, repo := range repos {
 				formattedRepos[i] = models.GitRepo{
-					ID:          strconv.FormatInt(utils.SafeDeref(repo.ID), 10),
+					ID:          strconv.FormatInt(repo.GetID(), 10),
 					Name:        repo.Name,
 					Private:     repo.Private,
 					URL:         repo.HTMLURL,
