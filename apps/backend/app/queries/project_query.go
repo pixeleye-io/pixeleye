@@ -32,13 +32,14 @@ func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([
 	JOIN team ON project.team_id = team.id
 	JOIN team_users ON team.id = team_users.team_id
 	WHERE project.team_id = $1
+	AND team_users.user_id = $2
 	AND (
 		project_users.user_id = $2
 		OR (
 			team_users.user_id = $2
 			AND (
-				team_users.role = 'admin'
-				OR team_users.role = 'owner'
+				(team_users.role = 'admin'
+				OR team_users.role = 'owner') AND project_users.user_id IS NULL
 			)
 		)
 	)`
