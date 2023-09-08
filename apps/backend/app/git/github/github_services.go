@@ -145,6 +145,13 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 		return err
 	}
 
+	// projectMembers, err := db.GetProjectUsers(ctx, project.ID)
+	// if err != nil {
+	// 	return err
+	// }
+
+	log.Debug().Msgf("Collaborators: %+v", collaborators)
+
 	var collaboratorsToRemove []string
 
 	for _, collaborator := range collaborators {
@@ -181,19 +188,15 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 			continue
 		}
 
-		projectMember, err := db.GetUserOnProject(ctx, project.ID, user.ID)
-		if err != nil {
-			return err
-		}
+		// projectMember, err := db.GetUserOnProject(ctx, project.ID, user.ID)
+		// if err != nil && err != sql.ErrNoRows {
+		// 	log.Error().Err(err).Msgf("Failed to get user on project %s", project.ID)
+		// 	continue
+		// }
 
-		if !projectMember.RoleSync {
-			continue
-		}
-
-		if githubUser.GetSiteAdmin() {
-			adminCollaborators = append(adminCollaborators, githubUser.GetLogin())
-			continue
-		}
+		// if !projectMember.RoleSync {
+		// 	continue
+		// }
 
 		perms := githubUser.GetPermissions()
 		if perms == nil {
@@ -202,25 +205,30 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 		log.Debug().Msgf("User %s perms: %+v", githubUser.GetLogin(), perms)
 
-		if perms["write"] {
-			reviewerCollaborators = append(reviewerCollaborators, githubUser.GetLogin())
+		if perms["admin"] {
+			adminCollaborators = append(adminCollaborators, user.ID)
 			continue
 		}
 
-		if perms["read"] {
-			viewerCollaborators = append(viewerCollaborators, githubUser.GetLogin())
+		if perms["push"] {
+			reviewerCollaborators = append(reviewerCollaborators, user.ID)
+			continue
+		}
+
+		if perms["pull"] {
+			viewerCollaborators = append(viewerCollaborators, user.ID)
 			continue
 		}
 	}
 
-	if len(collaboratorsToRemove) > 0 {
-		log.Debug().Msgf("Removing %d collaborators from project %s", len(collaboratorsToRemove), project.ID)
-		err = db.RemoveUsersFromProject(ctx, project.ID, collaboratorsToRemove)
-		if err != nil {
-			log.Error().Err(err).Msgf("Failed to remove users from project %s", project.ID)
-			return err
-		}
-	}
+	// if len(collaboratorsToRemove) > 0 {
+	// 	log.Debug().Msgf("Removing %d collaborators from project %s", len(collaboratorsToRemove), project.ID)
+	// 	err = db.RemoveUsersFromProject(ctx, project.ID, collaboratorsToRemove)
+	// 	if err != nil {
+	// 		log.Error().Err(err).Msgf("Failed to remove users from project %s", project.ID)
+	// 		return err
+	// 	}
+	// }
 
 	if len(viewerCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d viewers to project %s", len(viewerCollaborators), project.ID)
@@ -366,8 +374,14 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 	if len(membersToRemove) > 0 {
 		log.Debug().Msgf("Removing %d members from team %s", len(membersToRemove), team.ID)
-		err = db.RemoveTeamMembers(ctx, team.ID, membersToRemove)
+		tx, err := Team_queries.NewTeamTx(db.TeamQueries.DB, ctx)
 		if err != nil {
+			return err
+		}
+		if err := tx.RemoveTeamMembers(ctx, team.ID, membersToRemove); err != nil {
+			return err
+		}
+		if err := tx.Commit(); err != nil {
 			return err
 		}
 	}

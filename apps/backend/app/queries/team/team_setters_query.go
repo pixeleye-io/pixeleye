@@ -51,8 +51,9 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	return nil
 }
 
-func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
+func (q *TeamQueriesTx) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
 	query := `DELETE FROM team_users WHERE team_id = ? AND id IN (?)`
+	projectQuery := `DELETE FROM project_users LEFT JOIN project ON project_users.project_id = project.id WHERE project.team_id = ? AND project_users.user_id IN (?)`
 
 	query, args, err := sqlx.In(query, pq.StringArray(memberIDs))
 
@@ -63,6 +64,18 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 	query = q.Rebind(query)
 
 	_, err = q.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	projectQuery, args, err = sqlx.In(projectQuery, teamID, pq.StringArray(memberIDs))
+	if err != nil {
+		return err
+	}
+
+	projectQuery = q.Rebind(projectQuery)
+
+	_, err = q.ExecContext(ctx, projectQuery, args...)
 
 	return err
 }

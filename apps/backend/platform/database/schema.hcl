@@ -324,7 +324,7 @@ table "project_users" {
 
   foreign_key "user_id" {
     columns     = [column.user_id]
-    ref_columns = [table.team_users.column.user_id]
+    ref_columns = [table.users.column.id]
     on_delete   = CASCADE
   }
 
@@ -337,6 +337,11 @@ table "project_users" {
     type    = boolean
     default = false
     null    = false
+  }
+
+  index "idx_unique_project_user" {
+    columns = [column.project_id, column.user_id]
+    unique  = true
   }
 }
 

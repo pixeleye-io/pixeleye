@@ -144,7 +144,7 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 	return err
 }
 
-func (q *ProjectQueries) GetProjectUsers(projectID string) ([]models.ProjectMember, error) {
+func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]models.ProjectMember, error) {
 	query := `SELECT * FROM project_users WHERE project_id = $1`
 
 	projectUsers := []models.ProjectMember{}
@@ -189,7 +189,7 @@ func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userI
 }
 
 func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string, userIDs []string, role string, roleSync bool) error {
-	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (?, ?, ?)`
+	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (?, ?, ?, ?)`
 	query, args, err := sqlx.In(query, projectID, userIDs, role, roleSync)
 	if err != nil {
 		return err
@@ -211,7 +211,7 @@ func (q *ProjectQueries) RemoveUserFromProject(projectID string, userID string) 
 }
 
 func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID string, userIDs []string) error {
-	query := `DELETE FROM project_users WHERE project_id = $1 AND user_id IN (?)`
+	query := `DELETE FROM project_users WHERE project_id = ? AND user_id IN (?)`
 
 	query, args, err := sqlx.In(query, projectID, userIDs)
 	if err != nil {
