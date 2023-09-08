@@ -5,10 +5,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -88,6 +90,11 @@ func CreateProject(c echo.Context) error {
 	}
 
 	project.RawToken = token
+
+	if err := git.SyncTeamMembers(c.Request().Context(), team); err != nil {
+		// No need to fail this request if the team members could not be synced.
+		log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
+	}
 
 	return c.JSON(http.StatusCreated, project)
 }
