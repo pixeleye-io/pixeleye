@@ -147,8 +147,8 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 
 type UserOnProject struct {
 	*models.User
-	Role     string `db:"role"`
-	RoleSync bool   `db:"role_sync"`
+	Role     string `db:"role" json:"role"`
+	RoleSync bool   `db:"role_sync" json:"role_sync"`
 }
 
 func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {

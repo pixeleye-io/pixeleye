@@ -1,6 +1,10 @@
 import { Button } from "@pixeleye/ui";
 import { FormEventHandler } from "react";
-import { DeleteProjectSection, SecuritySection } from "./sections";
+import {
+  DeleteProjectSection,
+  MemberSection,
+  SecuritySection,
+} from "./sections";
 import { API } from "@/libs";
 import { cookies } from "next/headers";
 
@@ -44,14 +48,26 @@ function Section({
 export default async function Page({ params }: { params: { id: string } }) {
   const projectId = params.id;
 
-  const project = await API.get("/projects/{id}", {
-    params: {
-      id: projectId,
-    },
-    headers: {
-      cookie: cookies().toString(),
-    },
-  });
+  const cookie = cookies().toString();
+
+  const [project, users] = await Promise.all([
+    API.get("/projects/{id}", {
+      params: {
+        id: projectId,
+      },
+      headers: {
+        cookie,
+      },
+    }),
+    API.get("/projects/{id}/users", {
+      params: {
+        id: projectId,
+      },
+      headers: {
+        cookie,
+      },
+    }),
+  ]);
 
   return (
     <div className="space-y-10 mt-12">
@@ -60,6 +76,12 @@ export default async function Page({ params }: { params: { id: string } }) {
         description="The API token is used by our clients to upload the snapshot. Keep this safe"
       >
         <SecuritySection id={project.id} />
+      </Section>
+      <Section
+        title="Members"
+        description="Manage who has access to this project"
+      >
+        <MemberSection members={users} project={project} />
       </Section>
       <Section
         title="Danger zone"

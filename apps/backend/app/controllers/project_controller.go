@@ -194,6 +194,24 @@ func DeleteProject(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+func GetProjectUsers(c echo.Context) error {
+	project := middleware.GetProject(c)
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	users, err := db.GetProjectUsers(c.Request().Context(), project.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, users)
+}
+
 type AddUserToProjectRequest struct {
 	UserID string `json:"userID" validate:"required,nanoid"`
 	Role   string `json:"role" validate:"required,oneof=admin reviewer viewer"`

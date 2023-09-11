@@ -1,11 +1,13 @@
-import { Method, Routes } from "api-typify";
+import { Method } from "api-typify";
 import { Project } from "../models/project";
-import { Build } from "../models";
+import { Build, UserOnProject } from "../models";
 
 type GET = Method<{
   "/projects/{id}": {
     res: Project;
-    req: undefined;
+  };
+  "/projects/{id}/users": {
+    res: UserOnProject[];
   };
   "/teams/{teamID}/projects": {
     res: Project[];
@@ -34,7 +36,7 @@ type DELETE = Method<{
     res: undefined;
     req: {
       name: string;
-    }
+    };
   };
 }>;
 

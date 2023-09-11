@@ -3,12 +3,19 @@
 import { useKeyStore } from "@/stores/apiKeyStore";
 import { KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { API } from "@/libs";
-import { Button } from "@pixeleye/ui";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Project } from "@pixeleye/api";
-
+import { Project, User, UserOnProject } from "@pixeleye/api";
 
 export function SecuritySection({ id }: { id: string }) {
   const setKey = useKeyStore((state) => state.setKey);
@@ -84,5 +91,37 @@ export function DeleteProjectSection({ project }: { project: Project }) {
         Delete Project
       </Button>
     </div>
+  );
+}
+
+export function MemberSection({
+  members,
+  project,
+}: {
+  members: UserOnProject[];
+  project: Project;
+}) {
+  console.log(members);
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Role</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {members.map((member) => (
+          <TableRow key={member.id}>
+            <TableCell className="flex flex-col">
+              <span>{member.name}</span>
+              <span className="text-on-surface-variant">{member.email}</span>
+            </TableCell>
+            <TableCell>{member.role}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
