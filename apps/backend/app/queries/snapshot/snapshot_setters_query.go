@@ -35,7 +35,7 @@ func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
 	return err
 }
 
-func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error {
+func (q *SnapshotQueries) SetSnapshotsStatus(ctx context.Context, ids []string, status string) error {
 	query, args, err := sqlx.In(`UPDATE snapshot SET status = ? WHERE id IN (?)`, status, ids)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ids []string, status string) error 
 
 	query = q.Rebind(query)
 
-	_, err = q.Exec(query, args...)
+	_, err = q.ExecContext(ctx, query, args...)
 
 	return err
 }

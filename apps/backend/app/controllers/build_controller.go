@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -117,6 +118,123 @@ func GetBuildSnapshots(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, pairs)
+}
+
+func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) error {
+
+	build, err := middleware.GetBuild(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	// We can only approve snapshots if the build is in a reviewable state
+	if models.IsBuildPreProcessing(build.Status) || models.IsBuildProcessing(build.Status) {
+		return echo.NewHTTPError(http.StatusBadRequest, "build is still processing")
+	}
+
+	if len(snapshotIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to approve")
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	// We can only approve snapshot if the build is the latest build
+	history, err := db.SelectChildBuilds(c.Request().Context(), build.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if len(history) > 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "build is not the latest build")
+	}
+
+	// Check that our snapshots are all from the correct build
+	allSnapshots, err := db.GetSnapshotsByBuild(c.Request().Context(), build.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, snapshot := range allSnapshots {
+		found := false
+		for _, id := range snapshotIDs {
+			if snapshot.ID == id {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is not from this build", snapshot.ID))
+		}
+	}
+
+	if err := db.SetSnapshotsStatus(c.Request().Context(), snapshotIDs, models.SNAPSHOT_STATUS_APPROVED); err != nil {
+		return err
+	}
+
+	// We can check if the build is now complete
+	newBuild, err := db.CheckAndUpdateStatusAccordingly(c.Request().Context(), build.ID)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, newBuild)
+}
+
+type SnapshotApprovalBody struct {
+	SnapshotIds []string `json:"snapshot_ids"`
+}
+
+func ApproveSnapshots(c echo.Context) error {
+	body := SnapshotApprovalBody{}
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return setSnapshotStatus(c, models.SNAPSHOT_STATUS_APPROVED, body.SnapshotIds)
+}
+
+func RejectSnapshots(c echo.Context) error {
+	body := SnapshotApprovalBody{}
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return setSnapshotStatus(c, models.SNAPSHOT_STATUS_REJECTED, body.SnapshotIds)
+}
+
+func setAllSnapshotsStatus(c echo.Context, status string) error {
+	build, err := middleware.GetBuild(c)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	snapshots, err := db.GetSnapshotsByBuild(c.Request().Context(), build.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	ids := []string{}
+	for _, snapshot := range snapshots {
+		ids = append(ids, snapshot.ID)
+	}
+
+	return setSnapshotStatus(c, status, ids)
+}
+
+func ApproveAllSnapshots(c echo.Context) error {
+	return setAllSnapshotsStatus(c, models.SNAPSHOT_STATUS_APPROVED)
+}
+
+func RejectAllSnapshots(c echo.Context) error {
+	return setAllSnapshotsStatus(c, models.SNAPSHOT_STATUS_REJECTED)
 }
 
 // Search Builds method for searching builds.
@@ -300,7 +418,7 @@ func UploadComplete(c echo.Context) error {
 
 	go func(db *database.Queries, buildID string) {
 		ctx := context.Background()
-		if err := db.CheckAndUpdateStatusAccordingly(ctx, buildID); err != nil {
+		if _, err := db.CheckAndUpdateStatusAccordingly(ctx, buildID); err != nil {
 			log.Error().Err(err).Msg("Failed to check and update build status")
 		}
 	}(db, uploadedBuild.ID)

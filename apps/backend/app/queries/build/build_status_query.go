@@ -74,14 +74,14 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 	return getBuildStatusFromSnapshotStatuses(snapshotStatus), nil
 }
 
-func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buildID string) error {
+func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buildID string) (*models.Build, error) {
 
 	log.Debug().Msgf("Checking build status for build %s", buildID)
 
 	tx, err := NewBuildTx(q.DB, ctx)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// nolint:errcheck
@@ -90,24 +90,24 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 	build, err := tx.GetBuildForUpdate(ctx, buildID)
 
 	if err != nil {
-		return err
+		return &build, err
 	}
 
 	if models.IsBuildPreProcessing(build.Status) {
 		log.Debug().Msgf("Build %s is still pre-processing", buildID)
-		return tx.Commit()
+		return &build, tx.Commit()
 	}
 
 	status, err := tx.CalculateBuildStatus(ctx, build)
 
 	if err != nil {
-		return err
+		return &build, err
 	}
 
 	if status == build.Status {
 		log.Debug().Msgf("Build %s status is still %s", buildID, status)
 		if err = tx.Commit(); err != nil {
-			return err
+			return &build, err
 		}
 	} else {
 
@@ -116,11 +116,11 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 		log.Debug().Msgf("Updating build %s status to %s", buildID, status)
 
 		if err := tx.UpdateBuild(ctx, &build); err != nil {
-			return err
+			return &build, err
 		}
 
 		if err = tx.Commit(); err != nil {
-			return err
+			return &build, err
 		}
 
 		go func(build models.Build) {
@@ -135,9 +135,9 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 
 	if models.IsBuildPostProcessing(build.Status) {
 		if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
-			return err
+			return &build, err
 		}
 	}
 
-	return nil
+	return &build, nil
 }

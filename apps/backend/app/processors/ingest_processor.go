@@ -230,12 +230,14 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 
 func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
 
+	ctx := context.TODO()
+
 	newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots := groupSnapshots(snapshots, baselines)
 
 	if len(newSnapshots) > 0 {
 		// We can go ahead and mark the new snapshots as orphaned
 
-		if err := db.SetSnapshotsStatus(newSnapshots, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
+		if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
 			log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
 			// We don't want to return this error because we still want to process the remaining snapshots
 		}
@@ -323,8 +325,10 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
 
+	ctx := context.TODO()
+
 	if strings.TrimSpace(build.TargetBuildID) == "" {
-		err = db.SetSnapshotsStatus(snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
+		err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
 		log.Info().Str("BuildID", build.ID).Msg("Build has no parent build, marking all snapshots as orphaned")
 		if err != nil {
 			return err
@@ -338,7 +342,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 			return err
 		}
 
-		parentBuildSnapshots, err := db.GetSnapshotsByBuild(parentBuild.ID)
+		parentBuildSnapshots, err := db.GetSnapshotsByBuild(ctx, parentBuild.ID)
 
 		if err != nil {
 			return err
@@ -352,9 +356,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	}
 
-	ctx := context.TODO()
-
-	if err := db.CheckAndUpdateStatusAccordingly(ctx, build.ID); err != nil {
+	if _, err := db.CheckAndUpdateStatusAccordingly(ctx, build.ID); err != nil {
 		return err
 	}
 
