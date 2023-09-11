@@ -84,6 +84,7 @@ func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.Us
 	return members, nil
 }
 
+// TODO - I should make this function generic so I can use it for other api calls
 func ListCollaborators(ctx context.Context, client *github.Client, org string, repo string) ([]*github.User, error) {
 	opts := &github.ListCollaboratorsOptions{
 		ListOptions: github.ListOptions{
@@ -117,6 +118,83 @@ func ListCollaborators(ctx context.Context, client *github.Client, org string, r
 	}
 
 	return collaborators, nil
+}
+
+func findMembersToRemove(currentMembers []queries.UserOnProject, gitMembers []*github.User) []string {
+	var membersToRemove []string
+
+	for _, member := range currentMembers {
+
+		// We don't want to remove users added manually
+		if !member.RoleSync {
+			continue
+		}
+
+		found := false
+		for _, collaborator := range gitMembers {
+			if member.GithubID == strconv.Itoa(int(collaborator.GetID())) {
+				found = true
+				break
+			}
+		}
+
+		if !found && member.RoleSync {
+			membersToRemove = append(membersToRemove, member.ID)
+		}
+	}
+
+	return membersToRemove
+}
+
+func findProjectMembersToUpdate(teamUsers []Team_queries.UserOnTeam, currentMembers []queries.UserOnProject, gitMembers []*github.User) (viewerCollaborators []string, reviewerCollaborators []string, adminCollaborators []string) {
+
+	for _, user := range teamUsers {
+
+		// User should be on the github team
+
+		found := false
+		githubUser := &github.User{}
+		for _, collaborator := range gitMembers {
+			if user.GithubID == strconv.Itoa(int(collaborator.GetID())) {
+				found = true
+				githubUser = collaborator
+				break
+			}
+		}
+
+		if !found {
+			continue
+		}
+
+		perms := githubUser.GetPermissions()
+		if perms == nil {
+			continue
+		}
+
+		userOnProject := queries.UserOnProject{}
+
+		for _, projectMember := range currentMembers {
+			if projectMember.GithubID == user.GithubID {
+				userOnProject = projectMember
+				break
+			}
+		}
+
+		if userOnProject.User != nil && !userOnProject.RoleSync {
+			// User is already on team and their role is not synced
+			continue
+		}
+
+		if perms["admin"] {
+			adminCollaborators = append(adminCollaborators, user.ID)
+		} else if perms["push"] {
+			reviewerCollaborators = append(reviewerCollaborators, user.ID)
+		} else if perms["pull"] {
+			viewerCollaborators = append(viewerCollaborators, user.ID)
+		}
+	}
+
+	return viewerCollaborators, reviewerCollaborators, adminCollaborators
 }
 
 func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team models.Team, teamUsers []Team_queries.UserOnTeam, project models.Project) error {
@@ -153,76 +231,9 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	log.Debug().Msgf("Collaborators: %+v", collaborators)
 
-	var membersToRemove []string
+	membersToRemove := findMembersToRemove(projectMembers, collaborators)
 
-	for _, projectMember := range projectMembers {
-
-		// We don't want to remove users added manually
-		if !projectMember.RoleSync {
-			continue
-		}
-
-		found := false
-		for _, collaborator := range collaborators {
-			if projectMember.GithubID == strconv.Itoa(int(collaborator.GetID())) {
-				found = true
-				break
-			}
-		}
-
-		if !found && projectMember.RoleSync {
-			membersToRemove = append(membersToRemove, projectMember.ID)
-		}
-	}
-
-	var viewerCollaborators []string
-	var reviewerCollaborators []string
-	var adminCollaborators []string
-
-	for _, user := range teamUsers {
-		found := false
-		githubUser := &github.User{}
-		for _, collaborator := range collaborators {
-			if user.GithubID == strconv.Itoa(int(collaborator.GetID())) {
-				found = true
-				githubUser = collaborator
-				break
-			}
-		}
-
-		if !found {
-			continue
-		}
-
-		perms := githubUser.GetPermissions()
-		if perms == nil {
-			continue
-		}
-
-		userOnProject := queries.UserOnProject{}
-
-		for _, projectMember := range projectMembers {
-			if projectMember.GithubID == user.GithubID {
-				userOnProject = projectMember
-				break
-			}
-		}
-
-		if userOnProject.User != nil && !userOnProject.RoleSync {
-			// User is already on team and their role is not synced
-			continue
-		}
-
-		log.Debug().Msgf("User %s perms: %+v", githubUser.GetLogin(), perms)
-
-		if perms["admin"] {
-			adminCollaborators = append(adminCollaborators, user.ID)
-		} else if perms["push"] {
-			reviewerCollaborators = append(reviewerCollaborators, user.ID)
-		} else if perms["pull"] {
-			viewerCollaborators = append(viewerCollaborators, user.ID)
-		}
-	}
+	viewerCollaborators, reviewerCollaborators, adminCollaborators := findProjectMembersToUpdate(teamUsers, projectMembers, collaborators)
 
 	if len(membersToRemove) > 0 {
 		log.Debug().Msgf("Removing %d collaborators from project %s", len(membersToRemove), project.ID)
