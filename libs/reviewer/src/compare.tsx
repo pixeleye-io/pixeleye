@@ -116,6 +116,8 @@ export function Compare() {
   const activeTab = useReviewerStore((state) => state.activeCompareTab);
   const setActiveTab = useReviewerStore((state) => state.setActiveCompareTab);
 
+  const buildAPI = useReviewerStore((state) => state.buildAPI);
+
   const singleRef = useRef<DraggableImageRef>(null);
   const doubleRef = useRef<DraggableImageRef>(null);
 
@@ -155,12 +157,13 @@ export function Compare() {
             </div>
 
             <div className="">
-              <Button variant="ghost" className="text-error">
+              <Button variant="ghost" className="text-error" onClick={() => buildAPI.approveSnapshot(snapshot.id)}>
                 Reject
               </Button>
               <Button
                 variant="ghost"
                 className="text-green-500 dark:text-green-300 dark:hover:text-on-surface"
+                onClick={() => buildAPI.approveSnapshot(snapshot.id)}
               >
                 Approve
               </Button>
@@ -169,14 +172,10 @@ export function Compare() {
         </header>
         <div className="p-4 w-full h-[calc(100%-6.25rem-1px)]">
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
-            <Single
-              draggableImageRef={singleRef}
-            />
+            <Single draggableImageRef={singleRef} />
           </TabsContent>
           <TabsContent className="w-full h-full !mt-0 grow-0" value="double">
-            <Double
-              draggableImageRef={doubleRef}
-            />
+            <Double draggableImageRef={doubleRef} />
           </TabsContent>
         </div>
       </Tabs>

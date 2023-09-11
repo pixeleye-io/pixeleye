@@ -4,7 +4,7 @@ import { Build, SnapshotPair } from "@pixeleye/api";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
-import { useReviewerStore } from "./store";
+import { BuildAPI, useReviewerStore } from "./store";
 import { useEffect, useTransition } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -25,6 +25,7 @@ export interface ReviewerProps {
   snapshots: ExtendedSnapshotPair[];
   optimize?: boolean;
   className?: string;
+  buildAPI?: BuildAPI;
 }
 
 export function Reviewer({
@@ -32,6 +33,7 @@ export function Reviewer({
   snapshots,
   optimize = false,
   className = "h-[calc(100vh-3rem-1px)]",
+  buildAPI,
 }: ReviewerProps) {
   const setBuild = useReviewerStore((state) => state.setBuild);
   const setSnapshots = useReviewerStore((state) => state.setSnapshots);
@@ -41,6 +43,7 @@ export function Reviewer({
   );
   const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
   const panelOpen = useReviewerStore((state) => state.panelOpen);
+  const setBuildAPI = useReviewerStore((state) => state.setBuildAPI);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -59,6 +62,10 @@ export function Reviewer({
     snapshots,
     searchParams,
   ]);
+
+  useEffect(() => {
+    if (buildAPI) setBuildAPI(buildAPI);
+  }, [buildAPI, setBuildAPI]);
 
   useEffect(() => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));

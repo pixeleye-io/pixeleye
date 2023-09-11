@@ -58,6 +58,9 @@ const SidebarNav: SidebarItem[] = [
 ];
 
 function BatchApprove() {
+
+  const buildAPI = useReviewerStore((state) => state.buildAPI);
+
   return (
     <DropdownMenu>
       <TooltipProvider>
@@ -110,11 +113,11 @@ function BatchApprove() {
       <DropdownMenuPortal>
         <DropdownMenuContent side="right">
           <DropdownMenuLabel>Batch actions</DropdownMenuLabel>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => buildAPI.approveAllSnapshots()}>
             <HandThumbUpIcon className="h-6 w-6 text-on-surface-variant mr-2" />
             Approve build
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => buildAPI.rejectAllSnapshots()}>
             <HandThumbDownIcon className="h-6 w-6 text-on-surface-variant mr-2" />
             Reject build
           </DropdownMenuItem>

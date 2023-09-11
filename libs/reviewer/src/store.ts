@@ -7,6 +7,13 @@ export type CompareTab = "single" | "double";
 
 export type SingleSnapshot = "baseline" | "head";
 
+export interface BuildAPI {
+  approveSnapshot: (id: string) => void;
+  rejectSnapshot: (id: string) => void;
+  approveAllSnapshots: () => void;
+  rejectAllSnapshots: () => void;
+}
+
 interface ReviewerState {
   panel: Panel;
   setPanel: (panel: Panel) => void;
@@ -28,6 +35,9 @@ interface ReviewerState {
   setFramerLoaded: () => void;
   singleSnapshot: SingleSnapshot;
   setSingleSnapshot: (singleSnapshot: SingleSnapshot) => void;
+
+  buildAPI: BuildAPI;
+  setBuildAPI: (buildAPI: BuildAPI) => void;
 }
 
 const isBrowser = typeof window !== "undefined";
@@ -68,4 +78,12 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   setFramerLoaded: () => set({ framerLoaded: true }),
   singleSnapshot: "head",
   setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
+
+  buildAPI: {
+    approveSnapshot: () => {},
+    rejectSnapshot: () => {},
+    approveAllSnapshots: () => {},
+    rejectAllSnapshots: () => {},
+  },
+  setBuildAPI: (buildAPI) => set({ buildAPI }),
 }));
