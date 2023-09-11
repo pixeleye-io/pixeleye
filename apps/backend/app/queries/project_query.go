@@ -32,13 +32,14 @@ func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([
 	JOIN team ON project.team_id = team.id
 	JOIN team_users ON team.id = team_users.team_id
 	WHERE project.team_id = $1
+	AND team_users.user_id = $2
 	AND (
 		project_users.user_id = $2
 		OR (
 			team_users.user_id = $2
 			AND (
-				team_users.role = 'admin'
-				OR team_users.role = 'owner'
+				(team_users.role = 'admin'
+				OR team_users.role = 'owner') AND project_users.user_id IS NULL
 			)
 		)
 	)`
@@ -144,10 +145,16 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 	return err
 }
 
-func (q *ProjectQueries) GetProjectUsers(projectID string) ([]models.ProjectMember, error) {
-	query := `SELECT * FROM project_users WHERE project_id = $1`
+type UserOnProject struct {
+	*models.User
+	Role     string `db:"role" json:"role"`
+	RoleSync bool   `db:"role_sync" json:"role_sync"`
+}
 
-	projectUsers := []models.ProjectMember{}
+func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {
+	query := `SELECT users.*, project_users.role, project_users.role_sync FROM users JOIN project_users ON project_users.user_id = users.id WHERE project_id = $1`
+
+	projectUsers := []UserOnProject{}
 
 	err := q.Select(&projectUsers, query, projectID)
 
@@ -188,10 +195,47 @@ func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userI
 	return tx.Commit()
 }
 
+// Assumes that the user is already on the team
+func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string, userIDs []string, role string, roleSync bool) error {
+	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (:project_id, :user_id, :role, :role_sync) ON CONFLICT (project_id, user_id) DO UPDATE SET role = :role, role_sync = :role_sync`
+
+	for _, userID := range userIDs {
+		projectUser := models.ProjectMember{
+			ProjectID: projectID,
+			UserID:    userID,
+			Role:      role,
+			RoleSync:  roleSync,
+		}
+
+		_, err := q.NamedExecContext(ctx, query, projectUser)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (q *ProjectQueries) RemoveUserFromProject(projectID string, userID string) error {
 	query := `DELETE FROM project_users WHERE project_id = $1 AND user_id = $2`
 
 	_, err := q.Exec(query, projectID, userID)
+
+	return err
+}
+
+func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID string, userIDs []string) error {
+	query := `DELETE FROM project_users WHERE project_id = ? AND user_id IN (?)`
+
+	query, args, err := sqlx.In(query, projectID, userIDs)
+	if err != nil {
+		return err
+	}
+
+	query = q.Rebind(query)
+
+	_, err = q.ExecContext(ctx, query, args...)
 
 	return err
 }
@@ -204,7 +248,7 @@ func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string
 	return err
 }
 
-func (q *ProjectQueries) GetProjectBuilds(projectID string, branch string) ([]models.Build, error) {
+func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {
 	query := `SELECT * FROM build WHERE project_id = $1 ORDER BY created_at DESC`
 	queryBranches := `SELECT * FROM build WHERE project_id = $1 AND branch = $2`
 
@@ -218,4 +262,14 @@ func (q *ProjectQueries) GetProjectBuilds(projectID string, branch string) ([]mo
 	}
 
 	return builds, err
+}
+
+func (q *ProjectQueries) GetUserOnProject(ctx context.Context, projectID string, userID string) (models.ProjectMember, error) {
+	query := `SELECT * FROM project_users WHERE project_id = $1 AND user_id = $2`
+
+	projectUser := models.ProjectMember{}
+
+	err := q.GetContext(ctx, &projectUser, query, projectID, userID)
+
+	return projectUser, err
 }

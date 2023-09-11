@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UserZod } from "./user";
 
 export const ProjectZod = z.object({
   id: z.string().length(21),
@@ -19,4 +20,10 @@ export const ProjectZod = z.object({
   teamRole: z.enum(["admin", "member", "accountant", "owner"]).optional(),
 });
 
+export const UserOnProjectZod = UserZod.extend({
+  role: z.enum(["admin", "reviewer", "viewer"]),
+  roleSync: z.boolean(),
+});
+
 export type Project = z.infer<typeof ProjectZod>;
+export type UserOnProject = z.infer<typeof UserOnProjectZod>;

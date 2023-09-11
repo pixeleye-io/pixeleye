@@ -76,6 +76,9 @@ export default async function DashboardPage({
     headers: {
       cookie: cookies().toString(),
     },
+  }).then((res) => {
+    console.log(res);
+    return res;
   });
 
   const paramsURL = new URLSearchParams(searchParams);
@@ -140,8 +143,14 @@ export default async function DashboardPage({
                       : "No activity"}
                   </TableCell>
                   <TableCell className="text-right z-10">
-                    <Button variant={"link"} size={"sm"}>
-                      View repo
+                    <Button variant={"link"} size={"sm"} asChild>
+                      <a
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        href={project.url}
+                      >
+                        View repo
+                      </a>
                     </Button>
                   </TableCell>
                 </TableRow>

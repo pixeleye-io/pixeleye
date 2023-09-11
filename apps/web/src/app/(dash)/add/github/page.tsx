@@ -36,7 +36,7 @@ export default async function AddGithubProjectPage({
     const params = new URLSearchParams(searchParams);
     params.delete("installation_id");
     params.delete("setup_action");
-    params.append("team", team.id);
+    params.set("team", team.id);
 
     redirect("/add/github?" + params.toString());
   }

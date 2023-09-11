@@ -44,4 +44,5 @@ type ProjectMember struct {
 	ProjectID string `db:"project_id" json:"projectID" validate:"required,nanoid"`
 	UserID    string `db:"user_id" json:"userID" validate:"required,nanoid"`
 	Role      string `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
+	RoleSync  bool   `db:"role_sync" json:"roleSync"`
 }

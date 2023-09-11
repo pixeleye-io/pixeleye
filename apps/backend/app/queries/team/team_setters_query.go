@@ -3,6 +3,8 @@ package Team_queries
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -47,4 +49,57 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	}
 
 	return nil
+}
+
+func (q *TeamQueriesTx) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
+	query := `DELETE FROM team_users WHERE team_id = ? AND id IN (?)`
+	projectQuery := `DELETE FROM project_users LEFT JOIN project ON project_users.project_id = project.id WHERE project.team_id = ? AND project_users.user_id IN (?)`
+
+	query, args, err := sqlx.In(query, pq.StringArray(memberIDs))
+
+	if err != nil {
+		return err
+	}
+
+	query = q.Rebind(query)
+
+	_, err = q.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	projectQuery, args, err = sqlx.In(projectQuery, teamID, pq.StringArray(memberIDs))
+	if err != nil {
+		return err
+	}
+
+	projectQuery = q.Rebind(projectQuery)
+
+	_, err = q.ExecContext(ctx, projectQuery, args...)
+
+	return err
+}
+
+func (q *TeamQueries) RemoveTeamMember(ctx context.Context, memberID string) error {
+	query := `DELETE FROM team_users WHERE id = ?`
+
+	_, err := q.ExecContext(ctx, query, memberID)
+
+	return err
+}
+
+func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamMember) error {
+	query := `INSERT INTO team_users (team_id, user_id, role, role_sync) VALUES (:team_id, :user_id, :role, :role_sync)`
+
+	_, err := q.NamedExecContext(ctx, query, members)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, memberID string, role string) error {
+	query := `UPDATE team_users SET role = $1 WHERE user_id = $2`
+
+	_, err := q.ExecContext(ctx, query, role, memberID)
+
+	return err
 }

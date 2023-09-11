@@ -124,7 +124,7 @@ table "team" {
 
   index "idx_unique_team_external_id" {
     columns = [column.external_id, column.type]
-    where  = "type != 'user'"
+    where   = "type != 'user'"
     unique  = true
   }
 
@@ -220,6 +220,12 @@ table "team_users" {
   column "role" {
     type = enum.team_member_role
     null = false
+  }
+
+  column "role_sync" {
+    type    = boolean
+    default = false
+    null    = false
   }
 
   column "type" {
@@ -325,6 +331,17 @@ table "project_users" {
   column "role" {
     type = enum.project_member_role
     null = false
+  }
+
+  column "role_sync" {
+    type    = boolean
+    default = false
+    null    = false
+  }
+
+  index "idx_unique_project_user" {
+    columns = [column.project_id, column.user_id]
+    unique  = true
   }
 }
 

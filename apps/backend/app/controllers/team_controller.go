@@ -9,7 +9,6 @@ import (
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
@@ -40,6 +39,28 @@ func GetTeamsProjects(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, projects)
+}
+
+func GetTeamUsers(c echo.Context) error {
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	users, err := db.GetTeamUsers(c.Request().Context(), team.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, users)
 }
 
 func GetRepos(c echo.Context) error {
@@ -92,11 +113,11 @@ func GetRepos(c echo.Context) error {
 
 			for i, repo := range repos {
 				formattedRepos[i] = models.GitRepo{
-					ID:          strconv.FormatInt(utils.SafeDeref(repo.ID), 10),
+					ID:          strconv.FormatInt(repo.GetID(), 10),
 					Name:        repo.Name,
 					Private:     repo.Private,
-					URL:         repo.URL,
-					LastUpdated: repo.UpdatedAt.Time,
+					URL:         repo.HTMLURL,
+					LastUpdated: repo.GetPushedAt().Time,
 					Description: repo.Description,
 				}
 			}

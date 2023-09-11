@@ -1,5 +1,5 @@
 import { Method } from "api-typify";
-import { Repo } from "../models";
+import { Repo, UserOnTeam } from "../models";
 import { Installation } from "../models/installation";
 
 type GET = Method<{
@@ -8,6 +8,9 @@ type GET = Method<{
   };
   "/teams/{teamID}/installations": {
     res: Installation[];
+  };
+  "/teams/{teamID}/users": {
+    res: UserOnTeam[];
   };
 }>;
 

@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
+import { cx } from "class-variance-authority";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.webmanifest" />
       </head>
-      <body className={inter.className}>
+      <body
+        className={cx(
+          inter.className,
+          "selection:bg-teal-950 selection:text-teal-50"
+        )}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -8,9 +8,12 @@ export const apiBaseUrlInternal =
 export const apiBaseUrl = process.env.KRATOS_BROWSER_URL || apiBaseUrlInternal;
 
 export const frontend = new FrontendApi(
-  new Configuration({ basePath: apiBaseUrl, baseOptions: {
-    withCredentials: true
-  } })
+  new Configuration({
+    basePath: apiBaseUrl,
+    baseOptions: {
+      withCredentials: true,
+    },
+  })
 );
 
 export const getUrlForFlow = (flow: string, query?: URLSearchParams) =>

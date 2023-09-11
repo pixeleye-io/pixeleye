@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-github/github"
 	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
@@ -126,7 +127,11 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 			return models.GitInstallation{}, err
 		}
 
-		return existingInstallation, tx.Commit()
+		if err := tx.Commit(); err != nil {
+			return existingInstallation, err
+		}
+
+		return existingInstallation, git.SyncTeamMembers(c.Request().Context(), team)
 	}
 
 	log.Debug().Msgf("Team: %+v", team)
@@ -139,7 +144,11 @@ func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app 
 
 	log.Debug().Msgf("Created Github App Installation: %+v", installation)
 
-	return installation, tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return installation, err
+	}
+
+	return installation, git.SyncTeamMembers(c.Request().Context(), team)
 }
 
 func GithubAppInstallation(c echo.Context) error {
@@ -183,6 +192,10 @@ func GithubAppInstallation(c echo.Context) error {
 		team, err := db.GetTeam(c.Request().Context(), installation.TeamID, user.ID)
 
 		if err != nil {
+			return err
+		}
+
+		if err := git.SyncTeamMembers(c.Request().Context(), team); err != nil {
 			return err
 		}
 
@@ -234,81 +247,4 @@ func GithubAppInstallation(c echo.Context) error {
 		Installation: installation,
 		Team:         team,
 	})
-}
-
-func SyncMembers(c echo.Context) error {
-
-	team, err := middleware.GetTeam(c)
-
-	if err != nil {
-		return err
-	}
-
-	if team.Type != models.TEAM_TYPE_GITHUB {
-		return echo.NewHTTPError(http.StatusBadRequest, "Team is not a Github team")
-	}
-
-	db, err := database.OpenDBConnection()
-
-	if err != nil {
-		return err
-	}
-
-	installation, err := db.GetTeamInstallation(c.Request().Context(), team.ID)
-
-	if err != nil {
-		return err
-	}
-
-	ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
-
-	if err != nil {
-		return err
-	}
-
-	org, err := ghClient.GetInstallationInfo(c.Request().Context(), installation.InstallationID)
-
-	if err != nil {
-		return err
-	}
-
-	members, err := ghClient.GetMembers(c.Request().Context(), org.GetAccount().GetLogin())
-
-	if err != nil {
-		return err
-	}
-
-	log.Debug().Msgf("Members: %+v", members)
-
-	teamMembers, err := db.GetTeamUsers(c.Request().Context(), team.ID)
-
-	if err != nil {
-		return err
-	}
-
-	log.Debug().Msgf("Team Members: %+v", teamMembers)
-
-	// We need to go through all members not already in the team and check if they have a pixeleye account
-	// If they do, we add them to the team
-	// If They are already a member but not as git member, we update their type to git member
-
-	for _, member := range members {
-
-		found := false
-
-		for _, teamMember := range teamMembers {
-			if teamMember.ID == strconv.Itoa(int(member.GetID())) {
-				found = true
-				break
-			}
-		}
-
-		if found {
-			continue
-		}
-
-	}
-
-	return echo.NewHTTPError(http.StatusBadRequest, "User does not exist")
-
 }

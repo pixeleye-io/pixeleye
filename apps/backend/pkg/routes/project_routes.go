@@ -22,6 +22,7 @@ func ProjectRoutes(e *echo.Echo) {
 
 	baseRoutes.GET("", controllers.GetProject)
 	baseRoutes.GET("/builds", controllers.GetProjectBuilds)
+	baseRoutes.GET("/users", controllers.GetProjectUsers)
 
 	baseRoutes.Any("/events", controllers.SubscribeToProject)
 
