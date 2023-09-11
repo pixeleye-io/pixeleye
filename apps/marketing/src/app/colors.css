@@ -1,15 +1,15 @@
 :root {
-  --color-primary-light: 109 59 215;
-  --color-on-primary-light: 255 255 255;
+  --color-primary-light: 24 24 27;
+  --color-on-primary-light: 250 250 250;
   --color-primary-container-light: 233 221 255;
   --color-on-primary-container-light: 35 0 92;
   --color-secondary-light: 98 91 112;
   --color-on-secondary-light: 255 255 255;
   --color-secondary-container-light: 232 222 248;
   --color-on-secondary-container-light: 30 25 43;
-  --color-tertiary-light: 126 82 95;
+  --color-tertiary-light: 230 121 151;
   --color-on-tertiary-light: 255 255 255;
-  --color-tertiary-container-light: 255 217 226;
+  --color-tertiary-container-light: 245 184 202;
   --color-on-tertiary-container-light: 49 16 29;
   --color-error-light: 186 26 26;
   --color-on-error-light: 255 255 255;
@@ -25,6 +25,7 @@
   --color-on-surface-variant-light: 73 69 78;
   --color-outline-light: 122 117 127;
   --color-outline-variant-light: 202 196 207;
+
   --color-primary-dark: 250 250 250;
   --color-on-primary-dark: 43 43 43;
   --color-primary-container-dark: 85 22 190;
