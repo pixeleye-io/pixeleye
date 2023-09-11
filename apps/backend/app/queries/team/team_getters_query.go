@@ -65,9 +65,9 @@ func (q *TeamQueries) GetGitTeamUsers(ctx context.Context, teamID string) ([]mod
 
 type UserOnTeam struct {
 	*models.User
-	Type     *string `db:"type"`
-	Role     string  `db:"role"`
-	RoleSync bool    `db:"role_sync"`
+	Type     *string `db:"type" json:"type"`
+	Role     string  `db:"role" json:"role"`
+	RoleSync bool    `db:"role_sync" json:"role_sync"`
 }
 
 func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOnTeam, error) {

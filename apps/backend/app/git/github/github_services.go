@@ -48,18 +48,16 @@ func IsOrgInstallation(app github.Installation) bool {
 	return app.Account.Type != nil && *app.Account.Type == "Organization"
 }
 
-func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.User, error) {
+func (c *GithubClient) GetMembers(ctx context.Context, org string) (admins []*github.User, members []*github.User, err error) {
 	opts := &github.ListMembersOptions{
 		PublicOnly: false,
 		ListOptions: github.ListOptions{
 			PerPage: 100,
 		},
-		Role: "all",
+		Role: "admin",
 	}
 
 	page := 1
-
-	var members []*github.User
 
 	for {
 
@@ -68,7 +66,30 @@ func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.Us
 		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
 
 		if err != nil {
-			return nil, err
+			return nil, nil, err
+		}
+
+		admins = append(admins, users...)
+
+		if res.NextPage == 0 {
+			break
+		}
+
+		page = res.NextPage
+
+	}
+
+	page = 1
+	opts.Role = "member"
+
+	for {
+
+		opts.Page = page
+
+		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
+
+		if err != nil {
+			return nil, nil, err
 		}
 
 		members = append(members, users...)
@@ -81,7 +102,7 @@ func (c *GithubClient) GetMembers(ctx context.Context, org string) ([]*github.Us
 
 	}
 
-	return members, nil
+	return admins, members, nil
 }
 
 // TODO - I should make this function generic so I can use it for other api calls
@@ -312,32 +333,35 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		return err
 	}
 
-	gitMembers, err := ghInstallClient.GetMembers(ctx, installInfo.GetAccount().GetLogin())
+	gitAdmins, gitMembers, err := ghInstallClient.GetMembers(ctx, installInfo.GetAccount().GetLogin())
 	if err != nil {
 		return err
 	}
 
 	log.Debug().Msgf("Current Members: %+v", currentMembers)
 	log.Debug().Msgf("Git Members: %+v", gitMembers)
+	log.Debug().Msgf("Git Admins: %+v", gitAdmins)
 
 	var membersToRemove []string
-	// var existingMembers []string
 
 	for _, currentMember := range currentMembers {
 		found := false
-		for _, gitMember := range gitMembers {
+		for i, gitMember := range append(gitAdmins, gitMembers...) {
+			log.Debug().Msgf("Comparing %s with %s", currentMember.GithubID, strconv.Itoa(int(gitMember.GetID())))
 			if strconv.Itoa(int(gitMember.GetID())) == currentMember.GithubID {
 				found = true
 
-				// existingMembers = append(existingMembers, currentMember.ID)
+				admin := len(gitAdmins) > i
+
+				log.Debug().Msgf("RoleSync: %t", currentMember.RoleSync)
 
 				if currentMember.RoleSync {
-					if gitMember.GetSiteAdmin() && currentMember.Role != models.TEAM_MEMBER_ROLE_ADMIN {
+					if admin && currentMember.Role != models.TEAM_MEMBER_ROLE_ADMIN {
 						if err := db.UpdateUserRoleOnTeam(ctx, currentMember.ID, models.TEAM_MEMBER_ROLE_ADMIN); err != nil {
 							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
 							break
 						}
-					} else if !gitMember.GetSiteAdmin() && currentMember.Role != models.TEAM_MEMBER_ROLE_MEMBER {
+					} else if !admin && currentMember.Role != models.TEAM_MEMBER_ROLE_MEMBER {
 						if err := db.UpdateUserRoleOnTeam(ctx, currentMember.ID, models.TEAM_MEMBER_ROLE_MEMBER); err != nil {
 							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
 							break
@@ -355,8 +379,10 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 	var membersToAdd []models.TeamMember
 
-	for _, gitMember := range gitMembers {
+	for i, gitMember := range append(gitAdmins, gitMembers...) {
 		found := false
+		admin := len(gitAdmins) > i
+
 		for _, currentMember := range currentMembers {
 			if strconv.Itoa(int(gitMember.GetID())) == currentMember.GithubID {
 				found = true
@@ -373,7 +399,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 			memberType := models.TEAM_MEMBER_TYPE_GIT
 			role := models.TEAM_MEMBER_ROLE_MEMBER
-			if gitMember.GetSiteAdmin() {
+			if admin {
 				role = models.TEAM_MEMBER_ROLE_ADMIN
 			}
 			membersToAdd = append(membersToAdd, models.TeamMember{
@@ -385,8 +411,6 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 			})
 		}
 	}
-
-	// TODO - add list of users to edit perms for
 
 	if len(membersToRemove) > 0 {
 		log.Debug().Msgf("Removing %d members from team %s", len(membersToRemove), team.ID)

@@ -101,7 +101,6 @@ export function MemberSection({
   members: UserOnProject[];
   project: Project;
 }) {
-  console.log(members);
 
   return (
     <Table>

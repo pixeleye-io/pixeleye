@@ -41,6 +41,28 @@ func GetTeamsProjects(c echo.Context) error {
 	return c.JSON(http.StatusOK, projects)
 }
 
+func GetTeamUsers(c echo.Context) error {
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	users, err := db.GetTeamUsers(c.Request().Context(), team.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, users)
+}
+
 func GetRepos(c echo.Context) error {
 
 	team, err := middleware.GetTeam(c)

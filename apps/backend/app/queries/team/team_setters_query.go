@@ -89,7 +89,7 @@ func (q *TeamQueries) RemoveTeamMember(ctx context.Context, memberID string) err
 }
 
 func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamMember) error {
-	query := `INSERT INTO team_users (team_id, user_id, role) VALUES (:team_id, :user_id, :role)`
+	query := `INSERT INTO team_users (team_id, user_id, role, role_sync) VALUES (:team_id, :user_id, :role, :role_sync)`
 
 	_, err := q.NamedExecContext(ctx, query, members)
 
@@ -97,7 +97,7 @@ func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamM
 }
 
 func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, memberID string, role string) error {
-	query := `UPDATE team_users SET role = $1, WHERE id = $2`
+	query := `UPDATE team_users SET role = $1 WHERE user_id = $2`
 
 	_, err := q.ExecContext(ctx, query, role, memberID)
 
