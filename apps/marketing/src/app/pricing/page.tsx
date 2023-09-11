@@ -65,10 +65,10 @@ const tiers = [
 function SelfHostBanner() {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 sm:flex sm:justify-center sm:px-6 sm:pb-5 lg:px-8">
-      <div className="pointer-events-auto flex items-center justify-between gap-x-6 bg-tertiary-container px-6 py-2.5 sm:rounded-xl sm:py-3 sm:pl-4 sm:pr-3.5">
-        <p className="text-sm leading-6 text-white">
+      <div className="pointer-events-auto flex items-center justify-between gap-x-6 bg-tertiary-container text-on-tertiary-container px-6 py-2.5 sm:rounded-xl sm:py-3 sm:pl-4 sm:pr-3.5">
+        <p className="text-sm leading-6 text-on-tertiary-container">
           <NextLink href="/docs/self-hosting/getting-started">
-            <strong className="font-semibold">Want to self host?</strong>
+            <strong className="font-semibold ">Want to self host?</strong>
             <svg
               viewBox="0 0 2 2"
               className="mx-2 inline h-0.5 w-0.5 fill-current"
