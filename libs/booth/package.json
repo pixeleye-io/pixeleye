@@ -15,17 +15,17 @@
     "@pixeleye/js-sdk": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "playwright": "^1.37.1",
-    "puppeteer-core": "^21.1.0",
+    "puppeteer-core": "^21.1.1",
     "socket.io": "^4.7.2",
     "zod": "^3.22.2"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
-    "@types/node": "20.5.1",
-    "concurrently": "8.2.0",
+    "@types/node": "20.5.9",
+    "concurrently": "8.2.1",
     "cross-env": "^7.0.3",
     "nodemon": "^3.0.1",
     "socket.io-client": "^4.7.2",
-    "typescript": "5.1.6"
+    "typescript": "5.2.2"
   }
 }
