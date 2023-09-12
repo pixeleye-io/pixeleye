@@ -64,7 +64,7 @@ function Hero() {
             <Button>Sign up for free</Button>
             <Link
               size="sm"
-              href="#"
+              href="/docs"
               className="flex items-center justify-center group"
             >
               Read our docs
