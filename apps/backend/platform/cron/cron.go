@@ -15,7 +15,7 @@ func StartCron() {
 	// 	log.Error().Err(err).Msg("Failed to schedule DeleteUserJob")
 	// }
 
-	if _, err := s.Every(15).Seconds().Do(jobs.UpdateStuckBuilds); err != nil {
+	if _, err := s.Every(15).Minutes().Do(jobs.UpdateStuckBuilds); err != nil {
 		log.Error().Err(err).Msg("Failed to schedule UpdateStuckBuilds")
 	}
 
