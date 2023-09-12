@@ -30,4 +30,7 @@ func BuildRoutes(e *echo.Echo) {
 
 	reviewRoutes.POST("/approve/all", controllers.ApproveAllSnapshots)
 	reviewRoutes.POST("/reject/all", controllers.RejectAllSnapshots)
+
+	reviewRoutes.POST("/approve/remaining", controllers.ApproveRemainingSnapshots)
+	reviewRoutes.POST("/reject/remaining", controllers.RejectRemainingSnapshots)
 }

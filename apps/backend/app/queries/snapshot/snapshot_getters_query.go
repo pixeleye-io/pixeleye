@@ -117,3 +117,13 @@ func (q *SnapshotQueries) GetUnreviewedSnapshotsByBuild(ctx context.Context, bui
 
 	return snapshots, err
 }
+
+func (q *SnapshotQueries) GetReviewableSnapshotsByBuild(ctx context.Context, buildID string) ([]models.Snapshot, error) {
+	snapshots := []models.Snapshot{}
+
+	query := `SELECT * FROM snapshot WHERE status = 'unreviewed' or status = 'approved' or status = 'rejected' AND build_id = $1`
+
+	err := q.SelectContext(ctx, &snapshots, query, buildID)
+
+	return snapshots, err
+}

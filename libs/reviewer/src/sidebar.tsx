@@ -58,7 +58,6 @@ const SidebarNav: SidebarItem[] = [
 ];
 
 function BatchApprove() {
-
   const buildAPI = useReviewerStore((state) => state.buildAPI);
 
   return (
@@ -112,14 +111,27 @@ function BatchApprove() {
 
       <DropdownMenuPortal>
         <DropdownMenuContent side="right">
-          <DropdownMenuLabel>Batch actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => buildAPI.approveAllSnapshots()}>
+          <DropdownMenuLabel>Remaining snaps</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => buildAPI.approveRemainingSnapshots()}
+          >
             <HandThumbUpIcon className="h-6 w-6 text-on-surface-variant mr-2" />
             Approve remaining
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => buildAPI.rejectAllSnapshots()}>
+          <DropdownMenuItem onClick={() => buildAPI.rejectRemainingSnapshots()}>
             <HandThumbDownIcon className="h-6 w-6 text-on-surface-variant mr-2" />
             Reject remaining
+          </DropdownMenuItem>
+          <DropdownMenuLabel>All snaps</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={() => buildAPI.approveAllSnapshots()}
+          >
+            <HandThumbUpIcon className="h-6 w-6 text-on-surface-variant mr-2" />
+            Approve all
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => buildAPI.rejectAllSnapshots()}>
+            <HandThumbDownIcon className="h-6 w-6 text-on-surface-variant mr-2" />
+            Reject all
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenuPortal>
