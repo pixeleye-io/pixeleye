@@ -65,14 +65,3 @@ func (tx *BuildQueriesTx) GetBuildForUpdate(ctx context.Context, id string) (mod
 
 	return build, err
 }
-
-func (q *BuildQueries) SelectChildBuilds(ctx context.Context, id string) ([]models.Build, error) {
-
-	builds := []models.Build{}
-
-	query := `SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build.id = $1 ORDER BY build.build_number ASC`
-
-	err := q.SelectContext(ctx, &builds, query, id)
-
-	return builds, err
-}

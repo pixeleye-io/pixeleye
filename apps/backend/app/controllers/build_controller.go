@@ -146,12 +146,7 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 	}
 
 	// We can only approve snapshot if the build is the latest build
-	history, err := db.SelectChildBuilds(c.Request().Context(), build.ID)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	if len(history) > 0 {
+	if !build.IsLatest {
 		return echo.NewHTTPError(http.StatusBadRequest, "build is not the latest build")
 	}
 
