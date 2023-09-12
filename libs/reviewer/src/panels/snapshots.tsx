@@ -1,7 +1,7 @@
 import { useReviewerStore } from "../store";
 import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
 import Accordion from "@pixeleye/ui/src/accordion";
@@ -24,7 +24,9 @@ function AccordionSnaps({
   }
   return (
     <Accordion.Item value={name}>
-      <Accordion.Trigger className="px-2" size="sm">{name}</Accordion.Trigger>
+      <Accordion.Trigger className="px-2" size="sm">
+        <span className="first-letter:capitalize">{name}</span>
+      </Accordion.Trigger>
       <Accordion.Content>
         <ul className="flex flex-col space-y-4 overflow-y-auto  grow">
           {snapshots.map((snapshot, i) => (
@@ -163,44 +165,58 @@ export default function SnapshotsPanel() {
       ]
     );
 
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    currentSnapshot?.status
+  );
+
+  useEffect(() => {
+    if (currentSnapshot?.status) setAccordionValue(currentSnapshot?.status);
+  }, [currentSnapshot]);
+
   return (
     <div className="pl-0.5 pt-4 flex flex-col grow">
       <PanelHeader className="px-4" title="Snapshots" />
       <nav className="grow mt-4 flex pb-12">
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion
+          type="single"
+          value={accordionValue}
+          onValueChange={setAccordionValue}
+          collapsible
+          className="w-full"
+        >
           <AccordionSnaps
             snapshots={unreviewed}
-            name="Unreviewed"
+            name="unreviewed"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
             snapshots={rejected}
-            name="Rejected"
+            name="rejected"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
             snapshots={approved}
-            name="Approved"
+            name="approved"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
             snapshots={orphaned}
-            name="Orphaned"
+            name="orphaned"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
             snapshots={unchanged}
-            name="Unchanged"
+            name="unchanged"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
             snapshots={failed}
-            name="Failed"
+            name="failed"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
