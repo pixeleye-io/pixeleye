@@ -58,7 +58,7 @@ func (basics BucketClient) KeyExists(ctx context.Context, bucketName string, obj
 // Delete deletes a key from a bucket.
 func (basics BucketClient) DeleteFolder(ctx context.Context, bucketName string, objectKey string) error {
 
-	for true {
+	for {
 
 		objs, err := basics.S3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
 			Bucket: aws.String(bucketName),

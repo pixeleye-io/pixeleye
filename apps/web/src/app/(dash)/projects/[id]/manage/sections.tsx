@@ -71,7 +71,7 @@ export function DeleteProjectSection({ project }: { project: Project }) {
           name: project.name,
         },
       }),
-    onSuccess: () => {
+    onMutate: () => {
       router.push("/dashboard");
     },
   });
