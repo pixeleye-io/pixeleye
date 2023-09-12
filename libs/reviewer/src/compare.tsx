@@ -11,7 +11,6 @@ import { CompareTab, useReviewerStore } from "./store";
 import { useCallback, useEffect, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
-import { useMotionValue } from "framer-motion";
 import { ExtendedSnapshotPair } from "./reviewer";
 
 function TabSwitcher() {
@@ -139,12 +138,22 @@ export function Compare() {
     return null;
   }
 
+  const validSnapshot = Boolean(
+    snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight
+  );
+
+  const validBaseline = Boolean(
+    snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
+  );
+
+  const validCompare = validSnapshot && validBaseline;
+
   return (
     <main className="w-full ml-1 z-0 h-full grow-0 flex relative">
       <Tabs
-        value={activeTab}
+        value={validCompare ? activeTab : "single"}
         onValueChange={setActiveTab as (value: string) => void}
-        defaultValue="double"
+        defaultValue={validCompare ? "double" : "single"}
         className=" w-full h-full grow-0 relative max-h-full"
       >
         <header className="w-full border-b border-outline-variant">

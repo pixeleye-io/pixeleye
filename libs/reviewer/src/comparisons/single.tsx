@@ -22,6 +22,10 @@ export function Single({ draggableImageRef }: SingleProps) {
     snapshot.diffURL && snapshot.diffWidth && snapshot.diffHeight
   );
 
+  const validBaselineSnapshot = Boolean(
+    snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
+  );
+
   const scale = useMotionValue(0);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -47,12 +51,16 @@ export function Single({ draggableImageRef }: SingleProps) {
               height: snapshot.snapHeight!,
               alt: "Head snapshot",
             }}
-            secondBase={{
-              src: snapshot.baselineURL!,
-              width: snapshot.baselineWidth!,
-              height: snapshot.baselineHeight!,
-              alt: "Baseline snapshot",
-            }}
+            secondBase={
+              validBaselineSnapshot
+                ? {
+                    src: snapshot.baselineURL!,
+                    width: snapshot.baselineWidth!,
+                    height: snapshot.baselineHeight!,
+                    alt: "Baseline snapshot",
+                  }
+                : undefined
+            }
             showSecondBase={singleSnapshot === "baseline"}
             overlay={
               validDiff

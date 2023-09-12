@@ -4,6 +4,45 @@ import { cx } from "class-variance-authority";
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
+import Accordion from "@pixeleye/ui/src/accordion";
+
+interface AccordionSnapsProps {
+  snapshots: ExtendedSnapshotPair[];
+  name: string;
+  currentSnapshot: ExtendedSnapshotPair | undefined;
+  setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
+}
+
+function AccordionSnaps({
+  snapshots,
+  name,
+  currentSnapshot,
+  setCurrentSnapshot,
+}: AccordionSnapsProps) {
+  if (snapshots.length === 0) {
+    return null;
+  }
+  return (
+    <Accordion.Item value={name}>
+      <Accordion.Trigger>{name}</Accordion.Trigger>
+      <Accordion.Content>
+        <ul className="flex flex-col space-y-4 overflow-y-auto  grow">
+          {snapshots.map((snapshot, i) => (
+            <li className="h-fit" key={snapshot.id}>
+              <SnapButton
+                active={snapshot.id === currentSnapshot?.id}
+                index={i}
+                total={snapshots.length}
+                setIndex={(i) => setCurrentSnapshot(snapshots.at(i))}
+                snapshot={snapshot}
+              />
+            </li>
+          ))}
+        </ul>
+      </Accordion.Content>
+    </Accordion.Item>
+  );
+}
 
 interface SnapButtonProps {
   snapshot: ExtendedSnapshotPair;
@@ -89,23 +128,83 @@ export default function SnapshotsPanel() {
     (state) => state.setCurrentSnapshot
   );
 
+  const [unreviewed, approved, rejected, unchanged, orphaned, failed] =
+    snapshots.reduce(
+      (acc, snapshot) => {
+        switch (snapshot.status) {
+          case "unreviewed":
+            acc[0].push(snapshot);
+            break;
+          case "approved":
+            acc[1].push(snapshot);
+            break;
+          case "rejected":
+            acc[2].push(snapshot);
+            break;
+          case "unchanged":
+            acc[3].push(snapshot);
+            break;
+          case "orphaned":
+            acc[4].push(snapshot);
+            break;
+          case "failed":
+            acc[5].push(snapshot);
+            break;
+        }
+        return acc;
+      },
+      [[], [], [], [], [], []] as [
+        ExtendedSnapshotPair[],
+        ExtendedSnapshotPair[],
+        ExtendedSnapshotPair[],
+        ExtendedSnapshotPair[],
+        ExtendedSnapshotPair[],
+        ExtendedSnapshotPair[],
+      ]
+    );
+
   return (
     <div className="px-4 pt-4 flex flex-col grow">
       <PanelHeader title="Snapshots" />
       <nav className="grow mt-4 flex pb-12">
-        <ul className="flex flex-col space-y-4 overflow-y-auto  grow">
-          {snapshots.map((snapshot, i) => (
-            <li className="h-fit" key={snapshot.id}>
-              <SnapButton
-                active={snapshot.id === currentSnapshot?.id}
-                index={i}
-                total={snapshots.length}
-                setIndex={(i) => setCurrentSnapshot(snapshots.at(i))}
-                snapshot={snapshot}
-              />
-            </li>
-          ))}
-        </ul>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionSnaps
+            snapshots={unreviewed}
+            name="Unreviewed"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+          <AccordionSnaps
+            snapshots={rejected}
+            name="Rejected"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+          <AccordionSnaps
+            snapshots={approved}
+            name="Approved"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+          <AccordionSnaps
+            snapshots={orphaned}
+            name="Orphaned"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+          <AccordionSnaps
+            snapshots={unchanged}
+            name="Unchanged"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+          <AccordionSnaps
+            snapshots={failed}
+            name="Failed"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+        </Accordion>
       </nav>
       <ShortcutHint />
     </div>
