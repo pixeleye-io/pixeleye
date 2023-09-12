@@ -29,6 +29,7 @@
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-tooltip": "^1.0.6",
     "@tanstack/react-table": "^8.9.7",
+    "bright": "^0.8.4",
     "class-variance-authority": "^0.7.0",
     "cmdk": "^0.2.0",
     "framer-motion": "^10.16.4",

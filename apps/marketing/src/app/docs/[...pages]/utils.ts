@@ -1,5 +1,3 @@
-import { resolve } from "path";
-import { readdir } from "fs/promises";
 import { cache } from "react";
 import { Octokit } from "@octokit/core";
 

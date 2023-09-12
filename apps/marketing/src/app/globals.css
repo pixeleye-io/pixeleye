@@ -12,3 +12,27 @@
     @apply bg-surface text-on-surface;
   }
 }
+
+.prose p {
+  @apply text-on-surface my-4;
+}
+
+.prose h1 {
+  @apply text-3xl font-bold mb-6 mt-0;
+}
+
+.prose h2 {
+  @apply text-2xl font-bold mb-4 mt-8;
+}
+
+.prose h3 {
+  @apply text-xl font-bold mt-7 mb-2;
+}
+
+.prose h4 {
+  @apply text-lg font-bold mt-5 mb-1.5;
+}
+
+.prose blockquote {
+  @apply border border-outline-variant my-4 px-4 rounded;
+}

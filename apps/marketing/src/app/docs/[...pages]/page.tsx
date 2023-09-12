@@ -1,8 +1,11 @@
-import { Config, parse, transform, renderers } from "@markdoc/markdoc";
+import { parse, transform, renderers } from "@markdoc/markdoc";
 import { notFound } from "next/navigation";
 import React from "react";
 import heading from "../../../schema/heading.markdoc";
 import callout from "../../../schema/callout.markdoc";
+import fence from "../../../schema/fence.markdoc";
+import code from "../../../schema/code.markdoc";
+
 import link from "../../../schema/link.markdoc";
 import { getFile, getAllFiles } from "./utils";
 import yaml from "js-yaml";
@@ -43,13 +46,15 @@ export async function generateStaticParams() {
   }));
 }
 
-const config: Config = {
+const config: any = {
   tags: {
     callout,
   },
   nodes: {
     heading,
     link,
+    fence,
+    code,
   },
   variables: {},
 };
@@ -67,7 +72,6 @@ function collectHeadings(node: any) {
     for (const child of node.children) {
       if (child.type !== "heading") continue;
       if (child.attributes.level === 2) {
-        console.log(child.children[0].children[0].attributes.content);
         headings.push({
           title: child.children[0].children[0].attributes.content,
           id: child.children[0].children[0].attributes.content.replaceAll(
@@ -91,7 +95,6 @@ function collectHeadings(node: any) {
   return headings;
 }
 
-// @ts-ignore
 export default async function Page({
   params,
 }: {
@@ -116,7 +119,7 @@ export default async function Page({
 
   return (
     <>
-      <div className="min-w-0 max-w-3xl flex-auto prose dark:prose-invert px-4 py-16 lg:pl-8 lg:pr-0 xl:px-16 h-full">
+      <div className="min-w-0 max-w-3xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-16 h-full">
         {renderers.react(content, React, { components: {} })}
       </div>
       <div className="hidden xl:sticky xl:top-16 xl:-mr-6 xl:block xl:h-[calc(100vh-4.75rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">

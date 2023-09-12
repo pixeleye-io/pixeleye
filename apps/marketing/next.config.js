@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@pixeleye/ui", "@pixeleye/tailwind"],
+  transpilePackages: [
+    "@pixeleye/ui",
+    "@pixeleye/reviewer",
+    "@pixeleye/tailwind",
+  ],
   images: {
     domains: ["tailwindui.com"],
   },
@@ -15,7 +19,7 @@ const nextConfig = {
         source: "/docs",
         destination: "/docs/getting-started/introduction",
         permanent: true,
-      }
+      },
     ];
   },
 };

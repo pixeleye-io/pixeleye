@@ -49,3 +49,5 @@ export * from "./dataTable";
 export { default as DataTable } from "./dataTable";
 export * from "./accordion";
 export { default as Accordion } from "./accordion";
+export * from "./code";
+export { default as Code } from "./code";
