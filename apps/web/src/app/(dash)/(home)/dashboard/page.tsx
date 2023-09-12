@@ -76,9 +76,6 @@ export default async function DashboardPage({
     headers: {
       cookie: cookies().toString(),
     },
-  }).then((res) => {
-    console.log(res);
-    return res;
   });
 
   const paramsURL = new URLSearchParams(searchParams);
