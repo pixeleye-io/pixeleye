@@ -56,15 +56,44 @@ func (basics BucketClient) KeyExists(ctx context.Context, bucketName string, obj
 }
 
 // Delete deletes a key from a bucket.
-func (basics BucketClient) Delete(ctx context.Context, bucketName string, objectKey string) error {
-	_, err := basics.S3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-	})
-	if err != nil {
-		log.Error().Err(err).Msgf("Couldn't delete object %v:%v", bucketName, objectKey)
+func (basics BucketClient) DeleteFolder(ctx context.Context, bucketName string, objectKey string) error {
+
+	for true {
+
+		objs, err := basics.S3Client.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+			Bucket: aws.String(bucketName),
+			Prefix: aws.String(objectKey),
+		})
+
+		if err != nil {
+			log.Error().Err(err).Msgf("Couldn't list objects in %v:%v", bucketName, objectKey)
+			return err
+		}
+
+		if len(objs.Contents) == 0 {
+			break
+		}
+
+		var objectIds []types.ObjectIdentifier
+		for _, obj := range objs.Contents {
+			objectIds = append(objectIds, types.ObjectIdentifier{
+				Key: obj.Key,
+			})
+		}
+
+		_, err = basics.S3Client.DeleteObjects(ctx, &s3.DeleteObjectsInput{
+			Bucket: aws.String(bucketName),
+			Delete: &types.Delete{
+				Objects: objectIds,
+			},
+		})
+
+		if err != nil {
+			log.Error().Err(err).Msgf("Couldn't delete object %v:%v", bucketName, objectKey)
+		}
+
 	}
-	return err
+	return nil
 }
 
 // UploadFile reads from a file and puts the data into an object in a bucket.

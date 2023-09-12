@@ -199,15 +199,9 @@ func DeleteProject(c echo.Context) error {
 		return err
 	}
 
-	exists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), project.ID)
-	if err != nil {
+	log.Debug().Msgf("Deleting project %s from S3", project.ID)
+	if err := s3.DeleteFolder(c.Request().Context(), os.Getenv("S3_BUCKET"), project.ID); err != nil {
 		return err
-	}
-
-	if exists {
-		if err := s3.Delete(c.Request().Context(), os.Getenv("S3_BUCKET"), project.ID); err != nil {
-			return err
-		}
 	}
 
 	return c.NoContent(http.StatusNoContent)
