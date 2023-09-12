@@ -13,6 +13,8 @@ export const SnapshotZod = z.object({
   target: z.string().optional(),
   viewport: z.string().optional(),
 
+  error: z.string().optional(),
+
   baselineID: z.string().length(21).optional(),
 
   reviewerID: z.string().optional(),
