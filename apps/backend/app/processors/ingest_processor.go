@@ -73,7 +73,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 	for _, img := range []models.SnapImage{snapImg, baseImg} {
 		go func(img models.SnapImage) {
 			log.Debug().Str("SnapshotID", snapshot.ID).Str("ImageID", img.ID).Msg("Getting image from S3")
-			path := fmt.Sprintf("snaps/%s/%s.png", img.ProjectID, img.Hash)
+			path := fmt.Sprintf("%s/snaps/%s.png", img.ProjectID, img.Hash)
 
 			imgBytes, err := s3.DownloadFile(os.Getenv("S3_BUCKET"), path)
 
@@ -140,9 +140,9 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 
 	hash := hex.EncodeToString(hasher.Sum(nil))
 
-	diffPath := fmt.Sprintf("diffs/%s/%s.png", snapImg.ProjectID, hash)
+	diffPath := fmt.Sprintf("%s/diffs/%s.png", snapImg.ProjectID, hash)
 
-	exists, err := s3.FileExists(os.Getenv("S3_BUCKET"), diffPath)
+	exists, err := s3.KeyExists(context.TODO(), os.Getenv("S3_BUCKET"), diffPath)
 
 	if err != nil {
 		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to check if diff image exists in S3")
@@ -278,11 +278,20 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	for _, snap := range changedSnapshots {
 		err := processSnapshot(snap[0], snap[1], db)
 
-		// TODO attach error to snapshot
-
 		if err != nil {
 			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
+
+			snapshot := snap[0]
+			snapshot.Status = models.SNAPSHOT_STATUS_FAILED
+			snapshot.Error = fmt.Sprintf("Failed to process snapshot: %s", err.Error())
+
+			if err := db.UpdateSnapshot(snapshot); err != nil {
+				log.Error().Err(err).Msgf("Failed to set snapshots status to failed, SnapshotID %s", snapshot.ID)
+				// We don't want to return this error because we still want to process the remaining snapshots
+			}
+
 		}
+
 	}
 
 	return nil

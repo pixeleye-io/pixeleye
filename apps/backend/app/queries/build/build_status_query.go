@@ -57,7 +57,7 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
 
-	if models.IsBuildPreProcessing(build.Status) {
+	if models.IsBuildPreProcessing(build.Status) || build.Status == models.BUILD_STATUS_FAILED {
 		return build.Status, nil
 	}
 
@@ -71,7 +71,17 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
-	return getBuildStatusFromSnapshotStatuses(snapshotStatus), nil
+	statusFromSnaps := getBuildStatusFromSnapshotStatuses(snapshotStatus)
+
+	if build.Status == models.BUILD_STATUS_ABORTED_PROCESSING {
+		if models.IsBuildPostProcessing(statusFromSnaps) {
+			return models.BUILD_STATUS_FAILED, nil
+		} else {
+			return models.BUILD_STATUS_ABORTED_PROCESSING, nil
+		}
+	}
+
+	return statusFromSnaps, nil
 }
 
 func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buildID string) (*models.Build, error) {

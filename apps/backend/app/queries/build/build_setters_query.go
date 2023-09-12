@@ -151,3 +151,41 @@ func (q *BuildQueries) CompleteBuild(ctx context.Context, id string) (models.Bui
 
 	return build, tx.Commit()
 }
+
+func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
+	selectQuery := `SELECT * FROM build WHERE status IN ('processing', 'uploading') AND updated_at < NOW() - INTERVAL '15 minute' FOR UPDATE`
+
+	tx, err := NewBuildTx(q.DB, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	// nolint:errcheck
+	defer tx.Rollback()
+
+	builds := []models.Build{}
+
+	if err := tx.SelectContext(ctx, &builds, selectQuery); err != nil {
+		return err
+	}
+
+	for _, build := range builds {
+		build.Status = models.BUILD_STATUS_FAILED
+		if err := tx.UpdateBuild(ctx, &build); err != nil {
+			return err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	for _, build := range builds {
+		if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
+			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
+		}
+	}
+
+	return nil
+}

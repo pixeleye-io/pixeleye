@@ -71,6 +71,12 @@ type POST = Method<{
   "/builds/{id}/review/reject/all": {
     res: Build;
   };
+  "/builds/{id}/review/approve/remaining": {
+    res: Build;
+  };
+  "/builds/{id}/review/reject/remaining": {
+    res: Build;
+  };
 }>;
 
 export interface BuildAPI {

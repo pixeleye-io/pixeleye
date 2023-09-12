@@ -171,7 +171,8 @@ export function Compare() {
               {userRole !== "viewer" &&
                 ["unreviewed", "approved", "rejected"].includes(
                   snapshot.status
-                ) && build.isLatest && (
+                ) &&
+                build.isLatest && (
                   <>
                     <Button
                       variant="ghost"
@@ -193,6 +194,9 @@ export function Compare() {
           </div>
         </header>
         <div className="p-4 w-full h-[calc(100%-6.25rem-1px)]">
+          {snapshot.error && (
+              <p className="text-error">{snapshot.error}</p>
+          )}
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
             <Single draggableImageRef={singleRef} />
           </TabsContent>

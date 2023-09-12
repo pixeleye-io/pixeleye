@@ -82,7 +82,10 @@ export function Review({ buildID, project }: ReviewProps) {
       "onError" | "onSettled" | "onMutate"
     >;
 
-  const reviewAllOptimisticUpdate = (status: ExtendedSnapshotPair["status"]) =>
+  const reviewAllOptimisticUpdate = (
+    status: ExtendedSnapshotPair["status"],
+    matching: ExtendedSnapshotPair["status"][]
+  ) =>
     ({
       onMutate: async () => {
         // Optimistically update the snapshots
@@ -97,7 +100,7 @@ export function Review({ buildID, project }: ReviewProps) {
           queries.builds.detail(buildID)._ctx.listSnapshots().queryKey,
           (old) => {
             return old?.map((snapshot) => {
-              if (snapshot.status === "unreviewed") {
+              if (matching.includes(snapshot.status)) {
                 return {
                   ...snapshot,
                   status,
@@ -144,7 +147,21 @@ export function Review({ buildID, project }: ReviewProps) {
           id: buildID,
         },
       }),
-    ...reviewAllOptimisticUpdate("approved"),
+    ...reviewAllOptimisticUpdate("approved", [
+      "approved",
+      "rejected",
+      "unreviewed",
+    ]),
+  });
+
+  const approveRemaining = useMutation({
+    mutationFn: () =>
+      API.post("/builds/{id}/review/approve/remaining", {
+        params: {
+          id: buildID,
+        },
+      }),
+    ...reviewAllOptimisticUpdate("approved", ["unreviewed"]),
   });
 
   const approve = useMutation({
@@ -180,14 +197,30 @@ export function Review({ buildID, project }: ReviewProps) {
           id: buildID,
         },
       }),
-    ...reviewAllOptimisticUpdate("rejected"),
+    ...reviewAllOptimisticUpdate("rejected", [
+      "approved",
+      "rejected",
+      "unreviewed",
+    ]),
+  });
+
+  const rejectRemaining = useMutation({
+    mutationFn: () =>
+      API.post("/builds/{id}/review/reject/remaining", {
+        params: {
+          id: buildID,
+        },
+      }),
+    ...reviewAllOptimisticUpdate("rejected", ["unreviewed"]),
   });
 
   const buildAPI: BuildAPI = {
     approveAllSnapshots: approveAll.mutate,
     approveSnapshot: approve.mutate,
+    approveRemainingSnapshots: approveRemaining.mutate,
     rejectAllSnapshots: rejectAll.mutate,
     rejectSnapshot: reject.mutate,
+    rejectRemainingSnapshots: rejectRemaining.mutate,
   };
 
   const isUpdatingSnapshotStatus =

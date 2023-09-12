@@ -206,7 +206,7 @@ func RejectSnapshots(c echo.Context) error {
 	return setSnapshotStatus(c, models.SNAPSHOT_STATUS_REJECTED, body.SnapshotIds)
 }
 
-func setAllSnapshotsStatus(c echo.Context, status string) error {
+func setRemainingSnapshotsStatus(c echo.Context, status string) error {
 	build, err := middleware.GetBuild(c)
 
 	if err != nil {
@@ -219,6 +219,39 @@ func setAllSnapshotsStatus(c echo.Context, status string) error {
 	}
 
 	snapshots, err := db.GetUnreviewedSnapshotsByBuild(c.Request().Context(), build.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	ids := []string{}
+	for _, snapshot := range snapshots {
+		ids = append(ids, snapshot.ID)
+	}
+
+	return setSnapshotStatus(c, status, ids)
+}
+
+func ApproveRemainingSnapshots(c echo.Context) error {
+	return setRemainingSnapshotsStatus(c, models.SNAPSHOT_STATUS_APPROVED)
+}
+
+func RejectRemainingSnapshots(c echo.Context) error {
+	return setRemainingSnapshotsStatus(c, models.SNAPSHOT_STATUS_REJECTED)
+}
+
+func setAllSnapshotsStatus(c echo.Context, status string) error {
+	build, err := middleware.GetBuild(c)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	snapshots, err := db.GetReviewableSnapshotsByBuild(c.Request().Context(), build.ID)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}

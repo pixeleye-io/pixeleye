@@ -229,6 +229,18 @@ func TestCalculateBuildStatus(t *testing.T) {
 			},
 			want: "unreviewed",
 		},
+		{
+			name: "Unreviewed statuses and build with target and parent and rejected build status parent",
+			statuses: []string{
+				"unreviewed",
+			},
+			build: models.Build{
+				Status:         "failed",
+				TargetBuildID:  "targetBuildID",
+				TargetParentID: "targetParentID",
+			},
+			want: "failed",
+		},
 	}
 
 	for _, tt := range tests {

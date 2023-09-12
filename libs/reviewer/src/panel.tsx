@@ -39,7 +39,7 @@ export function Panel() {
   });
 
   return (
-    <m.aside style={{ width: width }} className="flex relative z-10 shrink-0	">
+    <m.aside style={{ width: width }} className="flex relative z-10 shrink-0">
       <OverlayScrollbar className="flex grow z-10 overflow-y-auto [&>*:nth-child(2)]:flex">
         <PanelComponent />
       </OverlayScrollbar>

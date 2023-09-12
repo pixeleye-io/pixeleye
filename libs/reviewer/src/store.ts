@@ -11,7 +11,9 @@ export interface BuildAPI {
   approveSnapshot: (id: string) => void;
   rejectSnapshot: (id: string) => void;
   approveAllSnapshots: () => void;
+  approveRemainingSnapshots: () => void;
   rejectAllSnapshots: () => void;
+  rejectRemainingSnapshots: () => void;
 }
 
 interface ReviewerState {
@@ -90,6 +92,8 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
     rejectSnapshot: () => {},
     approveAllSnapshots: () => {},
     rejectAllSnapshots: () => {},
+    approveRemainingSnapshots: () => {},
+    rejectRemainingSnapshots: () => {},
   },
   setBuildAPI: (buildAPI) => set({ buildAPI }),
 
