@@ -186,12 +186,7 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 
 // group the snapshots into new, changed and unchanged
 // We also pair the snapshots with their baselines if they exist
-func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (newSnapshots []string, unchangedSnapshots [][2]models.Snapshot, unreviewedSnapshots [][2]models.Snapshot, changedSnapshots [][2]models.Snapshot) {
-	newSnapshots = []string{}
-	unchangedSnapshots = [][2]models.Snapshot{}
-	changedSnapshots = [][2]models.Snapshot{}
-	unreviewedSnapshots = [][2]models.Snapshot{}
-
+func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (newSnapshots []string, unchangedSnapshots [][2]models.Snapshot, unreviewedSnapshots [][2]models.Snapshot, changedSnapshots [][2]models.Snapshot, rejectedSnapshots [][2]models.Snapshot) {
 	for _, snapshot := range snapshots {
 		found := false
 		for _, baseline := range baselines {
@@ -202,6 +197,8 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 				if snapshot.SnapID == baseline.SnapID {
 					if baseline.Status == models.SNAPSHOT_STATUS_UNCHANGED || baseline.Status == models.SNAPSHOT_STATUS_APPROVED || baseline.Status == models.SNAPSHOT_STATUS_ORPHANED {
 						unchangedSnapshots = append(unchangedSnapshots, [2]models.Snapshot{snapshot, baseline})
+					} else if baseline.Status == models.SNAPSHOT_STATUS_REJECTED {
+						rejectedSnapshots = append(rejectedSnapshots, [2]models.Snapshot{snapshot, baseline})
 					} else {
 						unreviewedSnapshots = append(unreviewedSnapshots, [2]models.Snapshot{snapshot, baseline})
 					}
@@ -225,14 +222,14 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 		Str("Changed", fmt.Sprintf("%v", changedSnapshots)).
 		Msg("Grouped snapshots")
 
-	return newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots
+	return newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots
 }
 
 func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
 
 	ctx := context.TODO()
 
-	newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots := groupSnapshots(snapshots, baselines)
+	newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots := groupSnapshots(snapshots, baselines)
 
 	if len(newSnapshots) > 0 {
 		// We can go ahead and mark the new snapshots as orphaned
@@ -262,6 +259,18 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 
 		if err := db.UpdateSnapshot(snapshot); err != nil {
 			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snapshot.ID)
+			// We don't want to return this error because we still want to process the remaining snapshots
+		}
+	}
+
+	for _, snap := range rejectedSnapshots {
+		snapshot := snap[0]
+		snapshot.BaselineID = snap[1].BaselineID
+		snapshot.Status = models.SNAPSHOT_STATUS_REJECTED
+		snapshot.DiffID = snap[1].DiffID
+
+		if err := db.UpdateSnapshot(snapshot); err != nil {
+			log.Error().Err(err).Msgf("Failed to set snapshots status to rejected, SnapshotID %s", snapshot.ID)
 			// We don't want to return this error because we still want to process the remaining snapshots
 		}
 	}
