@@ -49,7 +49,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 func (q *BuildQueries) GetBuild(id string) (models.Build, error) {
 	build := models.Build{}
 
-	query := `SELECT * FROM build WHERE id = $1`
+	query := `SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1`
 
 	err := q.Get(&build, query, id)
 

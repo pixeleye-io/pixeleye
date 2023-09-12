@@ -111,6 +111,7 @@ function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
 
 export function Compare() {
   const snapshot = useReviewerStore((state) => state.currentSnapshot);
+  const build = useReviewerStore((state) => state.build);
 
   const activeTab = useReviewerStore((state) => state.activeCompareTab);
   const setActiveTab = useReviewerStore((state) => state.setActiveCompareTab);
@@ -170,7 +171,7 @@ export function Compare() {
               {userRole !== "viewer" &&
                 ["unreviewed", "approved", "rejected"].includes(
                   snapshot.status
-                ) && (
+                ) && build.isLatest && (
                   <>
                     <Button
                       variant="ghost"
