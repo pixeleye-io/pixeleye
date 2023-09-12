@@ -1,11 +1,16 @@
 "use client";
 
-import { Build, SnapshotPair } from "@pixeleye/api";
+import {
+  Build,
+  Snapshot,
+  SnapshotPair,
+  UserOnProjectRole,
+} from "@pixeleye/api";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
-import { useReviewerStore } from "./store";
-import { useEffect, useTransition } from "react";
+import { BuildAPI, useReviewerStore } from "./store";
+import { useEffect, useMemo, useTransition } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
@@ -20,11 +25,25 @@ export type ExtendedSnapshotPair = Omit<
   diffURL?: StaticImageData | string;
 };
 
+const snapshotSortMap: Record<Snapshot["status"], number> = {
+  unreviewed: 0,
+  rejected: 1,
+  approved: 2,
+  orphaned: 3,
+  unchanged: 4,
+  failed: 5,
+  aborted: 6,
+  processing: 7,
+};
+
 export interface ReviewerProps {
   build: Build;
   snapshots: ExtendedSnapshotPair[];
   optimize?: boolean;
   className?: string;
+  buildAPI?: BuildAPI;
+  userRole?: UserOnProjectRole;
+  isUpdatingSnapshotStatus?: boolean;
 }
 
 export function Reviewer({
@@ -32,6 +51,9 @@ export function Reviewer({
   snapshots,
   optimize = false,
   className = "h-[calc(100vh-3rem-1px)]",
+  buildAPI,
+  userRole,
+  isUpdatingSnapshotStatus,
 }: ReviewerProps) {
   const setBuild = useReviewerStore((state) => state.setBuild);
   const setSnapshots = useReviewerStore((state) => state.setSnapshots);
@@ -41,22 +63,35 @@ export function Reviewer({
   );
   const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
   const panelOpen = useReviewerStore((state) => state.panelOpen);
+  const setBuildAPI = useReviewerStore((state) => state.setBuildAPI);
+  const setUserRole = useReviewerStore((state) => state.setUserRole);
+  const setIsUpdatingSnapshotStatus = useReviewerStore(
+    (state) => state.setIsUpdatingStatus
+  );
 
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
+  const sortedSnapshots = useMemo(
+    () =>
+      snapshots.sort((a, b) => {
+        return snapshotSortMap[a.status] - snapshotSortMap[b.status];
+      }),
+    [snapshots]
+  );
+
   useEffect(() => {
-    if (snapshots.length > 0 && !currentSnapshot) {
+    if (sortedSnapshots.length > 0 && !currentSnapshot) {
       const snapshotId = searchParams.get("s");
-      const snapshot = snapshots.find((s) => s.id === snapshotId);
-      setCurrentSnapshot(snapshot || snapshots[0]);
+      const snapshot = sortedSnapshots.find((s) => s.id === snapshotId);
+      setCurrentSnapshot(snapshot || sortedSnapshots[0]);
     }
   }, [
     setCurrentSnapshot,
     currentSnapshot,
-    snapshots.length,
-    snapshots,
+    sortedSnapshots.length,
+    sortedSnapshots,
     searchParams,
   ]);
 
@@ -67,7 +102,7 @@ export function Reviewer({
     router.replace(pathname + "?" + params.toString());
   }, [currentSnapshot, pathname, router, searchParams]);
 
-  const currentSnapshotIndex = snapshots.findIndex(
+  const currentSnapshotIndex = sortedSnapshots.findIndex(
     (s) => s.id === currentSnapshot?.id
   );
 
@@ -75,27 +110,47 @@ export function Reviewer({
     "ctrl+ArrowDown",
     (e) => {
       setCurrentSnapshot(
-        snapshots.at(Math.min(currentSnapshotIndex + 1, snapshots.length - 1))
+        sortedSnapshots.at(
+          Math.min(currentSnapshotIndex + 1, sortedSnapshots.length - 1)
+        )
       );
       e.preventDefault();
     },
-    [currentSnapshotIndex, snapshots.length, snapshots]
+    [currentSnapshotIndex, sortedSnapshots.length, sortedSnapshots]
   );
 
   useHotkeys(
     "ctrl+ArrowUp",
     (e) => {
-      setCurrentSnapshot(snapshots.at(Math.max(currentSnapshotIndex - 1, 0)));
+      setCurrentSnapshot(
+        sortedSnapshots.at(Math.max(currentSnapshotIndex - 1, 0))
+      );
       e.preventDefault();
     },
-    [currentSnapshotIndex, setCurrentSnapshot, snapshots]
+    [currentSnapshotIndex, setCurrentSnapshot, sortedSnapshots]
   );
 
   useEffect(() => {
     setBuild(build);
-    setSnapshots(snapshots);
+    setSnapshots(sortedSnapshots);
     setOptimize(optimize);
-  }, [build, setBuild, setSnapshots, snapshots, setOptimize, optimize]);
+    if (buildAPI) setBuildAPI(buildAPI);
+    if (userRole) setUserRole(userRole);
+    setIsUpdatingSnapshotStatus(isUpdatingSnapshotStatus || false);
+  }, [
+    build,
+    setBuild,
+    setSnapshots,
+    sortedSnapshots,
+    setOptimize,
+    optimize,
+    buildAPI,
+    setBuildAPI,
+    userRole,
+    setUserRole,
+    setIsUpdatingSnapshotStatus,
+    isUpdatingSnapshotStatus,
+  ]);
 
   return (
     <div className={cx("w-full flex", className)}>

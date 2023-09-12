@@ -98,12 +98,22 @@ func (q *SnapshotQueries) GetSnapshots(ids []string) ([]models.Snapshot, error) 
 	return snapshots, err
 }
 
-func (q *SnapshotQueries) GetSnapshotsByBuild(buildID string) ([]models.Snapshot, error) {
+func (q *SnapshotQueries) GetSnapshotsByBuild(ctx context.Context, buildID string) ([]models.Snapshot, error) {
 	snapshots := []models.Snapshot{}
 
 	query := `SELECT * FROM snapshot WHERE build_id = $1`
 
-	err := q.Select(&snapshots, query, buildID)
+	err := q.SelectContext(ctx, &snapshots, query, buildID)
+
+	return snapshots, err
+}
+
+func (q *SnapshotQueries) GetUnreviewedSnapshotsByBuild(ctx context.Context, buildID string) ([]models.Snapshot, error) {
+	snapshots := []models.Snapshot{}
+
+	query := `SELECT * FROM snapshot WHERE status = 'unreviewed' AND build_id = $1`
+
+	err := q.SelectContext(ctx, &snapshots, query, buildID)
 
 	return snapshots, err
 }

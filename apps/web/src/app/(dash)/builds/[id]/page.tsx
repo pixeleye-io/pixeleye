@@ -1,6 +1,8 @@
 import { API } from "@/libs";
-import { Reviewer } from "@pixeleye/reviewer";
 import { cookies } from "next/headers";
+import { Review } from "./review";
+import { getQueryClient, queries } from "@/queries";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 export default async function ProjectOverviewPage({
   params,
@@ -11,24 +13,43 @@ export default async function ProjectOverviewPage({
 }) {
   const buildID = params.id;
 
-  const [build, snapshots] = await Promise.all([
+  const queryClient = getQueryClient();
+
+  const cookie = cookies().toString();
+
+  const [build] = await Promise.all([
     API.get("/builds/{id}", {
       params: {
         id: buildID,
       },
       headers: {
-        cookie: cookies().toString(),
+        cookie,
       },
     }),
-    await API.get("/builds/{id}/snapshots", {
-      params: {
-        id: buildID,
-      },
-      headers: {
-        cookie: cookies().toString(),
-      },
-    }),
+    queryClient
+      .prefetchQuery(
+        queries.builds.detail(buildID, cookie)._ctx.listSnapshots()
+      )
+      .catch(() => undefined),
+    queryClient
+      .prefetchQuery(queries.projects.detail(buildID, cookie))
+      .catch(() => undefined),
   ]);
 
-  return <Reviewer build={build} snapshots={snapshots} />;
+  const project = await API.get("/projects/{id}", {
+    params: {
+      id: build.projectID,
+    },
+    headers: {
+      cookie,
+    },
+  });
+
+  const dehydratedState = dehydrate(queryClient);
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <Review buildID={build.id} project={project} />
+    </HydrationBoundary>
+  );
 }

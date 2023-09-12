@@ -11,7 +11,6 @@ import { CompareTab, useReviewerStore } from "./store";
 import { useCallback, useEffect, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
-import { useMotionValue } from "framer-motion";
 import { ExtendedSnapshotPair } from "./reviewer";
 
 function TabSwitcher() {
@@ -112,9 +111,13 @@ function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
 
 export function Compare() {
   const snapshot = useReviewerStore((state) => state.currentSnapshot);
+  const build = useReviewerStore((state) => state.build);
 
   const activeTab = useReviewerStore((state) => state.activeCompareTab);
   const setActiveTab = useReviewerStore((state) => state.setActiveCompareTab);
+  const userRole = useReviewerStore((state) => state.userRole);
+
+  const buildAPI = useReviewerStore((state) => state.buildAPI);
 
   const singleRef = useRef<DraggableImageRef>(null);
   const doubleRef = useRef<DraggableImageRef>(null);
@@ -136,12 +139,22 @@ export function Compare() {
     return null;
   }
 
+  const validSnapshot = Boolean(
+    snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight
+  );
+
+  const validBaseline = Boolean(
+    snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
+  );
+
+  const validCompare = validSnapshot && validBaseline;
+
   return (
     <main className="w-full ml-1 z-0 h-full grow-0 flex relative">
       <Tabs
-        value={activeTab}
+        value={validCompare ? activeTab : "single"}
         onValueChange={setActiveTab as (value: string) => void}
-        defaultValue="double"
+        defaultValue={validCompare ? "double" : "single"}
         className=" w-full h-full grow-0 relative max-h-full"
       >
         <header className="w-full border-b border-outline-variant">
@@ -155,28 +168,36 @@ export function Compare() {
             </div>
 
             <div className="">
-              <Button variant="ghost" className="text-error">
-                Reject
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-green-500 dark:text-green-300 dark:hover:text-on-surface"
-              >
-                Approve
-              </Button>
+              {userRole !== "viewer" &&
+                ["unreviewed", "approved", "rejected"].includes(
+                  snapshot.status
+                ) && build.isLatest && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="text-error"
+                      onClick={() => buildAPI.rejectSnapshot(snapshot.id)}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-green-500 dark:text-green-300 dark:hover:text-on-surface"
+                      onClick={() => buildAPI.approveSnapshot(snapshot.id)}
+                    >
+                      Approve
+                    </Button>
+                  </>
+                )}
             </div>
           </div>
         </header>
         <div className="p-4 w-full h-[calc(100%-6.25rem-1px)]">
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
-            <Single
-              draggableImageRef={singleRef}
-            />
+            <Single draggableImageRef={singleRef} />
           </TabsContent>
           <TabsContent className="w-full h-full !mt-0 grow-0" value="double">
-            <Double
-              draggableImageRef={doubleRef}
-            />
+            <Double draggableImageRef={doubleRef} />
           </TabsContent>
         </div>
       </Tabs>

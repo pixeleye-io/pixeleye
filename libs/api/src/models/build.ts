@@ -13,6 +13,8 @@ export const BuildZod = z.object({
 
   targetBuildID: z.string().length(21).optional(),
 
+  isLatest: z.boolean().optional(),
+
   sha: z.string(),
   branch: z.string(),
   message: z.string().optional(),

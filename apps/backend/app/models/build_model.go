@@ -37,6 +37,8 @@ type Build struct {
 	TargetParentID string   `db:"target_parent_id" json:"targetParentID,omitempty" validate:"omitempty,nanoid"`
 	TargetBuildID  string   `db:"target_build_id" json:"targetBuildID,omitempty" validate:"omitempty,nanoid"`
 
+	IsLatest bool `db:"is_latest" json:"isLatest"`
+
 	Sha                string         `db:"sha" json:"sha" validate:"required"`
 	Branch             string         `db:"branch" json:"branch" validate:"required"`
 	Title              string         `db:"title" json:"title,omitempty"`

@@ -5,7 +5,6 @@ import { PartialSnapshot, Snapshot } from "../models";
 type GET = Method<{
   "/builds/{id}": {
     res: Build;
-    req: undefined;
   };
   "/client/builds": {
     res: Build[];
@@ -44,7 +43,6 @@ type POST = Method<{
   };
   "/client/builds/{id}/complete": {
     res: undefined;
-    req: undefined;
   };
   "/client/builds": {
     res: Build[];
@@ -54,6 +52,24 @@ type POST = Method<{
     queries?: {
       branch?: string;
     };
+  };
+  "/builds/{id}/review/approve": {
+    res: Build;
+    req: {
+      snapshotIDs: string[];
+    };
+  };
+  "/builds/{id}/review/reject": {
+    res: Build;
+    req: {
+      snapshotIDs: string[];
+    };
+  };
+  "/builds/{id}/review/approve/all": {
+    res: Build;
+  };
+  "/builds/{id}/review/reject/all": {
+    res: Build;
   };
 }>;
 

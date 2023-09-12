@@ -2,16 +2,6 @@ import { ReactNode } from "react";
 import { useReviewerStore } from "../store";
 import { PanelHeader } from "./shared";
 
-// Created
-// Title
-// Commit
-// message
-// Screenshot count
-// Parent builds
-// Child builds
-// Target build
-// Snapshots changed
-
 // Errors
 // Warnings
 

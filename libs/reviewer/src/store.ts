@@ -1,11 +1,18 @@
 import { create } from "zustand";
 import { Panel } from "./panel";
-import { Build } from "@pixeleye/api";
+import { Build, UserOnProjectRole } from "@pixeleye/api";
 import { ExtendedSnapshotPair } from "./reviewer";
 
 export type CompareTab = "single" | "double";
 
 export type SingleSnapshot = "baseline" | "head";
+
+export interface BuildAPI {
+  approveSnapshot: (id: string) => void;
+  rejectSnapshot: (id: string) => void;
+  approveAllSnapshots: () => void;
+  rejectAllSnapshots: () => void;
+}
 
 interface ReviewerState {
   panel: Panel;
@@ -28,6 +35,15 @@ interface ReviewerState {
   setFramerLoaded: () => void;
   singleSnapshot: SingleSnapshot;
   setSingleSnapshot: (singleSnapshot: SingleSnapshot) => void;
+
+  buildAPI: BuildAPI;
+  setBuildAPI: (buildAPI: BuildAPI) => void;
+
+  userRole: UserOnProjectRole;
+  setUserRole: (userRole: UserOnProjectRole) => void;
+
+  isUpdatingStatus: boolean;
+  setIsUpdatingStatus: (isUpdatingStatus: boolean) => void;
 }
 
 const isBrowser = typeof window !== "undefined";
@@ -68,4 +84,18 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   setFramerLoaded: () => set({ framerLoaded: true }),
   singleSnapshot: "head",
   setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
+
+  buildAPI: {
+    approveSnapshot: () => {},
+    rejectSnapshot: () => {},
+    approveAllSnapshots: () => {},
+    rejectAllSnapshots: () => {},
+  },
+  setBuildAPI: (buildAPI) => set({ buildAPI }),
+
+  userRole: "viewer",
+  setUserRole: (userRole) => set({ userRole }),
+
+  isUpdatingStatus: false,
+  setIsUpdatingStatus: (isUpdatingStatus) => set({ isUpdatingStatus }),
 }));
