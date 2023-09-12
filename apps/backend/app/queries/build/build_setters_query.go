@@ -62,6 +62,7 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 	time := utils.CurrentTime()
 	build.CreatedAt = time
 	build.UpdatedAt = time
+	build.IsLatest = true
 
 	if err := utils.TrimStruct(&build); err != nil {
 		return err
