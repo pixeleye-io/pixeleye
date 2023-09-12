@@ -175,7 +175,7 @@ export function Compare() {
                     <Button
                       variant="ghost"
                       className="text-error"
-                      onClick={() => buildAPI.approveSnapshot(snapshot.id)}
+                      onClick={() => buildAPI.rejectSnapshot(snapshot.id)}
                     >
                       Reject
                     </Button>

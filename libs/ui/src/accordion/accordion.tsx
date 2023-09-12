@@ -20,16 +20,25 @@ const AccordionItem = forwardRef<
   );
 });
 
+export interface AccordionTriggerProps
+  extends ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
+  size?: "sm" | "md";
+}
+
 const AccordionTrigger = forwardRef<
   ElementRef<typeof AccordionPrimitive.Trigger>,
-  ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(function AccordionTrigger({ className, children, ...props }, ref) {
+  AccordionTriggerProps
+>(function AccordionTrigger(
+  { className, children, size = "md", ...props },
+  ref
+) {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cx(
-          "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+          "flex flex-1 items-center justify-between font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+          size === "sm" ? "text-sm  py-2" : "text-base  py-4",
           className
         )}
         {...props}

@@ -115,11 +115,11 @@ function BatchApprove() {
           <DropdownMenuLabel>Batch actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => buildAPI.approveAllSnapshots()}>
             <HandThumbUpIcon className="h-6 w-6 text-on-surface-variant mr-2" />
-            Approve build
+            Approve remaining
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => buildAPI.rejectAllSnapshots()}>
             <HandThumbDownIcon className="h-6 w-6 text-on-surface-variant mr-2" />
-            Reject build
+            Reject remaining
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenuPortal>

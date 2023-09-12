@@ -43,6 +43,7 @@ export interface ReviewerProps {
   className?: string;
   buildAPI?: BuildAPI;
   userRole?: UserOnProjectRole;
+  isUpdatingSnapshotStatus?: boolean;
 }
 
 export function Reviewer({
@@ -52,6 +53,7 @@ export function Reviewer({
   className = "h-[calc(100vh-3rem-1px)]",
   buildAPI,
   userRole,
+  isUpdatingSnapshotStatus,
 }: ReviewerProps) {
   const setBuild = useReviewerStore((state) => state.setBuild);
   const setSnapshots = useReviewerStore((state) => state.setSnapshots);
@@ -63,6 +65,9 @@ export function Reviewer({
   const panelOpen = useReviewerStore((state) => state.panelOpen);
   const setBuildAPI = useReviewerStore((state) => state.setBuildAPI);
   const setUserRole = useReviewerStore((state) => state.setUserRole);
+  const setIsUpdatingSnapshotStatus = useReviewerStore(
+    (state) => state.setIsUpdatingStatus
+  );
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -89,14 +94,6 @@ export function Reviewer({
     sortedSnapshots,
     searchParams,
   ]);
-
-  useEffect(() => {
-    if (buildAPI) setBuildAPI(buildAPI);
-  }, [buildAPI, setBuildAPI]);
-
-  useEffect(() => {
-    if (userRole) setUserRole(userRole);
-  }, [userRole, setUserRole]);
 
   useEffect(() => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -137,7 +134,23 @@ export function Reviewer({
     setBuild(build);
     setSnapshots(sortedSnapshots);
     setOptimize(optimize);
-  }, [build, setBuild, setSnapshots, sortedSnapshots, setOptimize, optimize]);
+    if (buildAPI) setBuildAPI(buildAPI);
+    if (userRole) setUserRole(userRole);
+    setIsUpdatingSnapshotStatus(isUpdatingSnapshotStatus || false);
+  }, [
+    build,
+    setBuild,
+    setSnapshots,
+    sortedSnapshots,
+    setOptimize,
+    optimize,
+    buildAPI,
+    setBuildAPI,
+    userRole,
+    setUserRole,
+    setIsUpdatingSnapshotStatus,
+    isUpdatingSnapshotStatus,
+  ]);
 
   return (
     <div className={cx("w-full flex", className)}>

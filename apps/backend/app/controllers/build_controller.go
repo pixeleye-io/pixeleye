@@ -161,23 +161,24 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 		return err
 	}
 
-	for _, snapshot := range allSnapshots {
+	for _, id := range snapshotIDs {
 		found := false
-		for _, id := range snapshotIDs {
+		for _, snapshot := range allSnapshots {
 			if snapshot.ID == id {
+				if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED {
+					return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is either unchanged or orphaned (you can't approve a snapshot in this state)", snapshot.ID))
+				}
 				found = true
 				break
 			}
 		}
 
 		if !found {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is not from this build", snapshot.ID))
-		} else if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is either unchanged or orphaned (you can't approve a snapshot in this state)", snapshot.ID))
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is not from this build", id))
 		}
 	}
 
-	if err := db.SetSnapshotsStatus(c.Request().Context(), snapshotIDs, models.SNAPSHOT_STATUS_APPROVED); err != nil {
+	if err := db.SetSnapshotsStatus(c.Request().Context(), snapshotIDs, status); err != nil {
 		return err
 	}
 
@@ -191,7 +192,7 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 }
 
 type SnapshotApprovalBody struct {
-	SnapshotIds []string `json:"snapshot_ids"`
+	SnapshotIds []string `json:"snapshotIDs"`
 }
 
 func ApproveSnapshots(c echo.Context) error {
@@ -222,7 +223,7 @@ func setAllSnapshotsStatus(c echo.Context, status string) error {
 		return err
 	}
 
-	snapshots, err := db.GetSnapshotsByBuild(c.Request().Context(), build.ID)
+	snapshots, err := db.GetUnreviewedSnapshotsByBuild(c.Request().Context(), build.ID)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}

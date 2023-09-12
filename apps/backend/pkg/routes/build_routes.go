@@ -22,6 +22,7 @@ func BuildRoutes(e *echo.Echo) {
 
 	reviewRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin", "reviewer"}, []string{"admin", "owner"})
 	reviewRoutes := common.Group("/review")
+	reviewRoutes.Use(middleware.LoadBuild)
 	reviewRoutes.Use(reviewRoleMiddleware.ProjectRoleAccess)
 
 	reviewRoutes.POST("/approve", controllers.ApproveSnapshots)

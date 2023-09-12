@@ -9,5 +9,15 @@ export const buildKeys = createQueryKeys("builds", {
         headers: { cookie },
         params: { id: buildID },
       }),
+    contextQueries: {
+      listSnapshots: () => ({
+        queryKey: ["snapshots"],
+        queryFn: () =>
+          API.get("/builds/{id}/snapshots", {
+            headers: { cookie },
+            params: { id: buildID },
+          }),
+      }),
+    },
   }),
 });

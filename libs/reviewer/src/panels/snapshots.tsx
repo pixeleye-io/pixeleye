@@ -24,7 +24,7 @@ function AccordionSnaps({
   }
   return (
     <Accordion.Item value={name}>
-      <Accordion.Trigger>{name}</Accordion.Trigger>
+      <Accordion.Trigger className="px-2" size="sm">{name}</Accordion.Trigger>
       <Accordion.Content>
         <ul className="flex flex-col space-y-4 overflow-y-auto  grow">
           {snapshots.map((snapshot, i) => (
@@ -164,8 +164,8 @@ export default function SnapshotsPanel() {
     );
 
   return (
-    <div className="px-4 pt-4 flex flex-col grow">
-      <PanelHeader title="Snapshots" />
+    <div className="pl-0.5 pt-4 flex flex-col grow">
+      <PanelHeader className="px-4" title="Snapshots" />
       <nav className="grow mt-4 flex pb-12">
         <Accordion type="single" collapsible className="w-full">
           <AccordionSnaps

@@ -41,6 +41,9 @@ interface ReviewerState {
 
   userRole: UserOnProjectRole;
   setUserRole: (userRole: UserOnProjectRole) => void;
+
+  isUpdatingStatus: boolean;
+  setIsUpdatingStatus: (isUpdatingStatus: boolean) => void;
 }
 
 const isBrowser = typeof window !== "undefined";
@@ -92,4 +95,7 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
 
   userRole: "viewer",
   setUserRole: (userRole) => set({ userRole }),
+
+  isUpdatingStatus: false,
+  setIsUpdatingStatus: (isUpdatingStatus) => set({ isUpdatingStatus }),
 }));
