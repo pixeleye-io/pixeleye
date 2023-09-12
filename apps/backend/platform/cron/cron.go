@@ -11,8 +11,12 @@ import (
 func StartCron() {
 	s := gocron.NewScheduler(time.UTC)
 
-	if _, err := s.Every(1).Day().Do(jobs.DeleteUserJob); err != nil {
-		log.Error().Err(err).Msg("Failed to schedule DeleteUserJob")
+	// if _, err := s.Every(1).Day().Do(jobs.DeleteUserJob); err != nil {
+	// 	log.Error().Err(err).Msg("Failed to schedule DeleteUserJob")
+	// }
+
+	if _, err := s.Every(15).Seconds().Do(jobs.UpdateStuckBuilds); err != nil {
+		log.Error().Err(err).Msg("Failed to schedule UpdateStuckBuilds")
 	}
 
 	s.StartAsync()

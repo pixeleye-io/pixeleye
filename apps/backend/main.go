@@ -12,6 +12,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/routes"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/cron"
 
 	"github.com/joho/godotenv"
 )
@@ -43,6 +44,8 @@ func main() {
 	routes.TeamRoutes(e)
 	routes.BuildRoutes(e)
 	routes.GitRoutes(e)
+
+	cron.StartCron()
 
 	// Start server (with or without graceful shutdown).
 	if os.Getenv("STAGE_STATUS") == "dev" {
