@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Panel } from "./panel";
-import { Build } from "@pixeleye/api";
+import { Build, UserOnProjectRole } from "@pixeleye/api";
 import { ExtendedSnapshotPair } from "./reviewer";
 
 export type CompareTab = "single" | "double";
@@ -38,6 +38,9 @@ interface ReviewerState {
 
   buildAPI: BuildAPI;
   setBuildAPI: (buildAPI: BuildAPI) => void;
+
+  userRole: UserOnProjectRole;
+  setUserRole: (userRole: UserOnProjectRole) => void;
 }
 
 const isBrowser = typeof window !== "undefined";
@@ -86,4 +89,7 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
     rejectAllSnapshots: () => {},
   },
   setBuildAPI: (buildAPI) => set({ buildAPI }),
+
+  userRole: "viewer",
+  setUserRole: (userRole) => set({ userRole }),
 }));

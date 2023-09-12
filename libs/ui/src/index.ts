@@ -47,3 +47,5 @@ export * from "./dottedBackground";
 export { default as DottedBackground } from "./dottedBackground";
 export * from "./dataTable";
 export { default as DataTable } from "./dataTable";
+export * from "./accordion";
+export { default as Accordion } from "./accordion";

@@ -30,5 +30,16 @@ export default async function ProjectOverviewPage({
     }),
   ]);
 
-  return <Reviewer build={build} snapshots={snapshots} />;
+  const project = await API.get("/projects/{id}", {
+    params: {
+      id: build.projectID,
+    },
+    headers: {
+      cookie: cookies().toString(),
+    },
+  });
+
+  return (
+    <Reviewer build={build} snapshots={snapshots} userRole={project.role} />
+  );
 }

@@ -130,6 +130,10 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 	// We can only approve snapshots if the build is in a reviewable state
 	if models.IsBuildPreProcessing(build.Status) || models.IsBuildProcessing(build.Status) {
 		return echo.NewHTTPError(http.StatusBadRequest, "build is still processing")
+	} else if build.Status == models.BUILD_STATUS_ORPHANED {
+		return echo.NewHTTPError(http.StatusBadRequest, "build is orphaned")
+	} else if build.Status == models.BUILD_STATUS_UNCHANGED {
+		return echo.NewHTTPError(http.StatusBadRequest, "build is unchanged")
 	}
 
 	if len(snapshotIDs) == 0 {
@@ -168,6 +172,8 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 
 		if !found {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is not from this build", snapshot.ID))
+		} else if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is either unchanged or orphaned (you can't approve a snapshot in this state)", snapshot.ID))
 		}
 	}
 

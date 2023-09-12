@@ -115,6 +115,7 @@ export function Compare() {
 
   const activeTab = useReviewerStore((state) => state.activeCompareTab);
   const setActiveTab = useReviewerStore((state) => state.setActiveCompareTab);
+  const userRole = useReviewerStore((state) => state.userRole);
 
   const buildAPI = useReviewerStore((state) => state.buildAPI);
 
@@ -157,16 +158,27 @@ export function Compare() {
             </div>
 
             <div className="">
-              <Button variant="ghost" className="text-error" onClick={() => buildAPI.approveSnapshot(snapshot.id)}>
-                Reject
-              </Button>
-              <Button
-                variant="ghost"
-                className="text-green-500 dark:text-green-300 dark:hover:text-on-surface"
-                onClick={() => buildAPI.approveSnapshot(snapshot.id)}
-              >
-                Approve
-              </Button>
+              {userRole !== "viewer" &&
+                ["unreviewed", "approved", "rejected"].includes(
+                  snapshot.status
+                ) && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="text-error"
+                      onClick={() => buildAPI.approveSnapshot(snapshot.id)}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="text-green-500 dark:text-green-300 dark:hover:text-on-surface"
+                      onClick={() => buildAPI.approveSnapshot(snapshot.id)}
+                    >
+                      Approve
+                    </Button>
+                  </>
+                )}
             </div>
           </div>
         </header>

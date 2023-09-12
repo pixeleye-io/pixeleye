@@ -1,6 +1,6 @@
 "use client";
 
-import { Build, SnapshotPair } from "@pixeleye/api";
+import { Build, SnapshotPair, UserOnProjectRole } from "@pixeleye/api";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
@@ -26,6 +26,7 @@ export interface ReviewerProps {
   optimize?: boolean;
   className?: string;
   buildAPI?: BuildAPI;
+  userRole?: UserOnProjectRole;
 }
 
 export function Reviewer({
@@ -34,6 +35,7 @@ export function Reviewer({
   optimize = false,
   className = "h-[calc(100vh-3rem-1px)]",
   buildAPI,
+  userRole,
 }: ReviewerProps) {
   const setBuild = useReviewerStore((state) => state.setBuild);
   const setSnapshots = useReviewerStore((state) => state.setSnapshots);
@@ -44,6 +46,7 @@ export function Reviewer({
   const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
   const panelOpen = useReviewerStore((state) => state.panelOpen);
   const setBuildAPI = useReviewerStore((state) => state.setBuildAPI);
+  const setUserRole = useReviewerStore((state) => state.setUserRole);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -66,6 +69,10 @@ export function Reviewer({
   useEffect(() => {
     if (buildAPI) setBuildAPI(buildAPI);
   }, [buildAPI, setBuildAPI]);
+
+  useEffect(() => {
+    if (userRole) setUserRole(userRole);
+  }, [userRole, setUserRole]);
 
   useEffect(() => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));

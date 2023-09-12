@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { UserZod } from "./user";
 
+export const UserOnProjectRoleZod = z.enum(["admin", "reviewer", "viewer"]);
+
 export const ProjectZod = z.object({
   id: z.string().length(21),
   createdAt: z.string().datetime(),
@@ -27,3 +29,4 @@ export const UserOnProjectZod = UserZod.extend({
 
 export type Project = z.infer<typeof ProjectZod>;
 export type UserOnProject = z.infer<typeof UserOnProjectZod>;
+export type UserOnProjectRole = z.infer<typeof UserOnProjectRoleZod>;
