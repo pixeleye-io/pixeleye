@@ -653,6 +653,11 @@ table "snapshot" {
     null = true
   }
 
+  column "error" {
+    type = text
+    null = false
+  }
+
   index "idx_snapshot-build_id__name__variant__target" {
     columns = [column.build_id, column.name, column.variant, column.target]
     unique  = true

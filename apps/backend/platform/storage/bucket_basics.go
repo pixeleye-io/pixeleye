@@ -35,9 +35,8 @@ func (basics BucketClient) BucketExists(bucketName string) (bool, error) {
 	return exists, err
 }
 
-// Check if a file exists
-func (basics BucketClient) FileExists(bucketName string, objectKey string) (bool, error) {
-	_, err := basics.S3Client.HeadObject(context.TODO(), &s3.HeadObjectInput{
+func (basics BucketClient) KeyExists(ctx context.Context, bucketName string, objectKey string) (bool, error) {
+	_, err := basics.S3Client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 	})
@@ -56,6 +55,18 @@ func (basics BucketClient) FileExists(bucketName string, objectKey string) (bool
 	return exists, err
 }
 
+// Delete deletes a key from a bucket.
+func (basics BucketClient) Delete(ctx context.Context, bucketName string, objectKey string) error {
+	_, err := basics.S3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	})
+	if err != nil {
+		log.Error().Err(err).Msgf("Couldn't delete object %v:%v", bucketName, objectKey)
+	}
+	return err
+}
+
 // UploadFile reads from a file and puts the data into an object in a bucket.
 func (basics BucketClient) UploadFile(bucketName string, objectKey string, file []byte, contentType string) error {
 
@@ -66,8 +77,8 @@ func (basics BucketClient) UploadFile(bucketName string, objectKey string, file 
 		ContentType: &contentType,
 	})
 	if err != nil {
-		log.Error().Err(err).Msgf("Couldn't upload file to %v:%v. Here's why: %v\n",
-			bucketName, objectKey, err)
+		log.Error().Err(err).Msgf("Couldn't upload file to %v:%v",
+			bucketName, objectKey)
 	}
 
 	return err
@@ -80,14 +91,14 @@ func (basics BucketClient) DownloadFile(bucketName string, objectKey string) ([]
 		Key:    aws.String(objectKey),
 	})
 	if err != nil {
-		log.Error().Err(err).Msgf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, objectKey, err)
+		log.Error().Err(err).Msgf("Couldn't get object %v:%v", bucketName, objectKey)
 		return nil, err
 	}
 	defer result.Body.Close()
 
 	body, err := io.ReadAll(result.Body)
 	if err != nil {
-		log.Error().Err(err).Msgf("Couldn't read object body from %v. Here's why: %v\n", objectKey, err)
+		log.Error().Err(err).Msgf("Couldn't read object body from %v", objectKey)
 	}
 	return body, err
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
@@ -10,6 +11,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -189,6 +191,23 @@ func DeleteProject(c echo.Context) error {
 
 	if err := db.DeleteProject(project.ID); err != nil {
 		return err
+	}
+
+	s3, err := storage.GetClient()
+
+	if err != nil {
+		return err
+	}
+
+	exists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), project.ID)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		if err := s3.Delete(c.Request().Context(), os.Getenv("S3_BUCKET"), project.ID); err != nil {
+			return err
+		}
 	}
 
 	return c.NoContent(http.StatusNoContent)

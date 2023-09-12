@@ -5,7 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// DeleteUserJob is a job that deletes a user
+// Job is a job that deletes a user
 func DeleteUserJob() {
 	db, err := database.OpenDBConnection()
 

@@ -57,9 +57,9 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 		return nil, err
 	}
 
-	path := fmt.Sprintf("snaps/%s/%s.png", project.ID, data.Hash)
+	path := fmt.Sprintf("%s/snaps/%s.png", project.ID, data.Hash)
 
-	fileExists, err := s3.FileExists(os.Getenv("S3_BUCKET"), path)
+	fileExists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), path)
 
 	if err != nil {
 		return nil, err
@@ -180,7 +180,7 @@ func GetSnapURL(c echo.Context) error {
 		return err
 	}
 
-	path := fmt.Sprintf("snaps/%s/%s.png", project.ID, hash)
+	path := fmt.Sprintf("%s/snaps/%s.png", project.ID, hash)
 
 	url, err := s3.GetObject(os.Getenv("S3_BUCKET"), path, 900) // valid for 15 minutes
 

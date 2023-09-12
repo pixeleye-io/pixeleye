@@ -15,7 +15,7 @@ import (
 
 // We shouldn't need to update name, variant, target, or viewport
 func (tx *SnapshotQueriesTx) UpdateSnapshot(ctx context.Context, snapshot *models.Snapshot) error {
-	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at WHERE id = :id`
+	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at, error = :error WHERE id = :id`
 
 	snapshot.UpdatedAt = utils.CurrentTime()
 
@@ -26,7 +26,7 @@ func (tx *SnapshotQueriesTx) UpdateSnapshot(ctx context.Context, snapshot *model
 
 // We shouldn't need to update name, variant, target, or viewport
 func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
-	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at WHERE id = :id`
+	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at, error = :error WHERE id = :id`
 
 	snapshot.UpdatedAt = utils.CurrentTime()
 
@@ -96,7 +96,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, bool, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
-	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id, status) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id, :status)`
+	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
 	if len(snapshots) == 0 {
