@@ -119,7 +119,7 @@ export default async function Page({
 
   return (
     <>
-      <div className="min-w-0 max-w-3xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-16 h-full">
+      <div className="min-w-0 max-w-4xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full">
         {renderers.react(content, React, { components: {} })}
       </div>
       <div className="hidden xl:sticky xl:top-16 xl:-mr-6 xl:block xl:h-[calc(100vh-4.75rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">

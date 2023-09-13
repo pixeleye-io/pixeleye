@@ -42,12 +42,12 @@ export default async function DocsLayout({
 
   return (
     <Container>
-      <div className="relative mx-auto flex w-full flex-auto justify-center sm:px-2 md:px-8 xl:px-12">
+      <div className="relative mx-auto flex w-full flex-auto justify-center sm:px-2 md:px-8">
         <div className="md:hidden">
           <DocsNavMobile sections={sections} />
         </div>
         <div className="hidden md:relative md:block md:flex-none">
-          <div className="sticky top-16 -ml-0.5 h-[calc(100vh-4.75rem)] border-r border-outline-variant md:w-56 lg:w-64 overflow-y-auto overflow-x-hidden py-16 pl-0.5 pr-8 xl:w-72 xl:pr-16">
+          <div className="sticky top-16 -ml-0.5 h-[calc(100vh-4.75rem)] border-r border-outline-variant md:w-56 overflow-y-auto overflow-x-hidden py-16 pl-0.5 lg:w-60">
             <DocsNavDesktop sections={sections} />
           </div>
         </div>

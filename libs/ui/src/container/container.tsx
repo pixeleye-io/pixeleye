@@ -9,7 +9,7 @@ export type ContainerProps = Slottable<"div", Props>;
 function Container({ asChild, className, ...props }: ContainerProps) {
   const Container = asChild ? Slot : "div";
   return (
-    <Container className={cx("max-w-8xl mx-auto px-4", className)} {...props} />
+    <Container className={cx("mx-auto px-4", className)} {...props} />
   );
 }
 
