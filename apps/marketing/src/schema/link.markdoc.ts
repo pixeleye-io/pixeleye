@@ -3,7 +3,7 @@ import { nodes } from "@markdoc/markdoc";
 
 const Link = {
   ...nodes.link,
-  render: NextLink as any,
+  render: NextLink,
   attributes: {
     href: {
       type: String,

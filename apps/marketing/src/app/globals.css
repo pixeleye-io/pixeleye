@@ -18,11 +18,11 @@
 }
 
 .prose h1 {
-  @apply text-3xl font-bold mb-6 mt-0;
+  @apply text-4xl font-bold mb-6 mt-0;
 }
 
 .prose h2 {
-  @apply text-2xl font-bold mb-4 mt-8;
+  @apply text-2xl font-bold mb-4 mt-8 border-t border-outline-variant pt-10 scroll-mt-6;
 }
 
 .prose h3 {
@@ -35,4 +35,35 @@
 
 .prose blockquote {
   @apply border border-outline-variant my-4 px-4 rounded;
+}
+
+.prose table {
+  @apply my-2 text-sm
+}
+
+.prose thead {
+  @apply border-b border-outline-variant
+}
+
+.prose th {
+  @apply font-bold text-left pb-1
+}
+
+.prose tr {
+  @apply border-b border-outline-variant
+}
+.prose tr:last-child {
+  @apply border-none
+}
+
+.prose td {
+  @apply py-1 pr-2
+}
+
+.prose td:first-child {
+  @apply whitespace-nowrap
+}
+
+.prose a {
+  @apply text-blue-700 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-400
 }

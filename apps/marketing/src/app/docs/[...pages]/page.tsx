@@ -77,7 +77,7 @@ function collectHeadings(node: any) {
           id: child.children[0].children[0].attributes.content.replaceAll(
             " ",
             "-"
-          ),
+          ).toLowerCase(),
           children: [],
         });
       } else if (child.attributes.level === 3) {
@@ -86,7 +86,7 @@ function collectHeadings(node: any) {
           id: child.children[0].children[0].attributes.content.replaceAll(
             " ",
             "-"
-          ),
+          ).toLowerCase(),
         });
       }
     }
