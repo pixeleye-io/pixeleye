@@ -73,7 +73,7 @@ function Hero() {
             <Button>Sign up for free</Button>
             <Link
               size="sm"
-              href="/docs"
+              href="/docs/getting-started/introduction"
               className="flex items-center justify-center group"
             >
               Read our docs
