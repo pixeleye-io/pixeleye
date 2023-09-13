@@ -68,13 +68,19 @@ export default function Header() {
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </Button>
         </div>
-        <div className="hidden lg:flex">
+        <div className="hidden lg:flex items-center space-x-4">
           <NextLink
-            href="#"
-            className="text-sm font-semibold leading-6 text-tertiary"
+            href="https://github.com/pixeleye-io/pixeleye"
+            className="text-sm font-semibold leading-6 text-tertiary flex items-center gap-x-1.5 justify-center"
           >
-            Get started <span aria-hidden="true">&rarr;</span>
+            Star us on Github{" "}
+            <span className="mb-px" aria-hidden="true">
+              &rarr;
+            </span>
           </NextLink>
+          <Button variant="outline">
+            <NextLink href="#">Get started</NextLink>
+          </Button>
         </div>
       </nav>
       <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -120,7 +126,13 @@ export default function Header() {
                     </NextLink>
                   ))}
                 </div>
-                <div className="py-6">
+                <div className="py-6 flex flex-col space-y-2">
+                  <NextLink
+                    href="https://github.com/pixeleye-io/pixeleye"
+                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
+                  >
+                    Star us on Github
+                  </NextLink>
                   <NextLink
                     href="#"
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
