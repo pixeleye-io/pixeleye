@@ -85,6 +85,7 @@ export const getAllFiles = cache(async () => {
               .join("/")
               .replace(".md", "")
               .replaceAll(/(\d\d-)/g, ""),
+            githubURL: ["https://github.com/pixeleye-io/pixeleye/blob/main/docs", folder.name, file.name].join("/"),
             text: file.object.text,
           };
         })

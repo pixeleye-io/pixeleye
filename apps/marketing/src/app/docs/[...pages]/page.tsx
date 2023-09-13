@@ -11,6 +11,8 @@ import { getFile, getAllFiles } from "./utils";
 import yaml from "js-yaml";
 import NextLink from "next/link";
 import { cx } from "class-variance-authority";
+import { Link } from "@pixeleye/ui";
+import { ArrowRightOnRectangleIcon, ArrowUpRightIcon } from "@heroicons/react/24/outline";
 
 export const dynamicParams = false;
 
@@ -74,19 +76,17 @@ function collectHeadings(node: any) {
       if (child.attributes.level === 2) {
         headings.push({
           title: child.children[0].children[0].attributes.content,
-          id: child.children[0].children[0].attributes.content.replaceAll(
-            " ",
-            "-"
-          ).toLowerCase(),
+          id: child.children[0].children[0].attributes.content
+            .replaceAll(" ", "-")
+            .toLowerCase(),
           children: [],
         });
       } else if (child.attributes.level === 3) {
         headings[headings.length - 1].children.push({
           title: child.children[0].children[0].attributes.content,
-          id: child.children[0].children[0].attributes.content.replaceAll(
-            " ",
-            "-"
-          ).toLowerCase(),
+          id: child.children[0].children[0].attributes.content
+            .replaceAll(" ", "-")
+            .toLowerCase(),
         });
       }
     }
@@ -171,6 +171,17 @@ export default async function Page({
                   </li>
                 ))}
               </ol>
+              <hr className="border-outline-variant my-4" />
+              <Link
+                size="sm"
+                href={file.githubURL}
+                rel="noopener noreferrer"
+                variant="text"
+                target="_blank"
+                className="!text-sm flex items-center"
+              >
+                Edit this page on GitHub <ArrowUpRightIcon height="1em" width="1em" />
+              </Link>
             </>
           )}
         </nav>
