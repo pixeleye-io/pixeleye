@@ -10,7 +10,11 @@ import { cx } from "class-variance-authority";
 
 const navigation = [
   { name: "Home", href: "/home" },
-  { name: "Docs", href: "/docs/getting-started/introduction" },
+  {
+    name: "Docs",
+    href: "/docs/getting-started/introduction",
+    selector: "/docs",
+  },
   { name: "Pricing", href: "/pricing" },
   { name: "Playground", href: "/playground" },
 ];
@@ -29,7 +33,10 @@ export default function Header() {
         <div className="flex items-center gap-x-12">
           <NextLink
             href="/home"
-            className={cx("-m-1.5 p-1.5", pathname.startsWith("/home") && "!text-tertiary")}
+            className={cx(
+              "-m-1.5 p-1.5",
+              pathname.startsWith("/home") && "!text-tertiary"
+            )}
           >
             <span className="sr-only">Pixeleye</span>
             <Logo className="h-8 w-auto hover:text-tertiary transition-colors" />
@@ -39,7 +46,11 @@ export default function Header() {
               <NextLink
                 key={item.name}
                 href={item.href}
-                className={cx("text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors", pathname.startsWith(item.href) && "!text-tertiary")}
+                className={cx(
+                  "text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors",
+                  pathname.startsWith(item.selector || item.href) &&
+                    "!text-tertiary"
+                )}
               >
                 {item.name}
               </NextLink>
@@ -74,7 +85,10 @@ export default function Header() {
               <NextLink
                 onClick={() => setMobileMenuOpen(false)}
                 href="/home"
-                className="-mx-1.5 -mt-1 p-1.5"
+                className={cx(
+                  "-mx-1.5 -mt-1 p-1.5",
+                  pathname.startsWith("/home") && "!text-tertiary"
+                )}
               >
                 <span className="sr-only">Pixeleye</span>
                 <Logo className="h-8 w-auto" />
@@ -96,7 +110,11 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                       key={item.name}
                       href={item.href}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
+                      className={cx(
+                        "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
+                        pathname.startsWith(item.selector || item.href) &&
+                          "!text-tertiary"
+                      )}
                     >
                       {item.name}
                     </NextLink>
