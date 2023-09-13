@@ -1,6 +1,6 @@
 
 > [!Important]
-> This project is currently under development working towards a public release
+> This project is currently under development and working towards a public release
 
 <div align="center">
 <br />
