@@ -4,6 +4,15 @@ import ukWiki from "./assets/uk-wiki.png";
 import HomeBase from "./assets/home-baseline.png";
 import HomeChanged from "./assets/home-changed.png";
 import HomeDiff from "./assets/home-diff.png";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Playground | Pixeleye",
+  description: "Try out the Pixeleye Reviewer component. This is what it looks like when you review a build.",
+  alternates: {
+    canonical: "https://pixeleye.io/playground",
+  }
+};
 
 const dummyBuild: Build = {
   id: "1",

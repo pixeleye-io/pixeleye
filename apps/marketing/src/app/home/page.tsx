@@ -2,7 +2,16 @@ import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { Button, LogoWatching, Link } from "@pixeleye/ui";
 import { Swiper } from "./swiper";
 import NextLink from "next/link";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Home | Pixeleye",
+  description:
+    "Pixeleye is an open-source, self-hostable platform for visual regression testing. Deliver pixel perfect UIs with confidence, effortlessly catching visual bugs before they reach production.",
+  alternates: {
+    canonical: "https://pixeleye.io",
+  },
+};
 
 function Hero() {
   return (
