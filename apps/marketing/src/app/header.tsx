@@ -5,6 +5,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Button, Logo } from "@pixeleye/ui";
 import NextLink from "next/link";
+import { usePathname } from "next/navigation";
+import { cx } from "class-variance-authority";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -16,6 +18,8 @@ const navigation = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const pathname = usePathname();
+
   return (
     <header className="bg-surface/90 backdrop-blur-sm fixed z-30 w-full border-b border-b-outline-variant">
       <nav
@@ -23,7 +27,10 @@ export default function Header() {
         aria-label="Global"
       >
         <div className="flex items-center gap-x-12">
-          <NextLink href="/home" className="-m-1.5 p-1.5">
+          <NextLink
+            href="/home"
+            className={cx("-m-1.5 p-1.5", pathname.startsWith("/home") && "!text-tertiary")}
+          >
             <span className="sr-only">Pixeleye</span>
             <Logo className="h-8 w-auto hover:text-tertiary transition-colors" />
           </NextLink>
@@ -32,7 +39,7 @@ export default function Header() {
               <NextLink
                 key={item.name}
                 href={item.href}
-                className="text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors"
+                className={cx("text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors", pathname.startsWith(item.href) && "!text-tertiary")}
               >
                 {item.name}
               </NextLink>
