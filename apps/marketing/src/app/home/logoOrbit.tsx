@@ -41,7 +41,7 @@ function Ring({ children, className }: RingProps) {
     >
       <ul
         style={{
-          animationDuration: `${Math.random() * 15 + 12}s`,
+          animationDuration: `${Math.random() * 15 + 20}s`,
           animationDelay: `-${Math.random() * 10}s`,
         }}
         className="w-full h-full animate-spin rounded-full border border-outline-variant hover:border-outline transition relative"
@@ -54,7 +54,7 @@ function Ring({ children, className }: RingProps) {
 
 export default function LogoOrbit() {
   return (
-    <div className="relative h-[32rem] w-[32rem] mx-auto z-0">
+    <div className="relative h-[32rem] w-[32rem] mx-auto z-0 scale-[0.6] sm:scale-100 xs:scale-75 -my-24 sm:my-0">
       <ul className="">
         {/** Center pixeleye logo */}
         <li className="absolute top-1/2 left-1/2 z-50 peer hover:scale-125 transition origin-center -translate-x-1/2 -translate-y-1/2 p-4 rounded-full bg-surface-container-highest">
