@@ -1,8 +1,25 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowPathIcon,
+  ChevronRightIcon,
+  Cog6ToothIcon,
+  FingerPrintIcon,
+  LockClosedIcon,
+  ServerIcon,
+  WindowIcon,
+} from "@heroicons/react/20/solid";
 import { Button, LogoWatching, Link } from "@pixeleye/ui";
 import { Swiper } from "./swiper";
 import NextLink from "next/link";
 import { Metadata } from "next";
+import LogoOrbit from "./logoOrbit";
+import {
+  ArrowsPointingOutIcon,
+  BookOpenIcon,
+  CameraIcon,
+  CloudArrowUpIcon,
+  Square2StackIcon,
+  UsersIcon,
+} from "@heroicons/react/24/solid";
 
 export const metadata: Metadata = {
   title: "Home | Pixeleye",
@@ -92,12 +109,153 @@ function Hero() {
   );
 }
 
+const features = [
+  {
+    name: "Cross-browser testing.",
+    description:
+      "Capture screenshots across multiple browsers and devices. Pixeleye allows you to increase your test converge over alternative solutions.",
+    icon: WindowIcon,
+  },
+  {
+    name: "Responsive testing.",
+    description:
+      "Capture screenshots across multiple browsers and devices. UI adapts to screen sizes, why shouldn't your tests?",
+    icon: ArrowsPointingOutIcon,
+  },
+  {
+    name: "Self-hostable.",
+    description:
+      "We have an awesome cloud solution, but if you want to keep your data in-house, Pixeleye is self-hostable.",
+    icon: ServerIcon,
+  },
+  {
+    name: "Role syncing.",
+    description:
+      "You've already setup your roles in your vcs, why do it again? Pixeleye syncs your roles from your vcs.",
+    icon: UsersIcon,
+  },
+  {
+    name: "UI reviews.",
+    description:
+      "Pixeleye boasts a powerful diff reviewer, allowing you to easily spot visual regressions and approving valid changes.",
+    icon: Square2StackIcon,
+  },
+  {
+    name: "Open-source.",
+    description:
+      "Pixeleye is open-source, meaning you can contribute to the project and help shape the future of visual testing.",
+    icon: BookOpenIcon,
+  },
+];
+
+function Features() {
+  return (
+    <div className="py-10">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl lg:mx-0">
+          <h2 className="text-base font-semibold leading-7 text-tertiary">
+            All in one platform
+          </h2>
+          <p className="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
+            Pixel perfect UIs made easy
+          </p>
+          <p className="mt-6 text-lg leading-8 text-on-surface-variant">
+            Pixeleye is stuffed with features and hosts multiple integrations
+            across the entire development pipeline, from design to production.
+            It&apos;s a vital tool for delivering a consistent user experience.
+          </p>
+        </div>
+        <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base leading-7 text-on-surface-variant sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:gap-x-16">
+          {features.map((feature) => (
+            <div key={feature.name} className="relative pl-9">
+              <dt className="inline font-semibold text-on-surface">
+                <feature.icon
+                  className="absolute left-1 top-1 h-5 w-5 text-tertiary"
+                  aria-hidden="true"
+                />
+                {feature.name}
+              </dt>{" "}
+              <dd className="inline">{feature.description}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+const integrations = [
+  {
+    name: "VCS integration.",
+    description:
+      "Pixeleye integrates with your VCS, allowing you to sync your roles, see updates on PRs and much more.",
+    icon: CloudArrowUpIcon,
+  },
+  {
+    name: "CI integration.",
+    description:
+      "We've built our tools to support your CI. Pixeleye integrates with your CI, allowing you to run tests on every PR.",
+    icon: ServerIcon,
+  },
+  {
+    name: "Framework integration.",
+    description:
+      "We have multiple options for taking our screenshots. We're confident we have an option that works for you.",
+    icon: CameraIcon,
+  },
+];
+
+function Integrations() {
+  return (
+    <div className="overflow-hidden py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+          <div className="lg:ml-auto lg:pl-4 lg:pt-4">
+            <div className="lg:max-w-lg">
+              <h2 className="text-base font-semibold leading-7 text-tertiary">
+                Seamless integration
+              </h2>
+              <p className="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
+                Integrate with your existing workflow
+              </p>
+              <p className="mt-6 text-lg leading-8 text-on-surface-variant">
+                We built Pixeleye from the ground up focusing on developer
+                experience. Our goal is for Pixeleye to add huge value whilst
+                being as unobtrusive as possible.
+              </p>
+              <dl className="mt-10 max-w-xl space-y-8 text-base leading-7 text-on-surface-variant lg:max-w-none">
+                {integrations.map((integration) => (
+                  <div key={integration.name} className="relative pl-9">
+                    <dt className="inline font-semibold text-on-surface">
+                      <integration.icon
+                        className="absolute left-1 top-1 h-5 w-5 text-tertiary"
+                        aria-hidden="true"
+                      />
+                      {integration.name}
+                    </dt>{" "}
+                    <dd className="inline">{integration.description}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+          <div className="flex items-center justify-end lg:order-first">
+            <LogoOrbit />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <>
-      <div>
+      <main>
         <Hero />
-      </div>
+        <Features />
+        <Integrations />
+      </main>
     </>
   );
 }
