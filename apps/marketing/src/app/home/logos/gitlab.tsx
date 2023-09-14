@@ -4,7 +4,7 @@ export function GitlabLogo({ className }: LogoProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="100 0 280 280"
+      viewBox="65 65 250 250"
       className={className}
       aria-label="Gitlab Logo"
       fill="currentColor"
