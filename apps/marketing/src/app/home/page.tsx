@@ -161,7 +161,7 @@ function Features() {
           </p>
           <p className="mt-6 text-lg leading-8 text-on-surface-variant">
             Pixeleye is stuffed with features and hosts multiple integrations
-            across the entire development pipeline, from design to production.
+            across the entire development pipeline.
             It&apos;s a vital tool for delivering a consistent user experience.
           </p>
         </div>
