@@ -8,6 +8,9 @@ const nextConfig = {
   images: {
     domains: ["tailwindui.com"],
   },
+  experimental: {
+    serverActions: true,
+  },
   async redirects() {
     return [
       {

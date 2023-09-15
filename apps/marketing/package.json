@@ -30,6 +30,8 @@
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",
+    "@sendgrid/client": "^7.7.0",
+    "@sendgrid/mail": "^7.7.0",
     "@t3-oss/env-nextjs": "^0.6.1",
     "@uidotdev/usehooks": "^2.2.0",
     "class-variance-authority": "^0.7.0",

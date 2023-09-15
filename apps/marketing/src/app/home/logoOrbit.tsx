@@ -54,7 +54,7 @@ function Ring({ children, className }: RingProps) {
 
 export default function LogoOrbit() {
   return (
-    <div className="relative h-[32rem] w-[32rem] mx-auto z-0 scale-[0.6] sm:scale-100 xs:scale-75 -my-24 sm:my-0">
+    <div className="relative h-[34rem] w-[34rem] mx-auto z-0 scale-[0.6] sm:scale-100 xs:scale-75 -my-24 sm:my-0">
       <ul className="">
         {/** Center pixeleye logo */}
         <li className="absolute top-1/2 left-1/2 z-50 peer hover:scale-125 transition origin-center -translate-x-1/2 -translate-y-1/2 p-4 rounded-full bg-surface-container-highest">
@@ -62,16 +62,16 @@ export default function LogoOrbit() {
         </li>
         <Ring className="w-48 h-48 z-20">
           <Planet count={3} index={0}>
-            <GithubLogo className="w-8 h-8" />
+            <GithubLogo className="w-12 h-12" />
           </Planet>
           <Planet count={3} index={1}>
-            <GitlabLogo className="w-8 h-8" />
+            <GitlabLogo className="w-10 h-10" />
           </Planet>
           <Planet count={3} index={2}>
             <BitBucketLogo className="w-8 h-8" />
           </Planet>
         </Ring>
-        <Ring className="w-80 h-80 z-10">
+        <Ring className="w-[22rem] h-[22rem] z-10">
           <Planet count={5} index={0}>
             <GiftIcon className="w-8 h-8" />
           </Planet>
@@ -88,7 +88,7 @@ export default function LogoOrbit() {
             <WindowIcon className="w-8 h-8" />
           </Planet>
         </Ring>
-        <Ring className="w-[28rem] h-[28rem] z-0">
+        <Ring className="w-[32rem] h-[32rem] z-0">
           <Planet count={4} index={0}>
             <GiftIcon className="w-8 h-8" />
           </Planet>

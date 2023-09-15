@@ -7,11 +7,14 @@ import {
   ServerIcon,
   WindowIcon,
 } from "@heroicons/react/20/solid";
-import { Button, LogoWatching, Link } from "@pixeleye/ui";
+import { Button, LogoWatching, Link, Input } from "@pixeleye/ui";
 import { Swiper } from "./swiper";
 import NextLink from "next/link";
 import { Metadata } from "next";
 import LogoOrbit from "./logoOrbit";
+import SendGrid from "@sendgrid/client";
+import z from "zod";
+
 import {
   ArrowsPointingOutIcon,
   BookOpenIcon,
@@ -161,8 +164,8 @@ function Features() {
           </p>
           <p className="mt-6 text-lg leading-8 text-on-surface-variant">
             Pixeleye is stuffed with features and hosts multiple integrations
-            across the entire development pipeline.
-            It&apos;s a vital tool for delivering a consistent user experience.
+            across the entire development pipeline. It&apos;s a vital tool for
+            delivering a consistent user experience.
           </p>
         </div>
         <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base leading-7 text-on-surface-variant sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:gap-x-16">
@@ -248,6 +251,114 @@ function Integrations() {
   );
 }
 
+function CTA() {
+  return (
+    <div className="bg-surface-container-low">
+      <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
+            <span className="text-tertiary">Maximize your coverage.</span>
+            <br />
+            Start for free or try our playground.
+          </h2>
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-on-surface-variant">
+            We offer a massive free tier as well as an option to self-host. Try
+            our playground to see if Pixeleye is right for you.
+          </p>
+          <div className="mt-10 flex items-center justify-center gap-x-6">
+            <Button>Get started for free</Button>
+            <Link
+              size="sm"
+              href="/playground"
+              className="flex items-center justify-center group"
+            >
+              Try our playground
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const SignUpFormSchema = z.object({
+  email: z.string().email(),
+});
+
+function NewsLetter() {
+  async function SignUp(formData: FormData) {
+    "use server";
+
+    const parsed = SignUpFormSchema.parse({
+      email: formData.get("email"),
+    });
+
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    SendGrid.setApiKey(process.env.SEND_GRID!);
+
+    const data = {
+      list_ids: ["de5866b0-0692-4ade-bdd1-f781c05c33a1"],
+      contacts: [
+        {
+          email: parsed.email,
+        },
+      ],
+    };
+
+    let success = true;
+
+    await SendGrid.request({
+      url: `/v3/marketing/contacts`,
+      method: "PUT",
+      body: data,
+    })
+      .then(([response]) => {
+        console.log(response.statusCode);
+        console.log(response.body);
+      })
+      .catch((error) => {
+        console.error(error);
+        success = false;
+      });
+
+    if (!success) throw new Error("Failed to sign up for newsletter");
+  }
+
+  return (
+    <div className="py-16 sm:py-24 lg:py-32">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
+        <div className="max-w-xl text-3xl font-bold tracking-tight text-on-surface  lg:col-span-7">
+          <h2 className="inline sm:block lg:inline xl:block">
+            Want product news and updates?
+          </h2>{" "}
+          <p className="inline sm:block lg:inline xl:block">
+            Sign up for our newsletter.
+          </p>
+        </div>
+        <form action={SignUp} className="w-full max-w-md lg:col-span-5 lg:pt-2">
+          <div className="flex gap-x-4 ">
+            <Input
+              label="Email address"
+              type="email"
+              name="email"
+              autoComplete="email"
+              required
+            />
+            <Button className="self-end">Subscribe</Button>
+          </div>
+          <p className="mt-4 text-sm leading-6 text-on-surface">
+            We care about your data. Read our{" "}
+            <Link size="sm" href="#" className="!text-sm">
+              privacy&nbsp;policy
+            </Link>
+            .
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <>
@@ -255,6 +366,8 @@ export default function HomePage() {
         <Hero />
         <Features />
         <Integrations />
+        <CTA />
+        <NewsLetter />
       </main>
     </>
   );

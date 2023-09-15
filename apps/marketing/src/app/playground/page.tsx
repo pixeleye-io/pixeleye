@@ -83,7 +83,7 @@ const dummySnapshots: ExtendedSnapshotPair[] = [
 export default function PlaygroundPage() {
   return (
     <Reviewer
-      className="h-[calc(100vh-4rem-1px)]"
+      className="h-[calc(100vh-4.5rem-1px)]"
       build={dummyBuild}
       snapshots={dummySnapshots}
       optimize
