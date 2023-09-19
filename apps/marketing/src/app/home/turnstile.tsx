@@ -1,7 +1,18 @@
 "use client";
 
 import { Turnstile } from "@marsidev/react-turnstile";
+import { useTheme } from "next-themes";
 
 export function Widget() {
-  return <Turnstile siteKey="0x4AAAAAAAKZvsZET2JzmpMq" />;
+  const theme = useTheme();
+
+  return (
+    <Turnstile
+      options={{
+        theme: theme.resolvedTheme === "dark" ? "dark" : "light",
+        size: "invisible",
+      }}
+      siteKey="0x4AAAAAAAKZvsZET2JzmpMq"
+    />
+  );
 }

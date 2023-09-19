@@ -366,7 +366,7 @@ function NewsLetter() {
             />
             <Button className="self-end">Subscribe</Button>
           </div>
-          <p className="mt-4 text-sm leading-6 text-on-surface">
+          <p className="my-4 text-sm leading-6 text-on-surface">
             We care about your data. Read our{" "}
             <Link size="sm" href="#" className="!text-sm">
               privacy&nbsp;policy
