@@ -58,4 +58,6 @@ apiOptions("e2e")
   .hook("preAction", loadAndMergeConfig)
   .action(e2e);
 
+apiOptions;
+
 export default program.parse(process.argv);

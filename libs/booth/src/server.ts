@@ -1,10 +1,9 @@
-import { IncomingMessage, ServerResponse, createServer } from "http";
-import { chromium, firefox, webkit } from "playwright";
-import { Server } from "socket.io";
-import { SnapshotOptions } from "./types";
+import { Browser, chromium, firefox, webkit } from "playwright";
+import { SnapshotOptions, SnapshotOptionsZod } from "./types";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { takeScreenshots } from "./screenshots";
+import express, { Response } from "express";
 import {
   Context,
   getAPI,
@@ -12,11 +11,6 @@ import {
   uploadSnapshot,
 } from "@pixeleye/js-sdk";
 import { Build, PartialSnapshot } from "@pixeleye/api";
-import { z } from "zod";
-
-function close(io: Server) {
-  io.close();
-}
 
 interface StartOptions {
   port?: number;
@@ -25,57 +19,50 @@ interface StartOptions {
   build: Build;
 }
 
-type Res = ServerResponse<IncomingMessage> & {
-  req: IncomingMessage;
-};
-
-function pingHandler(res: Res) {
+function pingHandler(res: Response) {
   res.writeHead(200);
   res.end("pong");
 }
 
-function scriptHandler(res: Res) {
-  res.writeHead(200);
-  const scriptRoot = require
-    .resolve("@chromaui/rrweb-snapshot")
-    .replaceAll("\\", "/")
-    .replace(/(?<=@chromaui\/rrweb-snapshot).*/, "");
 
-  const script = readFileSync(
-    join(scriptRoot, "dist", "rrweb-snapshot.min.js"),
-    "utf-8"
-  );
-
-  res.end(script);
-}
-
-function notFoundHandler(res: Res) {
+function notFoundHandler(res: Response) {
   res.writeHead(404);
   res.end("Not found");
 }
 
-// async function snapshotHandler(res: Res) {
-//   const snaps = await takeScreenshots(browsers, data);
+async function snapshotHandler(
+  ctx: Context,
+  browsers: Record<string, Browser>,
+  data: SnapshotOptions,
+  build: Build,
+  res: Response
+) {
+  const snaps = await takeScreenshots(browsers, data);
 
-//   const uploadSnaps = await Promise.all(
-//     snaps.map(async (snap) => {
-//       const { id } = await uploadSnapshot(ctx, snap.img);
+  const uploadSnaps = await Promise.all(
+    snaps.map(async (snap) => {
+      const { id } = await uploadSnapshot(ctx, snap.img, "image/png");
 
-//       return {
-//         name: snap.name,
-//         variant: snap.variant,
-//         target: snap.target,
-//         viewport: snap.viewport,
-//         snapID: id,
-//       } as PartialSnapshot;
-//     })
-//   );
+      return {
+        name: snap.name,
+        variant: snap.variant,
+        target: snap.target,
+        viewport: snap.viewport,
+        snapID: id,
+      } as PartialSnapshot;
+    })
+  );
 
-//   // TODO - we should handle errors better
-//   await linkSnapshotsToBuild(ctx, build, uploadSnaps).catch((err) => {
-//     console.log(err);
-//   });
-// }
+  await linkSnapshotsToBuild(ctx, build, uploadSnaps)
+    .catch((err) => {
+      res.writeHead(404);
+      res.end(err);
+    })
+    .then(() => {
+      res.writeHead(200);
+      res.end();
+    });
+}
 
 export async function start({
   port = 3003,
@@ -93,60 +80,36 @@ export async function start({
     webkit,
   }));
 
-  const server = createServer(async function (req, res) {
-    switch (req.url) {
-      case "/ping": {
-        return pingHandler(res);
-      }
-      case "/script": {
-        return scriptHandler(res);
-      }
-      case "/snapshot": {
-      }
-      default: {
-        return notFoundHandler(res);
-      }
-    }
+  const ctx: Context = {
+    env: process.env,
+    endpoint,
+    token,
+  };
+  getAPI(ctx);
+
+  const app = express();
+
+  app.use(express.json());
+
+  app.get("/ping", (_req, res) => {
+    pingHandler(res);
   });
 
-  const io = new Server(server);
-  io.on("connection", (socket) => {
-    const ctx: Context = {
-      env: process.env,
-      endpoint,
-      token,
-    };
-    getAPI(ctx);
+  app.post("/snapshot", (req, res) => {
+    const data = SnapshotOptionsZod.parse(req.body);
 
-    socket.on("snapshot", async (data: SnapshotOptions) => {
-      const snaps = await takeScreenshots(browsers, data);
-
-      const uploadSnaps = await Promise.all(
-        snaps.map(async (snap) => {
-          const { id } = await uploadSnapshot(ctx, snap.img, "image/png");
-
-          return {
-            name: snap.name,
-            variant: snap.variant,
-            target: snap.target,
-            viewport: snap.viewport,
-            snapID: id,
-          } as PartialSnapshot;
-        })
-      );
-
-      // TODO - we should handle errors better
-      await linkSnapshotsToBuild(ctx, build, uploadSnaps).catch((err) => {
-        console.log(err);
-      });
-    });
+    snapshotHandler(ctx, browsers, data, build, res);
   });
 
-  server.listen(port, () => {
-    console.log(`listening on *:${port}`);
+  app.get("*", (_req, res) => {
+    notFoundHandler(res);
+  });
+
+  const server = app.listen(port, () => {
+    console.log(`@pixeleye/booth listening on port ${port}`);
   });
 
   return {
-    close: () => close(io),
+    close: () => server.close(),
   };
 }
