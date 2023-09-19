@@ -355,10 +355,6 @@ function NewsLetter() {
           </p>
         </div>
         <form action={SignUp} className="w-full max-w-md lg:col-span-5 lg:pt-2">
-          <div
-            className="cf-turnstile"
-            data-sitekey="0x4AAAAAAAKZvsZET2JzmpMq"
-          />
           <div className="flex gap-x-4 ">
             <Input
               label="Email address"
@@ -376,6 +372,10 @@ function NewsLetter() {
             </Link>
             .
           </p>
+          <div
+            className="cf-turnstile"
+            data-sitekey="0x4AAAAAAAKZvsZET2JzmpMq"
+          />
         </form>
       </div>
     </div>
