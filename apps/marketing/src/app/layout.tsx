@@ -11,7 +11,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Pixeleye",
-  description: "Open-source, self-hostable, platform for visual regression testing.",
+  description:
+    "Open-source, self-hostable, platform for visual regression testing.",
 };
 
 export default function RootLayout({
@@ -26,6 +27,11 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.webmanifest" />
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+        ></script>
       </head>
       <body
         className={cx(

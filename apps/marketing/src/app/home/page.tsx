@@ -283,6 +283,7 @@ function CTA() {
 
 const SignUpFormSchema = z.object({
   email: z.string().email(),
+  "cf-turnstile-response": z.string(),
 });
 
 function NewsLetter() {
@@ -291,7 +292,25 @@ function NewsLetter() {
 
     const parsed = SignUpFormSchema.parse({
       email: formData.get("email"),
+      "cf-turnstile-response": formData.get("cf-turnstile-response"),
     });
+
+    let formData2 = new FormData();
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    formData2.append("secret", process.env.CF_TURNSTILE!);
+    formData2.append("response", parsed["cf-turnstile-response"]);
+    // formData.append("remoteip", ip);
+
+    const url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+    const result = await fetch(url, {
+      body: formData2,
+      method: "POST",
+    });
+
+    const outcome = await result.json();
+    if (!outcome.success) {
+      throw new Error("Failed cloudflare turnstile");
+    }
 
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     SendGrid.setApiKey(process.env.SEND_GRID!);
@@ -336,6 +355,10 @@ function NewsLetter() {
           </p>
         </div>
         <form action={SignUp} className="w-full max-w-md lg:col-span-5 lg:pt-2">
+          <div
+            className="cf-turnstile"
+            data-sitekey="0x4AAAAAAAKZvsZET2JzmpMq"
+          />
           <div className="flex gap-x-4 ">
             <Input
               label="Email address"
