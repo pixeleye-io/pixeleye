@@ -23,6 +23,7 @@ import {
   Square2StackIcon,
   UsersIcon,
 } from "@heroicons/react/24/solid";
+import { Widget } from "./turnstile";
 
 export const metadata: Metadata = {
   title: "Home | Pixeleye",
@@ -372,10 +373,7 @@ function NewsLetter() {
             </Link>
             .
           </p>
-          <div
-            className="cf-turnstile"
-            data-sitekey="0x4AAAAAAAKZvsZET2JzmpMq"
-          />
+          <Widget />
         </form>
       </div>
     </div>

@@ -96,6 +96,9 @@ importers:
       '@markdoc/markdoc':
         specifier: ^0.3.2
         version: 0.3.2(@types/react@18.2.21)(react@18.2.0)
+      '@marsidev/react-turnstile':
+        specifier: ^0.3.1
+        version: 0.3.1(react-dom@18.2.0)(react@18.2.0)
       '@octokit/core':
         specifier: ^5.0.0
         version: 5.0.0
@@ -1670,6 +1673,16 @@ packages:
       react: 18.2.0
     optionalDependencies:
       '@types/markdown-it': 12.2.3
+    dev: false
+
+  /@marsidev/react-turnstile@0.3.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-XnpIUqufuZp2VoC14fmYztB2/8lSABh8eFG6TWAR7Loipdy0p2lZXzuvUOTcQl69j1XKvWu3WChFCBWx/Cbd1A==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@next/env@13.4.19:
