@@ -2,22 +2,26 @@
   "name": "@pixeleye/puppeteer",
   "private": false,
   "version": "0.0.0",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "scripts": {
     "lint": "eslint",
-    "types": "tsc --noEmit"
+    "types": "tsc --noEmit",
+    "test:e2e": "ts-node --esm ./src/tests/landing.ts",
+    "build": "node ./build.js"
   },
+  "type": "module",
   "dependencies": {
     "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
     "@pixeleye/booth": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
+    "puppeteer": "^21.3.1",
     "puppeteer-core": "^21.3.1",
+    "ts-node": "^10.9.1",
     "undici": "^5.24.0"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
+    "@swc-node/register": "^1.6.7",
     "@types/node": "20.6.3",
     "typescript": "5.2.2"
   }

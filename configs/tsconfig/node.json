@@ -5,6 +5,10 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "module": "ESNext",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "baseUrl": "src"
+  },
+  "ts-node": {
+    "esm": true
   }
 }
