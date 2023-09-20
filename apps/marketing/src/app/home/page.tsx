@@ -1,9 +1,5 @@
 import {
-  ArrowPathIcon,
   ChevronRightIcon,
-  Cog6ToothIcon,
-  FingerPrintIcon,
-  LockClosedIcon,
   ServerIcon,
   WindowIcon,
 } from "@heroicons/react/20/solid";
