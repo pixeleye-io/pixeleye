@@ -6,8 +6,9 @@ const navigation = {
     { name: "Docs", href: "/docs/getting-started/introduction" },
     { name: "Pricing", href: "/pricing" },
     { name: "Playground", href: "/playground" },
-    { name: "Privacy", href: "#" },
-    { name: "Terms", href: "#" },
+    { name: "Privacy", href: "/privacy.html" },
+    { name: "Terms", href: "/terms-of-service.html" },
+    { name: "Usage", href: "/acceptable-use-policy.html" },
   ],
   social: [
     {
