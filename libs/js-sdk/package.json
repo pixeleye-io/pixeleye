@@ -15,8 +15,8 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.5.9",
-    "undici": "^5.23.0"
+    "@types/node": "20.6.3",
+    "undici": "^5.24.0"
   },
   "dependencies": {
     "@pixeleye/api": "workspace:*",

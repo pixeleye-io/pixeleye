@@ -3,9 +3,9 @@
   "scripts": {},
   "license": "AGPL-3.0",
   "devDependencies": {
-    "eslint": "^8.48.0",
+    "eslint": "^8.49.0",
     "prettier": "^3.0.3",
-    "turbo": "^1.10.13",
+    "turbo": "^1.10.14",
     "typescript": "^5.2.2"
   },
   "packageManager": "pnpm@8.6.6"
