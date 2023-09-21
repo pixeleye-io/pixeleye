@@ -14,7 +14,7 @@ const BaseSnapshotOptionsZod = z.object({
 export const SnapshotOptionsZod = BaseSnapshotOptionsZod.and(
   z.union([
     z.object({
-      dom: z.any().optional() as z.Schema<serializedNodeWithId | undefined>,
+      dom: z.any() as z.Schema<serializedNodeWithId>,
       url: z.undefined(),
     }),
     z.object({

@@ -1,9 +1,8 @@
-import { Browser, Page, ElementHandle, launch } from "puppeteer";
-// import "pptr-testing-library/extend";
+import { Browser, Page, launch } from "puppeteer";
 import { execa } from "execa";
 import getPort from "get-port";
 import { start as startBooth } from "@pixeleye/booth";
-import { Context, createBuild, getAPI } from "@pixeleye/js-sdk";
+import { Context, completeBuild, createBuild, getAPI } from "@pixeleye/js-sdk";
 
 export type Process = {
   stop(): Promise<void>;
@@ -15,8 +14,8 @@ async function startBoothServer() {
 
   const ctx: Context = {
     env: process.env,
-    endpoint: "http://localhost:5000",
-    token: "",
+    endpoint: "http://localhost:5000/v1",
+    token: "xsvKAus0AmCKtUdxyieF9:usLxq6bkBrajviSUkQewE327GAIJqtpJ",
   };
 
   getAPI(ctx);
@@ -27,11 +26,17 @@ async function startBoothServer() {
   const server = await startBooth({
     build,
     port,
-    endpoint: "http://localhost:5000",
-    token: "",
+    endpoint: ctx.endpoint,
+    token: ctx.token,
   });
 
-  return { port, stop: server.close };
+  return {
+    port,
+    stop: async () => {
+      server.close();
+      await completeBuild(ctx, build);
+    },
+  };
 }
 
 async function startTestSite() {

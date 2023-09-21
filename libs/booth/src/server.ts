@@ -3,7 +3,7 @@ import { SnapshotOptions, SnapshotOptionsZod } from "./types";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { takeScreenshots } from "./screenshots";
-import express, { Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import {
   Context,
   getAPI,
@@ -69,12 +69,10 @@ async function snapshotHandler(
 
   await linkSnapshotsToBuild(ctx, build, uploadSnaps)
     .catch((err) => {
-      res.writeHead(404);
-      res.end(err);
+      res.status(404).json({ message: err.message }).end();
     })
     .then(() => {
-      res.writeHead(200);
-      res.end();
+      res.status(200).end();
     });
 }
 
@@ -103,19 +101,38 @@ export async function start({
 
   const app = express();
 
-  app.use(express.json());
+  app.use(
+    express.json({
+      limit: "1gb",
+    })
+  );
+
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error(err);
+    res.status(500).send(err.message);
+  });
 
   app.get("/ping", (_req, res) => {
     pingHandler(res);
   });
 
-  app.post("/snapshot", (req, res) => {
-    const data = SnapshotOptionsZod.parse(req.body);
+  app.post("/snapshot", async (req, res) => {
+    const data = await SnapshotOptionsZod.parseAsync(req.body).catch((err) => {
+      res.status(400).end(err.message);
+    });
 
-    snapshotHandler(ctx, browsers, data, build, res);
+    if (!data) return;
+
+    await snapshotHandler(ctx, browsers, data, build, res).catch((err) => {
+      res.status(500).json({ message: err.message }).end();
+    });
   });
 
   app.get("/script", (_req, res) => {
+    scriptHandler(res);
+  });
+
+  app.get("/complete", (_req, res) => {
     scriptHandler(res);
   });
 

@@ -16,6 +16,9 @@ export function script(opts: Options) {
 export function snapshot(opts: Options, data: SnapshotOptions) {
   return fetch(`${opts.endpoint}/snapshot`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(data),
   });
 }

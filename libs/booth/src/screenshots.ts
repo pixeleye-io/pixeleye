@@ -24,7 +24,7 @@ async function takeOnBrowser(
 
   const buffers = await Promise.all(
     data.viewports.map(async (viewport) => {
-      const [width, height] = viewport.split("-").map(Number) as [
+      const [width, height] = viewport.split("x").map(Number) as [
         number,
         number,
       ];

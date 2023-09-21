@@ -41,8 +41,10 @@ export async function pixeleyeSnapshot(
   });
 
   const opts: ServerOptions = {
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
-    endpoint: `http://localhost:${options.port || process.env.boothPort || 3000}}`,
+    endpoint: `http://localhost:${
+      // eslint-disable-next-line turbo/no-undeclared-env-vars
+      options.port || process.env.boothPort || 3000
+    }`,
   };
 
   if (!domSnapshot) {
@@ -51,7 +53,7 @@ export async function pixeleyeSnapshot(
 
   const snap: SnapshotOptions = {
     name: options.name,
-    viewports: ["1920-1080"],
+    viewports: ["1920x1080"],
     targets: ["chromium"],
     dom: domSnapshot,
     fullPage: options.fullPage,
@@ -60,7 +62,13 @@ export async function pixeleyeSnapshot(
 
   const res = await uploadSnapshot(opts, snap);
 
+  console.log(res);
+
   if (res.status < 200 || res.status >= 300) {
-    throw new Error("Error uploading snapshot");
+    const data = await res.json();
+
+    console.log(data);
+
+    throw new Error("Error uploading snapshot, err: " + JSON.stringify(data));
   }
 }

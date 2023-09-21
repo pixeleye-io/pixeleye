@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   description:
     "Pixeleye is an open-source, self-hostable platform for visual regression testing. Deliver pixel perfect UIs with confidence, effortlessly catching visual bugs before they reach production.",
   alternates: {
-    canonical: "https://pixeleye.io",
+    canonical: "https://pixeleye.io/",
   },
 };
 

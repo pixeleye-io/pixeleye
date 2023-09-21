@@ -37,7 +37,7 @@ export default async function Layout({
         teamId={project.teamID}
       />
       <ProjectHeader projectId={projectId} />
-      <Container>{children}</Container>
+      <Container className="container">{children}</Container>
     </>
   );
 }
