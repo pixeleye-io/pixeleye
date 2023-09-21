@@ -1,5 +1,5 @@
 import { test, expect, describe, beforeAll, afterAll } from "vitest";
-import "pptr-testing-library/extend"; // we need this to get TS auto-complete
+// import "pptr-testing-library/extend"; // we need this to get TS auto-complete
 import { type App, start } from "./helpers";
 import { pixeleyeSnapshot } from "../snapshot";
 
@@ -18,6 +18,6 @@ describe("Landing page - e2e", () => {
   test("Basic landing page screenshot", async () => {
     await app.navigate("/");
 
-    await pixeleyeSnapshot(app.page, "landing");
+    await pixeleyeSnapshot(app.page, { name: "landing", port: app.boothPort });
   });
 });

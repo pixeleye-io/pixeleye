@@ -24,10 +24,24 @@ function pingHandler(res: Response) {
   res.end("pong");
 }
 
-
 function notFoundHandler(res: Response) {
   res.writeHead(404);
   res.end("Not found");
+}
+
+function scriptHandler(res: Response) {
+  res.writeHead(200);
+  const scriptRoot = require
+    .resolve("@chromaui/rrweb-snapshot")
+    .replaceAll("\\", "/")
+    .replace(/(?<=@chromaui\/rrweb-snapshot).*/, "");
+
+  const script = readFileSync(
+    join(scriptRoot, "dist", "rrweb-snapshot.min.js"),
+    "utf-8"
+  );
+
+  res.end(script);
 }
 
 async function snapshotHandler(
@@ -99,6 +113,10 @@ export async function start({
     const data = SnapshotOptionsZod.parse(req.body);
 
     snapshotHandler(ctx, browsers, data, build, res);
+  });
+
+  app.get("/script", (_req, res) => {
+    scriptHandler(res);
   });
 
   app.get("*", (_req, res) => {

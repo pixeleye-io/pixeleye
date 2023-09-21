@@ -1,18 +1,25 @@
-import { Page } from "puppeteer-core";
-import { snapshot } from "@chromaui/rrweb-snapshot";
+import { Page } from "puppeteer";
+import { Page as PageCore } from "puppeteer-core";
 import {
   snapshot as uploadSnapshot,
   Options as ServerOptions,
   SnapshotOptions,
 } from "@pixeleye/booth";
+import { snapshot } from "@chromaui/rrweb-snapshot";
+
+type SnapshotFn = typeof snapshot;
 
 export interface Options {
   fullPage?: boolean;
   name: string;
   variant?: string;
+  port?: number; // Port used by local pixeleye booth server
 }
 
-export async function pixeleyeSnapshot(page: Page, options: Options) {
+export async function pixeleyeSnapshot(
+  page: Page | PageCore,
+  options: Options
+) {
   if (!page) {
     throw new Error("No Puppeteer page object provided");
   }
@@ -20,15 +27,22 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     throw new Error("No name provided");
   }
 
-  const domSnapshot = await page.evaluate(() => {
-    /// @ts-ignore
-    const doc = document;
+  await (page as Page).addScriptTag({
+    path: require.resolve(
+      "@chromaui/rrweb-snapshot/dist/rrweb-snapshot.min.js"
+    ),
+  });
 
-    return snapshot(doc);
+  const domSnapshot = await (page as Page).evaluate(() => {
+    // @ts-ignore
+    const { snapshot } = window.rrwebSnapshot;
+
+    return (snapshot as SnapshotFn)(document);
   });
 
   const opts: ServerOptions = {
-    endpoint: "localhost:3000",
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    endpoint: `http://localhost:${options.port || process.env.boothPort || 3000}}`,
   };
 
   if (!domSnapshot) {
