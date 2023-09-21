@@ -14,10 +14,12 @@
     "@pixeleye/booth": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
+    "pptr-testing-library": "^0.7.0",
     "puppeteer": "^21.3.1",
     "puppeteer-core": "^21.3.1",
     "ts-node": "^10.9.1",
-    "undici": "^5.24.0"
+    "undici": "^5.24.0",
+    "vitest": "^0.34.4"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
