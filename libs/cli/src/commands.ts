@@ -1,9 +1,9 @@
 import chalk from "chalk";
 import { Command } from "commander";
-import { loadAndMergeConfig } from "./config/config";
+import { loadAndMergeConfig } from "./config";
 import { upload, ping } from "./handlers";
-import { defaults } from "./config";
 import { e2e } from "./handlers/e2e";
+import { defaults } from "@pixeleye/js-sdk";
 
 export const program = new Command();
 
@@ -57,5 +57,7 @@ apiOptions("e2e")
   .description("Run e2e tests and upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(e2e);
+
+apiOptions;
 
 export default program.parse(process.argv);

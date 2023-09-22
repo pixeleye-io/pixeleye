@@ -25,24 +25,24 @@ func GetImageStore(client *storage.BucketClient) (*ImageStore, error) {
 	return &ImageStore{client}, nil
 }
 
-func GetSnapPath(hash string, projectID string) string {
-	return fmt.Sprintf("snaps/%s/%s.png", projectID, hash)
+func GetSnapPath(projectID string, hash string) string {
+	return fmt.Sprintf("%s/snaps/%s.png", projectID, hash)
 }
 
-func (s *ImageStore) GetSnapURL(hash string, projectID string) (*v4.PresignedHTTPRequest, error) {
+func (s *ImageStore) GetSnapURL(projectID string, hash string) (*v4.PresignedHTTPRequest, error) {
 	bucketName := os.Getenv("S3_BUCKET")
 
-	path := GetSnapPath(hash, projectID)
+	path := GetSnapPath(projectID, hash)
 	return s.GetObject(bucketName, path, 3600)
 }
 
-func GetDiffPath(hash string, projectID string) string {
-	return fmt.Sprintf("diffs/%s/%s.png", projectID, hash)
+func GetDiffPath(projectID string, hash string) string {
+	return fmt.Sprintf("%s/diffs/%s.png", projectID, hash)
 }
 
-func (s *ImageStore) GetDiffURL(hash string, projectID string) (*v4.PresignedHTTPRequest, error) {
+func (s *ImageStore) GetDiffURL(projectID string, hash string) (*v4.PresignedHTTPRequest, error) {
 	bucketName := os.Getenv("S3_BUCKET")
 
-	path := GetDiffPath(hash, projectID)
+	path := GetDiffPath(projectID, hash)
 	return s.GetObject(bucketName, path, 3600)
 }

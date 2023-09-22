@@ -28,5 +28,11 @@
     "zerolog"
   ],
   "go.lintTool": "golangci-lint",
-  "go.lintFlags": ["-E", "dogsled", "-E", "gochecknoglobals"]
+  "go.lintFlags": [
+    "-E",
+    "dogsled",
+    "-E",
+    "gochecknoglobals"
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

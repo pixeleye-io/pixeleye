@@ -4,3 +4,5 @@ packages:
   - 'apps/web'
   - 'apps/marketing'
   - 'apps/api-tests'
+  - 'apps/puppeteer'
+  - 'apps/test-site'

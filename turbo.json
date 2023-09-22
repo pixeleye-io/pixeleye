@@ -23,7 +23,10 @@
     "build:types": {},
     "lint": {},
     "types": {},
-    "test": {},
+    "setup:test": {},
+    "test": {
+      "dependsOn": ["setup:test"]
+    },
     "test:api": {},
     "start": {
       "dependsOn": ["^build"],

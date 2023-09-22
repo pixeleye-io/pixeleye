@@ -11,23 +11,23 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@t3-oss/env-core": "^0.6.1",
     "@types/eventsource": "^1.1.11",
-    "@types/node": "20.5.9",
+    "@types/node": "20.6.3",
     "@types/wait-on": "^5.3.1",
     "env-cmd": "^10.1.0",
     "pactum": "^3.5.1",
     "typescript": "^5.2.2",
-    "undici": "^5.23.0",
-    "vitest": "^0.34.3",
+    "undici": "^5.24.0",
+    "vitest": "^0.34.4",
     "zod": "^3.22.2"
   },
   "dependencies": {
-    "@ory/client": "^1.2.1",
+    "@ory/client": "^1.2.8",
     "@ory/kratos-client": "^1.0.0",
     "@pixeleye/api": "workspace:*",
     "@pixeleye/image-gen": "workspace:*",
     "@pixeleye/js-sdk": "workspace:*",
     "eventsource": "^2.0.2",
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.0.1",
     "pactum-matchers": "^1.1.6",
     "wait-on": "^7.0.1"
   }

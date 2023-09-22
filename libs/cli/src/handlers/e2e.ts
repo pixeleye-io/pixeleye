@@ -1,5 +1,5 @@
 import { Context, createBuild, getAPI, completeBuild } from "@pixeleye/js-sdk";
-import ora, { oraPromise } from "ora";
+import ora from "ora";
 import { start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";

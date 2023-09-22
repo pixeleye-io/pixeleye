@@ -1,5 +1,7 @@
 import { Browser } from "playwright";
 import { SnapshotOptions } from "./types";
+import { JSDOM } from "jsdom";
+import { createCache, createMirror, rebuild } from "@chromaui/rrweb-snapshot";
 
 async function takeOnBrowser(
   browser: Browser,
@@ -9,12 +11,20 @@ async function takeOnBrowser(
   const page = await browser.newPage({
     javaScriptEnabled: false,
   });
+
   if (data.url) await page.goto(data.url);
-  else await page.setContent(data.dom!);
+  else {
+    const doc = new JSDOM().window.document;
+    const cache = createCache();
+    const mirror = createMirror();
+    rebuild(data.dom!, { doc, cache, mirror });
+
+    await page.setContent(doc.documentElement.outerHTML);
+  }
 
   const buffers = await Promise.all(
     data.viewports.map(async (viewport) => {
-      const [width, height] = viewport.split("-").map(Number) as [
+      const [width, height] = viewport.split("x").map(Number) as [
         number,
         number,
       ];
@@ -25,8 +35,9 @@ async function takeOnBrowser(
         })
         .then(async () => ({
           img: await page.screenshot({
-            fullPage: data.fullPage === undefined || data.fullPage,
+            fullPage: data.fullPage ?? true,
             animations: "disabled",
+            type: "png",
           }),
           viewport,
           target,

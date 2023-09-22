@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/app/stores"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -57,7 +57,7 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 		return nil, err
 	}
 
-	path := fmt.Sprintf("%s/snaps/%s.png", project.ID, data.Hash)
+	path := stores.GetSnapPath(project.ID, data.Hash)
 
 	fileExists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), path)
 
@@ -165,26 +165,17 @@ func GetSnapURL(c echo.Context) error {
 
 	project := middleware.GetProject(c)
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	if _, err = db.GetSnapImageByHash(hash, project.ID); err != nil {
-		return echo.ErrNotFound
-	}
-
-	s3, err := storage.GetClient()
+	imageStore, err := stores.GetImageStore(nil)
 
 	if err != nil {
 		return err
 	}
 
-	path := fmt.Sprintf("%s/snaps/%s.png", project.ID, hash)
+	url, err := imageStore.GetSnapURL(project.ID, hash)
 
-	url, err := s3.GetObject(os.Getenv("S3_BUCKET"), path, 900) // valid for 15 minutes
-
-	if err != nil {
+	if err == echo.ErrNotFound {
+		return echo.NewHTTPError(404, "Snapshot not found")
+	} else if err != nil {
 		return err
 	}
 

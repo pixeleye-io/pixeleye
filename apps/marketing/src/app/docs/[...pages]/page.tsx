@@ -180,7 +180,7 @@ export default async function Page({
                 target="_blank"
                 className="!text-sm flex items-center"
               >
-                Edit this page on GitHub <ArrowUpRightIcon height="1em" width="1em" />
+                Edit this page on GitHub <ArrowUpRightIcon className="ml-1 mt-px" height="1em" width="1em" />
               </Link>
             </>
           )}
