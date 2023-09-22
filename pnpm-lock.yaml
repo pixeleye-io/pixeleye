@@ -669,6 +669,9 @@ importers:
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
+      require-relative:
+        specifier: ^0.8.7
+        version: 0.8.7
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -682,6 +685,9 @@ importers:
       '@types/node':
         specifier: 20.6.3
         version: 20.6.3
+      '@types/require-relative':
+        specifier: ^0.8.0
+        version: 0.8.0
       undici:
         specifier: ^5.24.0
         version: 5.24.0

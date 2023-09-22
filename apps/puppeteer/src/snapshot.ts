@@ -6,6 +6,7 @@ import {
   SnapshotOptions,
 } from "@pixeleye/booth";
 import { snapshot } from "@chromaui/rrweb-snapshot";
+import { defaults } from "@pixeleye/js-sdk";
 
 type SnapshotFn = typeof snapshot;
 
@@ -13,7 +14,6 @@ export interface Options {
   fullPage?: boolean;
   name: string;
   variant?: string;
-  port?: number; // Port used by local pixeleye booth server
 }
 
 export async function pixeleyeSnapshot(
@@ -43,7 +43,7 @@ export async function pixeleyeSnapshot(
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
       // eslint-disable-next-line turbo/no-undeclared-env-vars
-      options.port || process.env.boothPort || 3000
+      process.env.boothPort || defaults.port
     }`,
   };
 

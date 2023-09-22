@@ -18,6 +18,8 @@ describe("Landing page - e2e", () => {
   test("Basic landing page screenshot", async () => {
     await app.navigate("/");
 
-    await pixeleyeSnapshot(app.page, { name: "landing", port: app.boothPort });
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    process.env.boothPort = "3000";
+    await pixeleyeSnapshot(app.page, { name: "landing" });
   });
 });
