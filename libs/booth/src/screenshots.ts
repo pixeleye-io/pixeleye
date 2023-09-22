@@ -37,6 +37,7 @@ async function takeOnBrowser(
           img: await page.screenshot({
             fullPage: data.fullPage ?? true,
             animations: "disabled",
+            type: "png",
           }),
           viewport,
           target,
