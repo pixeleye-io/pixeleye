@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "test": "vitest",
+    "test:e2e": "vitest",
     "build": "node ./build.js"
   },
   "type": "module",
