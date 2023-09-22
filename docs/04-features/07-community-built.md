@@ -9,7 +9,7 @@ Pixeleye is fully open-source. We focus on empowering our community and are cons
 
 ## Open-source
 
-Pixeleye is licensed under the [GNU Affero General Public License v3.0](https://gitub.com/pixeleye-io/pixeleye/blob/main/LICENSE). This means you can use Pixeleye for free, even for commercial use. You can also modify Pixeleye to suit your needs. If you do modify Pixeleye, you must make your changes available under the same license. This ensures Pixeleye remains open-source.
+Pixeleye is licensed under the [GNU Affero General Public License v3.0](https://github.com/pixeleye-io/pixeleye/blob/main/LICENSE). This means you can use Pixeleye for free, even for commercial use. You can also modify Pixeleye to suit your needs. If you do modify Pixeleye, you must make your changes available under the same license. This ensures Pixeleye remains open-source.
 
 ## Community
 
