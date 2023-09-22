@@ -1,7 +1,7 @@
 import requireRelative from "require-relative";
 import { defaults } from "./defaults";
 
-export async function loadConfig(path: string): Promise<Record<string, string>> {
+export async function loadConfig(path?: string): Promise<typeof defaults> {
   try {
     let userConfig = requireRelative(
       path || defaults.configFile,
@@ -22,7 +22,7 @@ export async function loadConfig(path: string): Promise<Record<string, string>> 
       console.log("Config is empty.");
     }
 
-    return { ...defaults, userConfig };
+    return { ...defaults, ...userConfig };
   } catch (e: any) {
     if (e.code === "MODULE_NOT_FOUND") {
       console.log("No config found.");

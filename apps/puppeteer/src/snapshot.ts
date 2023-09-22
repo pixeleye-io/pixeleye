@@ -6,7 +6,7 @@ import {
   SnapshotOptions,
 } from "@pixeleye/booth";
 import { snapshot } from "@chromaui/rrweb-snapshot";
-import { defaults } from "@pixeleye/js-sdk";
+import { defaults, loadConfig } from "@pixeleye/js-sdk";
 
 type SnapshotFn = typeof snapshot;
 
@@ -14,6 +14,8 @@ export interface Options {
   fullPage?: boolean;
   name: string;
   variant?: string;
+  browsers?: string[];
+  viewports?: string[];
 }
 
 export async function pixeleyeSnapshot(
@@ -51,10 +53,12 @@ export async function pixeleyeSnapshot(
     throw new Error("No DOM snapshot available");
   }
 
+  const config = await loadConfig();
+
   const snap: SnapshotOptions = {
     name: options.name,
-    viewports: ["1920x1080"],
-    targets: ["chromium"],
+    viewports: options.viewports || config.viewports,
+    targets: options.browsers || config.browsers,
     dom: domSnapshot,
     fullPage: options.fullPage,
     variant: options.variant,
@@ -62,12 +66,8 @@ export async function pixeleyeSnapshot(
 
   const res = await uploadSnapshot(opts, snap);
 
-  console.log(res);
-
   if (res.status < 200 || res.status >= 300) {
     const data = await res.json();
-
-    console.log(data);
 
     throw new Error("Error uploading snapshot, err: " + JSON.stringify(data));
   }

@@ -1,7 +1,6 @@
-import { defaults } from "./defaults";
 import { Command, program } from "commander";
 import { optionMap } from "../commands";
-import { loadConfig } from "@pixeleye/js-sdk";
+import { loadConfig, defaults } from "@pixeleye/js-sdk";
 
 export async function loadAndMergeConfig(
   hookedCommand: Command,
