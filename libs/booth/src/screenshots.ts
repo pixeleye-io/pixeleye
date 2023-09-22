@@ -17,9 +17,9 @@ async function takeOnBrowser(
     const doc = new JSDOM().window.document;
     const cache = createCache();
     const mirror = createMirror();
-    const node = rebuild(data.dom!, { doc, cache, mirror });
+    rebuild(data.dom!, { doc, cache, mirror });
 
-    await page.setContent(node?.parentElement?.outerHTML || "");
+    await page.setContent(doc.documentElement.outerHTML);
   }
 
   const buffers = await Promise.all(
@@ -35,7 +35,7 @@ async function takeOnBrowser(
         })
         .then(async () => ({
           img: await page.screenshot({
-            fullPage: data.fullPage === undefined || data.fullPage,
+            fullPage: data.fullPage ?? true,
             animations: "disabled",
           }),
           viewport,

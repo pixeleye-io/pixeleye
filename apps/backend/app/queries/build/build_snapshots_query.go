@@ -75,7 +75,7 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 	for i := range pairs {
 		if pairs[i].SnapHash != nil {
 			hash := *pairs[i].SnapHash
-			snapURL, err := imageStore.GetSnapURL(hash, build.ProjectID)
+			snapURL, err := imageStore.GetSnapURL(build.ProjectID, hash)
 			if err == nil {
 				pairs[i].SnapURL = &snapURL.URL
 			} else {
@@ -84,7 +84,7 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 		}
 		if pairs[i].BaselineHash != nil {
 			hash := *pairs[i].BaselineHash
-			baselineURL, err := imageStore.GetSnapURL(hash, build.ProjectID)
+			baselineURL, err := imageStore.GetSnapURL(build.ProjectID, hash)
 			if err == nil {
 				pairs[i].BaselineURL = &baselineURL.URL
 			} else {
@@ -93,7 +93,7 @@ func (q *BuildQueries) GetBuildsPairedSnapshots(build models.Build) ([]PairedSna
 		}
 		if pairs[i].DiffHash != nil {
 			hash := *pairs[i].DiffHash
-			diffURL, err := imageStore.GetDiffURL(hash, build.ProjectID)
+			diffURL, err := imageStore.GetDiffURL(build.ProjectID, hash)
 			if err == nil {
 				pairs[i].DiffURL = &diffURL.URL
 			} else {
