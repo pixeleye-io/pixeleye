@@ -54,7 +54,10 @@ describe("screenshots", () => {
         expect(snap?.variant).toEqual("default");
 
         const buffer = await fs.readFile(
-          `src/test-images/hello-world-${target}-${viewport}.png`
+          `src/test-images/hello-world-${target}-${viewport}.png`,
+          {
+            encoding: "base64",
+          }
         );
 
         expect(snap?.img).toEqual(buffer);
