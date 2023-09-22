@@ -4,6 +4,7 @@ import { snapshot } from "@chromaui/rrweb-snapshot";
 import { JSDOM } from "jsdom";
 import { chromium, firefox, webkit } from "playwright";
 import fs from "fs/promises";
+import { generateHash } from "@pixeleye/js-sdk";
 
 // TODO - host test website so we can test static urls
 
@@ -38,7 +39,7 @@ describe("screenshots", () => {
       variant: "default",
       targets,
       viewports,
-      fullPage: true,
+      fullPage: false,
       dom: generateData(`<body><div>Hello World</div>`),
     });
 
@@ -53,14 +54,32 @@ describe("screenshots", () => {
         expect(snap?.name).toEqual("hello world");
         expect(snap?.variant).toEqual("default");
 
-        const buffer = await fs.readFile(
-          `src/test-images/hello-world-${target}-${viewport}.png`,
-          {
-            encoding: "base64",
-          }
-        );
+        const hashes = {
+          "chromium-800x600":
+            "ecdd9d79c1ca4e512705b5c34c520bd4d7d5909076ac537d88af9ec73c8ae1f3",
+          "chromium-1024x768":
+            "ecdd9d79c1ca4e512705b5c34c520bd4d7d5909076ac537d88af9ec73c8ae1f3",
+          "chromium-100x2000":
+            "ecdd9d79c1ca4e512705b5c34c520bd4d7d5909076ac537d88af9ec73c8ae1f3",
+          "firefox-800x600":
+            "4aeba86f6668abd08c1819422c8f4ec6a2762002a815d7b612394deccb5b53d2",
+          "firefox-1024x768":
+            "4aeba86f6668abd08c1819422c8f4ec6a2762002a815d7b612394deccb5b53d2",
+          "firefox-100x2000":
+            "4aeba86f6668abd08c1819422c8f4ec6a2762002a815d7b612394deccb5b53d2",
+          "webkit-800x600":
+            "04091341124606d1c6b6146994e49db07d91ffdf471e0323bed32d27b641d4c9",
+          "webkit-1024x768":
+            "04091341124606d1c6b6146994e49db07d91ffdf471e0323bed32d27b641d4c9",
+          "webkit-100x2000":
+            "04091341124606d1c6b6146994e49db07d91ffdf471e0323bed32d27b641d4c9",
+        };
 
-        expect(snap?.img).toEqual(buffer);
+        const hash = generateHash(snap?.img!);
+
+        expect(hash).toEqual(
+          hashes[`${target}-${viewport}` as keyof typeof hashes] as string
+        );
       });
     });
   });
