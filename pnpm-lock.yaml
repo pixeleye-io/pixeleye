@@ -482,9 +482,6 @@ importers:
       express:
         specifier: ^4.18.2
         version: 4.18.2
-      jimp:
-        specifier: ^0.22.10
-        version: 0.22.10
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0
