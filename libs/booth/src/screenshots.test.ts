@@ -35,6 +35,7 @@ describe("screenshots", () => {
 
     const snaps = await takeScreenshots(browsers, {
       name: "hello world",
+      variant: "default",
       targets,
       viewports,
       fullPage: true,
@@ -49,6 +50,9 @@ describe("screenshots", () => {
 
         expect(snap).toBeDefined();
 
+        expect(snap?.name).toEqual("hello world");
+        expect(snap?.variant).toEqual("default");
+
         const buffer = await fs.readFile(
           `src/test-images/hello-world-${target}-${viewport}.png`
         );
@@ -57,6 +61,4 @@ describe("screenshots", () => {
       });
     });
   });
-
-  
 });
