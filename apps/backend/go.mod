@@ -4,9 +4,7 @@ go 1.21
 
 require (
 	github.com/aws/smithy-go v1.14.2
-	github.com/create-go-app/fiber-go-template v1.14.0
 	github.com/go-playground/validator/v10 v10.15.2
-	github.com/gofiber/fiber/v2 v2.49.0
 	github.com/google/uuid v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.1
@@ -35,6 +33,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-github/v29 v29.0.3 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -53,43 +52,28 @@ require (
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.21.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.37
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.35
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.38.5
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/go-co-op/gocron v1.33.0
-	github.com/go-openapi/jsonpointer v0.20.0 // indirect
-	github.com/go-openapi/jsonreference v0.20.2 // indirect
-	github.com/go-openapi/spec v0.20.9 // indirect
-	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.9
-	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/ory/client-go v1.1.51
 	github.com/rabbitmq/amqp091-go v1.8.1
-	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rs/zerolog v1.30.0
 	github.com/stretchr/testify v1.8.4
-	github.com/swaggo/swag v1.16.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.49.0 // indirect
-	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.12.0
 	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
-	golang.org/x/tools v0.12.1-0.20230815132531-74c255bcf846 // indirect
 )
