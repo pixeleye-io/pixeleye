@@ -8,6 +8,8 @@ import (
 
 var ErrEnvVarEmpty = errors.New("getenv: environment variable empty")
 
+// GetEnvStr retrieves the value of the specified environment variable.
+// If the environment variable is not set or is empty, it returns an error.
 func GetEnvStr(key string) (string, error) {
 	v := os.Getenv(key)
 	if v == "" {
@@ -16,6 +18,8 @@ func GetEnvStr(key string) (string, error) {
 	return v, nil
 }
 
+// GetEnvInt returns the integer value of the environment variable with the given key.
+// If the environment variable is not set or cannot be converted to an integer, an error is returned.
 func GetEnvInt(key string) (int, error) {
 	s, err := GetEnvStr(key)
 	if err != nil {
@@ -28,6 +32,8 @@ func GetEnvInt(key string) (int, error) {
 	return v, nil
 }
 
+// GetEnvBool returns the boolean value of the environment variable with the given key.
+// If the environment variable is not set or cannot be converted to a boolean, an error is returned.
 func GetEnvBool(key string) (bool, error) {
 	s, err := GetEnvStr(key)
 	if err != nil {
