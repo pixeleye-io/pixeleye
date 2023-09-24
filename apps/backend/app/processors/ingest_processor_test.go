@@ -2,6 +2,7 @@ package processors
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -157,6 +158,116 @@ func TestGenerateBytesHash(t *testing.T) {
 			}
 			if tc.expected != actual {
 				t.Errorf("expected %s, but got %s", tc.expected, actual)
+			}
+		})
+	}
+}
+
+// TODO - expand these tests
+func TestGroupSnapshots(t *testing.T) {
+	testCases := []struct {
+		name       string
+		snapshots  []models.Snapshot
+		baselines  []models.Snapshot
+		new        []string
+		unchanged  [][2]models.Snapshot
+		unreviewed [][2]models.Snapshot
+		changed    [][2]models.Snapshot
+		rejected   [][2]models.Snapshot
+	}{
+		{
+			name:       "empty input",
+			snapshots:  []models.Snapshot{},
+			baselines:  []models.Snapshot{},
+			new:        []string{},
+			unchanged:  [][2]models.Snapshot{},
+			unreviewed: [][2]models.Snapshot{},
+			changed:    [][2]models.Snapshot{},
+			rejected:   [][2]models.Snapshot{},
+		},
+		{
+			name: "no baselines",
+			snapshots: []models.Snapshot{
+				{Name: "snap1", Variant: "variant1"},
+				{Name: "snap2", Variant: "variant1"},
+				{Name: "snap3", Variant: "variant1"},
+			},
+			baselines:  []models.Snapshot{},
+			new:        []string{"snap1", "snap2", "snap3"},
+			unchanged:  [][2]models.Snapshot{},
+			unreviewed: [][2]models.Snapshot{},
+			changed:    [][2]models.Snapshot{},
+			rejected:   [][2]models.Snapshot{},
+		},
+		{
+			name:      "no snapshots",
+			snapshots: []models.Snapshot{},
+			baselines: []models.Snapshot{
+				{Name: "snap1", Variant: "variant1"},
+				{Name: "snap2", Variant: "variant1"},
+				{Name: "snap3", Variant: "variant1"},
+			},
+			new:        []string{},
+			unchanged:  [][2]models.Snapshot{},
+			unreviewed: [][2]models.Snapshot{},
+			changed:    [][2]models.Snapshot{},
+			rejected:   [][2]models.Snapshot{},
+		},
+		{
+			name: "no changes",
+			snapshots: []models.Snapshot{
+				{Name: "snap1", Variant: "variant1", SnapID: "snap1"},
+				{Name: "snap2", Variant: "variant1", SnapID: "snap2"},
+				{Name: "snap3", Variant: "variant1", SnapID: "snap3"},
+			},
+			baselines: []models.Snapshot{
+				{Name: "snap1", Variant: "variant1", SnapID: "snap1"},
+				{Name: "snap2", Variant: "variant1", SnapID: "snap2"},
+				{Name: "snap3", Variant: "variant1", SnapID: "snap3"},
+			},
+			new:        []string{},
+			unchanged:  [][2]models.Snapshot{{{SnapID: "snap1"}, {SnapID: "snap1"}}, {{SnapID: "snap2"}, {SnapID: "snap2"}}, {{SnapID: "snap3"}, {SnapID: "snap3"}}},
+			unreviewed: [][2]models.Snapshot{},
+			changed:    [][2]models.Snapshot{},
+			rejected:   [][2]models.Snapshot{},
+		},
+		{
+			name: "no changes, different order",
+			snapshots: []models.Snapshot{
+				{Name: "snap1", Variant: "variant1", SnapID: "snap1"},
+				{Name: "snap2", Variant: "variant1", SnapID: "snap2"},
+				{Name: "snap3", Variant: "variant1", SnapID: "snap3"},
+			},
+			baselines: []models.Snapshot{
+				{Name: "snap3", Variant: "variant1", SnapID: "snap3"},
+				{Name: "snap1", Variant: "variant1", SnapID: "snap1"},
+				{Name: "snap2", Variant: "variant1", SnapID: "snap2"},
+			},
+			new:        []string{},
+			unchanged:  [][2]models.Snapshot{{{SnapID: "snap1"}, {SnapID: "snap1"}}, {{SnapID: "snap2"}, {SnapID: "snap2"}}, {{SnapID: "snap3"}, {SnapID: "snap3"}}},
+			unreviewed: [][2]models.Snapshot{},
+			changed:    [][2]models.Snapshot{},
+			rejected:   [][2]models.Snapshot{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actualNew, actualUnchanged, actualUnreviewed, actualChanged, actualRejected := groupSnapshots(tc.snapshots, tc.baselines)
+			if reflect.DeepEqual(tc.new, actualNew) {
+				t.Errorf("expected %v, but got %v", tc.new, actualNew)
+			}
+			if reflect.DeepEqual(tc.unchanged, actualUnchanged) {
+				t.Errorf("expected %v, but got %v", tc.unchanged, actualUnchanged)
+			}
+			if reflect.DeepEqual(tc.unreviewed, actualUnreviewed) {
+				t.Errorf("expected %v, but got %v", tc.unreviewed, actualUnreviewed)
+			}
+			if reflect.DeepEqual(tc.changed, actualChanged) {
+				t.Errorf("expected %v, but got %v", tc.changed, actualChanged)
+			}
+			if reflect.DeepEqual(tc.rejected, actualRejected) {
+				t.Errorf("expected %v, but got %v", tc.rejected, actualRejected)
 			}
 		})
 	}
