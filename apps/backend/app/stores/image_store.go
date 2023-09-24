@@ -1,6 +1,7 @@
 package stores
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -33,7 +34,7 @@ func (s *ImageStore) GetSnapURL(projectID string, hash string) (*v4.PresignedHTT
 	bucketName := os.Getenv("S3_BUCKET")
 
 	path := GetSnapPath(projectID, hash)
-	return s.GetObject(bucketName, path, 3600)
+	return s.GetObject(context.TODO(), bucketName, path, 3600)
 }
 
 func GetDiffPath(projectID string, hash string) string {
@@ -44,5 +45,5 @@ func (s *ImageStore) GetDiffURL(projectID string, hash string) (*v4.PresignedHTT
 	bucketName := os.Getenv("S3_BUCKET")
 
 	path := GetDiffPath(projectID, hash)
-	return s.GetObject(bucketName, path, 3600)
+	return s.GetObject(context.TODO(), bucketName, path, 3600)
 }

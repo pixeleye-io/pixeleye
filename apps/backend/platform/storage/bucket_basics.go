@@ -15,26 +15,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// BucketExists checks whether a bucket exists in the current account.
-func (basics BucketClient) BucketExists(bucketName string) (bool, error) {
-	_, err := basics.S3Client.HeadBucket(context.TODO(), &s3.HeadBucketInput{
-		Bucket: aws.String(bucketName),
-	})
-	exists := true
-	if err != nil {
-		var apiError smithy.APIError
-		if errors.As(err, &apiError) {
-			switch apiError.(type) {
-			case *types.NotFound:
-				exists = false
-				err = nil
-			}
-		}
-	}
-
-	return exists, err
-}
-
 func (basics BucketClient) KeyExists(ctx context.Context, bucketName string, objectKey string) (bool, error) {
 	_, err := basics.S3Client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(bucketName),
@@ -97,9 +77,9 @@ func (basics BucketClient) DeleteFolder(ctx context.Context, bucketName string, 
 }
 
 // UploadFile reads from a file and puts the data into an object in a bucket.
-func (basics BucketClient) UploadFile(bucketName string, objectKey string, file []byte, contentType string) error {
+func (basics BucketClient) UploadFile(ctx context.Context, bucketName string, objectKey string, file []byte, contentType string) error {
 
-	_, err := basics.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
+	_, err := basics.S3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(bucketName),
 		Key:         aws.String(objectKey),
 		Body:        bytes.NewReader(file),
@@ -114,7 +94,7 @@ func (basics BucketClient) UploadFile(bucketName string, objectKey string, file 
 }
 
 // DownloadFile gets an object from a bucket and stores it in a local file.
-func (basics BucketClient) DownloadFile(bucketName string, objectKey string) ([]byte, error) {
+func (basics BucketClient) DownloadFile(ctx context.Context, bucketName string, objectKey string) ([]byte, error) {
 	result, err := basics.S3Client.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),

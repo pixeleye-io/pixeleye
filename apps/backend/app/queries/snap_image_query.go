@@ -31,6 +31,21 @@ func (q *SnapImageQueries) GetSnapImage(id string) (models.SnapImage, error) {
 	return snapImage, err
 }
 
+func (q *SnapImageQueries) GetSnapImages(id ...string) ([]models.SnapImage, error) {
+	snapImages := []models.SnapImage{}
+
+	query, args, err := sqlx.In(`SELECT * FROM snap_image WHERE id IN (?)`, id)
+	if err != nil {
+		return snapImages, err
+	}
+
+	query = q.Rebind(query)
+
+	err = q.Select(&snapImages, query, args...)
+
+	return snapImages, err
+}
+
 func (q *SnapImageQueries) CreateSnapImage(snapImage *models.SnapImage) error {
 	query := `INSERT INTO snap_image (id, hash, project_id, created_at, height, width, format) VALUES (:id, :hash, :project_id, :created_at, :height, :width, :format) ON CONFLICT DO NOTHING`
 
