@@ -7,7 +7,6 @@ import (
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog"
 
-	_ "github.com/create-go-app/fiber-go-template/docs" // load API Docs files (Swagger)
 	"github.com/pixeleye-io/pixeleye/pkg/ingest"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/routes"

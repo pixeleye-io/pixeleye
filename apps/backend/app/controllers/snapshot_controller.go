@@ -78,7 +78,7 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 		return nil, err
 	}
 
-	url, err := s3.PutObject(os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
+	url, err := s3.PutObject(c.Request().Context(), os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
 
 	if err != nil {
 		return nil, err

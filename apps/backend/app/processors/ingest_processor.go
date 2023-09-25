@@ -17,15 +17,71 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/app/stores"
 	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 )
 
+func downloadSnapshotImages(s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, baseBytes []byte, err error) {
+	firstCH := make(chan []byte)
+	secondCH := make(chan []byte)
+
+	for i, img := range []models.SnapImage{snapImg, baseImg} {
+		go func(i int, img models.SnapImage) {
+			path := stores.GetSnapPath(img.ProjectID, img.Hash)
+
+			imgBytes, err := s3.DownloadFile(context.TODO(), os.Getenv("S3_BUCKET"), path)
+
+			if err != nil {
+				log.Error().Err(err).Str("ImageID", img.ID).Msg("Failed to get image from S3")
+				if i == 0 {
+					firstCH <- []byte{}
+				} else {
+					secondCH <- []byte{}
+				}
+				return
+			}
+
+			if i == 0 {
+				firstCH <- imgBytes
+			} else {
+				secondCH <- imgBytes
+			}
+		}(i, img)
+	}
+
+	snapBytes = <-firstCH
+
+	if len(snapBytes) == 0 {
+		return snapBytes, baseBytes, fmt.Errorf("failed to get snapshot image from S3")
+	}
+
+	baseBytes = <-secondCH
+
+	if len(baseBytes) == 0 {
+		return snapBytes, baseBytes, fmt.Errorf("failed to get baseline image from S3")
+	}
+
+	return snapBytes, baseBytes, nil
+}
+
+func generateBytesHash(imgBytes []byte) (string, error) {
+	hasher := sha256.New()
+
+	_, err := hasher.Write(imgBytes)
+
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hasher.Sum(nil)), nil
+}
+
 // 1) Check in build history for an approved snapshot, get first
 // 2) If the approved snapshot is the same as the baseline, then we can approve this snapshot
 // 3) If the approved snapshot is different, then we need to generate a diff and set the status to unreviewed
-func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
+func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
 
 	snapshot.BaselineID = &baselineSnapshot.ID
 
@@ -50,53 +106,22 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 
 	log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is different to the baseline, generating diff")
 
-	snapImg, err := db.GetSnapImage(snapshot.SnapID)
-
+	snapImages, err := db.GetSnapImages(snapshot.SnapID, baselineSnapshot.SnapID)
 	if err != nil {
 		return err
 	}
 
-	baseImg, err := db.GetSnapImage(baselineSnapshot.SnapID)
-
-	if err != nil {
-		return err
-	}
+	snapImg := snapImages[0]
+	baseImg := snapImages[1]
 
 	s3, err := storage.GetClient()
-
 	if err != nil {
 		return err
 	}
 
-	ch := make(chan []byte)
-
-	for _, img := range []models.SnapImage{snapImg, baseImg} {
-		go func(img models.SnapImage) {
-			log.Debug().Str("SnapshotID", snapshot.ID).Str("ImageID", img.ID).Msg("Getting image from S3")
-			path := fmt.Sprintf("%s/snaps/%s.png", img.ProjectID, img.Hash)
-
-			imgBytes, err := s3.DownloadFile(os.Getenv("S3_BUCKET"), path)
-
-			if err != nil {
-				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Str("ImageID", img.ID).Msg("Failed to get image from S3")
-				ch <- []byte{}
-				return
-			}
-
-			ch <- imgBytes
-		}(img)
-	}
-
-	snapBytes := <-ch
-
-	if len(snapBytes) == 0 {
-		return fmt.Errorf("failed to get snapshot image from S3")
-	}
-
-	baseBytes := <-ch
-
-	if len(baseBytes) == 0 {
-		return fmt.Errorf("failed to get baseline image from S3")
+	snapBytes, baseBytes, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	if err != nil {
+		return err
 	}
 
 	snapshotImage, _, err := image.Decode(bytes.NewReader(snapBytes))
@@ -120,44 +145,36 @@ func processSnapshot(snapshot models.Snapshot, baselineSnapshot models.Snapshot,
 		return db.UpdateSnapshot(snapshot)
 	}
 
-	hasher := sha256.New()
-
 	buff := new(bytes.Buffer)
 
 	err = png.Encode(buff, diffImage.Image)
-
 	if err != nil {
 		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to encode diff image")
 		return err
 	}
 
-	_, err = hasher.Write(buff.Bytes())
-
+	hash, err := generateBytesHash(buff.Bytes())
 	if err != nil {
-		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to hash diff image")
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to generate hash for diff image")
 		return err
 	}
 
-	hash := hex.EncodeToString(hasher.Sum(nil))
+	diffPath := stores.GetDiffPath(snapImg.ProjectID, hash)
 
-	diffPath := fmt.Sprintf("%s/diffs/%s.png", snapImg.ProjectID, hash)
-
-	exists, err := s3.KeyExists(context.TODO(), os.Getenv("S3_BUCKET"), diffPath)
-
+	exists, err := s3.KeyExists(ctx, os.Getenv("S3_BUCKET"), diffPath)
 	if err != nil {
 		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to check if diff image exists in S3")
 		return err
 	}
 
 	if !exists {
-		if err = s3.UploadFile(os.Getenv("S3_BUCKET"), diffPath, buff.Bytes(), "image/png"); err != nil {
+		if err = s3.UploadFile(ctx, os.Getenv("S3_BUCKET"), diffPath, buff.Bytes(), "image/png"); err != nil {
 			log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to upload diff image to S3")
 			return err
 		}
 	}
 
 	diffImg, err := db.GetDiffImage(hash, snapImg.ProjectID)
-
 	if err != nil && err != sql.ErrNoRows {
 		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to get diff image from DB")
 		return err
@@ -276,7 +293,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	}
 
 	for _, snap := range changedSnapshots {
-		err := processSnapshot(snap[0], snap[1], db)
+		err := processSnapshot(ctx, snap[0], snap[1], db)
 
 		if err != nil {
 			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")

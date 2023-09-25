@@ -70,12 +70,12 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
         with:
-          go-version: "1.20"
+          go-version: "1.21"
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.53
+          version: v1.54
           args: --timeout=5m
           working-directory: ./apps/backend
 
@@ -171,7 +171,7 @@ jobs:
       - name: Setup golang
         uses: actions/setup-go@v4
         with:
-          go-version: "^1.20"
+          go-version: "^1.21"
 
       - name: Install go dependencies
         working-directory: ./apps/backend

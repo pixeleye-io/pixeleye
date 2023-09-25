@@ -15,10 +15,6 @@ func (tx *BuildQueriesTx) UpdateBuild(ctx context.Context, build *models.Build) 
 
 	build.UpdatedAt = utils.CurrentTime()
 
-	if err := utils.TrimStruct(&build); err != nil {
-		return err
-	}
-
 	_, err := tx.NamedExecContext(ctx, query, build)
 
 	return err
@@ -63,10 +59,6 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 	build.CreatedAt = time
 	build.UpdatedAt = time
 	build.IsLatest = true
-
-	if err := utils.TrimStruct(&build); err != nil {
-		return err
-	}
 
 	build.BuildNumber = project.BuildCount + 1
 
