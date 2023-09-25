@@ -106,7 +106,7 @@ func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnap
 
 	log.Debug().Str("SnapshotID", snapshot.ID).Msg("Snapshot is different to the baseline, generating diff")
 
-	snapImages, err := db.GetSnapImages(snapshot.SnapID)
+	snapImages, err := db.GetSnapImages(snapshot.SnapID, baselineSnapshot.SnapID)
 	if err != nil {
 		return err
 	}
