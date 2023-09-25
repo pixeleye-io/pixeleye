@@ -1,15 +1,14 @@
 package middleware
 
 import (
-	// TODO - upgrade to slices package when it's merged into the stdlib.
-
 	"net/http"
+
+	"slices"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/exp/slices"
 )
 
 // TODO - fix middleware to return 404

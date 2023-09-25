@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"golang.org/x/exp/slices" // TODO - upgrade to slices package when it's merged into the stdlib.
+	"slices"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"

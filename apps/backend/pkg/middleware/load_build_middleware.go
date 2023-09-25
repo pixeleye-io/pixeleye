@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	// TODO - upgrade to slices package when it's merged into the stdlib.
-
 	"fmt"
 	"net/http"
 
