@@ -35,4 +35,4 @@ func Delta(pixelA, pixelB color.Color) float64 {
 }
 
 // MaxDelta is a max value of Delta func.
-var MaxDelta = 35215.0
+const MaxDelta = 35215.0
