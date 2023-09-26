@@ -54,10 +54,29 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	}
 }
 
+func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
+	query := `UPDATE build SET status = $1 WHERE id = $2`
+
+	if _, err := q.DB.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
+		return err
+	}
+
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(build)
+
+	return q.CheckAndProcessQueuedBuilds(ctx, build)
+}
+
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
 
-	if models.IsBuildPreProcessing(build.Status) || build.Status == models.BUILD_STATUS_FAILED {
+	if models.IsBuildPreProcessing(build.Status) || build.Status == models.BUILD_STATUS_FAILED || build.Status == models.BUILD_STATUS_ABORTED {
 		return build.Status, nil
 	}
 
@@ -72,14 +91,6 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 	}
 
 	statusFromSnaps := getBuildStatusFromSnapshotStatuses(snapshotStatus)
-
-	if build.Status == models.BUILD_STATUS_ABORTED_PROCESSING {
-		if models.IsBuildPostProcessing(statusFromSnaps) {
-			return models.BUILD_STATUS_FAILED, nil
-		} else {
-			return models.BUILD_STATUS_ABORTED_PROCESSING, nil
-		}
-	}
 
 	return statusFromSnaps, nil
 }

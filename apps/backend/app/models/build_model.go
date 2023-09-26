@@ -8,19 +8,16 @@ import (
 
 const (
 	BUILD_STATUS_UPLOADING         = "uploading"
-	BUILD_STATUS_ABORTED_UPLOADING = "aborted-uploading"
-	BUILD_STATUS_QUEUED_UPLOADING  = "queued-uploading" // We are still uploading snapshots to this build but we aren't asynchronously processing them yet.
-
-	BUILD_STATUS_QUEUED_PROCESSING  = "queued-processing" // We are have finished uploading snapshots to this build but we are still waiting for the previous build to finish processing.
-	BUILD_STATUS_PROCESSING         = "processing"
-	BUILD_STATUS_ABORTED_PROCESSING = "aborted-processing"
-
-	BUILD_STATUS_FAILED     = "failed"
-	BUILD_STATUS_APPROVED   = "approved"
-	BUILD_STATUS_REJECTED   = "rejected"
-	BUILD_STATUS_UNREVIEWED = "unreviewed"
-	BUILD_STATUS_UNCHANGED  = "unchanged"
-	BUILD_STATUS_ORPHANED   = "orphaned"
+	BUILD_STATUS_QUEUED_UPLOADING  = "queued-uploading"
+	BUILD_STATUS_QUEUED_PROCESSING = "queued-processing"
+	BUILD_STATUS_PROCESSING        = "processing"
+	BUILD_STATUS_FAILED            = "failed"
+	BUILD_STATUS_ABORTED           = "aborted"
+	BUILD_STATUS_APPROVED          = "approved"
+	BUILD_STATUS_REJECTED          = "rejected"
+	BUILD_STATUS_UNREVIEWED        = "unreviewed"
+	BUILD_STATUS_UNCHANGED         = "unchanged"
+	BUILD_STATUS_ORPHANED          = "orphaned"
 )
 
 // Build struct for build model.
@@ -55,11 +52,11 @@ type BuildHistory struct {
 }
 
 func IsBuildPreProcessing(status string) bool {
-	return status == BUILD_STATUS_UPLOADING || status == BUILD_STATUS_QUEUED_UPLOADING || status == BUILD_STATUS_ABORTED_UPLOADING
+	return status == BUILD_STATUS_UPLOADING || status == BUILD_STATUS_QUEUED_UPLOADING
 }
 
 func IsBuildProcessing(status string) bool {
-	return status == BUILD_STATUS_ABORTED_PROCESSING || status == BUILD_STATUS_PROCESSING || status == BUILD_STATUS_QUEUED_PROCESSING
+	return status == BUILD_STATUS_PROCESSING || status == BUILD_STATUS_QUEUED_PROCESSING
 }
 
 func IsBuildPostProcessing(status string) bool {

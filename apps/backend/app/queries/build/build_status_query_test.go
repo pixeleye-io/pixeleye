@@ -162,22 +162,22 @@ func TestCalculateBuildStatus(t *testing.T) {
 			want: "rejected",
 		},
 		{
-			name:     "Empty statuses and aborted-uploading build",
+			name:     "Empty statuses and aborted build",
 			statuses: []string{},
 			build: models.Build{
-				Status: "aborted-uploading",
+				Status: "aborted",
 			},
-			want: "aborted-uploading",
+			want: "aborted",
 		},
 		{
-			name: "Approved statuses and aborted-uploading build",
+			name: "Approved statuses and aborted build",
 			statuses: []string{
 				"approved",
 			},
 			build: models.Build{
-				Status: "aborted-uploading",
+				Status: "aborted",
 			},
-			want: "aborted-uploading",
+			want: "aborted",
 		},
 		{
 			name:     "Empty statuses and build with no target",
