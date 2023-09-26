@@ -26,9 +26,9 @@ type Project struct {
 	SourceID   string    `json:"sourceID,omitempty" db:"source_id"`
 	BuildCount int       `db:"build_count" json:"buildCount"`
 
-	Token          string     `db:"token" json:"-"`
-	RawToken       string     `json:"token,omitempty" db:"-"` // This is used for sending the token to the client. It should only be populated when a project is first created
-	LatestActivity *time.Time `db:"-" json:"lastActivity"`
+	Token        string     `db:"token" json:"-"`
+	RawToken     string     `json:"token,omitempty" db:"-"` // This is used for sending the token to the client. It should only be populated when a project is first created
+	LastActivity *time.Time `db:"last_activity" json:"lastActivity"`
 
 	Role     string `db:"role" json:"role,omitempty" validate:"omitempty,oneof=admin reviewer viewer"`                  // only for user scoped queries
 	TeamRole string `db:"team_role" json:"teamRole,omitempty" validate:"omitempty,oneof=owner admin accountant member"` // only for user scoped queries
