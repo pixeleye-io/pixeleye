@@ -21,7 +21,7 @@ interface ImportCardProps {
 
 const defaultSources: ImportCardProps[] = [
   {
-    name: "github",
+    name: "Github",
     type: "github",
     installUrl: `https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`,
     connected: false,
@@ -31,7 +31,7 @@ const defaultSources: ImportCardProps[] = [
     },
   },
   {
-    name: "basic git",
+    name: "Generic git",
     type: "custom",
     connected: true,
     imageUrl: {
@@ -110,7 +110,7 @@ export default async function AddProjectPage({
               <Link
                 href={
                   source.connected
-                    ? `/add/${source.name}?${params.toString()}`
+                    ? `/add/${source.type}?${params.toString()}`
                     : source.installUrl!
                 }
                 className="absolute inset-0 w-full h-full"

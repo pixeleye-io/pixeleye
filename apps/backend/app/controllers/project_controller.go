@@ -47,6 +47,10 @@ func CreateProject(c echo.Context) error {
 
 	project.TeamID = team.ID // We want to override the team ID from the request body. Otherwise, a user could create a project for another team.
 
+	if team.Type != models.TEAM_TYPE_USER && string(project.Source) != team.Type {
+		return echo.NewHTTPError(http.StatusBadRequest, "non user teams can only create projects of the same type")
+	}
+
 	user, err := middleware.GetUser(c)
 
 	if err != nil {

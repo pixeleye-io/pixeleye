@@ -71,10 +71,17 @@ export default async function AddGithubProjectPage({
       <RegisterSegment
         order={2}
         reference="github"
-        segment={{
-          name: "github",
-          value: "/add/github",
-        }}
+        teamId={team.id}
+        segment={[
+          {
+            name: "Add project",
+            value: `/add/github/${team.type !== "user" && "?team=" + team.id}`,
+          },
+          {
+            name: "Github",
+            value: `/add/github/${team.type !== "user" && "?team=" + team.id}`,
+          },
+        ]}
       />
       <div className="max-w-4xl mx-auto mt-8">
         <p className="text-on-surface-variant">
