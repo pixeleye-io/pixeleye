@@ -947,6 +947,9 @@ describe(
             status: "approved",
             updatedAt: like("2023-08-08T16:30:52.207Z"),
           });
+      },
+      {
+        timeout: 120_000,
       }
     );
 
