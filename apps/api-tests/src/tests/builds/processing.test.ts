@@ -7,6 +7,7 @@ import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { sleep } from "pactum";
+import { like } from "pactum-matchers";
 
 // TODO - I should add checks to ensure each snapshot has the correct status, not just the build
 
@@ -701,6 +702,82 @@ describe(
           parentBuildIDs: [build3.id],
           targetParentID: build3.id,
           snapshots: snapshot4,
+        }).catch((err) => {
+          throw err;
+        });
+      },
+      {
+        timeout: 120_000,
+      }
+    );
+
+    it.only(
+      "should create 2 builds with changes, then approve all the snaps in the second build, then create a build with no changes",
+      async () => {
+        const snapshot1: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(64),
+            img: dirtyEyePng,
+            name: "button",
+          },
+        ];
+
+        const snapshot2: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(64),
+            img: cleanEyePng,
+            name: "button",
+          },
+        ];
+
+        const build1 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        });
+
+        const build2 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "1234",
+          expectedBuildStatus: ["unreviewed"],
+          targetBuildID: build1.id,
+          parentBuildIDs: [build1.id],
+          targetParentID: build1.id,
+          snapshots: snapshot2,
+        }).catch((err) => {
+          throw err;
+        });
+
+        const { parentBuildIDs, ...build2WithoutParentBuildIDs } = build2;
+
+        await buildTokenAPI
+          .approveAllSnapshots(build2.id, IDs.jekyll)
+          .returns(({ res }: any) => {
+            return res.json;
+          });
+
+        await buildTokenAPI
+          .getBuild(build2.id, jekyllsToken)
+          .expectJsonMatchStrict({
+            ...build2WithoutParentBuildIDs,
+            status: "approved",
+            updatedAt: like("2023-08-08T16:30:52.207Z"),
+          });
+
+        await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "12345",
+          expectedBuildStatus: ["unchanged"],
+          targetBuildID: build2.id,
+          parentBuildIDs: [build2.id],
+          targetParentID: build2.id,
+          snapshots: snapshot2,
         }).catch((err) => {
           throw err;
         });
