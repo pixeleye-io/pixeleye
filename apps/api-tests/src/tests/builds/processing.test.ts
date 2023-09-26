@@ -8,7 +8,6 @@ import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { sleep } from "pactum";
 import { like } from "pactum-matchers";
-import { as } from "vitest/dist/reporters-cb94c88b";
 
 // TODO - I should add checks to ensure each snapshot has the correct status, not just the build
 
@@ -1054,6 +1053,56 @@ describe(
         }).catch((err) => {
           throw err;
         });
+      },
+      {
+        timeout: 120_000,
+      }
+    );
+
+    it.concurrent(
+      "can abort a build",
+      async () => {
+        const build = await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "test",
+            sha: "123",
+          })
+          .returns(({ res }: any) => {
+            return res.json;
+          });
+
+        await buildTokenAPI.abortBuild(build.id, IDs.jekyll);
+
+        const { parentBuildIDs, ...buildWithoutParentBuildIDs } = build;
+
+        await buildTokenAPI
+          .getBuild(build.id, jekyllsToken)
+          .expectJsonMatchStrict({
+            ...buildWithoutParentBuildIDs,
+            status: "aborted",
+            updatedAt: like("2023-08-08T16:30:52.207Z"),
+          });
+      },
+      {
+        timeout: 120_000,
+      }
+    );
+
+    it.concurrent(
+      "can't abort a build thats already finished",
+      async () => {
+        const build = await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "test",
+            sha: "123",
+          })
+          .returns(({ res }: any) => {
+            return res.json;
+          });
+
+        await buildTokenAPI.completeBuild(build.id, jekyllsToken);
+
+        await buildTokenAPI.abortBuild(build.id, IDs.jekyll, 400);
       },
       {
         timeout: 120_000,

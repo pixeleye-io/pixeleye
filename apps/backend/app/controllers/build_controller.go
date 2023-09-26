@@ -128,6 +128,10 @@ func AbortBuild(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
+	if models.IsBuildPostProcessing(build.Status) {
+		return echo.NewHTTPError(http.StatusBadRequest, "build has already finished processing")
+	}
+
 	db, err := database.OpenDBConnection()
 
 	if err != nil {

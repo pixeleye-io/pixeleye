@@ -70,6 +70,8 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
+	build.Status = models.BUILD_STATUS_ABORTED
+
 	return q.CheckAndProcessQueuedBuilds(ctx, build)
 }
 
