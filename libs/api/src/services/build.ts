@@ -22,6 +22,9 @@ type GET = Method<{
 }>;
 
 type POST = Method<{
+  "/builds/{id}/review/abort": {
+    req: undefined;
+  };
   "/client/builds/create": {
     res: Build;
     req: Omit<

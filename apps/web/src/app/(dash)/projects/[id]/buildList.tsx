@@ -1,6 +1,6 @@
 "use client";
 
-import { useProjectEvents } from "@/libs";
+import { API, useProjectEvents } from "@/libs";
 import { queries } from "@/queries";
 import {
   Table,
@@ -10,10 +10,17 @@ import {
   TableBody,
   TableCell,
   Button,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
 } from "@pixeleye/ui";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import NextLink from "next/link";
 import { SecuritySection } from "./manage/sections";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
+import build from "next/dist/build";
+import { Build } from "@pixeleye/api";
 
 function EmptyState({ id }: { id: string }) {
   return (
@@ -31,6 +38,117 @@ function EmptyState({ id }: { id: string }) {
         </Button>
       </div>
     </div>
+  );
+}
+
+function BuildRow({ build }: { build: Build }) {
+  const queryClient = useQueryClient();
+
+  const abortBuild = useMutation({
+    mutationFn: () =>
+      API.post("/builds/{id}/review/abort", {
+        params: {
+          id: build.id,
+        },
+      }),
+
+    onMutate: async () => {
+      await queryClient.cancelQueries(queries.builds.detail(build.id));
+      await queryClient.cancelQueries(
+        queries.projects.detail(build.projectID)._ctx.listBuilds()
+      );
+
+      const previousBuild = queryClient.getQueryData<Build>(
+        queries.builds.detail(build.id).queryKey
+      );
+
+      const previousBuilds = queryClient.getQueryData<Build[]>(
+        queries.projects.detail(build.projectID)._ctx.listBuilds().queryKey
+      );
+
+      queryClient.setQueryData<Build>(
+        queries.builds.detail(build.id).queryKey,
+        (old) =>
+          old
+            ? {
+                ...old,
+                status: "aborted",
+              }
+            : undefined
+      );
+
+      queryClient.setQueryData<Build[]>(
+        queries.projects.detail(build.projectID)._ctx.listBuilds().queryKey,
+        (old) =>
+          old?.map((b) => {
+            if (b.id === build.id) {
+              return {
+                ...b,
+                status: "aborted",
+              };
+            }
+
+            return b;
+          })
+      );
+
+      return { previousBuild, previousBuilds };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback to the previous value
+      if (context?.previousBuild) {
+        queryClient.setQueryData<Build>(
+          queries.builds.detail(build.id).queryKey,
+          context.previousBuild
+        );
+      }
+      if (context?.previousBuilds) {
+        queryClient.setQueryData<Build[]>(
+          queries.projects.detail(build.projectID)._ctx.listBuilds().queryKey,
+          context.previousBuilds
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queries.builds.detail(build.id));
+      queryClient.invalidateQueries(
+        queries.projects.detail(build.projectID)._ctx.listBuilds()
+      );
+    },
+  });
+
+  return (
+    <TableRow key={build.id} className="relative cursor-pointer z-0">
+      <TableCell className="font-medium">
+        Build #{build.buildNumber}
+        <NextLink className="absolute inset-0" href={`/builds/${build.id}`}>
+          <span className="sr-only">Project page</span>
+        </NextLink>
+      </TableCell>
+      <TableCell>{build.branch}</TableCell>
+      <TableCell>{build.status}</TableCell>
+      {[
+        "uploading",
+        "queued-uploading",
+        "processing",
+        "queued-processing",
+      ].includes(build.status) && (
+        <TableCell className="w-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <EllipsisVerticalIcon className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => abortBuild.mutate()}>
+                Cancel build
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      )}
+    </TableRow>
   );
 }
 
@@ -55,21 +173,7 @@ export function BuildList({ projectID }: { projectID: string }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {builds?.map((build) => (
-          <TableRow key={build.id} className="relative cursor-pointer z-0">
-            <TableCell className="font-medium">
-              Build #{build.buildNumber}
-              <NextLink
-                className="absolute inset-0"
-                href={`/builds/${build.id}`}
-              >
-                <span className="sr-only">Project page</span>
-              </NextLink>
-            </TableCell>
-            <TableCell>{build.branch}</TableCell>
-            <TableCell>{build.status}</TableCell>
-          </TableRow>
-        ))}
+        {builds?.map((build) => <BuildRow key={build.id} build={build} />)}
       </TableBody>
     </Table>
   );

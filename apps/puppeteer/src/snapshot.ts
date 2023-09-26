@@ -30,9 +30,11 @@ export async function pixeleyeSnapshot(
   }
 
   await (page as Page).addScriptTag({
-    path: require.resolve(
-      "@chromaui/rrweb-snapshot/dist/rrweb-snapshot.min.js"
-    ),
+    content: `
+    window.rrwebSnapshot = {
+      snapshot: ${snapshot},
+    };
+  `,
   });
 
   const domSnapshot = await (page as Page).evaluate(() => {
