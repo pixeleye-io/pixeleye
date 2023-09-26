@@ -120,6 +120,27 @@ func GetBuildSnapshots(c echo.Context) error {
 	return c.JSON(http.StatusOK, pairs)
 }
 
+func AbortBuild(c echo.Context) error {
+
+	build, err := middleware.GetBuild(c)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.AbortBuild(c.Request().Context(), *build); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, build)
+}
+
 func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) error {
 
 	build, err := middleware.GetBuild(c)

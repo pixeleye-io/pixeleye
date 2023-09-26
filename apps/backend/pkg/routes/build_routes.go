@@ -25,6 +25,8 @@ func BuildRoutes(e *echo.Echo) {
 	reviewRoutes.Use(middleware.LoadBuild)
 	reviewRoutes.Use(reviewRoleMiddleware.ProjectRoleAccess)
 
+	reviewRoutes.POST("/abort", controllers.AbortBuild)
+
 	reviewRoutes.POST("/approve", controllers.ApproveSnapshots)
 	reviewRoutes.POST("/reject", controllers.RejectSnapshots)
 

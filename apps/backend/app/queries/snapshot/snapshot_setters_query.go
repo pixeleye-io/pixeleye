@@ -148,7 +148,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 				if !utils.ContainsString(build.Errors, errorTxt) {
 					// No need to update build if the error for this snapshot already exists.
 					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_ABORTED_UPLOADING
+					build.Status = models.BUILD_STATUS_FAILED
 					updateBuild = true
 				}
 				break // No need to check for anymore duplicates of this snapshot.
@@ -167,7 +167,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 				if !utils.ContainsString(build.Errors, errorTxt) {
 					// No need to update build if the error for this snapshot already exists.
 					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_ABORTED_UPLOADING
+					build.Status = models.BUILD_STATUS_FAILED
 					updateBuild = true
 				}
 			}
