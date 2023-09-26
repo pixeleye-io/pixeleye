@@ -19,9 +19,9 @@ func TestIsBuildPreProcessing(t *testing.T) {
 			want:   true,
 		},
 		{
-			name:   "TestIsBuildPreProcessing - aborted-uploading",
+			name:   "TestIsBuildPreProcessing - aborted",
 			status: "aborted-uploading",
-			want:   true,
+			want:   false,
 		},
 		{
 			name:   "TestIsBuildPreProcessing - queued-processing",
@@ -31,11 +31,6 @@ func TestIsBuildPreProcessing(t *testing.T) {
 		{
 			name:   "TestIsBuildPreProcessing - processing",
 			status: "processing",
-			want:   false,
-		},
-		{
-			name:   "TestIsBuildPreProcessing - aborted-processing",
-			status: "aborted-processing",
 			want:   false,
 		},
 		{
@@ -96,8 +91,8 @@ func TestIsBuildProcessing(t *testing.T) {
 			want:   false,
 		},
 		{
-			name:   "TestIsBuildProcessing - aborted-uploading",
-			status: "aborted-uploading",
+			name:   "TestIsBuildProcessing - aborted",
+			status: "aborted",
 			want:   false,
 		},
 		{
@@ -108,11 +103,6 @@ func TestIsBuildProcessing(t *testing.T) {
 		{
 			name:   "TestIsBuildProcessing - processing",
 			status: "processing",
-			want:   true,
-		},
-		{
-			name:   "TestIsBuildProcessing - aborted-processing",
-			status: "aborted-processing",
 			want:   true,
 		},
 		{
@@ -173,9 +163,9 @@ func TestIsBuildPostProcessing(t *testing.T) {
 			want:   false,
 		},
 		{
-			name:   "TestIsBuildPostProcessing - aborted-uploading",
+			name:   "TestIsBuildPostProcessing - aborted",
 			status: "aborted-uploading",
-			want:   false,
+			want:   true,
 		},
 		{
 			name:   "TestIsBuildPostProcessing - queued-processing",
@@ -185,11 +175,6 @@ func TestIsBuildPostProcessing(t *testing.T) {
 		{
 			name:   "TestIsBuildPostProcessing - processing",
 			status: "processing",
-			want:   false,
-		},
-		{
-			name:   "TestIsBuildPostProcessing - aborted-processing",
-			status: "aborted-processing",
 			want:   false,
 		},
 		{
