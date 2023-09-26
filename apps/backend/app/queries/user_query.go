@@ -138,11 +138,7 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 
 		// This is a new user, so we need to create a new team for them.
 
-		if err := qt.CreateTeam(ctx, &team, id); err != nil {
-			return teams, err
-		}
-
-		err = qt.Commit()
+		err = qt.CreateTeam(ctx, &team, id)
 
 		if driverErr, ok := err.(*pq.Error); ok {
 			if driverErr.Code == pq.ErrorCode("23505") {
@@ -154,6 +150,10 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 				return teams, nil
 			}
 		} else if err != nil {
+			return teams, err
+		}
+
+		if err := qt.Commit(); err != nil {
 			return teams, err
 		}
 

@@ -3,6 +3,6 @@
   "include": ["."],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
-    "types": ["vitest/globals", "./typings"]
+    "types": ["vitest/globals"]
   }
 }

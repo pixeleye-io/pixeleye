@@ -1,8 +1,11 @@
 import { Build, PartialSnapshot } from "@pixeleye/api";
 import { env } from "../env";
-import { specWithBuildToken } from "../specs";
+import { specAsUser, specWithBuildToken } from "../specs";
+import { IDs } from "../setup/credentialsSetup";
 
-const snapshotEndpoint = env.SERVER_ENDPOINT + "/v1/client/builds";
+const buildClientEndpoint = env.SERVER_ENDPOINT + "/v1/client/builds";
+
+const buildEndpoint = env.SERVER_ENDPOINT + "/v1/builds";
 
 export const buildTokenAPI = {
   createBuild: (
@@ -21,7 +24,7 @@ export const buildTokenAPI = {
   ) =>
     specWithBuildToken(token)
       .withBody(build)
-      .post(snapshotEndpoint + "/create")
+      .post(buildClientEndpoint + "/create")
       .expectStatus(expectedStatus),
   searchBuilds: (
     token: string,
@@ -32,7 +35,7 @@ export const buildTokenAPI = {
     expectedStatus = 200
   ) =>
     specWithBuildToken(token)
-      .post(snapshotEndpoint)
+      .post(buildClientEndpoint)
       .withBody({ shas: options?.shas })
       .withQueryParams({ branch: options?.branch })
       .expectStatus(expectedStatus),
@@ -43,15 +46,66 @@ export const buildTokenAPI = {
     expectedStatus = 200
   ) =>
     specWithBuildToken(token)
-      .post(snapshotEndpoint + "/" + buildID + "/upload")
+      .post(buildClientEndpoint + "/" + buildID + "/upload")
       .withBody({ snapshots: snaps })
       .expectStatus(expectedStatus),
   completeBuild: (buildID: string, token: string, expectedStatus = 202) =>
     specWithBuildToken(token)
-      .post(snapshotEndpoint + "/" + buildID + "/complete")
+      .post(buildClientEndpoint + "/" + buildID + "/complete")
       .expectStatus(expectedStatus),
   getBuild: (buildID: string, token: string, expectedStatus = 200) =>
     specWithBuildToken(token)
-      .get(snapshotEndpoint + "/" + buildID)
+      .get(buildClientEndpoint + "/" + buildID)
+      .expectStatus(expectedStatus),
+  approveRemainingSnapshots: (
+    buildID: string,
+    user?: IDs,
+    expectedStatus = 200
+  ) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/approve/remaining")
+      .expectStatus(expectedStatus),
+  rejectRenamingSnapshots: (
+    buildID: string,
+    user?: IDs,
+    expectedStatus = 200
+  ) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/reject/remaining")
+      .expectStatus(expectedStatus),
+
+  approveSnapshots: (
+    snapshotIDs: string[],
+    buildID: string,
+    user?: IDs,
+    expectedStatus = 200
+  ) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/approve")
+      .withBody({ snapshotIDs })
+      .expectStatus(expectedStatus),
+  rejectSnapshots: (
+    snapshotIDs: string[],
+    buildID: string,
+    user?: IDs,
+    expectedStatus = 200
+  ) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/reject")
+      .withBody({ snapshotIDs })
+      .expectStatus(expectedStatus),
+
+  approveAllSnapshots: (buildID: string, user?: IDs, expectedStatus = 200) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/approve/all")
+      .expectStatus(expectedStatus),
+  rejectAllSnapshots: (buildID: string, user?: IDs, expectedStatus = 200) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/reject/all")
+      .expectStatus(expectedStatus),
+
+  getSnapshots: (buildID: string, user?: IDs, expectedStatus = 200) =>
+    specAsUser(user)
+      .get(buildEndpoint + "/" + buildID + "/snapshots")
       .expectStatus(expectedStatus),
 } as const;
