@@ -61,6 +61,8 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		return err
 	}
 
+	build.Status = models.BUILD_STATUS_ABORTED
+
 	go func(build models.Build) {
 		notifier, err := events.GetNotifier(nil)
 		if err != nil {

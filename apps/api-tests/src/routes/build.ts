@@ -108,4 +108,9 @@ export const buildTokenAPI = {
     specAsUser(user)
       .get(buildEndpoint + "/" + buildID + "/snapshots")
       .expectStatus(expectedStatus),
+
+  abortBuild: (buildID: string, user?: IDs, expectedStatus = 200) =>
+    specAsUser(user)
+      .post(buildEndpoint + "/" + buildID + "/review/abort")
+      .expectStatus(expectedStatus),
 } as const;

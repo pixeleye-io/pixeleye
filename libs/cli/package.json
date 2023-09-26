@@ -16,7 +16,7 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.6.3",
+    "@types/node": "20.7.0",
     "@types/require-relative": "^0.8.0",
     "esbuild": "^0.19.3",
     "tsup": "^7.2.0"
@@ -27,8 +27,9 @@
     "commander": "^11.0.0",
     "config": "^3.3.9",
     "dedent": "^1.5.1",
-    "env-ci": "^9.1.1",
+    "env-ci": "^10.0.0",
     "execa": "^8.0.1",
+    "jsdom": "^22.1.0",
     "ora": "^7.0.1",
     "require-relative": "^0.8.7",
     "ts-node": "^10.9.1"

@@ -29,20 +29,20 @@ function notFoundHandler(res: Response) {
   res.end("Not found");
 }
 
-function scriptHandler(res: Response) {
-  res.writeHead(200);
-  const scriptRoot = require
-    .resolve("@chromaui/rrweb-snapshot")
-    .replaceAll("\\", "/")
-    .replace(/(?<=@chromaui\/rrweb-snapshot).*/, "");
+// function scriptHandler(res: Response) {
+//   res.writeHead(200);
+//   const scriptRoot = require
+//     .resolve("@chromaui/rrweb-snapshot")
+//     .replaceAll("\\", "/")
+//     .replace(/(?<=@chromaui\/rrweb-snapshot).*/, "");
 
-  const script = readFileSync(
-    join(scriptRoot, "dist", "rrweb-snapshot.min.js"),
-    "utf-8"
-  );
+//   const script = readFileSync(
+//     join(scriptRoot, "dist", "rrweb-snapshot.min.js"),
+//     "utf-8"
+//   );
 
-  res.end(script);
-}
+//   res.end(script);
+// }
 
 async function snapshotHandler(
   ctx: Context,
@@ -128,13 +128,13 @@ export async function start({
     });
   });
 
-  app.get("/script", (_req, res) => {
-    scriptHandler(res);
-  });
+  // app.get("/script", (_req, res) => {
+  //   scriptHandler(res);
+  // });
 
-  app.get("/complete", (_req, res) => {
-    scriptHandler(res);
-  });
+  // app.get("/complete", (_req, res) => {
+  //   scriptHandler(res);
+  // });
 
   app.get("*", (_req, res) => {
     notFoundHandler(res);

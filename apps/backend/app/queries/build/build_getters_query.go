@@ -12,7 +12,7 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	// TODO - We should make sure we ignore failed builds
 	build := models.Build{}
 
-	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 ORDER BY build_number DESC LIMIT 1`
+	query := `SELECT * FROM build WHERE project_id = $1 AND branch = $2 AND status != 'aborted' AND status !=  'failed' ORDER BY build_number DESC LIMIT 1`
 
 	err := q.Get(&build, query, projectID, branch)
 
@@ -27,7 +27,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 		"shas":       shas,
 	}
 
-	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND status != 'aborted' AND status != 'failed' AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
 	if err != nil {
 		return build, err
 	}

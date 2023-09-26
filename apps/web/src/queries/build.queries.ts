@@ -18,6 +18,14 @@ export const buildKeys = createQueryKeys("builds", {
             params: { id: buildID },
           }),
       }),
+      abort: () => ({
+        queryKey: ["abort"],
+        queryFn: () =>
+          API.post("/builds/{id}/review/abort", {
+            headers: { cookie },
+            params: { id: buildID },
+          }),
+      }),
     },
   }),
 });
