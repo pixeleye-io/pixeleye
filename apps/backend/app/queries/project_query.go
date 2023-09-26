@@ -26,7 +26,7 @@ func (q *ProjectQueries) GetLatestBuild(projectID string) (models.Build, error) 
 }
 
 func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([]models.Project, error) {
-	query := `SELECT project.*, project_users.role, team_users.role AS team_role
+	query := `SELECT project.*, project_users.role, team_users.role AS team_role, (SELECT MAX(created_at) FROM build WHERE project_id = project.id) AS last_activity
 	FROM project
 	JOIN project_users ON project.id = project_users.project_id
 	JOIN team ON project.team_id = team.id

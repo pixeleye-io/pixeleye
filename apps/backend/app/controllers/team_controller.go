@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetTeamsProjects(c echo.Context) error {
+func GetTeamProjects(c echo.Context) error {
 	team, err := middleware.GetTeam(c)
 
 	if err != nil {
