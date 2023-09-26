@@ -83,6 +83,7 @@ export default async function AddGithubProjectPage({
             className="text-blue-400 dark:text-blue-300"
             href={`https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`}
             target="_blank"
+            rel="noopener noreferrer"
           >
             Install/configure
           </a>{" "}
