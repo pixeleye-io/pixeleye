@@ -28,6 +28,7 @@ interface TeamSwitcherProps extends PopoverTriggerProps {
   teams: Team[];
   selectedTeam: Team;
   setSelectedTeam: (team: Team) => void;
+  teamsHeading?: React.ReactNode;
 }
 
 export default function TeamSwitcher({
@@ -36,6 +37,7 @@ export default function TeamSwitcher({
   teams,
   selectedTeam,
   setSelectedTeam,
+  teamsHeading,
 }: TeamSwitcherProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -80,7 +82,14 @@ export default function TeamSwitcher({
         <Command>
           <CommandList>
             {groups.map((group) => (
-              <CommandGroup key={group.label} heading={group.label}>
+              <CommandGroup
+                key={group.label}
+                heading={
+                  group.label === "Teams"
+                    ? teamsHeading ?? "Teams"
+                    : group.label
+                }
+              >
                 {group.teams.map((team) => (
                   <CommandItem
                     key={team.id}

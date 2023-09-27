@@ -3,6 +3,7 @@ package Github_queries
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
 
@@ -21,13 +22,19 @@ func (q *GithubQueries) GetGitInstallationByID(ctx context.Context, installation
 }
 
 func (q *GithubQueries) GetGitInstallationByIDs(ctx context.Context, installationIDs []string, gitType string) ([]models.GitInstallation, error) {
-	query := `SELECT * FROM git_installation WHERE installation_id = ANY($1) AND type = $2`
+	query := `SELECT * FROM git_installation WHERE type = ? AND installation_id IN (?)`
+
+	query, args, err := sqlx.In(query, gitType, installationIDs)
+
+	if err != nil {
+		return []models.GitInstallation{}, err
+	}
+
+	query = q.Rebind(query)
 
 	installations := []models.GitInstallation{}
 
-	err := q.SelectContext(ctx, &installations, query, installationIDs, gitType)
-
-	if err != nil {
+	if err := q.SelectContext(ctx, &installations, query, args...); err != nil {
 		return []models.GitInstallation{}, err
 	}
 

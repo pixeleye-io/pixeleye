@@ -392,8 +392,9 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 		if !found {
 
-			user, err := db.GetUserByAccountID(ctx, strconv.Itoa(int(gitMember.GetID())), models.ACCOUNT_PROVIDER_GITHUB)
+			user, err := db.GetUserByProviderID(ctx, strconv.Itoa(int(gitMember.GetID())), models.ACCOUNT_PROVIDER_GITHUB)
 			if err != nil {
+				log.Err(err).Msgf("Failed to get user by provider id %s", strconv.Itoa(int(gitMember.GetID())))
 				continue
 			}
 

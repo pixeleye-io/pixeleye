@@ -33,6 +33,10 @@ import Avatar from "@pixeleye/ui/src/avatar/avatar";
 import { Team, User } from "@pixeleye/api";
 import { useTheme } from "next-themes";
 import React, { useCallback } from "react";
+import { API } from "@/libs";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { useMutation } from "@tanstack/react-query";
+import { cx } from "class-variance-authority";
 
 export interface NavbarProps {
   user: User;
@@ -61,6 +65,32 @@ function useTeamNavigation() {
       router.push(pathname + "?" + params.toString());
     },
     [router, pathname, searchParams]
+  );
+}
+
+function TeamsHeading() {
+  const { mutate: syncTeams, isPending } = useMutation({
+    mutationFn: () => API.post("/user/teams/sync", {}),
+  });
+
+  return (
+    <div className="flex justify-between items-center">
+      <span>Teams</span>
+      <Button
+        onClick={() => syncTeams()}
+        disabled={isPending}
+        variant={"ghost"}
+        className="!w-4 !h-4"
+        size="icon"
+      >
+        <ArrowPathIcon
+          className={cx(
+            "text-on-surface-variant h-4 w-4 hover:text-on-surface",
+            isPending && "animate-spin"
+          )}
+        />
+      </Button>
+    </div>
   );
 }
 
@@ -105,7 +135,7 @@ export function Navbar({ user, teams }: NavbarProps) {
     teams.find((team) => team.id === selectedTeamID) || personalTeam!;
 
   if (selectedTeam.type === "user" && selectedTeam.role === "owner")
-  params.delete("team");
+    params.delete("team");
   else params.set("team", selectedTeam.id);
 
   return (
@@ -125,6 +155,7 @@ export function Navbar({ user, teams }: NavbarProps) {
               personal={personalTeam!}
               teams={groupTeams}
               selectedTeam={selectedTeam}
+              teamsHeading={<TeamsHeading />}
               setSelectedTeam={(team) => {
                 setSelectedTeamID(team.id);
                 navigate(team);
@@ -172,9 +203,7 @@ export function Navbar({ user, teams }: NavbarProps) {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href={`/settings?` + params.toString()}>
-                Settings
-              </Link>
+              <Link href={`/settings?` + params.toString()}>Settings</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

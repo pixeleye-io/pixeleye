@@ -45,7 +45,7 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 	}
 
 	var githubRefreshTokenResponse GithubRefreshTokenResponse
-
+	// TODO - handle a bad refresh token
 	if err := json.Unmarshal(body, &githubRefreshTokenResponse); err != nil {
 		return nil, err
 	}

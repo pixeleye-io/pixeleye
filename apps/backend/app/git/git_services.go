@@ -84,8 +84,9 @@ func SyncUserAccounts(ctx context.Context, user models.User) error {
 		return err
 	}
 
-	tokens, err := identity.GetTokens(ctx, user.ID)
+	tokens, err := identity.GetTokens(ctx, user.AuthID)
 	if err != nil {
+		log.Debug().Err(err).Msg("Failed to get tokens")
 		return err
 	}
 
@@ -100,7 +101,6 @@ func SyncUserAccounts(ctx context.Context, user models.User) error {
 	}
 
 	for _, c := range configs {
-
 		config, ok := c.(map[string]interface{})
 		if !ok {
 			log.Error().Msg("Failed to cast providers to map")
@@ -110,10 +110,12 @@ func SyncUserAccounts(ctx context.Context, user models.User) error {
 		switch config["provider"] {
 		case "github":
 			{
-				authTokens, err := git_github.RefreshGithubTokens(ctx, config["initial_access_token"].(string))
+				authTokens, err := git_github.RefreshGithubTokens(ctx, config["initial_refresh_token"].(string))
 				if err != nil {
-					return err
+					log.Err(err).Msg("Failed to refresh github tokens")
+					continue
 				}
+
 				if _, err := db.CreateAccount(ctx, models.Account{
 					UserID:                user.ID,
 					Provider:              "github",

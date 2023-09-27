@@ -33,7 +33,7 @@ func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
 }
 
 func (q *UserQueries) CreateAccount(ctx context.Context, account models.Account) (models.Account, error) {
-	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at)`
+	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id)`
 
 	id, err := nanoid.New()
 	if err != nil {
@@ -243,8 +243,11 @@ func (q *UserQueries) DeleteUsers() error {
 	return nil
 }
 
-func (q *UserQueries) GetUserByAccountID(ctx context.Context, id string, provider string) (models.User, error) {
-	query := `SELECT * FROM users JOIN account ON users.id = account.user_id WHERE account.provider_account_id = $1 AND provider = $2`
+func (q *UserQueries) GetUserByProviderID(ctx context.Context, id string, provider string) (models.User, error) {
+	query := `SELECT users.*, github_account.provider_account_id as github_id
+	FROM users
+	JOIN account github_account ON users.id = github_account.user_id
+	WHERE github_account.provider_account_id = $1 AND provider = $2`
 
 	user := models.User{}
 
