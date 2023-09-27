@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/labstack/echo/v4"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -100,7 +100,7 @@ func GetRepos(c echo.Context) error {
 
 		for hasNext {
 
-			var repos []*github.Repository
+			var repos *github.ListRepositories
 			repos, hasNext, err = ghClient.GetInstallationRepositories(c.Request().Context(), page)
 
 			page += 1
@@ -109,9 +109,9 @@ func GetRepos(c echo.Context) error {
 				return err
 			}
 
-			formattedRepos := make([]models.GitRepo, len(repos))
+			formattedRepos := make([]models.GitRepo, len(repos.Repositories))
 
-			for i, repo := range repos {
+			for i, repo := range repos.Repositories {
 				formattedRepos[i] = models.GitRepo{
 					ID:          strconv.FormatInt(repo.GetID(), 10),
 					Name:        repo.Name,

@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/aws/smithy-go v1.14.2
 	github.com/go-playground/validator/v10 v10.15.4
+	github.com/google/go-github/v55 v55.0.0
 	github.com/google/uuid v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.1
@@ -12,6 +13,7 @@ require (
 )
 
 require (
+	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.13 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.11 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.41 // indirect
@@ -25,13 +27,14 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.14.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.17.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.22.0 // indirect
+	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/go-github/v29 v29.0.3 // indirect
+	github.com/google/go-github/v29 v29.0.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
@@ -60,7 +63,6 @@ require (
 	github.com/go-co-op/gocron v1.34.2
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/google/go-github v17.0.0+incompatible
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.9

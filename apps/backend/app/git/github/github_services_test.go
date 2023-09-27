@@ -8,7 +8,7 @@ import (
 
 	"slices"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v55/github"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/app/queries"

@@ -266,3 +266,25 @@ func (q *UserQueries) GetUserByGithubID(ctx context.Context, id string) (models.
 
 	return user, nil
 }
+
+func (q *UserQueries) GetUserAccountByProvider(ctx context.Context, id string, provider string) (models.Account, error) {
+	query := `SELECT * FROM account WHERE user_id = $1 AND provider = $2`
+
+	accounts := models.Account{}
+
+	if err := q.GetContext(ctx, &accounts, query, id, provider); err != nil {
+		return accounts, err
+	}
+
+	return accounts, nil
+}
+
+func (q *UserQueries) UpdateAccount(ctx context.Context, account models.Account) error {
+	query := `UPDATE account SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at WHERE id = :id`
+
+	account.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.NamedExecContext(ctx, query, account)
+
+	return err
+}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/app/queries"
 	Team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (c *GithubClient) GetInstallationRepositories(ctx context.Context, page int) ([]*github.Repository, bool, error) {
+func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page int) (*github.ListRepositories, bool, error) {
 
 	opts := &github.ListOptions{
 		Page: page,
@@ -28,7 +28,7 @@ func (c *GithubClient) GetInstallationRepositories(ctx context.Context, page int
 	return repos, res.LastPage > page, err
 }
 
-func (c *GithubClient) GetInstallationInfo(ctx context.Context, installationID string) (*github.Installation, error) {
+func (c *GithubAppClient) GetInstallationInfo(ctx context.Context, installationID string) (*github.Installation, error) {
 
 	id, err := strconv.Atoi(installationID)
 
@@ -48,7 +48,7 @@ func IsOrgInstallation(app github.Installation) bool {
 	return app.Account.Type != nil && *app.Account.Type == "Organization"
 }
 
-func (c *GithubClient) GetMembers(ctx context.Context, org string) (admins []*github.User, members []*github.User, err error) {
+func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []*github.User, members []*github.User, err error) {
 	opts := &github.ListMembersOptions{
 		PublicOnly: false,
 		ListOptions: github.ListOptions{
@@ -432,6 +432,64 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func SyncUsersTeams(ctx context.Context, userID string) error {
+
+	userClient, err := NewGithubUserClient(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	opts := &github.ListOptions{
+		PerPage: 100,
+	}
+
+	installations := []*github.Installation{}
+
+	for {
+		teamsPage, res, err := userClient.Apps.ListUserInstallations(ctx, opts)
+		if err != nil {
+			return err
+		}
+
+		installations = append(installations, teamsPage...)
+
+		if res.NextPage == 0 {
+			break
+		}
+
+		opts.Page = res.NextPage
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	installationIDs := []string{}
+	for _, installation := range installations {
+		installationIDs = append(installationIDs, strconv.Itoa(int(installation.GetID())))
+	}
+
+	gitInstallations, err := db.GetGitInstallationByIDs(ctx, installationIDs, models.GIT_TYPE_GITHUB)
+	if err != nil {
+		return err
+	}
+
+	for _, gitInstall := range gitInstallations {
+		team := models.Team{
+			Type: models.TEAM_TYPE_GITHUB,
+			ID:   gitInstall.TeamID,
+		}
+		go func(team models.Team) {
+			if err := SyncGithubTeamMembers(context.Background(), team); err != nil {
+				log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
+			}
+		}(team)
 	}
 
 	return nil

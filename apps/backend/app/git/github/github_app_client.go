@@ -5,15 +5,15 @@ import (
 	"strconv"
 
 	"github.com/bradleyfalzon/ghinstallation"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
-type GithubClient struct {
+type GithubAppClient struct {
 	*github.Client
 }
 
-func NewGithubInstallClient(installationID string) (*GithubClient, error) {
+func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
 
 	appID, err := utils.GetEnvInt("GITHUB_APP_ID")
 	if err != nil {
@@ -39,12 +39,12 @@ func NewGithubInstallClient(installationID string) (*GithubClient, error) {
 
 	client := github.NewClient(&http.Client{Transport: itr})
 
-	return &GithubClient{
+	return &GithubAppClient{
 		Client: client,
 	}, nil
 }
 
-func NewGithubAppClient() (*GithubClient, error) {
+func NewGithubAppClient() (*GithubAppClient, error) {
 
 	appID, err := utils.GetEnvInt("GITHUB_APP_ID")
 	if err != nil {
@@ -64,7 +64,7 @@ func NewGithubAppClient() (*GithubClient, error) {
 
 	client := github.NewClient(&http.Client{Transport: atr})
 
-	return &GithubClient{
+	return &GithubAppClient{
 		Client: client,
 	}, nil
 }

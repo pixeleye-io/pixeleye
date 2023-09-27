@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v55/github"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
@@ -17,7 +17,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func linkUserInstallation(c echo.Context, ghClient *git_github.GithubClient, installationID string) (models.GitInstallation, error) {
+func linkUserInstallation(c echo.Context, ghClient *git_github.GithubAppClient, installationID string) (models.GitInstallation, error) {
 
 	user, err := middleware.GetUser(c)
 
@@ -58,7 +58,7 @@ func linkUserInstallation(c echo.Context, ghClient *git_github.GithubClient, ins
 	return installation, tx.Commit()
 }
 
-func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubClient, app *github.Installation, installationID string) (models.GitInstallation, error) {
+func linkOrgInstallation(c echo.Context, ghClient *git_github.GithubAppClient, app *github.Installation, installationID string) (models.GitInstallation, error) {
 
 	db, err := database.OpenDBConnection()
 
@@ -175,7 +175,7 @@ func GithubAppInstallation(c echo.Context) error {
 		return err
 	}
 
-	installation, err := db.GetGithubAppInstallation(installationID)
+	installation, err := db.GetGitInstallationByID(c.Request().Context(), installationID, models.GIT_TYPE_GITHUB)
 
 	if err != nil && err != sql.ErrNoRows {
 		return err
