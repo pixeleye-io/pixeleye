@@ -17,7 +17,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cx } from "class-variance-authority";
 import { Team } from "@pixeleye/api";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
