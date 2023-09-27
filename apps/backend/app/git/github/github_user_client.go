@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"time"
@@ -39,16 +38,18 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 		return nil, err
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
+	decoder := json.NewDecoder(resp.Body)
+	defer resp.Body.Close()
+
+	var githubRefreshTokenResponse GithubRefreshTokenResponse
+
+	if err := decoder.Decode(&githubRefreshTokenResponse); err != nil {
 		return nil, err
 	}
 
-	var githubRefreshTokenResponse GithubRefreshTokenResponse
+	log.Debug().Msgf("Github refresh token response: %+v", githubRefreshTokenResponse)
+
 	// TODO - handle a bad refresh token
-	if err := json.Unmarshal(body, &githubRefreshTokenResponse); err != nil {
-		return nil, err
-	}
 
 	return &githubRefreshTokenResponse, nil
 }
