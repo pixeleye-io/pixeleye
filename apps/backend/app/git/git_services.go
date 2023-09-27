@@ -3,10 +3,13 @@ package git
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"time"
 
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/identity"
 	"github.com/rs/zerolog/log"
 )
 
@@ -69,6 +72,64 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 	if err := SyncProjectMembers(ctx, team); err != nil {
 		log.Error().Err(err).Msgf("Failed to sync project members for team %s", team.ID)
 		return err
+	}
+
+	return nil
+}
+
+func SyncUserAccounts(ctx context.Context, user models.User) error {
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	tokens, err := identity.GetTokens(ctx, user.AuthID)
+	if err != nil {
+		log.Debug().Err(err).Msg("Failed to get tokens")
+		return err
+	}
+
+	configsRaw, ok := tokens.GetConfig()["providers"]
+	if !ok {
+		return errors.New("Failed to get config")
+	}
+
+	configs, ok := configsRaw.([]interface{})
+	if !ok {
+		return errors.New("Failed to cast providers to map")
+	}
+
+	for _, c := range configs {
+		config, ok := c.(map[string]interface{})
+		if !ok {
+			log.Error().Msg("Failed to cast providers to map")
+			continue
+		}
+
+		switch config["provider"] {
+		case "github":
+			{
+				authTokens, err := git_github.RefreshGithubTokens(ctx, config["initial_refresh_token"].(string))
+				if err != nil {
+					log.Err(err).Msg("Failed to refresh github tokens")
+					continue
+				}
+
+				if _, err := db.CreateAccount(ctx, models.Account{
+					UserID:                user.ID,
+					Provider:              "github",
+					AccessToken:           authTokens.AccessToken,
+					ProviderAccountID:     config["subject"].(string),
+					RefreshToken:          authTokens.RefreshToken,
+					AccessTokenExpiresAt:  time.Now().Add(time.Second * time.Duration(authTokens.ExpiresIn)),
+					RefreshTokenExpiresAt: time.Now().Add(time.Second * time.Duration(authTokens.RefreshTokenExpiresIn)),
+				}); err != nil {
+					log.Err(err).Msg("Failed to create github account")
+					continue
+				}
+			}
+		}
 	}
 
 	return nil

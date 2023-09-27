@@ -20,7 +20,15 @@ type DELETE = Method<{
   };
 }>;
 
+type POST = Method<{
+  "/user/teams/sync": {
+    res: undefined;
+    req: undefined;
+  };
+}>;
+
 export interface UserAPI {
   GET: GET;
   DELETE: DELETE;
+  POST: POST;
 }

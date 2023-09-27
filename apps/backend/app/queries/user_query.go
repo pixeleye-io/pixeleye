@@ -13,7 +13,6 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
-	"github.com/pixeleye-io/pixeleye/platform/identity"
 	"github.com/rs/zerolog/log"
 )
 
@@ -33,9 +32,39 @@ func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
 	return user, nil
 }
 
-func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits models.UserTraits) (models.User, error) {
+func (q *UserQueries) CreateAccount(ctx context.Context, account models.Account) (models.Account, error) {
+	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id)`
 
-	query := `INSERT INTO users (id, name, email, avatar_url, auth_id, created_at, updated_at, github_id, gitlab_id, bitbucket_id) VALUES (:id, :name, :email, :avatar_url, :auth_id, :created_at, :updated_at, :github_id, :gitlab_id, :bitbucket_id)`
+	id, err := nanoid.New()
+	if err != nil {
+		return account, err
+	}
+
+	time := utils.CurrentTime()
+
+	account.CreatedAt = time
+	account.UpdatedAt = time
+	account.ID = id
+
+	validator := utils.NewValidator()
+	if err := validator.Struct(account); err != nil {
+		return account, fmt.Errorf("%v", utils.ValidatorErrors(err))
+	}
+
+	if _, err := q.NamedQueryContext(ctx, query, account); err != nil {
+		return account, err
+	}
+
+	return account, nil
+}
+
+func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits models.UserTraits) (models.User, error) {
+	query := `INSERT INTO users (id, name, email, avatar_url, auth_id, created_at, updated_at) VALUES (:id, :name, :email, :avatar_url, :auth_id, :created_at, :updated_at)`
+
+	id, err := nanoid.New()
+	if err != nil {
+		return models.User{}, err
+	}
 
 	time := utils.CurrentTime()
 
@@ -46,57 +75,16 @@ func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits 
 		Name:      userTraits.Name,
 		Email:     userTraits.Email,
 		Avatar:    userTraits.Avatar,
+		ID:        id,
 	}
-
-	tokens, err := identity.GetTokens(ctx, userID)
-
-	if err != nil {
-		return user, err
-	}
-
-	log.Debug().Msgf("Tokens: %v", tokens)
-
-	configsRaw, ok := tokens.GetConfig()["providers"]
-
-	if ok {
-		configs, ok := configsRaw.([]interface{})
-
-		if !ok {
-			return user, errors.New("failed to cast providers to map")
-		}
-
-		for _, c := range configs {
-
-			config, ok := c.(map[string]interface{})
-
-			if !ok {
-				continue
-			}
-
-			switch config["provider"] {
-			case "github":
-				user.GithubID = config["subject"].(string)
-			}
-		}
-	}
-
-	id, err := nanoid.New()
-
-	if err != nil {
-		return user, err
-	}
-
-	user.ID = id
 
 	validator := utils.NewValidator()
 
 	if err := validator.Struct(user); err != nil {
-		errMsg := utils.ValidatorErrors(err)
-		log.Error().Err(err).Msgf("%v", errMsg)
-		return user, fmt.Errorf("%v", errMsg)
+		return user, fmt.Errorf("%v", utils.ValidatorErrors(err))
 	}
 
-	if _, err := q.NamedQuery(query, user); err != nil {
+	if _, err := q.NamedQueryContext(ctx, query, user); err != nil {
 		return user, err
 	}
 
@@ -255,14 +243,39 @@ func (q *UserQueries) DeleteUsers() error {
 	return nil
 }
 
-func (q *UserQueries) GetUserByGithubID(ctx context.Context, id string) (models.User, error) {
-	query := `SELECT * FROM users WHERE github_id = $1`
+func (q *UserQueries) GetUserByProviderID(ctx context.Context, id string, provider string) (models.User, error) {
+	query := `SELECT users.*, github_account.provider_account_id as github_id
+	FROM users
+	JOIN account github_account ON users.id = github_account.user_id
+	WHERE github_account.provider_account_id = $1 AND provider = $2`
 
 	user := models.User{}
 
-	if err := q.GetContext(ctx, &user, query, id); err != nil {
+	if err := q.GetContext(ctx, &user, query, id, provider); err != nil {
 		return user, err
 	}
 
 	return user, nil
+}
+
+func (q *UserQueries) GetUserAccountByProvider(ctx context.Context, id string, provider string) (models.Account, error) {
+	query := `SELECT * FROM account WHERE user_id = $1 AND provider = $2`
+
+	accounts := models.Account{}
+
+	if err := q.GetContext(ctx, &accounts, query, id, provider); err != nil {
+		return accounts, err
+	}
+
+	return accounts, nil
+}
+
+func (q *UserQueries) UpdateAccount(ctx context.Context, account models.Account) error {
+	query := `UPDATE account SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at WHERE id = :id`
+
+	account.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.NamedExecContext(ctx, query, account)
+
+	return err
 }

@@ -71,7 +71,10 @@ type UserOnTeam struct {
 }
 
 func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOnTeam, error) {
-	query := `SELECT users.*, team_users.type, team_users.role, team_users.role_sync FROM team_users JOIN users ON team_users.user_id = users.id WHERE team_id = $1`
+	query := `SELECT users.*, team_users.type, team_users.role, team_users.role_sync, github_account.provider_account_id as github_id FROM team_users
+	JOIN users ON team_users.user_id = users.id
+	JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
+	WHERE team_id = $1`
 
 	users := []UserOnTeam{}
 

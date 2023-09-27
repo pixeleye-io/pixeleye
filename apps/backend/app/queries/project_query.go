@@ -152,7 +152,11 @@ type UserOnProject struct {
 }
 
 func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {
-	query := `SELECT users.*, project_users.role, project_users.role_sync FROM users JOIN project_users ON project_users.user_id = users.id WHERE project_id = $1`
+	query := `SELECT users.*, project_users.role, project_users.role_sync, github_account.provider_account_id as github_id 
+	FROM users 
+	JOIN project_users ON project_users.user_id = users.id 
+	JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
+	WHERE project_id = $1`
 
 	projectUsers := []UserOnProject{}
 

@@ -17,21 +17,6 @@ table "users" {
     null = false
   }
 
-  column "github_id" {
-    type = varchar(255)
-    null = false
-  }
-
-  column "gitlab_id" {
-    type = varchar(255)
-    null = false
-  }
-
-  column "bitbucket_id" {
-    type = varchar(255)
-    null = false
-  }
-
   column "created_at" {
     type = timestamptz
     null = false
@@ -61,6 +46,83 @@ table "users" {
 
   index "idx_unique_user_email" {
     columns = [column.email]
+    unique  = true
+  }
+}
+
+enum "account_provider" {
+  schema = schema.public
+  values = ["github", "gitlab", "bitbucket"]
+}
+
+table "account" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "updated_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "user_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "user_id" {
+    columns     = [column.user_id]
+    ref_columns = [table.users.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "provider" {
+    type = enum.account_provider
+    null = false
+  }
+
+  column "provider_account_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "refresh_token" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "access_token" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "access_token_expires_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "refresh_token_expires_at" {
+    type = timestamptz
+    null = false
+  }
+
+  index "idx_unique_account_provider_account_id" {
+    columns = [column.provider_account_id, column.provider]
+    unique  = true
+  }
+
+  index "idx_unique_account_user_id__provider" {
+    columns = [column.user_id, column.provider]
     unique  = true
   }
 }

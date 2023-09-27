@@ -55,7 +55,7 @@ func (q *TeamQueriesTx) RemoveTeamMembers(ctx context.Context, teamID string, me
 	query := `DELETE FROM team_users WHERE team_id = ? AND id IN (?)`
 	projectQuery := `DELETE FROM project_users LEFT JOIN project ON project_users.project_id = project.id WHERE project.team_id = ? AND project_users.user_id IN (?)`
 
-	query, args, err := sqlx.In(query, pq.StringArray(memberIDs))
+	query, args, err := sqlx.In(query, teamID, pq.StringArray(memberIDs))
 
 	if err != nil {
 		return err

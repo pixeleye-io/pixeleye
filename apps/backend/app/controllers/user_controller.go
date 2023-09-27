@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/jobs"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -108,7 +109,7 @@ func DeleteUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func GetUsersTeams(c echo.Context) error {
+func GetUserTeams(c echo.Context) error {
 
 	// Get user from session.
 	user, err := middleware.GetUser(c)
@@ -125,6 +126,30 @@ func GetUsersTeams(c echo.Context) error {
 
 	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
 
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, teams)
+}
+
+func SyncUserTeams(c echo.Context) error {
+
+	user, err := middleware.GetUser(c)
+	if err != nil {
+		return err
+	}
+
+	if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID); err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
 	if err != nil {
 		return err
 	}

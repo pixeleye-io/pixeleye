@@ -18,6 +18,8 @@ func UserRoutes(e *echo.Echo) {
 
 	v1.GET("/user/me", controllers.GetAuthenticatedUser)
 
-	v1.GET("/user/teams", controllers.GetUsersTeams)
+	v1.GET("/user/teams", controllers.GetUserTeams)
+
+	v1.POST("/user/teams/sync", controllers.SyncUserTeams)
 
 }
