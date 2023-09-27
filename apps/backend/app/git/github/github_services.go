@@ -392,7 +392,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 		if !found {
 
-			user, err := db.GetUserByGithubID(ctx, strconv.Itoa(int(gitMember.GetID())))
+			user, err := db.GetUserByAccountID(ctx, strconv.Itoa(int(gitMember.GetID())), models.ACCOUNT_PROVIDER_GITHUB)
 			if err != nil {
 				continue
 			}

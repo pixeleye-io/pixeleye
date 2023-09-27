@@ -10,6 +10,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/mitchellh/mapstructure"
 	ory "github.com/ory/client-go"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
@@ -95,6 +96,10 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 			} else if err != nil {
 				log.Err(err).Msg("Error creating user")
 				return err
+			}
+
+			if err := git.SyncUserAccounts(c.Request().Context(), user); err != nil {
+				log.Err(err).Msg("Error syncing user accounts")
 			}
 
 		}

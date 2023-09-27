@@ -19,6 +19,40 @@ type GithubUserClient struct {
 	*github.Client
 }
 
+type GithubRefreshTokenResponse struct {
+	AccessToken           string `json:"access_token"`
+	ExpiresIn             int    `json:"expires_in"`
+	RefreshToken          string `json:"refresh_token"`
+	RefreshTokenExpiresIn int    `json:"refresh_token_expires_in"`
+	Scope                 string `json:"scope"`
+	TokenType             string `json:"token_type"`
+}
+
+func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefreshTokenResponse, error) {
+	clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
+	clientSecret := os.Getenv("GITHUB_APP_CLIENT_SECRET")
+
+	url := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&grant_type=refresh_token&refresh_token=%s", clientID, clientSecret, refreshToken)
+
+	resp, err := http.Post(url, "application/json", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var githubRefreshTokenResponse GithubRefreshTokenResponse
+
+	if err := json.Unmarshal(body, &githubRefreshTokenResponse); err != nil {
+		return nil, err
+	}
+
+	return &githubRefreshTokenResponse, nil
+}
+
 func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient, error) {
 	db, err := database.OpenDBConnection()
 
@@ -39,33 +73,8 @@ func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient,
 			return nil, fmt.Errorf("Github refresh token has expired for user %s", userID)
 		}
 
-		clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
-		clientSecret := os.Getenv("GITHUB_APP_CLIENT_SECRET")
-
-		url := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&grant_type=refresh_token&refresh_token=%s", clientID, clientSecret, githubAccount.RefreshToken)
-
-		type GithubRefreshTokenResponse struct {
-			AccessToken           string `json:"access_token"`
-			ExpiresIn             int    `json:"expires_in"`
-			RefreshToken          string `json:"refresh_token"`
-			RefreshTokenExpiresIn int    `json:"refresh_token_expires_in"`
-			Scope                 string `json:"scope"`
-			TokenType             string `json:"token_type"`
-		}
-
-		resp, err := http.Post(url, "application/json", nil)
+		githubRefreshTokenResponse, err := RefreshGithubTokens(ctx, githubAccount.RefreshToken)
 		if err != nil {
-			return nil, err
-		}
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		var githubRefreshTokenResponse GithubRefreshTokenResponse
-
-		if err := json.Unmarshal(body, &githubRefreshTokenResponse); err != nil {
 			return nil, err
 		}
 
