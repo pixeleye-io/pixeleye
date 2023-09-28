@@ -33,7 +33,7 @@ func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
 }
 
 func (q *UserQueries) CreateAccount(ctx context.Context, account models.Account) (models.Account, error) {
-	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id)`
+	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id) ON CONFLICT (provider, provider_account_id) DO UPDATE SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at RETURNING *`
 
 	id, err := nanoid.New()
 	if err != nil {
@@ -51,8 +51,15 @@ func (q *UserQueries) CreateAccount(ctx context.Context, account models.Account)
 		return account, fmt.Errorf("%v", utils.ValidatorErrors(err))
 	}
 
-	if _, err := q.NamedQueryContext(ctx, query, account); err != nil {
+	rows, err := q.NamedQueryContext(ctx, query, account)
+	if err != nil {
 		return account, err
+	}
+
+	if rows.Next() {
+		if err := rows.StructScan(&account); err != nil {
+			return account, err
+		}
 	}
 
 	return account, nil

@@ -11,6 +11,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	ory "github.com/ory/client-go"
 	"github.com/pixeleye-io/pixeleye/app/git"
+	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
@@ -98,8 +99,12 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				return err
 			}
 
-			if err := git.SyncUserAccounts(c.Request().Context(), user); err != nil {
+			if err := git.InitUserAccounts(c.Request().Context(), user); err != nil {
 				log.Err(err).Msg("Error syncing user accounts")
+			}
+
+			if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID); err != nil && err != sql.ErrNoRows {
+				log.Err(err).Msg("Error syncing user teams")
 			}
 
 		}

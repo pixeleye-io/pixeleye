@@ -35,8 +35,9 @@ import { useTheme } from "next-themes";
 import React, { useCallback } from "react";
 import { API } from "@/libs";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
+import { queries } from "@/queries";
 
 export interface NavbarProps {
   user: User;
@@ -69,8 +70,13 @@ function useTeamNavigation() {
 }
 
 function TeamsHeading() {
+  const queryClient = useQueryClient();
+
   const { mutate: syncTeams, isPending } = useMutation({
     mutationFn: () => API.post("/user/teams/sync", {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries(queries.teams.list());
+    },
   });
 
   return (
