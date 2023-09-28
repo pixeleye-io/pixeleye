@@ -24,17 +24,25 @@ type GithubRefreshTokenResponse struct {
 	ExpiresIn             int    `json:"expires_in"`
 	RefreshToken          string `json:"refresh_token"`
 	RefreshTokenExpiresIn int    `json:"refresh_token_expires_in"`
-	Scope                 string `json:"scope"`
 	TokenType             string `json:"token_type"`
+	Scope                 string `json:"scope"`
 }
 
 func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefreshTokenResponse, error) {
 	clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_APP_CLIENT_SECRET")
 
-	url := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&grant_type=refresh_token&refresh_token=%s", clientID, clientSecret, refreshToken)
+	refreshURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&grant_type=refresh_token&refresh_token=%s", clientID, clientSecret, refreshToken)
 
-	resp, err := http.Post(url, "application/json", nil)
+	req, err := http.NewRequest("GET", refreshURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		return nil, err
 	}
@@ -44,13 +52,13 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 		return nil, err
 	}
 
-	var githubRefreshTokenResponse GithubRefreshTokenResponse
-	// TODO - handle a bad refresh token
-	if err := json.Unmarshal(body, &githubRefreshTokenResponse); err != nil {
+	response := GithubRefreshTokenResponse{}
+
+	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
 
-	return &githubRefreshTokenResponse, nil
+	return &response, nil
 }
 
 func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient, error) {

@@ -77,7 +77,7 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 	return nil
 }
 
-func SyncUserAccounts(ctx context.Context, user models.User) error {
+func InitUserAccounts(ctx context.Context, user models.User) error {
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -113,7 +113,7 @@ func SyncUserAccounts(ctx context.Context, user models.User) error {
 				authTokens, err := git_github.RefreshGithubTokens(ctx, config["initial_refresh_token"].(string))
 				if err != nil {
 					log.Err(err).Msg("Failed to refresh github tokens")
-					continue
+					break
 				}
 
 				if _, err := db.CreateAccount(ctx, models.Account{

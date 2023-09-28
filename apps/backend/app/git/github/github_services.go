@@ -452,12 +452,12 @@ func SyncUsersTeams(ctx context.Context, userID string) error {
 	installations := []*github.Installation{}
 
 	for {
-		teamsPage, res, err := userClient.Apps.ListUserInstallations(ctx, opts)
+		installationsPage, res, err := userClient.Apps.ListUserInstallations(ctx, opts)
 		if err != nil {
 			return err
 		}
 
-		installations = append(installations, teamsPage...)
+		installations = append(installations, installationsPage...)
 
 		if res.NextPage == 0 {
 			break
@@ -486,6 +486,7 @@ func SyncUsersTeams(ctx context.Context, userID string) error {
 			Type: models.TEAM_TYPE_GITHUB,
 			ID:   gitInstall.TeamID,
 		}
+		log.Debug().Msgf("Syncing team members for team %s", team.ID)
 		go func(team models.Team) {
 			if err := SyncGithubTeamMembers(context.Background(), team); err != nil {
 				log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
