@@ -62,8 +62,6 @@ export default async function LoginPage({
     );
   }
 
-  //TODO - this page can also be used to verify the users credentials so sign in should be changed to sign in or verify
-
   return (
     <>
       <div>
@@ -113,9 +111,18 @@ export default async function LoginPage({
         {filterNodesByGroups({
           nodes: loginFlow.ui.nodes,
           groups: ["password"],
-        }).map((node, i) => (
-          <AuthNode node={node} key={i} />
-        ))}
+        }).map((node, i) => {
+          if ((node.meta as any)?.label?.text === "ID") {
+            (node.meta as any).label.text = "Email";
+          }
+
+          return <AuthNode node={node} key={i} />;
+        })}
+        <div>
+          <Link className="flex justify-end mt-4">
+            Forgotten your password?
+          </Link>
+        </div>
       </form>
     </>
   );

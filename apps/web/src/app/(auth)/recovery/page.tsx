@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { getUrlForFlow, isQuerySet, frontend } from "../utils";
 import { AuthNode } from "../sharedComponents";
 
-export default async function VerificationPage({
+export default async function RecoveryPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -12,7 +12,7 @@ export default async function VerificationPage({
 
   if (!isQuerySet(flow)) {
     const initFlowUrl = getUrlForFlow(
-      "verification",
+      "recovery",
       new URLSearchParams({
         return_to: return_to.toString(),
       })
@@ -21,36 +21,30 @@ export default async function VerificationPage({
     redirect(initFlowUrl);
   }
 
-  const { data: verificationFlow } = await frontend.getVerificationFlow({
+  const { data: recoveryFlow } = await frontend.getRecoveryFlow({
     id: flow,
     cookie: headers().get("cookie") || undefined,
   });
 
-  if (verificationFlow.ui.messages && verificationFlow.ui.messages.length > 0) {
-    if (verificationFlow.ui.messages.some(({ id }) => id === 1080002)) {
-      redirect("/");
-    }
-  }
-
-  console.log(verificationFlow.ui.nodes)
+  console.log(recoveryFlow);
 
   return (
     <>
       <div>
         <h2 className="text-2xl font-bold leading-9 tracking-tight text-on-surface">
-          Verify your email
+          Forgotten your password?
         </h2>
         <p className="mt-2 text-sm leading-6 text-on-surface">
-          We have sent a code to your email address
+          We&apos;ll send you a code to reset your password
         </p>
       </div>
 
       <form
-        action={verificationFlow.ui.action}
-        method={verificationFlow.ui.method}
+        action={recoveryFlow.ui.action}
+        method={recoveryFlow.ui.method}
         className="space-y-6 mt-10"
       >
-        {verificationFlow.ui.nodes.map((node, i) => {
+        {recoveryFlow.ui.nodes.map((node, i) => {
           if ((node.attributes as any).name === "code") {
             (node.attributes as any).value = code;
           }
