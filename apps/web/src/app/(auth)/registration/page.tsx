@@ -1,7 +1,6 @@
-import { Button, Input, Link, LogoWatching } from "@pixeleye/ui";
+import { Link } from "@pixeleye/ui";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { InputHTMLAttributes } from "react";
 import { getUrlForFlow, isQuerySet, frontend } from "../utils";
 import { filterNodesByGroups } from "@ory/integrations/ui";
 import { AuthNode, ErrorsList } from "../sharedComponents";
@@ -50,8 +49,6 @@ export default async function RegistrationPage({
     );
   }
 
-  console.log(loginFlow.ui.messages)
-
   return (
     <>
       <div>
@@ -99,9 +96,15 @@ export default async function RegistrationPage({
         {filterNodesByGroups({
           nodes: loginFlow.ui.nodes,
           groups: ["password"],
-        }).map((node, i) => (
-          <AuthNode node={node} key={i} />
-        ))}
+        })
+          .filter((node) =>
+            ["method", "password", "traits.email"].includes(
+              (node.attributes as any).name
+            )
+          )
+          .map((node, i) => (
+            <AuthNode node={node} key={i} />
+          ))}
       </form>
     </>
   );
