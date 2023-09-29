@@ -7,14 +7,6 @@ const items: SidebarNavLink[] = [
     title: "Account",
   },
   {
-    href: "/settings/appearance",
-    title: "Appearance",
-  },
-  {
-    href: "/settings/notifications",
-    title: "Notifications",
-  },
-  {
     href: "/settings/security",
     title: "Security",
   },

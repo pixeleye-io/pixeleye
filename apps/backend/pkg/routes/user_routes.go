@@ -22,4 +22,6 @@ func UserRoutes(e *echo.Echo) {
 
 	v1.POST("/user/teams/sync", controllers.SyncUserTeams)
 
+	v1.PATCH("/user/me", controllers.UpdateUser)
+
 }

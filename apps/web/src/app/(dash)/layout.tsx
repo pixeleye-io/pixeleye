@@ -24,7 +24,7 @@ export default async function DashboardLayout({
         cookie,
       },
     }),
-    queryClient.prefetchQuery(queries.user.me(cookie)),
+    queryClient.prefetchQuery(queries.user.get(cookie)),
     queryClient.prefetchQuery(queries.teams.list(cookie)),
   ]);
 
