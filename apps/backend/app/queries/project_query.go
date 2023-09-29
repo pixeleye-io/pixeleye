@@ -75,13 +75,7 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 	WHERE project.id = $1
 	AND (
 		project_users.user_id = $2
-		OR (
-			team_users.user_id = $2
-			AND (
-				team_users.role = 'admin'
-				OR team_users.role = 'owner'
-			)
-		)
+		AND team_users.user_id = $2
 	)`
 
 	err := q.Get(&project, query, id, userID)

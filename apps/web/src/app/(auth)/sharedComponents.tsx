@@ -10,18 +10,10 @@ export const AuthNode = ({
   node: UiNode;
   errors?: Record<string, string>;
 }) => {
-  // other node types are also supported
-  // if (isUiNodeTextAttributes(node.attributes)) {
-  // if (isUiNodeImageAttributes(node.attributes)) {
-  // if (isUiNodeAnchorAttributes(node.attributes)) {
-  //   console.log(node);
-  // }
-
   if (isUiNodeInputAttributes(node.attributes)) {
     const attrs = node.attributes as UiNodeInputAttributes;
-    const nodeType = attrs.type;
 
-    switch (nodeType) {
+    switch (attrs.type) {
       case "button":
       case "submit":
         return (
@@ -29,7 +21,7 @@ export const AuthNode = ({
             type={attrs.type as "submit" | "reset" | "button" | undefined}
             name={attrs.name}
             value={attrs.value}
-            variant={attrs.name === 'method' ? "default" : "outline"}
+            variant={attrs.name === "method" ? "default" : "outline"}
             full
           >
             {node.meta.label?.text}

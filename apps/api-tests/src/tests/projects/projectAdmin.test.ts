@@ -284,7 +284,7 @@ describe("Team admin projects", () => {
         source: hydesProject.source,
         lastActivity: null,
         role: "admin",
-        teamRole: "owner",
+        teamRole: "member",
         token: like("1234"),
       });
 

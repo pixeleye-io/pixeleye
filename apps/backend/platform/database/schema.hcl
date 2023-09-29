@@ -294,6 +294,11 @@ table "team_users" {
     type = enum.team_member_type
     null = true
   }
+
+  index "idx_unique_team_user" {
+    columns = [column.team_id, column.user_id]
+    unique  = true
+  }
 }
 
 
