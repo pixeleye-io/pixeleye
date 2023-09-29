@@ -26,8 +26,6 @@ export default async function RecoveryPage({
     cookie: headers().get("cookie") || undefined,
   });
 
-  console.log(recoveryFlow);
-
   return (
     <>
       <div>

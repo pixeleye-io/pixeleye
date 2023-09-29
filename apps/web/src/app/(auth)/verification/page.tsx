@@ -32,7 +32,7 @@ export default async function VerificationPage({
     }
   }
 
-  console.log(verificationFlow.ui.nodes)
+  console.log(verificationFlow.ui.nodes);
 
   return (
     <>

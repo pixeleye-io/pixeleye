@@ -45,8 +45,6 @@ export default async function LoginPage({
         message: JSON.stringify(loginFlow.ui.messages),
       });
       redirect(`/verification?${verificationParameters.toString()}`);
-    } else {
-      console.log(loginFlow.ui.messages);
     }
   }
 
