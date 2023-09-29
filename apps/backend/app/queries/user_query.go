@@ -286,3 +286,13 @@ func (q *UserQueries) UpdateAccount(ctx context.Context, account models.Account)
 
 	return err
 }
+
+func (q *UserQueries) UpdateUserProfile(ctx context.Context, user models.User) error {
+	query := `UPDATE users SET name = :name, avatar_url = :avatar_url, updated_at = :updated_at WHERE id = :id`
+
+	user.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.NamedExecContext(ctx, query, user)
+
+	return err
+}

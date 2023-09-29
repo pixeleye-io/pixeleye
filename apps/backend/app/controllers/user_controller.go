@@ -156,3 +156,43 @@ func SyncUserTeams(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, teams)
 }
+
+func UpdateUser(c echo.Context) error {
+
+	user, err := middleware.GetUser(c)
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	// Get the request body.
+	type UpdateUserRequest struct {
+		Name   string `json:"name" validate:"min=2,max=255"`
+		Avatar string `json:"avatar" validate:"omitempty,url"`
+	}
+
+	updateUserRequest := UpdateUserRequest{}
+
+	if err := c.Bind(&updateUserRequest); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(updateUserRequest); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	user.Name = updateUserRequest.Name
+	user.Avatar = updateUserRequest.Avatar
+
+	if err := db.UpdateUserProfile(c.Request().Context(), user); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, user)
+}

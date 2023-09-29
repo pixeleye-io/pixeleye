@@ -36,7 +36,7 @@ export default async function Layout({
   const queryClient = getQueryClient();
 
   await Promise.all([
-    queryClient.prefetchQuery(queries.user.me(cookies().toString())),
+    queryClient.prefetchQuery(queries.user.get(cookies().toString())),
     queryClient.prefetchQuery(queries.teams.list(cookies().toString())),
   ]);
 
