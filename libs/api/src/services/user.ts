@@ -27,8 +27,16 @@ type POST = Method<{
   };
 }>;
 
+type PATCH = Method<{
+  "/user/me": {
+    res: undefined;
+    req: Partial<Pick<User, "avatar" | "name">>;
+  };
+}>;
+
 export interface UserAPI {
   GET: GET;
   DELETE: DELETE;
   POST: POST;
+  PATCH: PATCH;
 }
