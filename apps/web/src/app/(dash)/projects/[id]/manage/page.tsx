@@ -7,6 +7,8 @@ import {
 } from "./sections";
 import { API } from "@/libs";
 import { cookies } from "next/headers";
+import { getTeam } from "@/serverLibs";
+import { UserOnProject } from "@pixeleye/api";
 
 function Section({
   children,
@@ -45,12 +47,18 @@ function Section({
   );
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const projectId = params.id;
 
   const cookie = cookies().toString();
 
-  const [project, users] = await Promise.all([
+  const [project, users, team] = await Promise.all([
     API.get("/projects/{id}", {
       params: {
         id: projectId,
@@ -67,7 +75,20 @@ export default async function Page({ params }: { params: { id: string } }) {
         cookie,
       },
     }),
+    getTeam(searchParams),
   ]);
+
+  const [vcsUsers, invitedUsers] = users.reduce(
+    (acc, user) => {
+      if (user.type === "git") {
+        acc[1].push(user);
+      } else {
+        acc[0].push(user);
+      }
+      return acc;
+    },
+    [[], []] as [UserOnProject[], UserOnProject[]]
+  );
 
   return (
     <div className="space-y-10 mt-12">
@@ -77,11 +98,19 @@ export default async function Page({ params }: { params: { id: string } }) {
       >
         <SecuritySection id={project.id} />
       </Section>
+      {project.source !== "custom" && (
+        <Section
+          title="VCS Members"
+          description={`Manage who have access to this project via ${project.source}`}
+        >
+          <MemberSection members={vcsUsers} project={project} />
+        </Section>
+      )}
       <Section
-        title="Members"
-        description="Manage who has access to this project"
+        title="VCS Members"
+        description="Manage who have access to this project via "
       >
-        <MemberSection members={users} project={project} />
+        <MemberSection members={invitedUsers} project={project} />
       </Section>
       <Section
         title="Danger zone"

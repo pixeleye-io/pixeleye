@@ -267,7 +267,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	if len(viewerCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d viewers to project %s", len(viewerCollaborators), project.ID)
-		err = db.AddUsersToProject(ctx, project.ID, viewerCollaborators, models.PROJECT_MEMBER_ROLE_VIEWER, true)
+		err = db.AddUsersToProject(ctx, project.ID, viewerCollaborators, models.PROJECT_MEMBER_ROLE_VIEWER, true, "git")
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
 			return err
@@ -276,7 +276,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	if len(reviewerCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d reviewers to project %s", len(reviewerCollaborators), project.ID)
-		err = db.AddUsersToProject(ctx, project.ID, reviewerCollaborators, models.PROJECT_MEMBER_ROLE_REVIEWER, true)
+		err = db.AddUsersToProject(ctx, project.ID, reviewerCollaborators, models.PROJECT_MEMBER_ROLE_REVIEWER, true, "git")
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
 			return err
@@ -285,7 +285,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	if len(adminCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d admins to project %s", len(adminCollaborators), project.ID)
-		err = db.AddUsersToProject(ctx, project.ID, adminCollaborators, models.PROJECT_MEMBER_ROLE_ADMIN, true)
+		err = db.AddUsersToProject(ctx, project.ID, adminCollaborators, models.PROJECT_MEMBER_ROLE_ADMIN, true, "git")
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
 			return err

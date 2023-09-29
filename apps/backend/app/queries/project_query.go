@@ -95,7 +95,7 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 
 func (q *ProjectQueries) CreateProject(project *models.Project, userID string) error {
 	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url)`
-	setUsersQuery := `INSERT INTO project_users (project_id, user_id, role) VALUES (:project_id, :user_id, :role)`
+	setUsersQuery := `INSERT INTO project_users (project_id, user_id, role, type) VALUES (:project_id, :user_id, :role, :type)`
 
 	time := utils.CurrentTime()
 	project.CreatedAt = time
@@ -105,6 +105,12 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 		ProjectID: project.ID,
 		UserID:    userID,
 		Role:      "admin",
+		RoleSync:  false,
+		Type:      "git",
+	}
+
+	if project.Source == models.SOURCE_CUSTOM {
+		userOnProject.Type = "invited"
 	}
 
 	ctx := context.Background()
@@ -149,10 +155,11 @@ type UserOnProject struct {
 	*models.User
 	Role     string `db:"role" json:"role"`
 	RoleSync bool   `db:"role_sync" json:"role_sync"`
+	Type     string `db:"type" json:"type"`
 }
 
 func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {
-	query := `SELECT users.*, project_users.role, project_users.role_sync, github_account.provider_account_id as github_id 
+	query := `SELECT users.*, project_users.role, project_users.type, project_users.role_sync, github_account.provider_account_id as github_id 
 	FROM users 
 	JOIN project_users ON project_users.user_id = users.id 
 	JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
@@ -200,8 +207,8 @@ func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userI
 }
 
 // Assumes that the user is already on the team
-func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string, userIDs []string, role string, roleSync bool) error {
-	query := `INSERT INTO project_users (project_id, user_id, role, role_sync) VALUES (:project_id, :user_id, :role, :role_sync) ON CONFLICT (project_id, user_id) DO UPDATE SET role = :role, role_sync = :role_sync`
+func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string, userIDs []string, role string, roleSync bool, userType string) error {
+	query := `INSERT INTO project_users (project_id, user_id, role, role_sync, type) VALUES (:project_id, :user_id, :role, :role_sync, :type) ON CONFLICT (project_id, user_id) DO UPDATE SET role = :role, role_sync = :role_sync`
 
 	for _, userID := range userIDs {
 		projectUser := models.ProjectMember{
@@ -209,6 +216,7 @@ func (q *ProjectQueries) AddUsersToProject(ctx context.Context, projectID string
 			UserID:    userID,
 			Role:      role,
 			RoleSync:  roleSync,
+			Type:      userType,
 		}
 
 		_, err := q.NamedExecContext(ctx, query, projectUser)

@@ -251,7 +251,7 @@ enum "team_member_role" {
   values = ["owner", "admin", "accountant", "member"]
 }
 
-enum "team_member_type" {
+enum "member_type" {
   schema = schema.public
   values = ["invited", "git"]
 }
@@ -291,7 +291,7 @@ table "team_users" {
   }
 
   column "type" {
-    type = enum.team_member_type
+    type = enum.member_type
     null = true
   }
 }
@@ -399,6 +399,11 @@ table "project_users" {
     type    = boolean
     default = false
     null    = false
+  }
+
+  column "type" {
+    type = enum.member_type
+    null = true
   }
 
   index "idx_unique_project_user" {
