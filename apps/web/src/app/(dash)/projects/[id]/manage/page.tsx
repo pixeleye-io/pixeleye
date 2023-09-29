@@ -58,7 +58,7 @@ export default async function Page({
 
   const cookie = cookies().toString();
 
-  const [project, users, team] = await Promise.all([
+  const [project, users] = await Promise.all([
     API.get("/projects/{id}", {
       params: {
         id: projectId,
@@ -75,15 +75,14 @@ export default async function Page({
         cookie,
       },
     }),
-    getTeam(searchParams),
   ]);
 
   const [vcsUsers, invitedUsers] = users.reduce(
     (acc, user) => {
       if (user.type === "git") {
-        acc[1].push(user);
-      } else {
         acc[0].push(user);
+      } else {
+        acc[1].push(user);
       }
       return acc;
     },
@@ -101,14 +100,14 @@ export default async function Page({
       {project.source !== "custom" && (
         <Section
           title="VCS Members"
-          description={`Manage who have access to this project via ${project.source}`}
+          description={`Members who have access to this project via ${project.source}`}
         >
           <MemberSection members={vcsUsers} project={project} />
         </Section>
       )}
       <Section
-        title="VCS Members"
-        description="Manage who have access to this project via "
+        title="Invited Members"
+        description="Manage members invited to this project"
       >
         <MemberSection members={invitedUsers} project={project} />
       </Section>
