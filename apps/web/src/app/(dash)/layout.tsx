@@ -3,6 +3,7 @@ import { Navbar } from "./navbar";
 import { API } from "@/libs";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { queries, getQueryClient } from "@/queries";
+import { Logo } from "@pixeleye/ui";
 
 const navigation = [
   {
@@ -26,6 +27,11 @@ const navigation = [
         />
       </svg>
     ),
+  },
+  {
+    name: "Pixeleye homepage",
+    href: "https://pixeleye.io/home",
+    icon: (props: any) => <Logo {...props} />,
   },
 ];
 
