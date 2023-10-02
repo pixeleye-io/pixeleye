@@ -1,6 +1,6 @@
 import { Method } from "api-typify";
 import { Project } from "../models/project";
-import { Build, UserOnProject } from "../models";
+import { Build, UserOnProject, UserOnProjectRole } from "../models";
 
 type GET = Method<{
   "/projects/{id}": {
@@ -28,6 +28,14 @@ type POST = Method<{
   "/projects/{id}/admin/new-token": {
     res: Project;
     req: undefined;
+  };
+  "/projects/{id}/admin/users": {
+    res: UserOnProject;
+    req: {
+      email: string;
+      role: UserOnProjectRole;
+      disableEmail?: boolean;
+    };
   };
 }>;
 
