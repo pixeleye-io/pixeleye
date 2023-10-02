@@ -261,7 +261,7 @@ func AddUserToProject(c echo.Context) error {
 		return err
 	}
 
-	invite, err := db.CreateProjectInvite(c.Request().Context(), project.ID, body.Role)
+	invite, err := db.CreateProjectInvite(c.Request().Context(), project.ID, body.Role, body.Email)
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func AcceptProjectInvite(c echo.Context) error {
 	}
 
 	invite, err := db.GetProjectInvite(c.Request().Context(), body.ID)
-	if err == sql.ErrNoRows || (err == nil && invite.ExpiresAt.Before(time.Now())) {
+	if err == sql.ErrNoRows || (err == nil && (invite.ExpiresAt.Before(time.Now())) || invite.Email != user.Email) {
 		return echo.NewHTTPError(http.StatusNotFound, "invite expired or not found")
 	} else if err != nil {
 		return err

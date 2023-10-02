@@ -54,4 +54,5 @@ type ProjectInviteCode struct {
 	ExpiresAt time.Time `db:"expires_at" json:"expiresAt"`
 	ProjectID string    `db:"project_id" json:"projectID" validate:"required,nanoid"`
 	Role      string    `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
+	Email     string    `db:"email" json:"email" validate:"required,email"`
 }

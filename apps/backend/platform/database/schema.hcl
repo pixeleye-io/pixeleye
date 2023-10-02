@@ -789,6 +789,11 @@ table "project_invite_code" {
     null = false
   }
 
+  column "email" {
+    type = varchar(255)
+    null = false
+  }
+
   column "expires_at" {
     type = timestamptz
     null = false

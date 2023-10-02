@@ -66,8 +66,8 @@ func (q *ProjectQueries) GetProject(ctx context.Context, id string) (models.Proj
 	return project, err
 }
 
-func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, role string) (models.ProjectInviteCode, error) {
-	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role) VALUES (:id, :project_id, :created_at, :expires_at, :role)`
+func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, role string, email string) (models.ProjectInviteCode, error) {
+	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role, email) VALUES (:id, :project_id, :created_at, :expires_at, :role, :email)`
 
 	id, err := nanoid.New()
 	if err != nil {
@@ -80,6 +80,7 @@ func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID stri
 		CreatedAt: time.Now(),
 		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
 		Role:      role,
+		Email:     email,
 	}
 
 	_, err = q.NamedExecContext(ctx, query, inviteCode)
