@@ -52,7 +52,7 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	project, err := k.db.GetProject(projectId)
+	project, err := k.db.GetProject(r.Context(), projectId)
 
 	if err != nil {
 		return nil, err

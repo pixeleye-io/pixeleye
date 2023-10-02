@@ -1,3 +1,4 @@
+import { like } from "pactum-matchers";
 import { env } from "../env";
 import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
@@ -5,6 +6,11 @@ import { specAsUser } from "../specs";
 const projectEndpoint = env.SERVER_ENDPOINT + "/v1/projects";
 
 export const projectAPI = {
+  acceptInvite: (inviteID: string, user?: IDs, expectedStatus = 201) =>
+    specAsUser(user)
+      .withBody({ id: inviteID })
+      .post(projectEndpoint)
+      .expectStatus(expectedStatus),
   getProject: (projectID: string, user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
       .get(projectEndpoint + `/${projectID}`)
@@ -25,13 +31,13 @@ export const projectAPI = {
       .expectStatus(expectedStatus),
   addUserToProject: (
     projectID: string,
-    userID: string,
+    email: string,
     role: string,
     user?: IDs,
-    expectedStatus = 204
+    expectedStatus = 201
   ) =>
     specAsUser(user)
-      .withBody({ userID, role })
+      .withBody({ email, role, disableEmail: true })
       .post(projectEndpoint + `/${projectID}/admin/users`)
       .expectStatus(expectedStatus),
   removeUserFromProject: (
@@ -48,7 +54,7 @@ export const projectAPI = {
     userID: string,
     role: string,
     user?: IDs,
-    expectedStatus = 204 
+    expectedStatus = 204
   ) =>
     specAsUser(user)
       .withBody({ role })

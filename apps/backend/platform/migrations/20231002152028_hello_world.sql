@@ -26,12 +26,6 @@ CREATE UNIQUE INDEX "idx_unique_user_auth_id" ON "public"."users" ("auth_id");
 CREATE UNIQUE INDEX "idx_unique_user_email" ON "public"."users" ("email");
 -- Create "user_deletion_request" table
 CREATE TABLE "public"."user_deletion_request" ("user_id" character varying(255) NOT NULL, "created_at" timestamptz NOT NULL, "expires_at" timestamptz NOT NULL, PRIMARY KEY ("user_id"));
--- Create "account" table
-CREATE TABLE "public"."account" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "user_id" character varying(21) NOT NULL, "provider" "public"."account_provider" NOT NULL, "provider_account_id" character varying(255) NOT NULL, "refresh_token" character varying(255) NOT NULL, "access_token" character varying(255) NOT NULL, "access_token_expires_at" timestamptz NOT NULL, "refresh_token_expires_at" timestamptz NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create index "idx_unique_account_provider_account_id" to table: "account"
-CREATE UNIQUE INDEX "idx_unique_account_provider_account_id" ON "public"."account" ("provider_account_id", "provider");
--- Create index "idx_unique_account_user_id__provider" to table: "account"
-CREATE UNIQUE INDEX "idx_unique_account_user_id__provider" ON "public"."account" ("user_id", "provider");
 -- Create "team" table
 CREATE TABLE "public"."team" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "name" character varying(255) NOT NULL, "avatar_url" text NOT NULL, "url" text NOT NULL, "type" "public"."team_type" NOT NULL, "owner_id" character varying(21) NULL, "external_id" character varying(255) NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "owner_id" FOREIGN KEY ("owner_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
 -- Create index "idx_unique_team_external_id" to table: "team"
@@ -40,20 +34,22 @@ CREATE UNIQUE INDEX "idx_unique_team_external_id" ON "public"."team" ("external_
 CREATE UNIQUE INDEX "idx_unqiue_user_team" ON "public"."team" ("type", "owner_id") WHERE (type = 'user'::team_type);
 -- Create "project" table
 CREATE TABLE "public"."project" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "team_id" character varying(21) NOT NULL, "name" character varying(255) NOT NULL, "url" text NOT NULL, "source" "public"."project_source" NOT NULL, "source_id" character varying(255) NOT NULL, "token" character varying(255) NOT NULL, "build_count" integer NOT NULL DEFAULT 0, PRIMARY KEY ("id"), CONSTRAINT "team_id" FOREIGN KEY ("team_id") REFERENCES "public"."team" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create "diff_image" table
-CREATE TABLE "public"."diff_image" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "hash" character varying(64) NOT NULL, "width" integer NOT NULL, "height" integer NOT NULL, "format" character varying(255) NOT NULL, "project_id" character varying(21) NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create index "idx_diff_image-hash__project_id" to table: "diff_image"
-CREATE UNIQUE INDEX "idx_diff_image-hash__project_id" ON "public"."diff_image" ("hash", "project_id");
--- Create "project_invite_codes" table
-CREATE TABLE "public"."project_invite_codes" ("id" character varying(21) NOT NULL, "project_id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "expires_at" timestamptz NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create "project_users" table
-CREATE TABLE "public"."project_users" ("project_id" character varying(21) NOT NULL, "user_id" character varying(21) NOT NULL, "role" "public"."project_member_role" NOT NULL, "role_sync" boolean NOT NULL DEFAULT false, "type" "public"."member_type" NULL, CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, CONSTRAINT "user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create index "idx_unique_project_user" to table: "project_users"
-CREATE UNIQUE INDEX "idx_unique_project_user" ON "public"."project_users" ("project_id", "user_id");
 -- Create "build" table
 CREATE TABLE "public"."build" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "project_id" character varying(21) NOT NULL, "target_parent_id" character varying(21) NOT NULL, "build_number" integer NOT NULL DEFAULT 0, "status" "public"."build_status" NOT NULL DEFAULT 'uploading', "target_build_id" character varying(21) NOT NULL, "sha" character varying(255) NOT NULL, "branch" character varying(255) NOT NULL, "message" character varying(255) NOT NULL, "title" character varying(255) NOT NULL, "warnings" text[] NULL, "errors" text[] NULL, PRIMARY KEY ("id"), CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
 -- Create index "idx_build-build_number__project_id" to table: "build"
 CREATE UNIQUE INDEX "idx_build-build_number__project_id" ON "public"."build" ("project_id", "build_number");
+-- Create "build_history" table
+CREATE TABLE "public"."build_history" ("child_id" character varying(21) NOT NULL, "parent_id" character varying(21) NOT NULL, CONSTRAINT "child_id" FOREIGN KEY ("child_id") REFERENCES "public"."build" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, CONSTRAINT "parent_id" FOREIGN KEY ("parent_id") REFERENCES "public"."build" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- Create "diff_image" table
+CREATE TABLE "public"."diff_image" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "hash" character varying(64) NOT NULL, "width" integer NOT NULL, "height" integer NOT NULL, "format" character varying(255) NOT NULL, "project_id" character varying(21) NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- Create index "idx_diff_image-hash__project_id" to table: "diff_image"
+CREATE UNIQUE INDEX "idx_diff_image-hash__project_id" ON "public"."diff_image" ("hash", "project_id");
+-- Create "git_installation" table
+CREATE TABLE "public"."git_installation" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "team_id" character varying(21) NOT NULL, "type" "public"."git_installation_type" NOT NULL, "installation_id" integer NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "team_id" FOREIGN KEY ("team_id") REFERENCES "public"."team" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- Create "project_users" table
+CREATE TABLE "public"."project_users" ("project_id" character varying(21) NOT NULL, "user_id" character varying(21) NOT NULL, "role" "public"."project_member_role" NOT NULL, "role_sync" boolean NOT NULL DEFAULT false, "type" "public"."member_type" NULL, CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, CONSTRAINT "user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- Create index "idx_unique_project_user" to table: "project_users"
+CREATE UNIQUE INDEX "idx_unique_project_user" ON "public"."project_users" ("project_id", "user_id");
 -- Create "snap_image" table
 CREATE TABLE "public"."snap_image" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "hash" character varying(64) NOT NULL, "width" integer NOT NULL, "height" integer NOT NULL, "format" character varying(255) NOT NULL, "project_id" character varying(21) NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
 -- Create index "idx_snap_image-hash__project_id" to table: "snap_image"
@@ -64,7 +60,11 @@ CREATE TABLE "public"."snapshot" ("id" character varying(21) NOT NULL, "created_
 CREATE UNIQUE INDEX "idx_snapshot-build_id__name__variant__target" ON "public"."snapshot" ("build_id", "name", "variant", "target");
 -- Create "team_users" table
 CREATE TABLE "public"."team_users" ("team_id" character varying(255) NOT NULL, "user_id" character varying(21) NOT NULL, "role" "public"."team_member_role" NOT NULL, "role_sync" boolean NOT NULL DEFAULT false, "type" "public"."member_type" NULL, CONSTRAINT "team_id" FOREIGN KEY ("team_id") REFERENCES "public"."team" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, CONSTRAINT "user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create "build_history" table
-CREATE TABLE "public"."build_history" ("child_id" character varying(21) NOT NULL, "parent_id" character varying(21) NOT NULL, CONSTRAINT "child_id" FOREIGN KEY ("child_id") REFERENCES "public"."build" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, CONSTRAINT "parent_id" FOREIGN KEY ("parent_id") REFERENCES "public"."build" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
--- Create "git_installation" table
-CREATE TABLE "public"."git_installation" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "team_id" character varying(21) NOT NULL, "type" "public"."git_installation_type" NOT NULL, "installation_id" integer NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "team_id" FOREIGN KEY ("team_id") REFERENCES "public"."team" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- Create "account" table
+CREATE TABLE "public"."account" ("id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "updated_at" timestamptz NOT NULL, "user_id" character varying(21) NOT NULL, "provider" "public"."account_provider" NOT NULL, "provider_account_id" character varying(255) NOT NULL, "refresh_token" character varying(255) NOT NULL, "access_token" character varying(255) NOT NULL, "access_token_expires_at" timestamptz NOT NULL, "refresh_token_expires_at" timestamptz NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- Create index "idx_unique_account_provider_account_id" to table: "account"
+CREATE UNIQUE INDEX "idx_unique_account_provider_account_id" ON "public"."account" ("provider_account_id", "provider");
+-- Create index "idx_unique_account_user_id__provider" to table: "account"
+CREATE UNIQUE INDEX "idx_unique_account_user_id__provider" ON "public"."account" ("user_id", "provider");
+-- Create "project_invite_code" table
+CREATE TABLE "public"."project_invite_code" ("id" character varying(21) NOT NULL, "project_id" character varying(21) NOT NULL, "created_at" timestamptz NOT NULL, "role" "public"."project_member_role" NOT NULL, "expires_at" timestamptz NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "project_id" FOREIGN KEY ("project_id") REFERENCES "public"."project" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);

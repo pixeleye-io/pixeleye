@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
@@ -11,6 +14,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/email"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
@@ -230,8 +234,9 @@ func GetProjectUsers(c echo.Context) error {
 }
 
 type AddUserToProjectRequest struct {
-	UserID string `json:"userID" validate:"required,nanoid"`
-	Role   string `json:"role" validate:"required,oneof=admin reviewer viewer"`
+	Email        string `json:"email" validate:"required,email"`
+	Role         string `json:"role" validate:"required,oneof=admin reviewer viewer"`
+	DisableEmail bool   `json:"disableEmail"`
 }
 
 func AddUserToProject(c echo.Context) error {
@@ -256,12 +261,83 @@ func AddUserToProject(c echo.Context) error {
 		return err
 	}
 
-	if err := db.AddUserToProject(project.TeamID, project.ID, body.UserID, body.Role); err != nil {
-		// TODO - check if the error is a duplicate error and return a 409
+	invite, err := db.CreateProjectInvite(c.Request().Context(), project.ID, body.Role)
+	if err != nil {
 		return err
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	if !body.DisableEmail {
+
+		emailBody := fmt.Sprintf(`Hi there,
+	
+	You've been invited to join a project on Pixeleye. Click the link below to accept the invitation.
+	
+	%s
+	
+	Thanks,
+	
+	Pixeleye Team`, "some link")
+
+		if err := email.SendEmail(body.Email, "Pixeleye project invite", emailBody); err != nil {
+			return err
+		}
+	}
+
+	return c.JSON(http.StatusCreated, invite)
+}
+
+type AcceptProjectInviteRequest struct {
+	ID string `json:"id" validate:"required,nanoid"`
+}
+
+func AcceptProjectInvite(c echo.Context) error {
+
+	user, err := middleware.GetUser(c)
+	if err != nil {
+		return err
+	}
+
+	body := AcceptProjectInviteRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	invite, err := db.GetProjectInvite(c.Request().Context(), body.ID)
+	if err == sql.ErrNoRows || (err == nil && invite.ExpiresAt.Before(time.Now())) {
+		return echo.NewHTTPError(http.StatusNotFound, "invite expired or not found")
+	} else if err != nil {
+		return err
+	}
+
+	project, err := db.GetProject(c.Request().Context(), invite.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	if err := db.AddUserToProject(c.Request().Context(), project.TeamID, project.ID, user.ID, invite.Role); err != nil {
+		return err
+	}
+
+	if err := db.DeleteProjectInvite(c.Request().Context(), invite.ID); err != nil {
+		return err
+	}
+
+	project.Token = ""
+	project.RawToken = ""
+
+	return c.JSON(http.StatusCreated, project)
 }
 
 func RemoveUserFromProject(c echo.Context) error {

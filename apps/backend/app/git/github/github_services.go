@@ -343,6 +343,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	log.Debug().Msgf("Git Admins: %+v", gitAdmins)
 
 	var membersToRemove []string
+	// We should check they aren't invited manually to any projects
 
 	for _, currentMember := range currentMembers {
 		found := false
@@ -376,6 +377,9 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 			membersToRemove = append(membersToRemove, currentMember.ID)
 		}
 	}
+
+	// TODO need to update the role of the user if it has changed
+	// TODO need to update the type of user if they were previously invited
 
 	var membersToAdd []models.TeamMember
 

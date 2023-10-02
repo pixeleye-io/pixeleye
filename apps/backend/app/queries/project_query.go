@@ -9,6 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+
+	nanoid "github.com/matoous/go-nanoid/v2"
 )
 
 type ProjectQueries struct {
@@ -53,8 +55,8 @@ func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([
 	return projects, nil
 }
 
-// There is no access control on this query, so becareful where you use it
-func (q *ProjectQueries) GetProject(id string) (models.Project, error) {
+// There is no access control on this query, so be careful where you use it
+func (q *ProjectQueries) GetProject(ctx context.Context, id string) (models.Project, error) {
 	project := models.Project{}
 
 	query := `SELECT * FROM project WHERE id = $1`
@@ -62,6 +64,45 @@ func (q *ProjectQueries) GetProject(id string) (models.Project, error) {
 	err := q.Get(&project, query, id)
 
 	return project, err
+}
+
+func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, role string) (models.ProjectInviteCode, error) {
+	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role) VALUES (:id, :project_id, :created_at, :expires_at, :role)`
+
+	id, err := nanoid.New()
+	if err != nil {
+		return models.ProjectInviteCode{}, err
+	}
+
+	inviteCode := models.ProjectInviteCode{
+		ID:        id,
+		ProjectID: projectID,
+		CreatedAt: time.Now(),
+		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
+		Role:      role,
+	}
+
+	_, err = q.NamedExecContext(ctx, query, inviteCode)
+
+	return inviteCode, err
+}
+
+func (q *ProjectQueries) GetProjectInvite(ctx context.Context, id string) (models.ProjectInviteCode, error) {
+	query := `SELECT * FROM project_invite_code WHERE id = $1`
+
+	inviteCode := models.ProjectInviteCode{}
+
+	err := q.GetContext(ctx, &inviteCode, query, id)
+
+	return inviteCode, err
+}
+
+func (q *ProjectQueries) DeleteProjectInvite(ctx context.Context, id string) error {
+	query := `DELETE FROM project_invite_code WHERE id = $1`
+
+	_, err := q.ExecContext(ctx, query, id)
+
+	return err
 }
 
 func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Project, error) {
@@ -182,11 +223,10 @@ func (q *ProjectQueries) GetProjectUser(projectID string, userID string) (models
 	return projectUser, err
 }
 
-func (q *ProjectQueries) AddUserToProject(teamID string, projectID string, userID string, role string) error {
+func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, projectID string, userID string, role string) error {
 	queryProject := `INSERT INTO project_users (project_id, user_id, role) VALUES ($1, $2, $3)`
-	queryTeam := `INSERT INTO team_users (team_id, user_id, role) VALUES ($1, $2, 'member') ON CONFLICT DO NOTHING` // If a user is in a project, they should be in the team
+	queryTeam := `INSERT INTO team_users (team_id, user_id, role, type) VALUES ($1, $2, 'member', 'invited') ON CONFLICT DO NOTHING` // If a user is in a project, they should be in the team
 
-	ctx := context.Background()
 	tx, err := q.BeginTxx(ctx, nil)
 	if err != nil {
 		return err

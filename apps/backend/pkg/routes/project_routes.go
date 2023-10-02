@@ -11,11 +11,13 @@ func ProjectRoutes(e *echo.Echo) {
 
 	authMiddleware := middleware.NewOryMiddleware()
 
-	common := e.Group("/v1/projects/:project_id")
+	common := e.Group("/v1/projects")
 
 	common.Use(authMiddleware.Session)
 
-	baseRoutes := common.Group("")
+	common.POST("", controllers.AcceptProjectInvite)
+
+	baseRoutes := common.Group("/:project_id")
 
 	baseRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin", "viewer", "reviewer"}, []string{"admin", "owner"})
 	baseRoutes.Use(baseRoleMiddleware.ProjectRoleAccess)
@@ -27,7 +29,7 @@ func ProjectRoutes(e *echo.Echo) {
 	baseRoutes.Any("/events", controllers.SubscribeToProject)
 
 	// Admin routes.
-	adminRoutes := common.Group("/admin")
+	adminRoutes := common.Group("/:project_id/admin")
 
 	adminRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin"}, []string{"admin", "owner"})
 

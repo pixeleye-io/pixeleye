@@ -753,7 +753,7 @@ table "user_deletion_request" {
   }
 }
 
-table "project_invite_codes" {
+table "project_invite_code" {
   schema = schema.public
   column "id" {
     type = varchar(21)
@@ -776,6 +776,11 @@ table "project_invite_codes" {
 
   column "created_at" {
     type = timestamptz
+    null = false
+  }
+
+  column "role" {
+    type = enum.project_member_role
     null = false
   }
 

@@ -51,6 +51,7 @@ type ProjectMember struct {
 type ProjectInviteCode struct {
 	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
 	CreatedAt time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	ExpiresAt time.Time `db:"expires_at" json:"expiresAt"`
 	ProjectID string    `db:"project_id" json:"projectID" validate:"required,nanoid"`
+	Role      string    `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
 }
