@@ -3,9 +3,25 @@
 import { Invite } from "@pixeleye/api";
 import { Avatar, Button } from "@pixeleye/ui";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
+import { useMutation } from "@tanstack/react-query";
+import { API } from "@/libs";
 
 export function InviteCard({ invite }: { invite: Invite }) {
   const names = invite.inviterName.split(" ");
+
+  const router = useRouter();
+
+  const acceptInvite = useMutation({
+    mutationFn: () =>
+      API.post("/invites/{id}/accept", {
+        params: {
+          id: invite.id,
+        },
+      }),
+    onSuccess: () => {
+      router.push(`/projects/${invite.projectID}`);
+    },
+  });
 
   return (
     <main className="w-full h-full mt-12">
@@ -43,7 +59,12 @@ export function InviteCard({ invite }: { invite: Invite }) {
             <Avatar.Fallback>{invite.teamName.charAt(0)}</Avatar.Fallback>
           </Avatar>
         </div>
-        <Button>Join</Button>
+        <Button
+          loading={acceptInvite.isPending}
+          onClick={() => acceptInvite.mutate()}
+        >
+          Join
+        </Button>
       </div>
     </main>
   );
