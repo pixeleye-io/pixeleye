@@ -1,7 +1,7 @@
 "use client";
 
 import { useKeyStore } from "@/stores/apiKeyStore";
-import { KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { KeyIcon } from "@heroicons/react/24/outline";
 import { API } from "@/libs";
 import {
   Button,
@@ -11,11 +11,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Input,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Project, User, UserOnProject } from "@pixeleye/api";
+import { Project, UserOnProject } from "@pixeleye/api";
 
 export function SecuritySection({ id }: { id: string }) {
   const setKey = useKeyStore((state) => state.setKey);
@@ -101,7 +102,6 @@ export function MemberSection({
   members: UserOnProject[];
   project: Project;
 }) {
-
   return (
     <Table>
       <TableHeader>
@@ -122,5 +122,18 @@ export function MemberSection({
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+export function InviteMemberSection({ project }: { project: Project }) {
+
+
+  
+
+  return (
+    <div className="flex items-end space-x-4 mt-8">
+      <Input label="Invite user by email" placeholder="Email" />
+      <Button>Invite</Button>
+    </div>
   );
 }

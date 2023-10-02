@@ -2,6 +2,7 @@ import { Button } from "@pixeleye/ui";
 import { FormEventHandler } from "react";
 import {
   DeleteProjectSection,
+  InviteMemberSection,
   MemberSection,
   SecuritySection,
 } from "./sections";
@@ -110,6 +111,7 @@ export default async function Page({
         description="Manage members invited to this project"
       >
         <MemberSection members={invitedUsers} project={project} />
+        <InviteMemberSection project={project} />
       </Section>
       <Section
         title="Danger zone"
