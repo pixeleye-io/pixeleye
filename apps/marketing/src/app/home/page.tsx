@@ -327,15 +327,9 @@ function NewsLetter() {
       url: `/v3/marketing/contacts`,
       method: "PUT",
       body: data,
-    })
-      .then(([response]) => {
-        console.log(response.statusCode);
-        console.log(response.body);
-      })
-      .catch((error) => {
-        console.error(error);
-        success = false;
-      });
+    }).catch((error) => {
+      success = false;
+    });
 
     if (!success) throw new Error("Failed to sign up for newsletter");
   }
