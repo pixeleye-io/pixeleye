@@ -241,6 +241,11 @@ type AddUserToProjectRequest struct {
 
 func AddUserToProject(c echo.Context) error {
 
+	user, err := middleware.GetUser(c)
+	if err != nil {
+		return err
+	}
+
 	project := middleware.GetProject(c)
 
 	body := AddUserToProjectRequest{}
@@ -261,7 +266,7 @@ func AddUserToProject(c echo.Context) error {
 		return err
 	}
 
-	invite, err := db.CreateProjectInvite(c.Request().Context(), project.ID, body.Role, body.Email)
+	invite, err := db.CreateProjectInvite(c.Request().Context(), project.ID, user.ID, body.Role, body.Email)
 	if err != nil {
 		return err
 	}
@@ -286,10 +291,6 @@ func AddUserToProject(c echo.Context) error {
 	return c.JSON(http.StatusCreated, invite)
 }
 
-type AcceptProjectInviteRequest struct {
-	ID string `json:"id" validate:"required,nanoid"`
-}
-
 func AcceptProjectInvite(c echo.Context) error {
 
 	user, err := middleware.GetUser(c)
@@ -297,16 +298,9 @@ func AcceptProjectInvite(c echo.Context) error {
 		return err
 	}
 
-	body := AcceptProjectInviteRequest{}
-
-	if err := c.Bind(&body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	validator := utils.NewValidator()
-
-	if err := validator.Struct(body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	inviteID := c.Param("invite_code")
+	if !utils.ValidateNanoid(inviteID) {
+		return echo.NewHTTPError(http.StatusBadRequest, "invite code is invalid")
 	}
 
 	db, err := database.OpenDBConnection()
@@ -314,7 +308,7 @@ func AcceptProjectInvite(c echo.Context) error {
 		return err
 	}
 
-	invite, err := db.GetProjectInvite(c.Request().Context(), body.ID)
+	invite, err := db.GetProjectInvite(c.Request().Context(), inviteID)
 	if err == sql.ErrNoRows || (err == nil && (invite.ExpiresAt.Before(time.Now())) || invite.Email != user.Email) {
 		return echo.NewHTTPError(http.StatusNotFound, "invite expired or not found")
 	} else if err != nil {
@@ -338,6 +332,33 @@ func AcceptProjectInvite(c echo.Context) error {
 	project.RawToken = ""
 
 	return c.JSON(http.StatusCreated, project)
+}
+
+func GetProjectInvite(c echo.Context) error {
+
+	user, err := middleware.GetUser(c)
+	if err != nil {
+		return err
+	}
+
+	inviteID := c.Param("invite_code")
+	if !utils.ValidateNanoid(inviteID) {
+		return echo.NewHTTPError(http.StatusBadRequest, "invite code is invalid")
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	invite, err := db.GetProjectInviteData(c.Request().Context(), inviteID)
+	if err == sql.ErrNoRows || (err == nil && (invite.ExpiresAt.Before(time.Now()) || invite.Email != user.Email)) {
+		return echo.NewHTTPError(http.StatusNotFound, "invite expired or not found")
+	} else if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, invite)
 }
 
 func RemoveUserFromProject(c echo.Context) error {

@@ -66,8 +66,8 @@ func (q *ProjectQueries) GetProject(ctx context.Context, id string) (models.Proj
 	return project, err
 }
 
-func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, role string, email string) (models.ProjectInviteCode, error) {
-	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role, email) VALUES (:id, :project_id, :created_at, :expires_at, :role, :email)`
+func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, userID string, role string, email string) (models.ProjectInviteCode, error) {
+	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role, email, invited_by_id) VALUES (:id, :project_id, :created_at, :expires_at, :role, :email, :invited_by_id)`
 
 	id, err := nanoid.New()
 	if err != nil {
@@ -75,15 +75,41 @@ func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID stri
 	}
 
 	inviteCode := models.ProjectInviteCode{
-		ID:        id,
-		ProjectID: projectID,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(time.Hour * 24 * 7),
-		Role:      role,
-		Email:     email,
+		ID:          id,
+		ProjectID:   projectID,
+		CreatedAt:   time.Now(),
+		ExpiresAt:   time.Now().Add(time.Hour * 24 * 7),
+		Role:        role,
+		Email:       email,
+		InvitedByID: userID,
 	}
 
 	_, err = q.NamedExecContext(ctx, query, inviteCode)
+
+	return inviteCode, err
+}
+
+type ProjectInvite struct {
+	*models.ProjectInviteCode
+	ProjectName      string `db:"project_name" json:"projectName"`
+	InviterEmail     string `db:"inviter_email" json:"inviterEmail"`
+	InviterName      string `db:"inviter_name" json:"inviterName"`
+	InviterAvatarURL string `db:"inviter_avatar_url" json:"inviterAvatarURL"`
+	TeamAvatarURL    string `db:"team_avatar_url" json:"teamAvatarURL"`
+	TeamName         string `db:"team_name" json:"teamName"`
+}
+
+func (q *ProjectQueries) GetProjectInviteData(ctx context.Context, id string) (ProjectInvite, error) {
+	query := `SELECT project_invite_code.*, project.name AS project_name, users.email AS inviter_email, users.name AS inviter_name, users.avatar_url AS inviter_avatar_url, team.avatar_url AS team_avatar_url, team.name AS team_name
+	FROM project_invite_code
+	JOIN project ON project.id = project_invite_code.project_id
+	JOIN users ON users.id = project_invite_code.invited_by_id
+	JOIN team ON team.id = project.team_id
+	WHERE project_invite_code.id = $1`
+
+	inviteCode := ProjectInvite{}
+
+	err := q.GetContext(ctx, &inviteCode, query, id)
 
 	return inviteCode, err
 }

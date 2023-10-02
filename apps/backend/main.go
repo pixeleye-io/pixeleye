@@ -43,6 +43,7 @@ func main() {
 	routes.TeamRoutes(e)
 	routes.BuildRoutes(e)
 	routes.GitRoutes(e)
+	routes.InviteRoutes(e)
 
 	cron.StartCron()
 

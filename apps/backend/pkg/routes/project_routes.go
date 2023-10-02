@@ -15,8 +15,6 @@ func ProjectRoutes(e *echo.Echo) {
 
 	common.Use(authMiddleware.Session)
 
-	common.POST("", controllers.AcceptProjectInvite)
-
 	baseRoutes := common.Group("/:project_id")
 
 	baseRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin", "viewer", "reviewer"}, []string{"admin", "owner"})

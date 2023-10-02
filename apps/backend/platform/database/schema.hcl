@@ -794,6 +794,17 @@ table "project_invite_code" {
     null = false
   }
 
+  column "invited_by_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "invited_by_id" {
+    columns     = [column.invited_by_id]
+    ref_columns = [table.users.column.id]
+    on_delete   = CASCADE
+  }
+
   column "expires_at" {
     type = timestamptz
     null = false

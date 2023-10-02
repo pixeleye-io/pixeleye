@@ -3,12 +3,16 @@ import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
 
 const projectEndpoint = env.SERVER_ENDPOINT + "/v1/projects";
+const inviteEndpoint = env.SERVER_ENDPOINT + "/v1/invites/";
 
 export const projectAPI = {
   acceptInvite: (inviteID: string, user?: IDs, expectedStatus = 201) =>
     specAsUser(user)
-      .withBody({ id: inviteID })
-      .post(projectEndpoint)
+      .post(inviteEndpoint + inviteID + "/accept")
+      .expectStatus(expectedStatus),
+  getInvite: (inviteID: string, user?: IDs, expectedStatus = 200) =>
+    specAsUser(user)
+      .get(inviteEndpoint + inviteID)
       .expectStatus(expectedStatus),
   getProject: (projectID: string, user?: IDs, expectedStatus = 200) =>
     specAsUser(user)

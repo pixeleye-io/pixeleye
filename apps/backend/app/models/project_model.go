@@ -49,10 +49,11 @@ type ProjectMember struct {
 }
 
 type ProjectInviteCode struct {
-	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
-	CreatedAt time.Time `db:"created_at" json:"createdAt"`
-	ExpiresAt time.Time `db:"expires_at" json:"expiresAt"`
-	ProjectID string    `db:"project_id" json:"projectID" validate:"required,nanoid"`
-	Role      string    `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
-	Email     string    `db:"email" json:"email" validate:"required,email"`
+	ID          string    `db:"id" json:"id" validate:"required,nanoid"`
+	CreatedAt   time.Time `db:"created_at" json:"createdAt"`
+	ExpiresAt   time.Time `db:"expires_at" json:"expiresAt"`
+	ProjectID   string    `db:"project_id" json:"projectID" validate:"required,nanoid"`
+	Role        string    `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
+	Email       string    `db:"email" json:"email" validate:"required,email"`
+	InvitedByID string    `db:"invited_by_id" json:"invitedByID" validate:"required,nanoid"`
 }

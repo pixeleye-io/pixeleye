@@ -5,6 +5,7 @@ import { ProjectAPI } from "./project";
 import { SnapAPI } from "./snapshots";
 import { GitAPI } from "./git";
 import { TeamAPI } from "./team";
+import { InviteAPI } from "./invite";
 
 export type Services = PingAPI &
   UserAPI &
@@ -12,4 +13,5 @@ export type Services = PingAPI &
   ProjectAPI &
   SnapAPI &
   GitAPI &
+  InviteAPI &
   TeamAPI;
