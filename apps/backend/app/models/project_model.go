@@ -47,3 +47,10 @@ type ProjectMember struct {
 	RoleSync  bool   `db:"role_sync" json:"roleSync"`
 	Type      string `db:"type" json:"type" validate:"required,oneof=invited git"`
 }
+
+type ProjectInviteCode struct {
+	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
+	CreatedAt time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
+	ProjectID string    `db:"project_id" json:"projectID" validate:"required,nanoid"`
+}

@@ -752,3 +752,35 @@ table "user_deletion_request" {
     null = false
   }
 }
+
+table "project_invite_codes" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "project_id" {
+    type = varchar(21)
+    null = false
+  }
+  foreign_key "project_id" {
+    columns     = [column.project_id]
+    ref_columns = [table.project.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "expires_at" {
+    type = timestamptz
+    null = false
+  }
+}
