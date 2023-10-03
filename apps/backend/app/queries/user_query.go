@@ -158,6 +158,18 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 	return teams, nil
 }
 
+func (q *UserQueries) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
+	query := `SELECT * FROM users WHERE email = $1`
+
+	user := models.User{}
+
+	if err := q.GetContext(ctx, &user, query, email); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func (q *UserQueries) GetUsersPersonalTeam(ctx context.Context, id string) (models.Team, error) {
 	teams, err := q.GetUsersTeams(ctx, id)
 

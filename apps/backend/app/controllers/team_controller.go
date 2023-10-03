@@ -54,7 +54,7 @@ func GetTeamUsers(c echo.Context) error {
 		return err
 	}
 
-	users, err := db.GetTeamUsers(c.Request().Context(), team.ID)
+	users, err := db.GetUsersOnTeam(c.Request().Context(), team.ID)
 
 	if err != nil {
 		return err

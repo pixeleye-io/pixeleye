@@ -22,7 +22,7 @@ func SyncProjectMembers(ctx context.Context, team models.Team) error {
 		return err
 	}
 
-	members, err := db.GetTeamUsers(ctx, team.ID)
+	members, err := db.GetUsersOnTeam(ctx, team.ID)
 	if err != nil {
 		return err
 	}

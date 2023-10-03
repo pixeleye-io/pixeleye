@@ -134,13 +134,8 @@ func GetUserTeams(c echo.Context) error {
 }
 
 func SyncUserTeams(c echo.Context) error {
-
 	user, err := middleware.GetUser(c)
 	if err != nil {
-		return err
-	}
-
-	if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID); err != nil && err != sql.ErrNoRows {
 		return err
 	}
 
@@ -150,6 +145,15 @@ func SyncUserTeams(c echo.Context) error {
 	}
 
 	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
+	if err != nil {
+		return err
+	}
+
+	if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	teams, err = db.GetUsersTeams(c.Request().Context(), user.ID)
 	if err != nil {
 		return err
 	}

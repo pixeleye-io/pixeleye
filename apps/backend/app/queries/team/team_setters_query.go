@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
@@ -57,55 +57,69 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	return nil
 }
 
-func (q *TeamQueriesTx) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
-	query := `DELETE FROM team_users WHERE team_id = ? AND id IN (?)`
-	projectQuery := `DELETE FROM project_users LEFT JOIN project ON project_users.project_id = project.id WHERE project.team_id = ? AND project_users.user_id IN (?)`
+func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
+	query := `DELETE FROM team_users WHERE team_id = ? AND user_id IN (?)`
+	projectQuery := `DELETE FROM project_users WHERE project_id IN (SELECT id FROM project WHERE team_id = ?) AND user_id IN (?)`
 
-	query, args, err := sqlx.In(query, teamID, pq.StringArray(memberIDs))
-
+	tx, err := q.BeginTxx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	query = q.Rebind(query)
+	// nolint:errcheck
+	defer tx.Rollback()
 
-	_, err = q.ExecContext(ctx, query, args...)
+	query, args, err := sqlx.In(query, teamID, memberIDs)
 	if err != nil {
 		return err
 	}
 
-	projectQuery, args, err = sqlx.In(projectQuery, teamID, pq.StringArray(memberIDs))
+	query = tx.Rebind(query)
+
+	log.Debug().Msgf("query: %s", query)
+
+	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
 	}
 
-	projectQuery = q.Rebind(projectQuery)
+	projectQuery, args, err = sqlx.In(projectQuery, teamID, memberIDs)
+	if err != nil {
+		return err
+	}
 
-	_, err = q.ExecContext(ctx, projectQuery, args...)
+	projectQuery = tx.Rebind(projectQuery)
 
-	return err
-}
+	log.Debug().Msgf("projectQuery: %s", projectQuery)
 
-func (q *TeamQueries) RemoveTeamMember(ctx context.Context, memberID string) error {
-	query := `DELETE FROM team_users WHERE id = ?`
+	_, err = tx.ExecContext(ctx, projectQuery, args...)
+	if err != nil {
+		return err
+	}
 
-	_, err := q.ExecContext(ctx, query, memberID)
-
-	return err
+	return tx.Commit()
 }
 
 func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamMember) error {
-	query := `INSERT INTO team_users (team_id, user_id, role, role_sync) VALUES (:team_id, :user_id, :role, :role_sync)`
+	query := `INSERT INTO team_users (team_id, user_id, role, role_sync, type) VALUES (:team_id, :user_id, :role, :role_sync, :type)`
 
 	_, err := q.NamedExecContext(ctx, query, members)
 
 	return err
 }
 
-func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, memberID string, role string) error {
-	query := `UPDATE team_users SET role = $1 WHERE user_id = $2`
+func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string) error {
+	query := `UPDATE team_users SET role = $1 WHERE user_id = $2 AND team_id = $3`
 
-	_, err := q.ExecContext(ctx, query, role, memberID)
+	_, err := q.ExecContext(ctx, query, role, memberID, teamID)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateUserTypeOnTeam(ctx context.Context, teamID string, userID string, userType string, roleSync bool) error {
+	query := `UPDATE team_users SET type = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
+
+	_, err := q.ExecContext(ctx, query, userType, roleSync, userID)
 
 	return err
 }

@@ -244,6 +244,39 @@ func (q *ProjectQueries) GetProjectUser(projectID string, userID string) (models
 	return projectUser, err
 }
 
+func (q *ProjectQueries) IsUserInvitedToProjects(ctx context.Context, teamID string, userID string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM project_users WHERE user_id = $1 AND type = 'invited' AND project_id IN (SELECT id FROM project WHERE team_id = $2))`
+
+	var exists bool
+
+	if err := q.GetContext(ctx, &exists, query, userID, teamID); err != nil {
+		return false, err
+	}
+
+	return exists, nil
+
+}
+
+func (q *ProjectQueries) IsUserOnProject(ctx context.Context, projectID string, userID string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM project_users WHERE user_id = $1 AND project_id = $2)`
+
+	var exists bool
+
+	if err := q.GetContext(ctx, &exists, query, userID, projectID); err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+func (q *ProjectQueries) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
+	query := `DELETE FROM project_users WHERE project_id IN (SELECT id FROM project WHERE team_id = $1) AND user_id = $2 AND type = 'git'`
+
+	_, err := q.ExecContext(ctx, query, teamID, userID)
+
+	return err
+}
+
 func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, projectID string, userID string, role string) error {
 	queryProject := `INSERT INTO project_users (project_id, user_id, role, type) VALUES ($1, $2, $3, 'invited') ON CONFLICT DO NOTHING`
 	queryTeam := `INSERT INTO team_users (team_id, user_id, role, type) VALUES ($1, $2, 'member', 'invited') ON CONFLICT DO NOTHING` // If a user is in a project, they should be in the team
