@@ -135,6 +135,8 @@ func GetUserTeams(c echo.Context) error {
 
 func SyncUserTeams(c echo.Context) error {
 
+	// TODO we should also go through current teams they're a member of and sync those too. If you remove a user from github and they sync their teams, they should be removed but currently they aren't.
+
 	user, err := middleware.GetUser(c)
 	if err != nil {
 		return err

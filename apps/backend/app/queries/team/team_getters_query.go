@@ -65,12 +65,12 @@ func (q *TeamQueries) GetGitTeamUsers(ctx context.Context, teamID string) ([]mod
 
 type UserOnTeam struct {
 	*models.User
-	Type     *string `db:"type" json:"type"`
-	Role     string  `db:"role" json:"role"`
-	RoleSync bool    `db:"role_sync" json:"role_sync"`
+	Type     string `db:"type" json:"type"`
+	Role     string `db:"role" json:"role"`
+	RoleSync bool   `db:"role_sync" json:"role_sync"`
 }
 
-func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOnTeam, error) {
+func (q *TeamQueries) GetUsersOnTeam(ctx context.Context, teamID string) ([]UserOnTeam, error) {
 	query := `SELECT users.*, team_users.type, team_users.role, team_users.role_sync, github_account.provider_account_id as github_id FROM team_users
 	JOIN users ON team_users.user_id = users.id
 	JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
@@ -81,6 +81,18 @@ func (q *TeamQueries) GetTeamUsers(ctx context.Context, teamID string) ([]UserOn
 	err := q.SelectContext(ctx, &users, query, teamID)
 
 	return users, err
+}
+
+func (q *TeamQueries) IsUserOnTeam(ctx context.Context, userID string, teamID string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM team_users WHERE user_id = $1 AND team_id = $2)`
+
+	var exists bool
+
+	if err := q.GetContext(ctx, &exists, query, userID, teamID); err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
 
 func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([]models.GitInstallation, error) {

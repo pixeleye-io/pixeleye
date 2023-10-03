@@ -35,7 +35,7 @@ import { useTheme } from "next-themes";
 import React, { useCallback } from "react";
 import { API } from "@/libs";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { queries } from "@/queries";
 
@@ -100,7 +100,7 @@ function TeamsHeading() {
   );
 }
 
-export function Navbar({ user, teams }: NavbarProps) {
+export function Navbar() {
   const segmentRepo = useBreadcrumbStore((state) => state.segmentRepo);
   const selectedTeamID = useTeamStore((state) => state.teamId);
   const setSelectedTeamID = useTeamStore((state) => state.setTeamId);
@@ -114,12 +114,16 @@ export function Navbar({ user, teams }: NavbarProps) {
     if (seg) seg.forEach((s) => segments.push(s));
   });
 
-  // We attempt to get initials from the user's name and then email (assuming they use a firstname.lastname email)
-  const names = user.name
-    ? user.name.split(" ")
-    : user.email.split("@")[0].split(".");
+  const { data: user } = useQuery(queries.user.get());
 
-  const [personalTeam, groupTeams] = teams.reduce(
+  const { data: teams } = useQuery(queries.teams.list());
+
+  // We attempt to get initials from the user's name and then email (assuming they use a firstname.lastname email)
+  const names = user?.name
+    ? user?.name.split(" ")
+    : user?.email.split("@")[0].split(".") || [];
+
+  const [personalTeam, groupTeams] = teams?.reduce(
     (acc, team) => {
       if (team.type === "user" && team.role === "owner") {
         acc[0] = team;
@@ -129,7 +133,7 @@ export function Navbar({ user, teams }: NavbarProps) {
       return acc;
     },
     [undefined, []] as [Team | undefined, Team[]]
-  );
+  ) || [undefined, []];
 
   const searchParams = useSearchParams();
 
@@ -138,11 +142,11 @@ export function Navbar({ user, teams }: NavbarProps) {
   const navigate = useTeamNavigation();
 
   const selectedTeam =
-    teams.find((team) => team.id === selectedTeamID) || personalTeam!;
+    (teams || []).find((team) => team.id === selectedTeamID) || personalTeam;
 
-  if (selectedTeam.type === "user" && selectedTeam.role === "owner")
+  if (selectedTeam?.type === "user" && selectedTeam?.role === "owner")
     params.delete("team");
-  else params.set("team", selectedTeam.id);
+  else if (selectedTeam) params.set("team", selectedTeam.id);
 
   return (
     <nav className="flex justify-between px-4 pt-2 pb-1 bg-background">
@@ -157,16 +161,18 @@ export function Navbar({ user, teams }: NavbarProps) {
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
           <div className="flex items-center ">
-            <TeamSwitcher
-              personal={personalTeam!}
-              teams={groupTeams}
-              selectedTeam={selectedTeam}
-              teamsHeading={<TeamsHeading />}
-              setSelectedTeam={(team) => {
-                setSelectedTeamID(team.id);
-                navigate(team);
-              }}
-            />
+            {groupTeams && selectedTeam && personalTeam && (
+              <TeamSwitcher
+                personal={personalTeam}
+                teams={groupTeams}
+                selectedTeam={selectedTeam}
+                teamsHeading={<TeamsHeading />}
+                setSelectedTeam={(team) => {
+                  setSelectedTeamID(team.id);
+                  navigate(team);
+                }}
+              />
+            )}
           </div>
         </Breadcrumbs.Item>
         {segments.map((segment) => {
@@ -187,7 +193,7 @@ export function Navbar({ user, teams }: NavbarProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar>
-              <Avatar.Image alt="profile picture" src={user.avatar} />
+              <Avatar.Image alt="profile picture" src={user?.avatar ?? ""} />
               <Avatar.Fallback>
                 {names[0].charAt(0)}
                 {names.length > 1 && names.at(-1)?.charAt(0)}
@@ -199,10 +205,10 @@ export function Navbar({ user, teams }: NavbarProps) {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none text-on-surface">
-                {user.name || user.email.split("@")[0]}
+                {user?.name || user?.email.split("@")[0]}
               </p>
               <p className="text-xs leading-none text-on-surface-variant">
-                {user.email}
+                {user?.email}
               </p>
             </div>
           </DropdownMenuLabel>

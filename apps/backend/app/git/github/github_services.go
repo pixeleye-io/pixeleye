@@ -2,6 +2,7 @@ package git_github
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -323,7 +324,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		return err
 	}
 
-	currentMembers, err := db.GetTeamUsers(ctx, team.ID)
+	currentMembers, err := db.GetUsersOnTeam(ctx, team.ID)
 	if err != nil {
 		return err
 	}
@@ -343,10 +344,11 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	log.Debug().Msgf("Git Admins: %+v", gitAdmins)
 
 	var membersToRemove []string
-	// We should check they aren't invited manually to any projects
 
 	for _, currentMember := range currentMembers {
 		found := false
+
+		// Update the role of the user if it has changed and their role is synced
 		for i, gitMember := range append(gitAdmins, gitMembers...) {
 			log.Debug().Msgf("Comparing %s with %s", currentMember.GithubID, strconv.Itoa(int(gitMember.GetID())))
 			if strconv.Itoa(int(gitMember.GetID())) == currentMember.GithubID {
@@ -356,14 +358,20 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 				log.Debug().Msgf("RoleSync: %t", currentMember.RoleSync)
 
-				if currentMember.RoleSync {
+				if currentMember.Type == models.TEAM_MEMBER_TYPE_INVITED {
+					// We're upgrading the user to a vcs synced account but they will keep the same role and it won't be synced
+					if err := db.UpdateUserTypeOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_TYPE_INVITED, false); err != nil {
+						log.Error().Err(err).Msgf("Failed to update user type on team %s", team.ID)
+						break
+					}
+				} else if currentMember.RoleSync {
 					if admin && currentMember.Role != models.TEAM_MEMBER_ROLE_ADMIN {
-						if err := db.UpdateUserRoleOnTeam(ctx, currentMember.ID, models.TEAM_MEMBER_ROLE_ADMIN); err != nil {
+						if err := db.UpdateUserRoleOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_ROLE_ADMIN); err != nil {
 							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
 							break
 						}
 					} else if !admin && currentMember.Role != models.TEAM_MEMBER_ROLE_MEMBER {
-						if err := db.UpdateUserRoleOnTeam(ctx, currentMember.ID, models.TEAM_MEMBER_ROLE_MEMBER); err != nil {
+						if err := db.UpdateUserRoleOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_ROLE_MEMBER); err != nil {
 							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
 							break
 						}
@@ -373,13 +381,27 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 			}
 		}
 
-		if !found {
-			membersToRemove = append(membersToRemove, currentMember.ID)
+		// Don't remove invited users
+		if !found && currentMember.Type == models.TEAM_MEMBER_TYPE_GIT {
+			if isInvited, err := db.IsUserInvitedToProjects(ctx, team.ID, currentMember.ID); err != nil {
+				log.Error().Err(err).Msgf("Failed to check if user is invited to projects on team %s", team.ID)
+				break
+			} else if isInvited {
+				// Remove user from all projects they're not invited to and set their team type to invited
+				if err := db.RemoveUserFromAllGitProjects(ctx, team.ID, currentMember.ID); err != nil {
+					log.Error().Err(err).Msgf("Failed to remove user from all git projects on team %s", team.ID)
+					break
+				}
+				if err := db.UpdateUserTypeOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_TYPE_INVITED, false); err != nil {
+					log.Error().Err(err).Msgf("Failed to update user type on team %s", team.ID)
+					break
+				}
+			} else {
+				// User isn't invited to any projects so we can remove them from the team
+				membersToRemove = append(membersToRemove, currentMember.ID)
+			}
 		}
 	}
-
-	// TODO need to update the role of the user if it has changed
-	// TODO need to update the type of user if they were previously invited
 
 	var membersToAdd []models.TeamMember
 
@@ -469,6 +491,8 @@ func SyncUsersTeams(ctx context.Context, userID string) error {
 		opts.Page = res.NextPage
 	}
 
+	log.Debug().Msgf("Found %d installations for user %s", len(installations), userID)
+
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
@@ -479,10 +503,14 @@ func SyncUsersTeams(ctx context.Context, userID string) error {
 		installationIDs = append(installationIDs, strconv.Itoa(int(installation.GetID())))
 	}
 
+	log.Debug().Msgf("Installation IDs: %+v", installationIDs)
+
 	gitInstallations, err := db.GetGitInstallationByIDs(ctx, installationIDs, models.GIT_TYPE_GITHUB)
 	if err != nil {
 		return err
 	}
+
+	log.Debug().Msgf("Found %d github installations for user %s", len(gitInstallations), userID)
 
 	for _, gitInstall := range gitInstallations {
 		team := models.Team{
@@ -491,8 +519,37 @@ func SyncUsersTeams(ctx context.Context, userID string) error {
 		}
 		log.Debug().Msgf("Syncing team members for team %s", team.ID)
 		go func(team models.Team) {
-			if err := SyncGithubTeamMembers(context.Background(), team); err != nil {
+			ctx := context.Background()
+
+			if err := SyncGithubTeamMembers(ctx, team); err != nil {
 				log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
+				return
+			}
+
+			db, err := database.OpenDBConnection()
+			if err != nil {
+				log.Err(err).Msgf("Failed to open db connection")
+				return
+			}
+
+			members, err := db.GetUsersOnTeam(ctx, team.ID)
+			if err != nil {
+				log.Err(err).Msgf("Failed to get users on team %s", team.ID)
+				return
+			}
+
+			projects, err := db.GetTeamsProjects(ctx, team.ID)
+			if err != nil && err != sql.ErrNoRows {
+				log.Err(err).Msgf("Failed to get projects for team %s", team.ID)
+				return
+			} else if len(projects) == 0 {
+				return
+			}
+
+			for _, project := range projects {
+				if err := SyncGithubProjectMembers(ctx, db, team, members, project); err != nil {
+					log.Error().Err(err).Msgf("Failed to sync project members for team %s", team.ID)
+				}
 			}
 		}(team)
 	}

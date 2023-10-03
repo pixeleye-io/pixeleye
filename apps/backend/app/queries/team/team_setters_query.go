@@ -95,17 +95,25 @@ func (q *TeamQueries) RemoveTeamMember(ctx context.Context, memberID string) err
 }
 
 func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamMember) error {
-	query := `INSERT INTO team_users (team_id, user_id, role, role_sync) VALUES (:team_id, :user_id, :role, :role_sync)`
+	query := `INSERT INTO team_users (team_id, user_id, role, role_sync, type) VALUES (:team_id, :user_id, :role, :role_sync, :type)`
 
 	_, err := q.NamedExecContext(ctx, query, members)
 
 	return err
 }
 
-func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, memberID string, role string) error {
-	query := `UPDATE team_users SET role = $1 WHERE user_id = $2`
+func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string) error {
+	query := `UPDATE team_users SET role = $1 WHERE user_id = $2 AND team_id = $3`
 
-	_, err := q.ExecContext(ctx, query, role, memberID)
+	_, err := q.ExecContext(ctx, query, role, memberID, teamID)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateUserTypeOnTeam(ctx context.Context, teamID string, userID string, userType string, roleSync bool) error {
+	query := `UPDATE team_users SET type = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
+
+	_, err := q.ExecContext(ctx, query, userType, roleSync, userID)
 
 	return err
 }

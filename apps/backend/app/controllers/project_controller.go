@@ -261,9 +261,16 @@ func AddUserToProject(c echo.Context) error {
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
+	}
+
+	if userToInvite, err := db.GetUserByEmail(c.Request().Context(), body.Email); err == nil {
+		if onProject, err := db.IsUserOnProject(c.Request().Context(), project.TeamID, userToInvite.ID); err != nil {
+			return err
+		} else if onProject {
+			return echo.NewHTTPError(http.StatusConflict, "user is already on the project")
+		}
 	}
 
 	invite, err := db.CreateProjectInvite(c.Request().Context(), project.ID, user.ID, body.Role, body.Email)
@@ -318,6 +325,12 @@ func AcceptProjectInvite(c echo.Context) error {
 	project, err := db.GetProject(c.Request().Context(), invite.ProjectID)
 	if err != nil {
 		return err
+	}
+
+	if onProject, err := db.IsUserOnProject(c.Request().Context(), project.TeamID, user.ID); err != nil {
+		return err
+	} else if onProject {
+		return echo.NewHTTPError(http.StatusConflict, "user is already on the project")
 	}
 
 	if err := db.AddUserToProject(c.Request().Context(), project.TeamID, project.ID, user.ID, invite.Role); err != nil {

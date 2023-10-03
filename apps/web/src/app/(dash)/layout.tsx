@@ -64,7 +64,7 @@ export default async function DashboardLayout({
   return (
     <HydrationBoundary state={dehydratedState}>
       <div className="min-h-screen">
-        <Navbar user={user} teams={teams} />
+        <Navbar />
         {children}
       </div>
 
