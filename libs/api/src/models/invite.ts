@@ -10,6 +10,8 @@ export const InviteZod = z.object({
   projectName: z.string(),
   teamAvatarURL: z.string().url(),
   teamName: z.string(),
+  projectID: z.string().length(21),
+  email: z.string().email(),
 });
 
 export type Invite = z.infer<typeof InviteZod>;

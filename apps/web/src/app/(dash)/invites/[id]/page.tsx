@@ -11,7 +11,7 @@ export default async function ProjectInvitePage({
   params: { id: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const projectId = params.id;
+  const inviteID = params.id;
 
   const teamID = searchParams.team as string | undefined;
 
@@ -19,7 +19,7 @@ export default async function ProjectInvitePage({
 
   const invite = await API.get("/invites/{id}", {
     params: {
-      id: projectId,
+      id: inviteID,
     },
     headers: {
       cookie,

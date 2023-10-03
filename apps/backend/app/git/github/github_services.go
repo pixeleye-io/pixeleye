@@ -402,14 +402,13 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 				continue
 			}
 
-			memberType := models.TEAM_MEMBER_TYPE_GIT
 			role := models.TEAM_MEMBER_ROLE_MEMBER
 			if admin {
 				role = models.TEAM_MEMBER_ROLE_ADMIN
 			}
 			membersToAdd = append(membersToAdd, models.TeamMember{
 				UserID:   user.ID,
-				Type:     &memberType,
+				Type:     models.TEAM_MEMBER_TYPE_GIT,
 				Role:     role,
 				RoleSync: true,
 				TeamID:   team.ID,

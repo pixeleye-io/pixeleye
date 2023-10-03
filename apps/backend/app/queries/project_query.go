@@ -245,7 +245,7 @@ func (q *ProjectQueries) GetProjectUser(projectID string, userID string) (models
 }
 
 func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, projectID string, userID string, role string) error {
-	queryProject := `INSERT INTO project_users (project_id, user_id, role) VALUES ($1, $2, $3)`
+	queryProject := `INSERT INTO project_users (project_id, user_id, role, type) VALUES ($1, $2, $3, 'invited') ON CONFLICT DO NOTHING`
 	queryTeam := `INSERT INTO team_users (team_id, user_id, role, type) VALUES ($1, $2, 'member', 'invited') ON CONFLICT DO NOTHING` // If a user is in a project, they should be in the team
 
 	tx, err := q.BeginTxx(ctx, nil)

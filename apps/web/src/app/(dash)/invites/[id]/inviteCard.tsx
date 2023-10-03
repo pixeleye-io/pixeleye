@@ -5,6 +5,7 @@ import { Avatar, Button } from "@pixeleye/ui";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
 import { useMutation } from "@tanstack/react-query";
 import { API } from "@/libs";
+import { useRouter } from "next/navigation";
 
 export function InviteCard({ invite }: { invite: Invite }) {
   const names = invite.inviterName.split(" ");

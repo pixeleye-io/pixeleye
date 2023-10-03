@@ -292,7 +292,7 @@ table "team_users" {
 
   column "type" {
     type = enum.member_type
-    null = true
+    null = false
   }
 
   index "idx_unique_team_user" {
@@ -408,7 +408,7 @@ table "project_users" {
 
   column "type" {
     type = enum.member_type
-    null = true
+    null = false
   }
 
   index "idx_unique_project_user" {
