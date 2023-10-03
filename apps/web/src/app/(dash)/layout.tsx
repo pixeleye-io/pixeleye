@@ -44,17 +44,7 @@ export default async function DashboardLayout({
 
   const cookie = cookies().toString();
 
-  const [user, teams] = await Promise.all([
-    API.get("/user/me", {
-      headers: {
-        cookie,
-      },
-    }),
-    API.get("/user/teams", {
-      headers: {
-        cookie,
-      },
-    }),
+  await Promise.all([
     queryClient.prefetchQuery(queries.user.get(cookie)),
     queryClient.prefetchQuery(queries.teams.list(cookie)),
   ]);

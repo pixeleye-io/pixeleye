@@ -3,7 +3,6 @@ package git_github
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"strconv"
 
 	"github.com/google/go-github/v55/github"
@@ -301,7 +300,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	log.Debug().Msgf("Syncing team members for team %s", team.ID)
 	if team.Type != models.TEAM_TYPE_GITHUB {
-		return fmt.Errorf("team is not a github team")
+		return nil
 	}
 
 	db, err := database.OpenDBConnection()
@@ -419,8 +418,10 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		if !found {
 
 			user, err := db.GetUserByProviderID(ctx, strconv.Itoa(int(gitMember.GetID())), models.ACCOUNT_PROVIDER_GITHUB)
-			if err != nil {
+			if err != nil && err != sql.ErrNoRows {
 				log.Err(err).Msgf("Failed to get user by provider id %s", strconv.Itoa(int(gitMember.GetID())))
+				continue
+			} else if err == sql.ErrNoRows {
 				continue
 			}
 
@@ -463,7 +464,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	return nil
 }
 
-func SyncUsersTeams(ctx context.Context, userID string) error {
+func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Team) error {
 
 	userClient, err := NewGithubUserClient(ctx, userID)
 	if err != nil {
@@ -512,46 +513,80 @@ func SyncUsersTeams(ctx context.Context, userID string) error {
 
 	log.Debug().Msgf("Found %d github installations for user %s", len(gitInstallations), userID)
 
-	for _, gitInstall := range gitInstallations {
-		team := models.Team{
-			Type: models.TEAM_TYPE_GITHUB,
-			ID:   gitInstall.TeamID,
+	teamsToSync := currentTeams
+
+	for _, installation := range gitInstallations {
+		found := false
+
+		for _, team := range currentTeams {
+			if team.ID == installation.TeamID {
+				found = true
+				break
+			}
 		}
+
+		if !found {
+			teamsToSync = append(teamsToSync, models.Team{
+				Type: models.TEAM_TYPE_GITHUB,
+				ID:   installation.TeamID,
+			})
+		}
+	}
+
+	errors := make(chan error, len(teamsToSync))
+	for _, team := range teamsToSync {
 		log.Debug().Msgf("Syncing team members for team %s", team.ID)
-		go func(team models.Team) {
+		go func(team models.Team, errors chan error) {
 			ctx := context.Background()
 
 			if err := SyncGithubTeamMembers(ctx, team); err != nil {
 				log.Error().Err(err).Msgf("Failed to sync team members for team %s", team.ID)
+				errors <- err
 				return
 			}
 
 			db, err := database.OpenDBConnection()
 			if err != nil {
 				log.Err(err).Msgf("Failed to open db connection")
+				errors <- err
 				return
 			}
 
 			members, err := db.GetUsersOnTeam(ctx, team.ID)
 			if err != nil {
 				log.Err(err).Msgf("Failed to get users on team %s", team.ID)
+				errors <- err
 				return
 			}
 
 			projects, err := db.GetTeamsProjects(ctx, team.ID)
 			if err != nil && err != sql.ErrNoRows {
 				log.Err(err).Msgf("Failed to get projects for team %s", team.ID)
+				errors <- err
 				return
 			} else if len(projects) == 0 {
+				errors <- nil
 				return
 			}
 
 			for _, project := range projects {
 				if err := SyncGithubProjectMembers(ctx, db, team, members, project); err != nil {
 					log.Error().Err(err).Msgf("Failed to sync project members for team %s", team.ID)
+					errors <- err
+					return
 				}
 			}
-		}(team)
+
+			errors <- nil
+		}(team, errors)
+
+	}
+
+	for i := 0; i < len(teamsToSync); i++ {
+		err := <-errors
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

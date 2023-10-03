@@ -103,7 +103,13 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				log.Err(err).Msg("Error syncing user accounts")
 			}
 
-			if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID); err != nil && err != sql.ErrNoRows {
+			teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
+			if err != nil && err != sql.ErrNoRows {
+				log.Err(err).Msg("Error getting user teams")
+				return err
+			}
+
+			if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows {
 				log.Err(err).Msg("Error syncing user teams")
 			}
 

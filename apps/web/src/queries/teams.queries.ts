@@ -5,7 +5,7 @@ export const teamKeys = createQueryKeys("teams", {
   detail: (teamID: string, cookie: string = "") => ({
     queryKey: [teamID],
     contextQueries: {
-      list: () => ({
+      listProjects: () => ({
         queryKey: ["projects"],
         queryFn: () =>
           API.get("/teams/{teamID}/projects", {

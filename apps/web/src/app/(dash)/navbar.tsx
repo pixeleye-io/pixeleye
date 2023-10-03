@@ -75,7 +75,9 @@ function TeamsHeading() {
   const { mutate: syncTeams, isPending } = useMutation({
     mutationFn: () => API.post("/user/teams/sync", {}),
     onSuccess: () => {
-      queryClient.invalidateQueries(queries.teams.list());
+      queryClient.invalidateQueries({
+        queryKey: queries.teams._def,
+      });
     },
   });
 
