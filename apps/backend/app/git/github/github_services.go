@@ -422,8 +422,11 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 				log.Err(err).Msgf("Failed to get user by provider id %s", strconv.Itoa(int(gitMember.GetID())))
 				continue
 			} else if err == sql.ErrNoRows {
+				log.Debug().Msgf("User with provider id %s not found", strconv.Itoa(int(gitMember.GetID())))
 				continue
 			}
+
+			log.Debug().Msgf("User with provider id %s found", strconv.Itoa(int(gitMember.GetID())))
 
 			role := models.TEAM_MEMBER_ROLE_MEMBER
 			if admin {
@@ -441,14 +444,8 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 
 	if len(membersToRemove) > 0 {
 		log.Debug().Msgf("Removing %d members from team %s", len(membersToRemove), team.ID)
-		tx, err := Team_queries.NewTeamTx(db.TeamQueries.DB, ctx)
-		if err != nil {
-			return err
-		}
-		if err := tx.RemoveTeamMembers(ctx, team.ID, membersToRemove); err != nil {
-			return err
-		}
-		if err := tx.Commit(); err != nil {
+		log.Debug().Msgf("Members to remove: %+v", membersToRemove)
+		if err := db.RemoveTeamMembers(ctx, team.ID, membersToRemove); err != nil {
 			return err
 		}
 	}
