@@ -1,7 +1,7 @@
 "use client";
 
 import { useKeyStore } from "@/stores/apiKeyStore";
-import { KeyIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { KeyIcon } from "@heroicons/react/24/outline";
 import { API } from "@/libs";
 import {
   Button,
@@ -11,11 +11,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Input,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Project, User, UserOnProject } from "@pixeleye/api";
+import { Project, UserOnProject } from "@pixeleye/api";
+import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 
 export function SecuritySection({ id }: { id: string }) {
   const setKey = useKeyStore((state) => state.setKey);
@@ -101,7 +104,6 @@ export function MemberSection({
   members: UserOnProject[];
   project: Project;
 }) {
-
   return (
     <Table>
       <TableHeader>
@@ -122,5 +124,50 @@ export function MemberSection({
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+interface InviteMembersForm {
+  email: string;
+}
+
+export function InviteMemberSection({ project }: { project: Project }) {
+  const { handleSubmit, register, formState, reset } =
+    useForm<InviteMembersForm>();
+
+  const onSubmit = handleSubmit(({ email }) =>
+    API.post("/projects/{id}/admin/users", {
+      params: {
+        id: project.id,
+      },
+      body: {
+        email,
+        role: "viewer",
+      },
+    })
+  );
+
+  useEffect(() => {
+    reset();
+  }, [formState.isSubmitSuccessful, reset]);
+
+  return (
+    <div>
+      <form onSubmit={onSubmit} className="flex items-end space-x-4 mt-8">
+        <Input
+          label="Invite user by email"
+          placeholder="Email"
+          type="email"
+          required
+          {...register("email", { required: true })}
+        />
+        <Button loading={formState.isSubmitting} type="submit">
+          Invite
+        </Button>
+      </form>
+      <p className="text-on-surface-variant text-sm pt-2">
+        We&apos;ll send an email with instructions on how to join
+      </p>
+    </div>
   );
 }

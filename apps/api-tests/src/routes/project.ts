@@ -3,8 +3,17 @@ import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
 
 const projectEndpoint = env.SERVER_ENDPOINT + "/v1/projects";
+const inviteEndpoint = env.SERVER_ENDPOINT + "/v1/invites/";
 
 export const projectAPI = {
+  acceptInvite: (inviteID: string, user?: IDs, expectedStatus = 201) =>
+    specAsUser(user)
+      .post(inviteEndpoint + inviteID + "/accept")
+      .expectStatus(expectedStatus),
+  getInvite: (inviteID: string, user?: IDs, expectedStatus = 200) =>
+    specAsUser(user)
+      .get(inviteEndpoint + inviteID)
+      .expectStatus(expectedStatus),
   getProject: (projectID: string, user?: IDs, expectedStatus = 200) =>
     specAsUser(user)
       .get(projectEndpoint + `/${projectID}`)
@@ -25,13 +34,13 @@ export const projectAPI = {
       .expectStatus(expectedStatus),
   addUserToProject: (
     projectID: string,
-    userID: string,
+    email: string,
     role: string,
     user?: IDs,
-    expectedStatus = 204
+    expectedStatus = 201
   ) =>
     specAsUser(user)
-      .withBody({ userID, role })
+      .withBody({ email, role, disableEmail: true })
       .post(projectEndpoint + `/${projectID}/admin/users`)
       .expectStatus(expectedStatus),
   removeUserFromProject: (
@@ -48,7 +57,7 @@ export const projectAPI = {
     userID: string,
     role: string,
     user?: IDs,
-    expectedStatus = 204 
+    expectedStatus = 204
   ) =>
     specAsUser(user)
       .withBody({ role })

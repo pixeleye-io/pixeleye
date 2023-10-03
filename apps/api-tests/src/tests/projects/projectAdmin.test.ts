@@ -135,12 +135,24 @@ describe("Team admin projects", () => {
 
   it("Jekyll should be able to add Hyde to their project", async (ctx) => {
     const { session } = getSession(IDs.hyde);
-    await projectAPI.addUserToProject(
-      jekyllsProject.id,
-      session.identity.userID,
-      "viewer",
-      IDs.jekyll
-    );
+    const code = await projectAPI
+      .addUserToProject(
+        jekyllsProject.id,
+        session.identity.traits.email,
+        "viewer",
+        IDs.jekyll
+      )
+      .expectJsonMatch({
+        id: like("1234"),
+        role: "viewer",
+        createdAt: like("2021-01-01T00:00:00.000Z"),
+        expiresAt: like("2021-01-01T00:00:00.000Z"),
+      })
+      .returns(({ res }) => {
+        return (res.json as any).id as string;
+      });
+
+    await projectAPI.acceptInvite(code, IDs.hyde);
 
     const teams = await usersAPI.getUsersTeams(IDs.hyde).returns(({ res }) => {
       return res.json;
@@ -152,12 +164,24 @@ describe("Team admin projects", () => {
 
   it("Hyde should be able to add Jekyll to their project", async (ctx) => {
     const { session } = getSession(IDs.jekyll);
-    await projectAPI.addUserToProject(
-      hydesProject.id,
-      session.identity.userID,
-      "viewer",
-      IDs.hyde
-    );
+    const code = await projectAPI
+      .addUserToProject(
+        hydesProject.id,
+        session.identity.traits.email,
+        "viewer",
+        IDs.hyde
+      )
+      .expectJsonMatch({
+        id: like("1234"),
+        role: "viewer",
+        createdAt: like("2021-01-01T00:00:00.000Z"),
+        expiresAt: like("2021-01-01T00:00:00.000Z"),
+      })
+      .returns(({ res }) => {
+        return (res.json as any).id as string;
+      });
+
+    await projectAPI.acceptInvite(code, IDs.jekyll);
 
     const teams = await usersAPI
       .getUsersTeams(IDs.jekyll)
@@ -288,12 +312,19 @@ describe("Team admin projects", () => {
         token: like("1234"),
       });
 
-    await projectAPI.addUserToProject(
-      hydesProject.id,
-      session.identity.userID,
-      "viewer",
-      IDs.jekyll
-    );
+    await projectAPI
+      .addUserToProject(
+        hydesProject.id,
+        session.identity.traits.email,
+        "viewer",
+        IDs.jekyll
+      )
+      .expectJsonMatch({
+        id: like("1234"),
+        role: "viewer",
+        createdAt: like("2021-01-01T00:00:00.000Z"),
+        expiresAt: like("2021-01-01T00:00:00.000Z"),
+      });
 
     await projectAPI.updateUserRole(
       hydesProject.id,

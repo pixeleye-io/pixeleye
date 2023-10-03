@@ -45,4 +45,15 @@ type ProjectMember struct {
 	UserID    string `db:"user_id" json:"userID" validate:"required,nanoid"`
 	Role      string `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
 	RoleSync  bool   `db:"role_sync" json:"roleSync"`
+	Type      string `db:"type" json:"type" validate:"required,oneof=invited git"`
+}
+
+type ProjectInviteCode struct {
+	ID          string    `db:"id" json:"id" validate:"required,nanoid"`
+	CreatedAt   time.Time `db:"created_at" json:"createdAt"`
+	ExpiresAt   time.Time `db:"expires_at" json:"expiresAt"`
+	ProjectID   string    `db:"project_id" json:"projectID" validate:"required,nanoid"`
+	Role        string    `db:"role" json:"role" validate:"required,oneof=admin reviewer viewer"`
+	Email       string    `db:"email" json:"email" validate:"required,email"`
+	InvitedByID string    `db:"invited_by_id" json:"invitedByID" validate:"required,nanoid"`
 }

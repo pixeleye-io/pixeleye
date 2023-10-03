@@ -34,6 +34,7 @@ const AvatarImage = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Image ref={ref} asChild {...props}>
     <Image
+      unoptimized
       className={cx("aspect-square h-full w-full", className)}
       src={props.src as string}
       alt={props.alt as string}
@@ -48,7 +49,6 @@ const AvatarFallback = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Fallback
-
     ref={ref}
     className={cx(
       "flex h-full w-full items-center justify-center rounded-full bg-surface-container text-on-surface-container uppercase",

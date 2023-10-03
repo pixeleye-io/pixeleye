@@ -251,7 +251,7 @@ enum "team_member_role" {
   values = ["owner", "admin", "accountant", "member"]
 }
 
-enum "team_member_type" {
+enum "member_type" {
   schema = schema.public
   values = ["invited", "git"]
 }
@@ -291,8 +291,8 @@ table "team_users" {
   }
 
   column "type" {
-    type = enum.team_member_type
-    null = true
+    type = enum.member_type
+    null = false
   }
 
   index "idx_unique_team_user" {
@@ -404,6 +404,11 @@ table "project_users" {
     type    = boolean
     default = false
     null    = false
+  }
+
+  column "type" {
+    type = enum.member_type
+    null = false
   }
 
   index "idx_unique_project_user" {
@@ -618,7 +623,6 @@ table "diff_image" {
   }
 }
 
-
 enum "snapshot_status" {
   schema = schema.public
   values = ["queued", "processing", "failed", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
@@ -746,6 +750,59 @@ table "user_deletion_request" {
   column "created_at" {
     type = timestamptz
     null = false
+  }
+
+  column "expires_at" {
+    type = timestamptz
+    null = false
+  }
+}
+
+table "project_invite_code" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "project_id" {
+    type = varchar(21)
+    null = false
+  }
+  foreign_key "project_id" {
+    columns     = [column.project_id]
+    ref_columns = [table.project.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "role" {
+    type = enum.project_member_role
+    null = false
+  }
+
+  column "email" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "invited_by_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "invited_by_id" {
+    columns     = [column.invited_by_id]
+    ref_columns = [table.users.column.id]
+    on_delete   = CASCADE
   }
 
   column "expires_at" {

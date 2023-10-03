@@ -267,7 +267,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	if len(viewerCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d viewers to project %s", len(viewerCollaborators), project.ID)
-		err = db.AddUsersToProject(ctx, project.ID, viewerCollaborators, models.PROJECT_MEMBER_ROLE_VIEWER, true)
+		err = db.AddUsersToProject(ctx, project.ID, viewerCollaborators, models.PROJECT_MEMBER_ROLE_VIEWER, true, "git")
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
 			return err
@@ -276,7 +276,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	if len(reviewerCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d reviewers to project %s", len(reviewerCollaborators), project.ID)
-		err = db.AddUsersToProject(ctx, project.ID, reviewerCollaborators, models.PROJECT_MEMBER_ROLE_REVIEWER, true)
+		err = db.AddUsersToProject(ctx, project.ID, reviewerCollaborators, models.PROJECT_MEMBER_ROLE_REVIEWER, true, "git")
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
 			return err
@@ -285,7 +285,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 
 	if len(adminCollaborators) > 0 {
 		log.Debug().Msgf("Adding %d admins to project %s", len(adminCollaborators), project.ID)
-		err = db.AddUsersToProject(ctx, project.ID, adminCollaborators, models.PROJECT_MEMBER_ROLE_ADMIN, true)
+		err = db.AddUsersToProject(ctx, project.ID, adminCollaborators, models.PROJECT_MEMBER_ROLE_ADMIN, true, "git")
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to add users to project %s", project.ID)
 			return err
@@ -343,6 +343,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	log.Debug().Msgf("Git Admins: %+v", gitAdmins)
 
 	var membersToRemove []string
+	// We should check they aren't invited manually to any projects
 
 	for _, currentMember := range currentMembers {
 		found := false
@@ -377,6 +378,9 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		}
 	}
 
+	// TODO need to update the role of the user if it has changed
+	// TODO need to update the type of user if they were previously invited
+
 	var membersToAdd []models.TeamMember
 
 	for i, gitMember := range append(gitAdmins, gitMembers...) {
@@ -398,14 +402,13 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 				continue
 			}
 
-			memberType := models.TEAM_MEMBER_TYPE_GIT
 			role := models.TEAM_MEMBER_ROLE_MEMBER
 			if admin {
 				role = models.TEAM_MEMBER_ROLE_ADMIN
 			}
 			membersToAdd = append(membersToAdd, models.TeamMember{
 				UserID:   user.ID,
-				Type:     &memberType,
+				Type:     models.TEAM_MEMBER_TYPE_GIT,
 				Role:     role,
 				RoleSync: true,
 				TeamID:   team.ID,
