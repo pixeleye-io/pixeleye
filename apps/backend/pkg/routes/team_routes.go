@@ -13,9 +13,9 @@ func TeamRoutes(e *echo.Echo) {
 
 	v1 := e.Group("/v1/teams/:team_id")
 
-	baseRoutes := v1.Group("")
+	v1.Use(authMiddleware.Session)
 
-	baseRoutes.Use(authMiddleware.Session)
+	baseRoutes := v1.Group("")
 
 	baseRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin", "member", "accountant"})
 	baseRoutes.Use(baseRoleMiddleware.TeamRoleAccess)

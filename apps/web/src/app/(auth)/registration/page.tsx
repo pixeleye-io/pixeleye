@@ -98,7 +98,7 @@ export default async function RegistrationPage({
           groups: ["password"],
         })
           .filter((node) =>
-            ["method", "password", "traits.email"].includes(
+            ["method", "password", "traits.email", "csrf_token"].includes(
               (node.attributes as any).name
             )
           )

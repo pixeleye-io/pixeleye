@@ -198,19 +198,22 @@ export function MemberSection({
               <span className="text-on-surface-variant">{member.email}</span>
             </TableCell>
             <TableCell>{member.role}</TableCell>
-            {type === "invited" && (
-              <TableCell>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    deleteMember.mutate(member.id);
-                  }}
-                >
-                  <TrashIcon className="w-5 h-5 text-on-surface-variant" />
-                </Button>
-              </TableCell>
-            )}
+            {type === "invited" &&
+              ["admin", "owner"].includes(
+                project.role || project.teamRole || ""
+              ) && (
+                <TableCell>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => {
+                      deleteMember.mutate(member.id);
+                    }}
+                  >
+                    <TrashIcon className="w-5 h-5 text-on-surface-variant" />
+                  </Button>
+                </TableCell>
+              )}
           </TableRow>
         ))}
       </TableBody>

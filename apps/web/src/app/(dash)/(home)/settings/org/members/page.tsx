@@ -11,58 +11,50 @@ import {
   TableBody,
   TableCell,
 } from "@pixeleye/ui";
+import { getQueryClient, queries } from "@/queries";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { MemberSection } from "./sections";
 
 export default async function OrgMemberSettings({
   searchParams,
 }: {
   searchParams: Record<string, string>;
 }) {
-  const [team, users] = await Promise.all([
-    getTeam(searchParams),
-    API.get("/teams/{teamID}/users", {
-      params: {
-        teamID: searchParams.team,
-      },
-      headers: {
-        cookie: cookies().toString(),
-      },
-    }),
-  ]);
+  const team = await getTeam(searchParams);
+
+  const queryClient = getQueryClient();
+
+  const cookie = cookies().toString();
 
   if (team.type === "user") {
     redirect("/settings");
   }
 
-  console.log(users);
+  await Promise.all([
+    queryClient.prefetchQuery(
+      queries.teams.detail(team.id, cookie)._ctx.listMembers()._ctx.git()
+    ),
+    queryClient.prefetchQuery(
+      queries.teams.detail(team.id, cookie)._ctx.listMembers()._ctx.invited()
+    ),
+  ]);
+
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <>
+    <HydrationBoundary state={dehydratedState}>
       <SettingsTemplate
-        title={"Members"}
-        description="List of team members either manually invited or synced from your VCS provider."
+        title={"Git members"}
+        description="List of team members synced from your VCS provider."
       >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Role</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell className="flex flex-col">
-                  <span>{member.name}</span>
-                  <span className="text-on-surface-variant">
-                    {member.email}
-                  </span>
-                </TableCell>
-                <TableCell>{member.role}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <MemberSection team={team} type="git" />
       </SettingsTemplate>
-    </>
+      <SettingsTemplate
+        title={"Invited members"}
+        description="List of team members either manually invited"
+      >
+        <MemberSection team={team} type="invited" />
+      </SettingsTemplate>
+    </HydrationBoundary>
   );
 }
