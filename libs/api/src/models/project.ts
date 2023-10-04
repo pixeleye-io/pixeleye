@@ -26,6 +26,7 @@ export const UserOnProjectZod = UserZod.extend({
   role: z.enum(["admin", "reviewer", "viewer"]),
   roleSync: z.boolean(),
   type: z.enum(["invited", "git"]),
+  teamRole: z.enum(["admin", "member", "accountant", "owner"]).optional(),
 });
 
 export type Project = z.infer<typeof ProjectZod>;

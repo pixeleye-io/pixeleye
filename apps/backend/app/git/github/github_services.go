@@ -255,7 +255,7 @@ func SyncGithubProjectMembers(ctx context.Context, project models.Project) error
 		return err
 	}
 
-	projectMembers, err := db.GetProjectUsers(ctx, project.ID)
+	projectMembers, err := db.GetProjectUsers(ctx, project)
 	if err != nil {
 		return err
 	}

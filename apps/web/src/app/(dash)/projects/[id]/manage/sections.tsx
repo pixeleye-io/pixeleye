@@ -280,6 +280,7 @@ export function MemberSection({
               })`
             : member.role.charAt(0).toUpperCase() +
               member.role.slice(1).toLowerCase();
+
           return (
             <TableRow key={member.id}>
               <TableCell className="flex flex-col">
@@ -289,9 +290,9 @@ export function MemberSection({
               <TableCell className="w-0">
                 <Select
                   disabled={
-                    !["admin", "owner"].includes(
-                      project.role || project.teamRole || ""
-                    )
+                    (!["admin", "owner"].includes(project.role || "") &&
+                      !["admin", "owner"].includes(project.teamRole || "")) ||
+                    ["admin", "owner"].includes(member.teamRole || "")
                   }
                   value={member.role}
                   onValueChange={(role) =>
@@ -304,7 +305,8 @@ export function MemberSection({
                   <SelectTrigger className="">
                     <SelectValue>
                       <span className="whitespace-nowrap px-2">
-                        {memberRole}
+                        {                    ["admin", "owner"].includes(member.teamRole || "")
+? "Admin (inherited)": memberRole}
                       </span>
                     </SelectValue>
                   </SelectTrigger>

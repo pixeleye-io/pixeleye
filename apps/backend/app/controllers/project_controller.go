@@ -224,7 +224,7 @@ func GetProjectUsers(c echo.Context) error {
 		return err
 	}
 
-	users, err := db.GetProjectUsers(c.Request().Context(), project.ID)
+	users, err := db.GetProjectUsers(c.Request().Context(), *project)
 
 	if err != nil {
 		return err
