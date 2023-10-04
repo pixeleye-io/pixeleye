@@ -305,8 +305,9 @@ export function MemberSection({
                   <SelectTrigger className="">
                     <SelectValue>
                       <span className="whitespace-nowrap px-2">
-                        {                    ["admin", "owner"].includes(member.teamRole || "")
-? "Admin (inherited)": memberRole}
+                        {["admin", "owner"].includes(member.teamRole || "")
+                          ? "Admin (inherited)"
+                          : memberRole}
                       </span>
                     </SelectValue>
                   </SelectTrigger>
