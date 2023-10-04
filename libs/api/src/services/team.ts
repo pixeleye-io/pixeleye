@@ -14,6 +14,13 @@ type GET = Method<{
   };
 }>;
 
+type DELETE = Method<{
+  "/teams/{teamID}/admin/users/{userID}": {
+    res: undefined;
+  };
+}>;
+
 export interface TeamAPI {
   GET: GET;
+  DELETE: DELETE;
 }

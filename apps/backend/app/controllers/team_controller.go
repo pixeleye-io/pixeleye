@@ -63,6 +63,27 @@ func GetTeamUsers(c echo.Context) error {
 	return c.JSON(http.StatusOK, users)
 }
 
+func RemoveTeamMember(c echo.Context) error {
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	userID := c.Param("user_id")
+
+	if err := db.RemoveTeamMembers(c.Request().Context(), team.ID, []string{userID}); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 func GetRepos(c echo.Context) error {
 
 	team, err := middleware.GetTeam(c)

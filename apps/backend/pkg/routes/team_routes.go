@@ -26,4 +26,11 @@ func TeamRoutes(e *echo.Echo) {
 	v1.GET("/repos", controllers.GetRepos)
 
 	v1.GET("/installations", controllers.GetInstallations)
+
+	adminRoutes := v1.Group("/admin")
+
+	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})
+	adminRoutes.Use(adminRoleMiddleware.TeamRoleAccess)
+
+	adminRoutes.DELETE("/users/:user_id", controllers.RemoveTeamMember)
 }
