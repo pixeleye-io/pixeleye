@@ -10,6 +10,8 @@ import { API } from "@/libs";
 import { cookies } from "next/headers";
 import { getTeam } from "@/serverLibs";
 import { UserOnProject } from "@pixeleye/api";
+import { getQueryClient, queries } from "@/queries";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 
 function Section({
   children,
@@ -59,7 +61,9 @@ export default async function Page({
 
   const cookie = cookies().toString();
 
-  const [project, users] = await Promise.all([
+  const queryClient = getQueryClient();
+
+  const [project] = await Promise.all([
     API.get("/projects/{id}", {
       params: {
         id: projectId,
@@ -68,57 +72,50 @@ export default async function Page({
         cookie,
       },
     }),
-    API.get("/projects/{id}/users", {
-      params: {
-        id: projectId,
-      },
-      headers: {
-        cookie,
-      },
-    }),
+    queryClient.prefetchQuery(
+      queries.projects.detail(projectId, cookie)._ctx.listMembers()._ctx.git()
+    ),
+    queryClient.prefetchQuery(
+      queries.projects
+        .detail(projectId, cookie)
+        ._ctx.listMembers()
+        ._ctx.invited()
+    ),
   ]);
 
-  const [vcsUsers, invitedUsers] = users.reduce(
-    (acc, user) => {
-      if (user.type === "git") {
-        acc[0].push(user);
-      } else {
-        acc[1].push(user);
-      }
-      return acc;
-    },
-    [[], []] as [UserOnProject[], UserOnProject[]]
-  );
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <div className="space-y-10 mt-12">
-      <Section
-        title="Security"
-        description="The API token is used by our clients to upload the snapshot. Keep this safe"
-      >
-        <SecuritySection id={project.id} />
-      </Section>
-      {project.source !== "custom" && (
+    <HydrationBoundary state={dehydratedState}>
+      <div className="space-y-10 mt-12">
         <Section
-          title="VCS Members"
-          description={`Members who have access to this project via ${project.source}`}
+          title="Security"
+          description="The API token is used by our clients to upload the snapshot. Keep this safe"
         >
-          <MemberSection members={vcsUsers} project={project} />
+          <SecuritySection id={project.id} />
         </Section>
-      )}
-      <Section
-        title="Invited Members"
-        description="Manage members invited to this project"
-      >
-        <MemberSection members={invitedUsers} project={project} />
-        <InviteMemberSection project={project} />
-      </Section>
-      <Section
-        title="Danger zone"
-        description="These actions are dangerous. Please be careful."
-      >
-        <DeleteProjectSection project={project} />
-      </Section>
-    </div>
+        {project.source !== "custom" && (
+          <Section
+            title="VCS Members"
+            description={`Members who have access to this project via ${project.source}`}
+          >
+            <MemberSection type="git" project={project} />
+          </Section>
+        )}
+        <Section
+          title="Invited Members"
+          description="Manage members invited to this project"
+        >
+          <MemberSection type="invited" project={project} />
+          <InviteMemberSection project={project} />
+        </Section>
+        <Section
+          title="Danger zone"
+          description="These actions are dangerous. Please be careful."
+        >
+          <DeleteProjectSection project={project} />
+        </Section>
+      </div>
+    </HydrationBoundary>
   );
 }

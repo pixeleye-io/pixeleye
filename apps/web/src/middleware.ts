@@ -29,5 +29,6 @@ export const config = {
     "/projects/:path*",
     "/settings/:path*",
     "/usage/:path*",
+    "/invites/:path*",
   ],
 };
