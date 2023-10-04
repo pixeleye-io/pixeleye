@@ -36,6 +36,6 @@ func ProjectRoutes(e *echo.Echo) {
 	adminRoutes.DELETE("", controllers.DeleteProject)
 	adminRoutes.POST("/new-token", controllers.RegenerateToken)
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveUserFromProject)
-	adminRoutes.PATCH("/users/:user_id", controllers.UpdateProjectRole)
+	adminRoutes.PATCH("/users/:user_id", controllers.UpdateUserOnProject)
 	adminRoutes.POST("/users", controllers.AddUserToProject)
 }

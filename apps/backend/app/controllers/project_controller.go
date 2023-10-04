@@ -224,7 +224,7 @@ func GetProjectUsers(c echo.Context) error {
 		return err
 	}
 
-	users, err := db.GetProjectUsers(c.Request().Context(), project.ID)
+	users, err := db.GetProjectUsers(c.Request().Context(), *project)
 
 	if err != nil {
 		return err
@@ -404,10 +404,11 @@ func RemoveUserFromProject(c echo.Context) error {
 }
 
 type UpdateProjectRoleRequest struct {
-	Role string `json:"role" validate:"required,oneof=admin reviewer viewer"`
+	Role string `json:"role" validate:"omitempty,oneof=admin reviewer viewer"`
+	Sync bool   `json:"sync"`
 }
 
-func UpdateProjectRole(c echo.Context) error {
+func UpdateUserOnProject(c echo.Context) error {
 
 	userID := c.Param("user_id")
 
@@ -425,14 +426,33 @@ func UpdateProjectRole(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	db, err := database.OpenDBConnection()
+	if body.Role != "" && body.Sync {
+		return echo.NewHTTPError(http.StatusBadRequest, "cannot sync and update role at the same time")
+	}
 
+	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
 	}
 
-	if err := db.UpdateUserRoleOnProject(project.ID, userID, body.Role); err != nil {
-		return err
+	if body.Role != "" {
+		if err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, body.Role, false); err != nil {
+			return err
+		}
+	} else if body.Sync {
+		// We set the viewer as we're not sure what end role the user will get. This means the user won't be able to do anything until the sync is complete.
+		if err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, models.PROJECT_MEMBER_ROLE_VIEWER, true); err != nil {
+			return err
+		}
+
+		team, err := db.GetTeam(c.Request().Context(), project.TeamID, userID)
+		if err != nil {
+			return err
+		}
+
+		if err := git.SyncProjectMembers(c.Request().Context(), team, *project); err != nil {
+			return err
+		}
 	}
 
 	return c.NoContent(http.StatusNoContent)

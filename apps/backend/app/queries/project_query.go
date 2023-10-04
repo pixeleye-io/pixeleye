@@ -216,20 +216,22 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 type UserOnProject struct {
 	*models.User
 	Role     string `db:"role" json:"role"`
-	RoleSync bool   `db:"role_sync" json:"role_sync"`
+	RoleSync bool   `db:"role_sync" json:"roleSync"`
 	Type     string `db:"type" json:"type"`
+	TeamRole string `db:"team_role" json:"teamRole"`
 }
 
-func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {
-	query := `SELECT users.*, project_users.role, project_users.type, project_users.role_sync, COALESCE(github_account.provider_account_id, '') as github_id 
+func (q *ProjectQueries) GetProjectUsers(ctx context.Context, project models.Project) ([]UserOnProject, error) {
+	query := `SELECT users.*, project_users.role, project_users.type, project_users.role_sync, team_users.role as team_role, COALESCE(github_account.provider_account_id, '') as github_id
 	FROM users 
-	JOIN project_users ON project_users.user_id = users.id 
+	JOIN project_users ON project_users.user_id = users.id
+	JOIN team_users ON team_users.user_id = users.id AND team_users.team_id = $1
 	LEFT JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
-	WHERE project_id = $1`
+	WHERE project_id = $2`
 
 	projectUsers := []UserOnProject{}
 
-	err := q.Select(&projectUsers, query, projectID)
+	err := q.Select(&projectUsers, query, project.TeamID, project.ID)
 
 	return projectUsers, err
 }
@@ -346,10 +348,10 @@ func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID s
 	return err
 }
 
-func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string, role string) error {
-	query := `UPDATE project_users SET role = $1 WHERE project_id = $2 AND user_id = $3`
+func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) error {
+	query := `UPDATE project_users SET role = $1, role_sync = $2 WHERE project_id = $3 AND user_id = $4`
 
-	_, err := q.Exec(query, role, projectID, userID)
+	_, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
 
 	return err
 }

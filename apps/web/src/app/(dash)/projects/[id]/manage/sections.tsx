@@ -12,11 +12,18 @@ import {
   TableHeader,
   TableRow,
   Input,
+  DropdownMenu,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Project, UserOnProject } from "@pixeleye/api";
+import { Project, UserOnProject, UserOnProjectRole } from "@pixeleye/api";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
@@ -149,7 +156,7 @@ export function MemberSection({
         old,
       };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       queryClient.setQueryData(
         queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
           .queryKey,
@@ -159,6 +166,80 @@ export function MemberSection({
     onSettled: () => {
       queryClient.invalidateQueries(
         queries.projects.detail(project.id)._ctx.listMembers()
+      );
+    },
+  });
+
+  const updateRole = useMutation({
+    mutationFn: ({
+      userID,
+      role,
+    }: {
+      userID: string;
+      role: UserOnProjectRole | "sync";
+    }) =>
+      API.patch("/projects/{id}/admin/users/{userID}", {
+        params: {
+          id: project.id,
+          userID,
+        },
+        body: {
+          role: role === "sync" ? undefined : role,
+          sync: role === "sync" ? true : undefined,
+        },
+      }),
+    onMutate: async ({ userID, role }) => {
+      queryClient.cancelQueries(
+        queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+      );
+
+      const old = queryClient.getQueryData(
+        type === "git"
+          ? queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+              .queryKey
+          : queries.projects
+              .detail(project.id)
+              ._ctx.listMembers()
+              ._ctx.invited().queryKey
+      ) as UserOnProject[];
+
+      const newMembers = old.map((member: UserOnProject) => {
+        if (member.id === userID) {
+          return {
+            ...member,
+            role: role === "sync" ? "syncing..." : role,
+            roleSync: false, // we set this to false so when we are syncing, the role shows as syncing
+          };
+        }
+        return member;
+      });
+
+      queryClient.setQueryData(
+        type === "git"
+          ? queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+              .queryKey
+          : queries.projects
+              .detail(project.id)
+              ._ctx.listMembers()
+              ._ctx.invited().queryKey,
+        newMembers
+      );
+
+      return {
+        old,
+      };
+    },
+    onError: (_err, _variables, context) => {
+      console.log(_err, _variables, context);
+      queryClient.setQueryData(
+        queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+          .queryKey,
+        context?.old
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(
+        queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
       );
     },
   });
@@ -191,31 +272,74 @@ export function MemberSection({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {members.data?.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell className="flex flex-col">
-              <span>{member.name}</span>
-              <span className="text-on-surface-variant">{member.email}</span>
-            </TableCell>
-            <TableCell>{member.role}</TableCell>
-            {type === "invited" &&
-              ["admin", "owner"].includes(
-                project.role || project.teamRole || ""
-              ) && (
-                <TableCell>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => {
-                      deleteMember.mutate(member.id);
-                    }}
-                  >
-                    <TrashIcon className="w-5 h-5 text-on-surface-variant" />
-                  </Button>
-                </TableCell>
-              )}
-          </TableRow>
-        ))}
+        {members.data?.map((member) => {
+          const memberRole = member.roleSync
+            ? `Synced (${
+                member.role.charAt(0).toUpperCase() +
+                member.role.slice(1).toLowerCase()
+              })`
+            : member.role.charAt(0).toUpperCase() +
+              member.role.slice(1).toLowerCase();
+
+          return (
+            <TableRow key={member.id}>
+              <TableCell className="flex flex-col">
+                <span>{member.name}</span>
+                <span className="text-on-surface-variant">{member.email}</span>
+              </TableCell>
+              <TableCell className="w-0">
+                <Select
+                  disabled={
+                    (!["admin", "owner"].includes(project.role || "") &&
+                      !["admin", "owner"].includes(project.teamRole || "")) ||
+                    ["admin", "owner"].includes(member.teamRole || "")
+                  }
+                  value={member.role}
+                  onValueChange={(role) =>
+                    updateRole.mutate({
+                      userID: member.id,
+                      role: role as UserOnProjectRole,
+                    })
+                  }
+                >
+                  <SelectTrigger className="">
+                    <SelectValue>
+                      <span className="whitespace-nowrap px-2">
+                        {["admin", "owner"].includes(member.teamRole || "")
+                          ? "Admin (inherited)"
+                          : memberRole}
+                      </span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="reviewer">Reviewer</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
+                      <SelectItem value="sync">Sync</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </TableCell>
+              {type === "invited" &&
+                ["admin", "owner"].includes(
+                  project.role || project.teamRole || ""
+                ) && (
+                  <TableCell className="w-0">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        deleteMember.mutate(member.id);
+                      }}
+                    >
+                      <TrashIcon className="w-5 h-5 text-on-surface-variant" />
+                    </Button>
+                  </TableCell>
+                )}
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

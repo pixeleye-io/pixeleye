@@ -218,9 +218,19 @@ func findProjectMembersToUpdate(teamUsers []Team_queries.UserOnTeam, currentMemb
 	return viewerCollaborators, reviewerCollaborators, adminCollaborators
 }
 
-func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team models.Team, teamUsers []Team_queries.UserOnTeam, project models.Project) error {
+func SyncGithubProjectMembers(ctx context.Context, project models.Project) error {
 
-	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB, false)
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	teamUsers, err := db.GetUsersOnTeam(ctx, project.TeamID)
+	if err != nil {
+		return err
+	}
+
+	installation, err := db.GetGitInstallation(ctx, project.TeamID, models.TEAM_TYPE_GITHUB, false)
 	if err != nil {
 		return err
 	}
@@ -245,7 +255,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 		return err
 	}
 
-	projectMembers, err := db.GetProjectUsers(ctx, project.ID)
+	projectMembers, err := db.GetProjectUsers(ctx, project)
 	if err != nil {
 		return err
 	}
@@ -549,13 +559,6 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 				return
 			}
 
-			members, err := db.GetUsersOnTeam(ctx, team.ID)
-			if err != nil {
-				log.Err(err).Msgf("Failed to get users on team %s", team.ID)
-				errors <- err
-				return
-			}
-
 			projects, err := db.GetTeamsProjects(ctx, team.ID)
 			if err != nil && err != sql.ErrNoRows {
 				log.Err(err).Msgf("Failed to get projects for team %s", team.ID)
@@ -567,7 +570,7 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 			}
 
 			for _, project := range projects {
-				if err := SyncGithubProjectMembers(ctx, db, team, members, project); err != nil {
+				if err := SyncGithubProjectMembers(ctx, project); err != nil {
 					log.Error().Err(err).Msgf("Failed to sync project members for team %s", team.ID)
 					errors <- err
 					return
