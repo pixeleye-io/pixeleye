@@ -18,6 +18,32 @@ export const projectKeys = createQueryKeys("projects", {
             params: { id: projectID },
           }),
       }),
+      listMembers: () => ({
+        queryKey: ["members"],
+        queryFn: () =>
+          API.get("/projects/{id}/users", {
+            headers: { cookie },
+            params: { id: projectID },
+          }),
+        contextQueries: {
+          invited: () => ({
+            queryKey: ["invited"],
+            queryFn: () =>
+              API.get("/projects/{id}/users", {
+                headers: { cookie },
+                params: { id: projectID },
+              }).then((res) => res.filter((user) => user.type === "invited")),
+          }),
+          git: () => ({
+            queryKey: ["git"],
+            queryFn: () =>
+              API.get("/projects/{id}/users", {
+                headers: { cookie },
+                params: { id: projectID },
+              }).then((res) => res.filter((user) => user.type === "git")),
+          }),
+        },
+      }),
     },
   }),
 });

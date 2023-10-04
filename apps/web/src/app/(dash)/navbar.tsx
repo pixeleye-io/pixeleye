@@ -197,7 +197,7 @@ export function Navbar() {
             <Avatar>
               <Avatar.Image alt="profile picture" src={user?.avatar ?? ""} />
               <Avatar.Fallback>
-                {names[0].charAt(0)}
+                {names.length > 0 && names[0].charAt(0)}
                 {names.length > 1 && names.at(-1)?.charAt(0)}
               </Avatar.Fallback>
             </Avatar>

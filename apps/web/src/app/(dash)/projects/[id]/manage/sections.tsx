@@ -15,10 +15,12 @@ import {
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Project, UserOnProject } from "@pixeleye/api";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
+import { TrashIcon } from "@heroicons/react/24/solid";
+import { queries } from "@/queries";
 
 export function SecuritySection({ id }: { id: string }) {
   const setKey = useKeyStore((state) => state.setKey);
@@ -98,12 +100,88 @@ export function DeleteProjectSection({ project }: { project: Project }) {
 }
 
 export function MemberSection({
-  members,
   project,
+  type,
 }: {
-  members: UserOnProject[];
   project: Project;
+  type: "invited" | "git";
 }) {
+  const queryClient = useQueryClient();
+
+  const invitedMembers = useQuery(
+    queries.projects.detail(project.id)._ctx.listMembers()._ctx.invited()
+  );
+
+  const gitMembers = useQuery(
+    queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+  );
+
+  const deleteMember = useMutation({
+    mutationFn: (userID: string) =>
+      API.delete("/projects/{id}/admin/users/{userID}", {
+        params: {
+          id: project.id,
+          userID,
+        },
+      }),
+
+    onMutate: (userID) => {
+      queryClient.cancelQueries(
+        queries.projects.detail(project.id)._ctx.listMembers()
+      );
+
+      const old = queryClient.getQueryData(
+        queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+          .queryKey
+      ) as UserOnProject[];
+
+      const newMembers = old.filter((member: UserOnProject) => {
+        return member.id !== userID;
+      });
+
+      queryClient.setQueryData(
+        queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+          .queryKey,
+        newMembers
+      );
+
+      return {
+        old,
+      };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(
+        queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
+          .queryKey,
+        context?.old
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(
+        queries.projects.detail(project.id)._ctx.listMembers()
+      );
+    },
+  });
+
+  const members = type === "invited" ? invitedMembers : gitMembers;
+
+  if (members.isLoading) {
+    // TODO loading state
+    return null;
+  }
+
+  if (members.data?.length === 0) {
+    return (
+      <div>
+        <p>
+          {type === "invited"
+            ? "No members have been invited to this project"
+            : "No members have access to this project via your VCS"}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -113,13 +191,26 @@ export function MemberSection({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {members.map((member) => (
+        {members.data?.map((member) => (
           <TableRow key={member.id}>
             <TableCell className="flex flex-col">
               <span>{member.name}</span>
               <span className="text-on-surface-variant">{member.email}</span>
             </TableCell>
             <TableCell>{member.role}</TableCell>
+            {type === "invited" && (
+              <TableCell>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    deleteMember.mutate(member.id);
+                  }}
+                >
+                  <TrashIcon className="w-5 h-5 text-on-surface-variant" />
+                </Button>
+              </TableCell>
+            )}
           </TableRow>
         ))}
       </TableBody>
@@ -171,3 +262,5 @@ export function InviteMemberSection({ project }: { project: Project }) {
     </div>
   );
 }
+
+function EmptyMembersState() {}
