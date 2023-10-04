@@ -15,15 +15,24 @@ func TeamRoutes(e *echo.Echo) {
 
 	v1.Use(authMiddleware.Session)
 
+	baseRoutes := v1.Group("")
+
 	baseRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin", "member", "accountant"})
-	v1.Use(baseRoleMiddleware.TeamRoleAccess)
+	baseRoutes.Use(baseRoleMiddleware.TeamRoleAccess)
 
-	v1.POST("/projects", controllers.CreateProject)
+	baseRoutes.POST("/projects", controllers.CreateProject)
 
-	v1.GET("/projects", controllers.GetTeamProjects)
-	v1.GET("/users", controllers.GetTeamUsers)
+	baseRoutes.GET("/projects", controllers.GetTeamProjects)
+	baseRoutes.GET("/users", controllers.GetTeamUsers)
 
-	v1.GET("/repos", controllers.GetRepos)
+	baseRoutes.GET("/repos", controllers.GetRepos)
 
-	v1.GET("/installations", controllers.GetInstallations)
+	baseRoutes.GET("/installations", controllers.GetInstallations)
+
+	adminRoutes := v1.Group("/admin")
+
+	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})
+	adminRoutes.Use(adminRoleMiddleware.TeamRoleAccess)
+
+	adminRoutes.DELETE("/users/:user_id", controllers.RemoveTeamMember)
 }

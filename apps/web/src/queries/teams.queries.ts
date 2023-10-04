@@ -13,6 +13,32 @@ export const teamKeys = createQueryKeys("teams", {
             params: { teamID: teamID },
           }),
       }),
+      listMembers: () => ({
+        queryKey: ["members"],
+        queryFn: () =>
+          API.get("/teams/{teamID}/users", {
+            headers: { cookie },
+            params: { teamID: teamID },
+          }),
+        contextQueries: {
+          invited: () => ({
+            queryKey: ["invited"],
+            queryFn: () =>
+              API.get("/teams/{teamID}/users", {
+                headers: { cookie },
+                params: { teamID: teamID },
+              }).then((res) => res.filter((user) => user.type === "invited")),
+          }),
+          git: () => ({
+            queryKey: ["git"],
+            queryFn: () =>
+              API.get("/teams/{teamID}/users", {
+                headers: { cookie },
+                params: { teamID: teamID },
+              }).then((res) => res.filter((user) => user.type === "git")),
+          }),
+        },
+      }),
     },
   }),
 
@@ -21,7 +47,7 @@ export const teamKeys = createQueryKeys("teams", {
     queryFn: () =>
       API.get("/user/teams", {
         headers: {
-          ...(cookie ? {cookie} : {}),
+          ...(cookie ? { cookie } : {}),
         },
       }),
   }),
