@@ -46,6 +46,10 @@ type DELETE = Method<{
       name: string;
     };
   };
+  "/projects/{id}/admin/users/{userID}": {
+    res: undefined;
+    req: undefined;
+  };
 }>;
 
 export interface ProjectAPI {
