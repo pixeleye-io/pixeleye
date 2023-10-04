@@ -24,7 +24,7 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
       credentials: "include",
     }).then((res) => {
       if (res.ok) {
-        return res.json();
+        return res.json().catch(() => undefined);
       }
       return Promise.reject(res);
     })

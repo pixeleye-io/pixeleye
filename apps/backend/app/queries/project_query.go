@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/rs/zerolog/log"
 
 	nanoid "github.com/matoous/go-nanoid/v2"
 )
@@ -152,6 +153,8 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 		return project, fmt.Errorf("project not found")
 	}
 
+	log.Debug().Msgf("project: %+v", project)
+
 	return project, err
 }
 
@@ -216,7 +219,7 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 type UserOnProject struct {
 	*models.User
 	Role     string `db:"role" json:"role"`
-	RoleSync bool   `db:"role_sync" json:"role_sync"`
+	RoleSync bool   `db:"role_sync" json:"roleSync"`
 	Type     string `db:"type" json:"type"`
 }
 
@@ -346,10 +349,10 @@ func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID s
 	return err
 }
 
-func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string, role string) error {
-	query := `UPDATE project_users SET role = $1 WHERE project_id = $2 AND user_id = $3`
+func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) error {
+	query := `UPDATE project_users SET role = $1, role_sync = $2 WHERE project_id = $3 AND user_id = $4`
 
-	_, err := q.Exec(query, role, projectID, userID)
+	_, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
 
 	return err
 }

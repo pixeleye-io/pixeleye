@@ -1,5 +1,6 @@
 import { API } from "@/libs";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
+import { UserOnProjectRole } from "@pixeleye/api";
 
 export const projectKeys = createQueryKeys("projects", {
   detail: (projectID: string, cookie: string = "") => ({
@@ -41,6 +42,15 @@ export const projectKeys = createQueryKeys("projects", {
                 headers: { cookie },
                 params: { id: projectID },
               }).then((res) => res.filter((user) => user.type === "git")),
+          }),
+          updateRole: (userID: string) => ({
+            queryKey: [userID, "updateRole"],
+            queryFn: (role: UserOnProjectRole) =>
+              API.patch("/projects/{id}/admin/users/{userID}", {
+                headers: { cookie },
+                params: { id: projectID, userID },
+                body: { role },
+              }),
           }),
         },
       }),

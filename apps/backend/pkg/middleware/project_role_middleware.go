@@ -19,7 +19,7 @@ type ProjectPermissionsRequired struct {
 }
 
 func NewProjectPermissionsRequired(roles []string, teamRoles []string) *ProjectPermissionsRequired {
-	return &ProjectPermissionsRequired{Roles: roles}
+	return &ProjectPermissionsRequired{Roles: roles, TeamRoles: teamRoles}
 }
 
 func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) echo.HandlerFunc {
@@ -41,22 +41,23 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 		}
 
 		user, err := GetUser(c)
-
 		if err != nil {
 			return err
 		}
 
 		db, err := database.OpenDBConnection()
-
 		if err != nil {
 			return err
 		}
 
 		project, err := db.GetProjectAsUser(projectID, user.ID)
-
 		if err != nil {
 			return err
 		}
+
+		log.Debug().Msgf("project: %+v", project)
+		log.Debug().Msgf("roles: %+v", p.Roles)
+		log.Debug().Msgf("team roles: %+v", p.TeamRoles)
 
 		if !slices.Contains(p.Roles, project.Role) && !slices.Contains(p.TeamRoles, project.TeamRole) {
 			return echo.NewHTTPError(401, "you do not have permission to access this resource.")

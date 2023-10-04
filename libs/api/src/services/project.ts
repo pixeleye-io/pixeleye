@@ -52,8 +52,19 @@ type DELETE = Method<{
   };
 }>;
 
+type PATCH = Method<{
+  "/projects/{id}/admin/users/{userID}": {
+    res: undefined;
+    req: {
+      role?: UserOnProjectRole;
+      sync?: boolean;
+    };
+  };
+}>;
+
 export interface ProjectAPI {
   GET: GET;
   POST: POST;
   DELETE: DELETE;
+  PATCH: PATCH;
 }
