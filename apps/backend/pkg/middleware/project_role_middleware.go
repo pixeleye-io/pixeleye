@@ -55,10 +55,6 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 			return err
 		}
 
-		log.Debug().Msgf("project: %+v", project)
-		log.Debug().Msgf("roles: %+v", p.Roles)
-		log.Debug().Msgf("team roles: %+v", p.TeamRoles)
-
 		if !slices.Contains(p.Roles, project.Role) && !slices.Contains(p.TeamRoles, project.TeamRole) {
 			return echo.NewHTTPError(401, "you do not have permission to access this resource.")
 		}

@@ -440,6 +440,7 @@ func UpdateUserOnProject(c echo.Context) error {
 			return err
 		}
 	} else if body.Sync {
+		// We set the viewer as we're not sure what end role the user will get. This means the user won't be able to do anything until the sync is complete.
 		if err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, models.PROJECT_MEMBER_ROLE_VIEWER, true); err != nil {
 			return err
 		}

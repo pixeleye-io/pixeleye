@@ -9,7 +9,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
-	"github.com/rs/zerolog/log"
 
 	nanoid "github.com/matoous/go-nanoid/v2"
 )
@@ -152,8 +151,6 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 	if err == sql.ErrNoRows {
 		return project, fmt.Errorf("project not found")
 	}
-
-	log.Debug().Msgf("project: %+v", project)
 
 	return project, err
 }

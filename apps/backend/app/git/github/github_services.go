@@ -560,7 +560,7 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 			}
 
 			projects, err := db.GetTeamsProjects(ctx, team.ID)
-			if err != nil {
+			if err != nil && err != sql.ErrNoRows {
 				log.Err(err).Msgf("Failed to get projects for team %s", team.ID)
 				errors <- err
 				return
