@@ -1,8 +1,7 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { loadAndMergeConfig } from "./config";
-import { upload, ping } from "./handlers";
-import { e2e } from "./handlers/e2e";
+import { upload, ping, e2e, storybook } from "./handlers";
 import { defaults } from "@pixeleye/js-sdk";
 
 export const program = new Command();
@@ -58,6 +57,17 @@ apiOptions("e2e")
   .hook("preAction", loadAndMergeConfig)
   .action(e2e);
 
-apiOptions;
+apiOptions("storybook")
+  .option(
+    "-p, --port <port>",
+    "Port to run local snapshot server",
+    defaults.port
+  )
+  .argument("<url>", "URL to your storybook, e.g. http://localhost:6006")
+  .description(
+    "Capture your storybook stories and upload screenshots to pixeleye"
+  )
+  .hook("preAction", loadAndMergeConfig)
+  .action(storybook);
 
 export default program.parse(process.argv);

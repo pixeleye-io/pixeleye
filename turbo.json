@@ -14,7 +14,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "sitemap": {
       "dependsOn": ["build"],
@@ -28,11 +28,13 @@
       "dependsOn": ["setup:test"]
     },
     "test:api": {},
+    "storybook": {},
     "start": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "dev": {
+      "dependsOn": ["^dev"],
       "cache": false,
       "persistent": true
     }

@@ -1,5 +1,8 @@
 {
   "extends": "@pixeleye/tsconfig/node.json",
   "include": ["."],
+  "compilerOptions": {
+    "lib": ["DOM", "ESNext"]
+  },
   "exclude": ["dist", "build", "node_modules"]
 }

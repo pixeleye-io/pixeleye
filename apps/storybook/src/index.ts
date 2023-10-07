@@ -1,1 +1,2 @@
-export * from "./snapshot";
+export * from "./browser";
+export * from "./capture";

@@ -1,17 +1,31 @@
 {
   "name": "@pixeleye/storybook",
+  "description": "Storybook integration for Pixeleye",
   "private": false,
   "version": "0.0.0",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "test:e2e": ""
+    "test:e2e": "",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "pnpm run build -- --watch"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
   "dependencies": {
     "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
     "@pixeleye/booth": "workspace:*",
+    "@pixeleye/puppeteer": "workspace:*",
     "@storybook/addons": "^7.4.6",
+    "puppeteer": "^21.3.5",
+    "tsup": "^7.2.0",
     "undici": "^5.25.2"
   },
   "devDependencies": {

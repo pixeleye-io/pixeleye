@@ -5,8 +5,13 @@
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "test:e2e": "vitest"
+    "test:e2e": "vitest",
+    "build": "tsup",
+    "dev": "pnpm run build -- --watch"
   },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "dependencies": {
     "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
@@ -25,6 +30,7 @@
     "execa": "^8.0.1",
     "get-port": "^7.0.0",
     "pptr-testing-library": "^0.7.0",
+    "tsup": "^7.2.0",
     "typescript": "5.2.2",
     "vitest": "^0.34.5"
   }

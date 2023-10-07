@@ -1,14 +1,24 @@
 {
   "name": "@pixeleye/cli",
+  "description": "Pixeleye CLI",
   "version": "0.0.0",
-  "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "private": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "build": "node ./build.mjs",
-    "upload-images": "node ./dist/index.js upload --url=http://localhost:5000/v1 ./test-images"
+    "upload-images": "node ./dist/index.js upload --url=http://localhost:5000/v1 ./test-images",
+    "run:storybook": "node ./dist/index.js storybook https://localhost:6006",
+    "build": "tsup",
+    "dev": "pnpm run build -- --watch"
   },
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
@@ -23,6 +33,7 @@
   },
   "dependencies": {
     "@pixeleye/js-sdk": "workspace:*",
+    "@pixeleye/storybook": "workspace:*",
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
     "config": "^3.3.9",

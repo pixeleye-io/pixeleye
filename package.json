@@ -1,6 +1,8 @@
 {
   "name": "pixeleye",
-  "scripts": {},
+  "scripts": {
+    "publish-packages": "turbo run build lint test && changeset version && changeset publish"
+  },
   "license": "AGPL-3.0",
   "devDependencies": {
     "eslint": "^8.50.0",
@@ -8,5 +10,8 @@
     "turbo": "^1.10.14",
     "typescript": "^5.2.2"
   },
-  "packageManager": "pnpm@8.6.6"
+  "packageManager": "pnpm@8.6.6",
+  "dependencies": {
+    "@changesets/cli": "^2.26.2"
+  }
 }
