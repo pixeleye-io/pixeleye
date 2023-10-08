@@ -20,7 +20,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
+    "rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/booth": "workspace:*",
     "@pixeleye/puppeteer": "workspace:*",
     "@storybook/addons": "^7.4.6",

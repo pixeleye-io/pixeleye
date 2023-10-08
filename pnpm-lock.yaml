@@ -276,9 +276,6 @@ importers:
 
   apps/puppeteer:
     dependencies:
-      '@chromaui/rrweb-snapshot':
-        specifier: 2.0.0-alpha.7-noAbsolute.2
-        version: 2.0.0-alpha.7-noAbsolute.2
       '@pixeleye/booth':
         specifier: workspace:*
         version: link:../../libs/booth
@@ -288,6 +285,9 @@ importers:
       puppeteer-core:
         specifier: ^21.3.5
         version: 21.3.5
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       undici:
         specifier: ^5.25.2
         version: 5.25.2
@@ -331,9 +331,6 @@ importers:
 
   apps/storybook:
     dependencies:
-      '@chromaui/rrweb-snapshot':
-        specifier: 2.0.0-alpha.7-noAbsolute.2
-        version: 2.0.0-alpha.7-noAbsolute.2
       '@pixeleye/booth':
         specifier: workspace:*
         version: link:../../libs/booth
@@ -346,6 +343,9 @@ importers:
       puppeteer:
         specifier: ^21.3.5
         version: 21.3.5(typescript@5.2.2)
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -587,9 +587,6 @@ importers:
 
   libs/booth:
     dependencies:
-      '@chromaui/rrweb-snapshot':
-        specifier: 2.0.0-alpha.7-noAbsolute.2
-        version: 2.0.0-alpha.7-noAbsolute.2
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../api
@@ -611,6 +608,9 @@ importers:
       playwright:
         specifier: ^1.38.1
         version: 1.38.1
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -684,6 +684,9 @@ importers:
       require-relative:
         specifier: ^0.8.7
         version: 0.8.7
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@20.7.0)(typescript@5.2.2)
@@ -2565,10 +2568,6 @@ packages:
       fs-extra: 7.0.1
       human-id: 1.0.2
       prettier: 2.8.8
-    dev: false
-
-  /@chromaui/rrweb-snapshot@2.0.0-alpha.7-noAbsolute.2:
-    resolution: {integrity: sha512-vOVSOgfNyxomxm6ENMqm1C4rLkLLOlyEyhR5J2SKBALuFfuJHjhIqNLSOgqVRO9J3++AUOCktknyJ/F+mSvEfA==}
     dev: false
 
   /@code-hike/lighter@0.8.1:
@@ -14243,6 +14242,10 @@ packages:
 
   /rrweb-cssom@0.6.0:
     resolution: {integrity: sha512-APM0Gt1KoXBz0iIkkdB/kfvGOwC4UuJFeG/c+yV7wSc7q96cG/kJ0HiYCnzivD9SB53cLV1MlHFNfOuPaadYSw==}
+
+  /rrweb-snapshot@2.0.0-alpha.11:
+    resolution: {integrity: sha512-N0dzeJA2VhrlSOadkKwCVmV/DuNOwBH+Lhx89hAf9PQK4lCS8AP4AaylhqUdZOYHqwVjqsYel/uZ4hN79vuLhw==}
+    dev: false
 
   /run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}

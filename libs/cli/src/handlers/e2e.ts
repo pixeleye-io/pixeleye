@@ -7,14 +7,14 @@ import { execSync } from "child_process";
 
 interface Config {
   token: string;
-  url: string;
+  endpoint: string;
   port: number;
 }
 
 export async function e2e(command: string, options: Config) {
   const ctx: Context = {
     env: process.env,
-    endpoint: options.url,
+    endpoint: options.endpoint,
     token: options.token,
   };
 
@@ -37,7 +37,7 @@ export async function e2e(command: string, options: Config) {
 
   await start({
     port: options.port,
-    endpoint: options.url,
+    endpoint: options.endpoint,
     token: options.token,
     build,
   }).catch((err) => {

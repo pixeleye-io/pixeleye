@@ -7,9 +7,8 @@ export async function loadAndMergeConfig(
   subCommand: Command
 ) {
   const commands = hookedCommand.opts();
-  const configPath = commands.config;
 
-  const config = await loadConfig(configPath);
+  const config = await loadConfig(commands.config);
 
   // Merge config file options with command line options
   for (const [key, value] of Object.entries(config)) {
@@ -17,13 +16,14 @@ export async function loadAndMergeConfig(
     const mappedKey = optionMap[key as keyof typeof optionMap] || key;
 
     // We don't want to override command line options
-    const newValue = commands[mappedKey] ?? value;
+    const newValue = commands[mappedKey] || value;
 
+    console.log(mappedKey, newValue);
     subCommand.setOptionValue(mappedKey, newValue);
     commands[mappedKey] = newValue;
   }
 
-  commands.url = commands.url || defaults.endpoint;
+  console.log(config, commands);
 
   // Key and secret are required
   if (!commands.token)

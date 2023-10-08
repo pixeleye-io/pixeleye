@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { serializedNodeWithId } from "@chromaui/rrweb-snapshot";
+import { serializedNodeWithId } from "rrweb-snapshot";
 
 const BaseSnapshotOptionsZod = z.object({
   viewports: z.array(z.string()),

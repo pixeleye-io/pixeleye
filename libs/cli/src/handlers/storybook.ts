@@ -7,14 +7,14 @@ import { noParentBuildFound } from "../messages/builds";
 
 interface Config {
   token: string;
-  url: string;
+  endpoint: string;
   port: number;
 }
 
 export async function storybook(storybookURL: string, options: Config) {
   const ctx: Context = {
     env: process.env,
-    endpoint: options.url,
+    endpoint: options.endpoint,
     token: options.token,
   };
 
@@ -37,7 +37,7 @@ export async function storybook(storybookURL: string, options: Config) {
 
   await start({
     port: options.port,
-    endpoint: options.url,
+    endpoint: options.endpoint,
     token: options.token,
     build,
   }).catch((err) => {
@@ -52,6 +52,9 @@ export async function storybook(storybookURL: string, options: Config) {
   try {
     await captureStories({
       storybookURL,
+      port: options.port,
+      endpoint: options.endpoint,
+      token: options.token,
     });
   } catch (err) {
     e2eSpinner.fail("Failed to run storybook crawler.");

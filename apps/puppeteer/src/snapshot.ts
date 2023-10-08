@@ -5,10 +5,8 @@ import {
   Options as ServerOptions,
   SnapshotOptions,
 } from "@pixeleye/booth";
-import { snapshot } from "@chromaui/rrweb-snapshot";
+import * as rrweb from "rrweb-snapshot";
 import { defaults, loadConfig } from "@pixeleye/js-sdk";
-
-type SnapshotFn = typeof snapshot;
 
 export interface Options {
   fullPage?: boolean;
@@ -16,6 +14,7 @@ export interface Options {
   variant?: string;
   browsers?: string[];
   viewports?: string[];
+  config?: Partial<Awaited<ReturnType<typeof loadConfig>>>;
 }
 
 export async function pixeleyeSnapshot(
@@ -29,19 +28,26 @@ export async function pixeleyeSnapshot(
     throw new Error("No name provided");
   }
 
-  await (page as Page).addScriptTag({
-    content: `
-    window.rrwebSnapshot = {
-      snapshot: ${snapshot},
-    };
-  `,
+  // await page.exposeFunction("snapshot", (document: Document) =>
+  //   rrweb.snapshot(document)
+  // );
+
+  interface WindowWithSnapshot extends Window {
+    rrwebSnapshot: { snapshot: typeof rrweb.snapshot };
+  }
+
+  const content = await fetch(
+    "https://unpkg.com/rrweb-snapshot@2.0.0-alpha.11/es/rrweb-snapshot.js"
+  ).then((res) => res.text());
+
+  await page.addScriptTag({
+    content: content + "window.snapshot = snapshot;\n",
+    type: "module",
   });
 
-  const domSnapshot = await (page as Page).evaluate(() => {
-    // @ts-ignore
-    const { snapshot } = window.rrwebSnapshot;
-
-    return (snapshot as SnapshotFn)(document);
+  const domSnapshot = await (page as Page).evaluate(async () => {
+    const { snapshot } = window as any;
+    return snapshot(document);
   });
 
   const opts: ServerOptions = {
@@ -55,12 +61,12 @@ export async function pixeleyeSnapshot(
     throw new Error("No DOM snapshot available");
   }
 
-  const config = await loadConfig();
+  const config = options.config || (await loadConfig());
 
   const snap: SnapshotOptions = {
     name: options.name,
-    viewports: options.viewports || config.viewports,
-    targets: options.browsers || config.browsers,
+    viewports: options.viewports || config.viewports || [],
+    targets: options.browsers || config.browsers || [],
     dom: domSnapshot,
     fullPage: options.fullPage,
     variant: options.variant,

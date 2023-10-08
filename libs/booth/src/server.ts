@@ -1,7 +1,5 @@
 import { Browser, chromium, firefox, webkit } from "playwright";
 import { SnapshotOptions, SnapshotOptionsZod } from "./types";
-import { readFileSync } from "fs";
-import { join } from "path";
 import { takeScreenshots } from "./screenshots";
 import express, { NextFunction, Request, Response } from "express";
 import {
@@ -28,21 +26,6 @@ function notFoundHandler(res: Response) {
   res.writeHead(404);
   res.end("Not found");
 }
-
-// function scriptHandler(res: Response) {
-//   res.writeHead(200);
-//   const scriptRoot = require
-//     .resolve("@chromaui/rrweb-snapshot")
-//     .replaceAll("\\", "/")
-//     .replace(/(?<=@chromaui\/rrweb-snapshot).*/, "");
-
-//   const script = readFileSync(
-//     join(scriptRoot, "dist", "rrweb-snapshot.min.js"),
-//     "utf-8"
-//   );
-
-//   res.end(script);
-// }
 
 async function snapshotHandler(
   ctx: Context,
@@ -127,14 +110,6 @@ export async function start({
       res.status(500).json({ message: err.message }).end();
     });
   });
-
-  // app.get("/script", (_req, res) => {
-  //   scriptHandler(res);
-  // });
-
-  // app.get("/complete", (_req, res) => {
-  //   scriptHandler(res);
-  // });
 
   app.get("*", (_req, res) => {
     notFoundHandler(res);

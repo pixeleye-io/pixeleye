@@ -13,7 +13,7 @@ program.configureOutput({
 
 export const optionMap = {
   t: "token",
-  u: "url",
+  e: "endpoint",
   p: "port",
 } as const;
 
@@ -22,17 +22,15 @@ const configOption = (name: string) =>
     .command(name)
     .option(
       "-c, --config <path>",
-      "Path to config file, e.g. ./config/pixeleye.config.js",
-      defaults.configFile
+      "Path to config file, e.g. ./config/pixeleye.config.js"
     );
 
 const apiOptions = (name: string) =>
   configOption(name)
     .option("-t, --token <token>", "Pixeleye project token", undefined)
     .option(
-      "-u, --url <url>",
-      "Pixeleye API URL (only use if self-hosting)",
-      defaults.endpoint
+      "-e, --endpoint <endpoint>",
+      "Pixeleye API URL (only use if self-hosting)"
     );
 
 apiOptions("upload")
@@ -47,22 +45,14 @@ apiOptions("ping")
   .action(ping);
 
 apiOptions("e2e")
-  .option(
-    "-p, --port <port>",
-    "Port to run local snapshot server",
-    defaults.port
-  )
+  .option("-p, --port <port>", "Port to run local snapshot server")
   .argument("<command>", "Command to run e2e tests, e.g. cypress run")
   .description("Run e2e tests and upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(e2e);
 
 apiOptions("storybook")
-  .option(
-    "-p, --port <port>",
-    "Port to run local snapshot server",
-    defaults.port
-  )
+  .option("-p, --port <port>", "Port to run local snapshot server")
   .argument("<url>", "URL to your storybook, e.g. http://localhost:6006")
   .description(
     "Capture your storybook stories and upload screenshots to pixeleye"

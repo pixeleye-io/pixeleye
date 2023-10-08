@@ -15,7 +15,7 @@ async function startBoothServer() {
   const ctx: Context = {
     env: process.env,
     endpoint: "http://localhost:5000/v1",
-    token: "",
+    token: "yUkHAAra6i0W050S8ZAyR:8hYOYj8kL5TFyYiSTiZBD6okoeGxIv28",
   };
 
   getAPI(ctx);

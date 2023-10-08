@@ -1,5 +1,5 @@
 import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
-import { getStoriesInternal } from "./browser";
+import { SBWindow } from "./browser";
 import { launch } from "puppeteer";
 
 async function openBrowser() {
@@ -12,22 +12,86 @@ async function openBrowser() {
 
 export async function captureStories({
   storybookURL,
+  port,
+  endpoint,
+  token,
 }: {
   storybookURL: string;
+  port: number;
+  endpoint: string;
+  token: string;
 }) {
   const { browser, page } = await openBrowser();
 
   await page.goto(storybookURL);
 
-  const stories = await page.evaluate(getStoriesInternal);
+  await page.goto(
+    storybookURL +
+      "/iframe.html?selectedKind=story-crawler-kind&selectedStory=story-crawler-story",
+    {
+      timeout: 60_000,
+      waitUntil: "domcontentloaded",
+    }
+  );
 
-  for (const story of stories) {
-    await page.goto(`${storybookURL}/iframe.html?id=${story.id}`);
+  await page.waitForFunction(
+    () => (window as SBWindow).__STORYBOOK_CLIENT_API__,
+    {
+      timeout: 60_000,
+    }
+  );
+
+  const result = await page.evaluate(async () => {
+    const { __STORYBOOK_CLIENT_API__: api } = window as SBWindow;
+
+    await api._storyStore?.cacheAllCSFFiles();
+
+    return {
+      stories: Object.values(api._storyStore?.extract() || {}).map(
+        ({ id, story, kind }) => ({
+          id,
+          story,
+          kind,
+        })
+      )!,
+    };
+  });
+
+  for (const story of result.stories!) {
+    await page.goto(
+      `${storybookURL}/iframe.html?id=${story.id}&viewMode=story`,
+      {
+        waitUntil: "domcontentloaded",
+        timeout: 60_000,
+      }
+    );
+
+    // await page.screenshot({
+    //   path: `./${story.id}.png`,
+    //   fullPage: true,
+    // });
     await pixeleyeSnapshot(page, {
-      name: story.name,
+      name: story.id,
       browsers: ["chromium", "firefox", "webkit"],
+      config: {
+        endpoint,
+        token,
+        port,
+      },
     });
   }
+  // result.stories?.forEach(async (story) => {
+  //   await page
+  //     .goto(`${storybookURL}/iframe.html?id=${story.id}&viewMode=story`, {
+  //       waitUntil: "domcontentloaded",
+  //       timeout: 60_000,
+  //     })
+  //     .catch(() => {});
+  //   await pixeleyeSnapshot(page, {
+  //     name: story.id,
+  //     browsers: ["chromium", "firefox", "webkit"],
+  //   });
+  // });
 
   await browser.close();
 }

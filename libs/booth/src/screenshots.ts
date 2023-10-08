@@ -1,7 +1,7 @@
 import { Browser } from "playwright";
 import { SnapshotOptions } from "./types";
 import { JSDOM } from "jsdom";
-import { createCache, createMirror, rebuild } from "@chromaui/rrweb-snapshot";
+import { createCache, createMirror, rebuild } from "rrweb-snapshot";
 
 async function takeOnBrowser(
   browser: Browser,

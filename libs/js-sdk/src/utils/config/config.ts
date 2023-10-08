@@ -3,10 +3,7 @@ import { defaults } from "./defaults";
 
 export async function loadConfig(path?: string): Promise<typeof defaults> {
   try {
-    let userConfig = requireRelative(
-      path || defaults.configFile,
-      process.cwd()
-    );
+    let userConfig = requireRelative(path || defaults.config, process.cwd());
 
     if (typeof userConfig === "function") {
       userConfig = await userConfig();
@@ -26,6 +23,8 @@ export async function loadConfig(path?: string): Promise<typeof defaults> {
   } catch (e: any) {
     if (e.code === "MODULE_NOT_FOUND") {
       console.log("No config found.");
+    } else {
+      throw e;
     }
   }
 

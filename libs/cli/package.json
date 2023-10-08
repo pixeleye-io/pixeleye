@@ -16,7 +16,7 @@
     "lint": "eslint",
     "types": "tsc --noEmit",
     "upload-images": "node ./dist/index.js upload --url=http://localhost:5000/v1 ./test-images",
-    "run:storybook": "node ./dist/index.js storybook https://localhost:6006",
+    "run:storybook": "node ./dist/index.js storybook http://localhost:6006 --config ./pixeleye.config.cjs",
     "build": "tsup",
     "dev": "pnpm run build -- --watch"
   },
@@ -32,6 +32,7 @@
     "tsup": "^7.2.0"
   },
   "dependencies": {
+    "rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/js-sdk": "workspace:*",
     "@pixeleye/storybook": "workspace:*",
     "chalk": "^5.3.0",

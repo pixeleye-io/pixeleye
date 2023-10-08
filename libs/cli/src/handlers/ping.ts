@@ -1,6 +1,6 @@
 interface Config {
   token: string;
-  url: string;
+  endpoint: string;
 }
 
 export async function ping(url: string, options: Config) {
