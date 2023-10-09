@@ -28,14 +28,6 @@ export async function pixeleyeSnapshot(
     throw new Error("No name provided");
   }
 
-  // await page.exposeFunction("snapshot", (document: Document) =>
-  //   rrweb.snapshot(document)
-  // );
-
-  interface WindowWithSnapshot extends Window {
-    rrwebSnapshot: { snapshot: typeof rrweb.snapshot };
-  }
-
   const content = await fetch(
     "https://unpkg.com/rrweb-snapshot@2.0.0-alpha.11/es/rrweb-snapshot.js"
   ).then((res) => res.text());
@@ -53,7 +45,7 @@ export async function pixeleyeSnapshot(
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
       // eslint-disable-next-line turbo/no-undeclared-env-vars
-      process.env.boothPort || defaults.port
+      options.config?.port || process.env.boothPort || defaults.port
     }`,
   };
 
@@ -75,8 +67,7 @@ export async function pixeleyeSnapshot(
   const res = await uploadSnapshot(opts, snap);
 
   if (res.status < 200 || res.status >= 300) {
-    const data = await res.json();
-
+    const data = await res.json().catch(() => res.statusText);
     throw new Error("Error uploading snapshot, err: " + JSON.stringify(data));
   }
 }

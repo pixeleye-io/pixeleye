@@ -1,5 +1,5 @@
 module.exports = {
-  token: "yUkHAAra6i0W050S8ZAyR:8hYOYj8kL5TFyYiSTiZBD6okoeGxIv28",
+  token: "FFM9vJuiWcdnGLeKwVLgH:CAhq6AEtqdQmx3ycPfOOpw0Zvip2x1nW",
   endpoint: "http://localhost:5000/v1",
   port: 3003,
 };

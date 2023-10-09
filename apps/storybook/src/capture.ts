@@ -66,10 +66,6 @@ export async function captureStories({
       }
     );
 
-    // await page.screenshot({
-    //   path: `./${story.id}.png`,
-    //   fullPage: true,
-    // });
     await pixeleyeSnapshot(page, {
       name: story.id,
       browsers: ["chromium", "firefox", "webkit"],
@@ -78,20 +74,10 @@ export async function captureStories({
         token,
         port,
       },
+      viewports: ["1024x768"],
+      fullPage: true,
     });
   }
-  // result.stories?.forEach(async (story) => {
-  //   await page
-  //     .goto(`${storybookURL}/iframe.html?id=${story.id}&viewMode=story`, {
-  //       waitUntil: "domcontentloaded",
-  //       timeout: 60_000,
-  //     })
-  //     .catch(() => {});
-  //   await pixeleyeSnapshot(page, {
-  //     name: story.id,
-  //     browsers: ["chromium", "firefox", "webkit"],
-  //   });
-  // });
 
   await browser.close();
 }

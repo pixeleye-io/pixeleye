@@ -8,16 +8,19 @@ async function takeOnBrowser(
   target: string,
   data: SnapshotOptions
 ) {
-  const page = await browser.newPage({
-    javaScriptEnabled: false,
-  });
+  const page = await browser.newPage({});
 
-  if (data.url) await page.goto(data.url);
-  else {
+  if (data.url) {
+    await page.goto(data.url);
+  } else {
     const doc = new JSDOM().window.document;
     const cache = createCache();
     const mirror = createMirror();
     rebuild(data.dom!, { doc, cache, mirror });
+
+    const styleEl = doc.createElement("style");
+
+    doc.documentElement.appendChild(styleEl);
 
     await page.setContent(doc.documentElement.outerHTML);
   }

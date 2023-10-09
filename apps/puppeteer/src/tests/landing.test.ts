@@ -19,7 +19,7 @@ describe("Landing page - e2e", () => {
     await app.navigate("/");
 
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env.boothPort = "3000";
+    process.env.boothPort = app.boothPort.toString();
     await pixeleyeSnapshot(app.page, { name: "landing" });
   });
 });

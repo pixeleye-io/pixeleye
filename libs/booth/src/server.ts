@@ -115,9 +115,7 @@ export async function start({
     notFoundHandler(res);
   });
 
-  const server = app.listen(port, () => {
-    console.log(`@pixeleye/booth listening on port ${port}`);
-  });
+  const server = app.listen(port);
 
   return {
     close: () => server.close(),
