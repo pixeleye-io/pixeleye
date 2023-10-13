@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
@@ -131,4 +132,29 @@ func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, git
 	}
 
 	return installation, nil
+}
+
+type TeamUsageDb struct {
+	TotalSnapshots int `db:"total_snapshots"`
+}
+
+func (q *TeamQueries) GetTeamUsage(ctx context.Context, teamID string, form time.Time, to time.Time) (models.TeamUsage, error) {
+	query := `SELECT COUNT(*) as total_snapshots FROM snapshot WHERE team_id = $1 AND created_at >= $2 AND created_at <= $3`
+
+	usageDB := TeamUsageDb{}
+
+	usage := models.TeamUsage{
+		FromDate: form,
+		ToDate:   to,
+		TeamID:   teamID,
+	}
+
+	err := q.GetContext(ctx, &usageDB, query, teamID, form, to)
+	if err != nil {
+		return usage, err
+	}
+
+	usage.TotalSnapshots = usageDB.TotalSnapshots
+
+	return usage, err
 }

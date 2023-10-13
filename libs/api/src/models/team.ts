@@ -21,5 +21,14 @@ export const UserOnTeamZod = UserZod.extend({
   type: z.enum(["invited", "git"]),
 });
 
+export const TeamUsageZod = z.object({
+  teamID: z.string().length(21),
+  totalSnapshots: z.number(),
+  fromDate: z.string().datetime(),
+  toDate: z.string().datetime(),
+});
+
+export type TeamUsage = z.infer<typeof TeamUsageZod>;
+
 export type Team = z.infer<typeof TeamZod>;
 export type UserOnTeam = z.infer<typeof UserOnTeamZod>;

@@ -29,6 +29,8 @@ func TeamRoutes(e *echo.Echo) {
 
 	baseRoutes.GET("/installations", controllers.GetInstallations)
 
+	baseRoutes.GET("/usage", controllers.GetTeamUsage)
+
 	adminRoutes := v1.Group("/admin")
 
 	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})

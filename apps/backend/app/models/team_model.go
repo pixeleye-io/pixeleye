@@ -49,3 +49,10 @@ type TeamMember struct {
 	RoleSync bool   `db:"role_sync" json:"roleSync"`
 	Type     string `db:"type" json:"type" validate:"required,oneof=invited git"`
 }
+
+type TeamUsage struct {
+	TeamID         string    `db:"team_id" json:"teamID" validate:"required,nanoid"`
+	TotalSnapshots int       `db:"total_snapshots" json:"totalSnapshots"`
+	FromDate       time.Time `db:"from_date" json:"fromDate"`
+	ToDate         time.Time `db:"to_date" json:"toDate"`
+}

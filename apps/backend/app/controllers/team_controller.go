@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/google/go-github/v55/github"
 	"github.com/labstack/echo/v4"
@@ -174,4 +175,34 @@ func GetInstallations(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, installations)
+}
+
+func GetTeamUsage(c echo.Context) error {
+	team, err := middleware.GetTeam(c)
+
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	fromDate, err := time.Parse(time.UnixDate, c.QueryParam("from"))
+	if err != nil {
+		return err
+	}
+
+	toDate, err := time.Parse(time.UnixDate, c.QueryParam("to"))
+	if err != nil {
+		return err
+	}
+
+	usage, err := db.GetTeamUsage(c.Request().Context(), team.ID, fromDate, toDate)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, usage)
 }
