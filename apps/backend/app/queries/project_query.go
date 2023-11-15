@@ -156,7 +156,7 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 }
 
 func (q *ProjectQueries) CreateProject(project *models.Project, userID string) error {
-	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url)`
+	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url, snapshot_threshold) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url, :snapshot_threshold)`
 	setUsersQuery := `INSERT INTO project_users (project_id, user_id, role, type) VALUES (:project_id, :user_id, :role, :type)`
 
 	time := utils.CurrentTime()
@@ -196,7 +196,7 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 }
 
 func (q *ProjectQueries) UpdateProject(project *models.Project) error {
-	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token WHERE id = :id`
+	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token, updated_at = :updated_at, url = :url, snapshot_threshold = :snapshot_threshold WHERE id = :id`
 
 	project.UpdatedAt = time.Now()
 

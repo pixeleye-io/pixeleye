@@ -26,6 +26,8 @@ type Project struct {
 	SourceID   string    `json:"sourceID,omitempty" db:"source_id"`
 	BuildCount int       `db:"build_count" json:"buildCount"`
 
+	SnapshotThreshold float32 `db:"snapshot_threshold" json:"snapshotThreshold" validate:"omitempty,min=0,max=1"`
+
 	Token        string     `db:"token" json:"-"`
 	RawToken     string     `json:"token,omitempty" db:"-"` // This is used for sending the token to the client. It should only be populated when a project is first created
 	LastActivity *time.Time `db:"last_activity" json:"lastActivity"`
