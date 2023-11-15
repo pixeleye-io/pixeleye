@@ -5,6 +5,7 @@ import {
   InviteMemberSection,
   MemberSection,
   SecuritySection,
+  UpdateProjectSection,
 } from "./sections";
 import { API } from "@/libs";
 import { cookies } from "next/headers";
@@ -88,6 +89,12 @@ export default async function Page({
   return (
     <HydrationBoundary state={dehydratedState}>
       <div className="space-y-10 mt-12">
+        <Section
+          title="General"
+          description="General project settings"
+          >
+            <UpdateProjectSection project={project} />
+          </Section>
         <Section
           title="Security"
           description="The API token is used by our clients to upload the snapshot. Keep this safe"

@@ -19,6 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Slider,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
@@ -391,3 +392,46 @@ export function InviteMemberSection({ project }: { project: Project }) {
 }
 
 function EmptyMembersState() {}
+
+export function UpdateProjectSection({ project }: { project: Project }) {
+  const { register, handleSubmit, formState, reset } = useForm<{
+    name: string;
+    snapshotThreshold: number;
+  }>();
+
+  const onSubmit = handleSubmit(({ name }) =>
+    API.patch("/projects/{id}/admin", {
+      params: {
+        id: project.id,
+      },
+      body: {
+        name,
+      },
+    })
+  );
+
+  useEffect(() => {
+    reset({
+      name: project.name,
+    });
+  }, [project.name, reset]);
+
+  return (
+    <form onSubmit={onSubmit} className="flex items-end space-x-4 mt-8">
+      <Input
+        label="Project name"
+        placeholder="Project name"
+        required
+        {...register("name", { required: true })}
+      />
+      <Slider
+        defaultValue={[project.snapshotThreshold || 0]}
+        step={0.01}
+        {...register("snapshotThreshold", { required: true, min: 0, max: 1 }) as any}
+      />
+      <Button loading={formState.isSubmitting} type="submit">
+        Update
+      </Button>
+    </form>
+  );
+}

@@ -10,7 +10,11 @@ export async function middleware(request: NextRequest) {
     headers: {
       cookie: request.cookies.toString(),
     },
+    next: {
+      revalidate: 0,
+    },
   }).catch(() => null);
+
 
   const session = (await data?.json()) as Session | undefined;
 

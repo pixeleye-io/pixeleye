@@ -16,6 +16,8 @@ export const ProjectZod = z.object({
   sourceID: z.string().optional(),
   token: z.string().optional(),
 
+  snapshotThreshold: z.number().min(0).max(1).optional(),
+
   lastActivity: z.string().datetime().optional(),
 
   role: z.enum(["admin", "reviewer", "viewer"]).optional(),
