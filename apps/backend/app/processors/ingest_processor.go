@@ -81,7 +81,7 @@ func generateBytesHash(imgBytes []byte) (string, error) {
 // 1) Check in build history for an approved snapshot, get first
 // 2) If the approved snapshot is the same as the baseline, then we can approve this snapshot
 // 3) If the approved snapshot is different, then we need to generate a diff and set the status to unreviewed
-func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
+func processSnapshot(ctx context.Context, project models.Project, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
 
 	snapshot.BaselineID = &baselineSnapshot.ID
 
@@ -136,7 +136,7 @@ func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnap
 		return err
 	}
 
-	diffImage := imageDiff.Diff(snapshotImage, baselineImage, &imageDiff.Options{Threshold: 0})
+	diffImage := imageDiff.Diff(snapshotImage, baselineImage, &imageDiff.Options{Threshold: project.SnapshotThreshold})
 
 	if diffImage.Equal {
 		log.Info().Str("SnapshotID", snapshot.ID).Msg("Diff image is equal to baseline after comparing pixels, setting to unchanged")
@@ -242,7 +242,7 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 	return newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots
 }
 
-func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
+func compareBuilds(project models.Project, snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
 
 	ctx := context.TODO()
 
@@ -293,7 +293,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 	}
 
 	for _, snap := range changedSnapshots {
-		err := processSnapshot(ctx, snap[0], snap[1], db)
+		err := processSnapshot(ctx, project, snap[0], snap[1], db)
 
 		if err != nil {
 			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
@@ -326,6 +326,8 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 // We assume all the snapshots belong to the same build
 func IngestSnapshots(snapshotIDs []string) error {
 
+	ctx := context.TODO()
+
 	if len(snapshotIDs) == 0 {
 		return fmt.Errorf("no snapshot IDs provided")
 	}
@@ -353,14 +355,16 @@ func IngestSnapshots(snapshotIDs []string) error {
 	}
 
 	build, err := db.GetBuild(snapshots[0].BuildID)
+	if err != nil {
+		return err
+	}
 
+	project, err := db.GetProject(ctx, build.ProjectID)
 	if err != nil {
 		return err
 	}
 
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
-
-	ctx := context.TODO()
 
 	if strings.TrimSpace(build.TargetBuildID) == "" {
 		err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
@@ -383,7 +387,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 			return err
 		}
 
-		err = compareBuilds(snapshots, parentBuildSnapshots, build, db)
+		err = compareBuilds(project, snapshots, parentBuildSnapshots, build, db)
 
 		if err != nil {
 			return err

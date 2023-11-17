@@ -35,6 +35,10 @@ We have a vscode inspired sidebar which can be resized by hovering and dragging 
 
 The sidebar is home to our batch changes menu. This allows you to quickly accept or reject all changes in the current build.
 
+## Threshold
+
+When comparing screenshots, we use a threshold to determine if a pixel has changed. This threshold is configurable under each projects manage page. The default threshold is 0.1. A lower threshold will result in more pixels being highlighted as changed. Depending on your project, you may want to adjust this threshold to suit your needs. Gradients and anti-aliasing can cause a lot of pixels to be highlighted as changed. If you're seeing a lot of false positives, try increasing the threshold.
+
 ## Feedback
 
 The review experience is a core part of Pixeleye. We are always looking to improve it. If you have any feedback, please let us know. Checkout our [Github Discussions](https://github.com/pixeleye-io/pixeleye/discussions) to see what we're working on and to share your ideas.

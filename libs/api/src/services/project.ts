@@ -60,6 +60,13 @@ type PATCH = Method<{
       sync?: boolean;
     };
   };
+  "/projects/{id}/admin": {
+    res: undefined;
+    req: {
+      name?: string;
+      snapshotThreshold?: number;
+    };
+  };
 }>;
 
 export interface ProjectAPI {

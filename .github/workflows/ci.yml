@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 16]
+        node-version: [18, 20]
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
@@ -184,6 +184,7 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_ORY_ENDPOINT: ${{ secrets.ORY_ENDPOINT }}
+          envkey_KRATOS_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
           envkey_ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
           envkey_SERVER_ENDPOINT: http://127.0.0.1:5000
           envkey_SERVER_URL: 127.0.0.1:5000

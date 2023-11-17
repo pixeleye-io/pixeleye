@@ -9,13 +9,13 @@ import (
 
 var _oryClient *client.APIClient
 
-func getOryClient() *client.APIClient {
+func getOryAdminClient() *client.APIClient {
 	if _oryClient != nil {
 		return _oryClient
 	}
 	cfg := client.NewConfiguration()
 	cfg.Servers = client.ServerConfigurations{
-		{URL: os.Getenv("ORY_ENDPOINT")},
+		{URL: os.Getenv("KRATOS_ADMIN_URL")},
 	}
 
 	_oryClient = client.NewAPIClient(cfg)
@@ -31,7 +31,7 @@ func SetState(ctx context.Context, userID string, active bool) error {
 		state = "inactive"
 	}
 
-	ory := getOryClient()
+	ory := getOryAdminClient()
 
 	authed := context.WithValue(ctx, client.ContextAccessToken, os.Getenv("ORY_API_KEY"))
 
@@ -47,7 +47,7 @@ func GetTokens(ctx context.Context, identityId string) (cl client.IdentityCreden
 
 	authed := context.WithValue(ctx, client.ContextAccessToken, os.Getenv("ORY_API_KEY"))
 
-	ory := getOryClient()
+	ory := getOryAdminClient()
 
 	identity, _, err := ory.IdentityApi.
 		GetIdentity(authed, identityId).

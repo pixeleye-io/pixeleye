@@ -359,6 +359,12 @@ table "project" {
     null = false
   }
 
+  column "snapshot_threshold" {
+    type    = float
+    null    = false
+    default = 0.1
+  }
+
   // we use this to track the number of builds for a project & it allows us to create a unique index on build_number since we can lock the row 
   column "build_count" {
     type    = integer

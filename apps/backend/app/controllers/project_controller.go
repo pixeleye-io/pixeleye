@@ -140,6 +140,48 @@ func GetProject(c echo.Context) error {
 	return c.JSON(http.StatusOK, project)
 }
 
+type updateProjectRequest struct {
+	Name      string   `json:"name"`
+	Threshold *float64 `json:"threshold" validate:"omitempty,min=0,max=1"`
+}
+
+func UpdateProject(c echo.Context) error {
+
+	project := middleware.GetProject(c)
+
+	body := updateProjectRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	if body.Name != "" {
+		project.Name = body.Name
+	}
+
+	if body.Threshold != nil {
+		project.SnapshotThreshold = *body.Threshold
+	}
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	if err := db.UpdateProject(project); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, project)
+}
+
 func RegenerateToken(c echo.Context) error {
 
 	project := middleware.GetProject(c)
@@ -173,7 +215,7 @@ func RegenerateToken(c echo.Context) error {
 	return c.JSON(http.StatusOK, project)
 }
 
-type UpdateProjectRequest struct {
+type DeleteProjectRequest struct {
 	Name string `json:"name" validate:"required"`
 }
 
@@ -181,7 +223,7 @@ func DeleteProject(c echo.Context) error {
 
 	project := middleware.GetProject(c)
 
-	body := UpdateProjectRequest{}
+	body := DeleteProjectRequest{}
 
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())

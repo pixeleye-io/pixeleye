@@ -34,6 +34,7 @@ func ProjectRoutes(e *echo.Echo) {
 	adminRoutes.Use(adminRoleMiddleware.ProjectRoleAccess)
 
 	adminRoutes.DELETE("", controllers.DeleteProject)
+	adminRoutes.PATCH("", controllers.UpdateProject)
 	adminRoutes.POST("/new-token", controllers.RegenerateToken)
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveUserFromProject)
 	adminRoutes.PATCH("/users/:user_id", controllers.UpdateUserOnProject)
