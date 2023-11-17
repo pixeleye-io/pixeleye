@@ -35,7 +35,7 @@ func SetState(ctx context.Context, userID string, active bool) error {
 
 	authed := context.WithValue(ctx, client.ContextAccessToken, os.Getenv("ORY_API_KEY"))
 
-	_, _, err := ory.IdentityApi.
+	_, _, err := ory.IdentityAPI.
 		PatchIdentity(authed, userID).
 		JsonPatch([]client.JsonPatch{{Op: "replace", Path: "/state", Value: state}}).
 		Execute()
@@ -49,7 +49,7 @@ func GetTokens(ctx context.Context, identityId string) (cl client.IdentityCreden
 
 	ory := getOryAdminClient()
 
-	identity, _, err := ory.IdentityApi.
+	identity, _, err := ory.IdentityAPI.
 		GetIdentity(authed, identityId).
 		IncludeCredential([]string{"oidc"}).Execute()
 	if err != nil {
