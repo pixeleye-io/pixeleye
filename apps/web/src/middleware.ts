@@ -1,20 +1,18 @@
 import { NextResponse } from "next/server";
-import { apiBaseUrl } from "./app/(auth)/utils";
+import { oryEndpoint } from "./app/(auth)/utils";
 import type { NextRequest } from "next/server";
-import { Session } from "@ory/kratos-client";
+import { Session, IdentityApi, Configuration } from "@ory/kratos-client";
 
 // Anyone not logged in is redirected to the login page.
 
 export async function middleware(request: NextRequest) {
-  const data = await fetch(apiBaseUrl + "/sessions/whoami", {
+  console.log(request.cookies.toString());
+
+  const data = await fetch(oryEndpoint + "/sessions/whoami", {
     headers: {
       cookie: request.cookies.toString(),
     },
-    next: {
-      revalidate: 0,
-    },
   }).catch(() => null);
-
 
   const session = (await data?.json()) as Session | undefined;
 

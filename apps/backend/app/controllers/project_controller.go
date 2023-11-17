@@ -142,7 +142,7 @@ func GetProject(c echo.Context) error {
 
 type updateProjectRequest struct {
 	Name      string   `json:"name"`
-	Threshold *float32 `json:"threshold" validate:"omitempty,min=0,max=1"`
+	Threshold *float64 `json:"threshold" validate:"omitempty,min=0,max=1"`
 }
 
 func UpdateProject(c echo.Context) error {

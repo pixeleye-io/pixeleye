@@ -20,13 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
   Slider,
+  Link,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Project, UserOnProject, UserOnProjectRole } from "@pixeleye/api";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { queries } from "@/queries";
 
@@ -36,13 +37,12 @@ export function SecuritySection({ id }: { id: string }) {
 
   return (
     <div className="flex space-x-4 rounded-md border border-outline-variant p-4 overflow-hidden">
-      <div className="flex flex-col max-w-[10rem] items-center space-between">
-        <KeyIcon className="w-12 h-12 text-on-surface-variant" />
-        <p className="rounded-full border border-outline-variant whitespace-nowrap text-xs px-2 py-1">
-          API key
-        </p>
-      </div>
       <div className="flex flex-col justify-around flex-1 max-w-full">
+        <div className="w-full flex space-x-2">
+          <KeyIcon className="w-6 h-6 text-on-surface-variant" />
+          <p className="whitespace-nowrap text-base pb-4">API key</p>
+        </div>
+
         <div className="flex space-x-2 sm:items-center flex-col sm:flex-row">
           <InputBase value={apiKey || "*".repeat(24)} readOnly />
           <Button
@@ -65,7 +65,7 @@ export function SecuritySection({ id }: { id: string }) {
             {apiKey ? "Copy" : "Regenerate"}
           </Button>
         </div>
-        <p className="text-on-surface-variant text-sm">
+        <p className="text-on-surface-variant text-sm pt-2 self-start">
           Make sure you keep this safe. Learn more about how to use this in our
           docs.
         </p>
@@ -391,47 +391,100 @@ export function InviteMemberSection({ project }: { project: Project }) {
   );
 }
 
-function EmptyMembersState() {}
-
 export function UpdateProjectSection({ project }: { project: Project }) {
-  const { register, handleSubmit, formState, reset } = useForm<{
+  const { register, handleSubmit, formState } = useForm<{
     name: string;
     snapshotThreshold: number;
-  }>();
+  }>({
+    defaultValues: {
+      name: project.name,
+      snapshotThreshold: project.snapshotThreshold || 0.1,
+    },
+  });
 
-  const onSubmit = handleSubmit(({ name }) =>
-    API.patch("/projects/{id}/admin", {
-      params: {
-        id: project.id,
-      },
-      body: {
-        name,
-      },
-    })
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (data: { name: string; snapshotThreshold: number }) =>
+      API.patch("/projects/{id}/admin", {
+        params: {
+          id: project.id,
+        },
+        body: data,
+      }),
+    onMutate: (data) => {
+      queryClient.cancelQueries(queries.projects.detail(project.id));
+
+      const old = queryClient.getQueryData(
+        queries.projects.detail(project.id).queryKey
+      ) as Project;
+
+      queryClient.setQueryData(queries.projects.detail(project.id).queryKey, {
+        ...old,
+        ...data,
+      });
+
+      return {
+        old,
+      };
+    },
+    onError: (_err, _variables, context) => {
+      queryClient.setQueryData(
+        queries.projects.detail(project.id).queryKey,
+        context?.old
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(queries.projects.detail(project.id));
+    },
+  });
+
+  const onSubmit = handleSubmit(({ name, snapshotThreshold }) =>
+    mutation.mutate({ name, snapshotThreshold })
   );
 
-  useEffect(() => {
-    reset({
-      name: project.name,
-    });
-  }, [project.name, reset]);
+  const [threshold, setThreshold] = useState<number[]>([
+    project.snapshotThreshold || 0.1,
+  ]);
 
   return (
-    <form onSubmit={onSubmit} className="flex items-end space-x-4 mt-8">
+    <form onSubmit={onSubmit} className="flex flex-col space-y-4 mt-8">
       <Input
         label="Project name"
         placeholder="Project name"
         required
         {...register("name", { required: true })}
       />
-      <Slider
-        defaultValue={[project.snapshotThreshold || 0]}
-        step={0.01}
-        {...register("snapshotThreshold", { required: true, min: 0, max: 1 }) as any}
-      />
-      <Button loading={formState.isSubmitting} type="submit">
-        Update
-      </Button>
+      <div className="flex flex-col">
+        <label className="text-on-surface text-sm pb-2">
+          Snapshot threshold: {threshold[0]}
+        </label>
+        <Slider
+          value={threshold}
+          onValueChange={setThreshold}
+          {...register("snapshotThreshold", { min: 0, max: 1 })}
+          step={0.01}
+          min={0}
+          max={1}
+        />
+        <p className="text-on-surface-variant text-sm pt-2">
+          Controls the sensitivity of diffs{" "}
+          <Link
+            className="!text-sm"
+            href="https://pixeleye.io/docs/features/diff-highlighting#threshold"
+            target="_blank"
+          >
+            Learn more
+          </Link>
+          . Recommended: 0.1{" "}
+        </p>
+      </div>
+
+      <div>
+        <Button className="grow-0" loading={mutation.isPending} type="submit">
+          Update
+        </Button>
+      </div>
     </form>
   );
 }

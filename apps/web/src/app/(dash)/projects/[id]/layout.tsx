@@ -23,6 +23,8 @@ export default async function Layout({
     },
   }).catch(() => undefined);
 
+  // TODO - make this a client component so we can update the breadcrumb
+
   if (!project) notFound();
 
   return (

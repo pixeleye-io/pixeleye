@@ -48,6 +48,10 @@ func startIngestServer(quit chan bool) {
 
 	// Start server
 	go func(quit chan bool) {
+
+		maxGoroutines := 100
+		guard := make(chan struct{}, maxGoroutines)
+
 		err := broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
 
 			log.Info().Msgf("Received a message: %s", string(msg))
@@ -59,10 +63,14 @@ func startIngestServer(quit chan bool) {
 				return nil
 			}
 
-			if err := processors.IngestSnapshots(snapshotIDs); err != nil {
-				log.Error().Err(err).Msg("Error while ingesting snapshots")
-				return nil
-			}
+			guard <- struct{}{}
+
+			go func(snapshotIDs []string) {
+				if err := processors.IngestSnapshots(snapshotIDs); err != nil {
+					log.Error().Err(err).Msg("Error while ingesting snapshots")
+				}
+				<-guard
+			}(snapshotIDs)
 
 			return nil
 		}, quit)

@@ -10,7 +10,7 @@
                 "email": {
                     "type": "string",
                     "format": "email",
-                    "title": "E-Mail",
+                    "title": "Email",
                     "ory.sh/kratos": {
                         "credentials": {
                             "password": {

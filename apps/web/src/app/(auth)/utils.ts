@@ -1,15 +1,12 @@
 import { Configuration, FrontendApi } from "@ory/client";
 
-export const apiBaseUrlInternal =
-  process.env.KRATOS_PUBLIC_URL ||
-  process.env.ORY_SDK_URL ||
-  "http://localhost:4000/.ory";
+export const oryEndpoint =
+  process.env.ORY_ENDPOINT || "http://localhost:4433";
 
-export const apiBaseUrl = process.env.KRATOS_BROWSER_URL || apiBaseUrlInternal;
 
 export const frontend = new FrontendApi(
   new Configuration({
-    basePath: apiBaseUrl,
+    basePath: oryEndpoint,
     baseOptions: {
       withCredentials: true,
     },
@@ -17,7 +14,7 @@ export const frontend = new FrontendApi(
 );
 
 export const getUrlForFlow = (flow: string, query?: URLSearchParams) =>
-  `${apiBaseUrl}/self-service/${flow}/browser${
+  `${oryEndpoint}/self-service/${flow}/browser${
     query ? `?${query.toString()}` : ""
   }`;
 

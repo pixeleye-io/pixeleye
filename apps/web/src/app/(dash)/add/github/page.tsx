@@ -15,13 +15,13 @@ export default async function AddGithubProjectPage({
 
   const cookie = cookies().toString();
 
-  if (searchParams.setup_action === "update") {
-    const params = new URLSearchParams(searchParams);
-    params.delete("installation_id");
-    params.delete("setup_action");
+  // if (searchParams.setup_action === "update") {
+  //   const params = new URLSearchParams(searchParams);
+  //   params.delete("installation_id");
+  //   params.delete("setup_action");
 
-    redirect("/add/github");
-  }
+  //   redirect("/add/github");
+  // }
 
   if (installation_id) {
     const { team } = await API.post("/git/github", {

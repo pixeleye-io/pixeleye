@@ -20,7 +20,7 @@ type Result struct {
 // Diff between two images.
 func Diff(image1 image.Image, image2 image.Image, options *Options) *Result {
 
-	maxDelta := MaxDelta * options.Threshold
+	maxDelta := MaxDelta * options.Threshold * options.Threshold
 
 	diff := image.NewNRGBA(image1.Bounds())
 
