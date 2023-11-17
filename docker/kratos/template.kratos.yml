@@ -32,7 +32,7 @@ selfservice:
 
   flows:
     error:
-      ui_url: http://localhost:3000/error
+      ui_url: http://localhost:3000/auth-error
 
     settings:
       ui_url: http://localhost:3000/settings
