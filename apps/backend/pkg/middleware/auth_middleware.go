@@ -138,7 +138,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 		authorization = authorization[7:]
 
-		resp, _, err := k.ory.FrontendApi.ToSession(r.Context()).XSessionToken(authorization).Execute()
+		resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).XSessionToken(authorization).Execute()
 		if err != nil {
 			log.Err(err).Msg("Error validating session")
 			return nil, err
@@ -148,7 +148,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 	cookies := r.Header.Get("Cookie")
 
-	resp, _, err := k.ory.FrontendApi.ToSession(r.Context()).Cookie(cookies).Execute()
+	resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).Cookie(cookies).Execute()
 	if err != nil {
 		return nil, err
 	}
