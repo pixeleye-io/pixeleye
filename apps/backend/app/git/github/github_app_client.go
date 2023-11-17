@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bradleyfalzon/ghinstallation"
-	"github.com/google/go-github/v55/github"
+	"github.com/bradleyfalzon/ghinstallation/v2"
+	"github.com/google/go-github/v56/github"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 

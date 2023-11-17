@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"strconv"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/app/queries"
 	Team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
