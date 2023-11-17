@@ -6,8 +6,6 @@ import { Session, IdentityApi, Configuration } from "@ory/kratos-client";
 // Anyone not logged in is redirected to the login page.
 
 export async function middleware(request: NextRequest) {
-  console.log(request.cookies.toString());
-
   const data = await fetch(oryEndpoint + "/sessions/whoami", {
     headers: {
       cookie: request.cookies.toString(),
