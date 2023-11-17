@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
