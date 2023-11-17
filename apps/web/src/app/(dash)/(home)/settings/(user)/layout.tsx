@@ -4,11 +4,11 @@ import { ReactNode } from "react";
 const items: SidebarNavLink[] = [
   {
     href: "/settings",
-    title: "Account",
+    title: "Profile",
   },
   {
-    href: "/settings/security",
-    title: "Security",
+    href: "/settings/account",
+    title: "Account",
   },
 ];
 

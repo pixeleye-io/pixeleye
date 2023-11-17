@@ -37,7 +37,7 @@ export default async function LoginPage({
       const { data: verificationFlow } =
         await frontend.createBrowserVerificationFlow({
           returnTo:
-            (return_to && return_to.toString()) || loginFlow.return_to || "",
+            (return_to && return_to.toString()) || loginFlow.return_to || "/dashboard",
         });
 
       const verificationParameters = new URLSearchParams({
@@ -117,7 +117,7 @@ export default async function LoginPage({
           return <AuthNode node={node} key={i} />;
         })}
         <div>
-          <Link className="flex justify-end mt-4">
+          <Link href="/recovery" className="flex justify-end mt-4">
             Forgotten your password?
           </Link>
         </div>

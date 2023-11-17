@@ -3,13 +3,13 @@ import { isUiNodeInputAttributes } from "@ory/integrations/ui";
 import { Button, Input } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
 
-export const AuthNode = ({
+function getNode({
   node,
-  errors,
+  fullButton = true,
 }: {
   node: UiNode;
-  errors?: Record<string, string>;
-}) => {
+  fullButton?: boolean;
+}) {
   if (isUiNodeInputAttributes(node.attributes)) {
     const attrs = node.attributes as UiNodeInputAttributes;
 
@@ -22,19 +22,19 @@ export const AuthNode = ({
             name={attrs.name}
             value={attrs.value}
             variant={attrs.name === "method" ? "default" : "outline"}
-            full
+            full={fullButton}
           >
             {node.meta.label?.text}
           </Button>
         );
       default:
-        if (attrs.name === "csrf_token")
-          return <input {...node.attributes} key="csrf_token" />;
+        if (attrs.name === "csrf_token") return <input {...node.attributes} />;
 
         return (
           <Input
             name={attrs.name}
             type={attrs.type}
+            minLength={attrs.type === "password" ? 8 : undefined}
             autoComplete={
               attrs.name === "identifier" ? "email" : attrs.autocomplete
             }
@@ -46,6 +46,23 @@ export const AuthNode = ({
         );
     }
   }
+}
+
+export const AuthNode = ({
+  node,
+  fullButton = true,
+}: {
+  node: UiNode;
+  fullButton?: boolean;
+}) => {
+  const uiNode = getNode({ node, fullButton });
+
+  return (
+    <>
+      {node.messages && <ErrorsList messages={node.messages} />}
+      {uiNode}
+    </>
+  );
 };
 
 export function ErrorsList({
