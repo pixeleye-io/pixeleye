@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/jobs"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -141,6 +142,11 @@ func SyncUserTeams(c echo.Context) error {
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
+		return err
+	}
+
+	// Makes sure we are up to date with kratos.
+	if err := git.SyncUserAccounts(c.Request().Context(), user); err != nil {
 		return err
 	}
 

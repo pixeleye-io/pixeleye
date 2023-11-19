@@ -65,6 +65,26 @@ func (q *UserQueries) CreateAccount(ctx context.Context, account *models.Account
 	return nil
 }
 
+func (q *UserQueries) DeleteAccount(ctx context.Context, id string) error {
+	query := `DELETE FROM account WHERE id = $1`
+
+	_, err := q.ExecContext(ctx, query, id)
+
+	return err
+}
+
+func (q *UserQueries) GetUserAccounts(ctx context.Context, userID string) ([]models.Account, error) {
+	query := `SELECT * FROM account WHERE user_id = $1`
+
+	accounts := []models.Account{}
+
+	if err := q.SelectContext(ctx, &accounts, query, userID); err != nil {
+		return accounts, err
+	}
+
+	return accounts, nil
+}
+
 func (q *UserQueries) CreateOauthState(ctx context.Context, account models.Account) (models.OauthAccountRefresh, error) {
 	query := `INSERT INTO oauth_account_refresh (id, created_at, account_id) VALUES (:id, :created_at, :account_id)`
 

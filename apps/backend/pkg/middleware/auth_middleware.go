@@ -99,7 +99,7 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				return err
 			}
 
-			if err := git.InitUserAccounts(c.Request().Context(), user); err != nil {
+			if err := git.SyncUserAccounts(c.Request().Context(), user); err != nil {
 				log.Err(err).Msg("Error syncing user accounts")
 			}
 

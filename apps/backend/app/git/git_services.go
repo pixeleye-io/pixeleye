@@ -79,10 +79,15 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 	return nil
 }
 
-func InitUserAccounts(ctx context.Context, user models.User) error {
-
+func SyncUserAccounts(ctx context.Context, user models.User) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
+		return err
+	}
+
+	currentAccounts, err := db.GetUserAccounts(ctx, user.ID)
+	if err != nil {
+		log.Debug().Err(err).Msg("Failed to get user accounts")
 		return err
 	}
 
@@ -109,6 +114,13 @@ func InitUserAccounts(ctx context.Context, user models.User) error {
 			continue
 		}
 
+		// Check if account already exists
+		for _, account := range currentAccounts {
+			if account.Provider == config["provider"].(string) && account.ProviderAccountID == config["subject"].(string) {
+				continue
+			}
+		}
+
 		switch config["provider"] {
 		case "github":
 			{
@@ -132,6 +144,30 @@ func InitUserAccounts(ctx context.Context, user models.User) error {
 				}
 			}
 		}
+	}
+
+	// Check if any accounts have been removed
+	for _, account := range currentAccounts {
+		found := false
+		for _, c := range configs {
+			config, ok := c.(map[string]interface{})
+			if !ok {
+				log.Error().Msg("Failed to cast providers to map")
+				continue
+			}
+
+			if account.Provider == config["provider"].(string) && account.ProviderAccountID == config["subject"].(string) {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			if err := db.DeleteAccount(ctx, account.ID); err != nil {
+				log.Err(err).Msg("Failed to delete account")
+			}
+		}
+
 	}
 
 	return nil
