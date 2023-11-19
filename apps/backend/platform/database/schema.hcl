@@ -116,6 +116,11 @@ table "account" {
     null = false
   }
 
+  column "provider_account_login" {
+    type = varchar(255)
+    null = false
+  }
+
   index "idx_unique_account_provider_account_id" {
     columns = [column.provider_account_id, column.provider]
     unique  = true
@@ -124,6 +129,33 @@ table "account" {
   index "idx_unique_account_user_id__provider" {
     columns = [column.user_id, column.provider]
     unique  = true
+  }
+}
+
+table "oauth_account_refresh" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "account_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "account_id" {
+    columns     = [column.account_id]
+    ref_columns = [table.account.column.id]
+    on_delete   = CASCADE
   }
 }
 

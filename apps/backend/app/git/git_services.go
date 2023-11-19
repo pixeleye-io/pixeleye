@@ -118,7 +118,7 @@ func InitUserAccounts(ctx context.Context, user models.User) error {
 					break
 				}
 
-				if _, err := db.CreateAccount(ctx, models.Account{
+				if err := db.CreateAccount(ctx, &models.Account{
 					UserID:                user.ID,
 					Provider:              "github",
 					AccessToken:           authTokens.AccessToken,

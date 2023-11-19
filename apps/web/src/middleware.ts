@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { oryEndpoint } from "./app/(auth)/utils";
 import type { NextRequest } from "next/server";
-import { Session, IdentityApi, Configuration } from "@ory/kratos-client";
+import { Session } from "@ory/kratos-client";
 
 // Anyone not logged in is redirected to the login page.
 
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
 
   if (!data || data.status >= 300 || data.status < 200 || !session) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
     return NextResponse.redirect(url);
   }
 }

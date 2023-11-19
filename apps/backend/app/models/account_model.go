@@ -20,3 +20,9 @@ type Account struct {
 	AccessTokenExpiresAt  time.Time `db:"access_token_expires_at" json:"accessTokenExpiresAt" validate:"required"`
 	RefreshTokenExpiresAt time.Time `db:"refresh_token_expires_at" json:"refreshTokenExpiresAt" validate:"required"`
 }
+
+type OauthAccountRefresh struct {
+	ID        string    `db:"id" json:"id" validate:"required"`
+	CreatedAt time.Time `db:"created_at" json:"createdAt"`
+	AccountID string    `db:"account_id" json:"accountID" validate:"required"`
+}

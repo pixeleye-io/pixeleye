@@ -15,8 +15,14 @@ func StartCron() {
 	// 	log.Error().Err(err).Msg("Failed to schedule DeleteUserJob")
 	// }
 
+	// TODO - write cron to delete old oauth_account_refresh codes
+
 	if _, err := s.Every(15).Minutes().Do(jobs.UpdateStuckBuilds); err != nil {
 		log.Error().Err(err).Msg("Failed to schedule UpdateStuckBuilds")
+	}
+
+	if _, err := s.Every(1).Day().Do(jobs.DeleteExpiredOauthStates); err != nil {
+		log.Error().Err(err).Msg("Failed to schedule DeleteExpiredOauthStates")
 	}
 
 	s.StartAsync()

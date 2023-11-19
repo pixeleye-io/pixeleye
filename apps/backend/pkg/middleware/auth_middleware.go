@@ -109,8 +109,12 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				return err
 			}
 
-			if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows {
+			err = git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams)
+			if err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 				log.Err(err).Msg("Error syncing user teams")
+			}
+			if err == git_github.ExpiredRefreshTokenError {
+				return git_github.RedirectGithubUserToLogin(c, user)
 			}
 
 		}
