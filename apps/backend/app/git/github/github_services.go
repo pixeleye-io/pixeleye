@@ -471,7 +471,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 	return nil
 }
 
-func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Team) error {
+func SyncGithubUsersTeams(ctx context.Context, userID string, currentTeams []models.Team) error {
 
 	userClient, err := NewGithubUserClient(ctx, userID)
 	if err != nil {
@@ -520,7 +520,13 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 
 	log.Debug().Msgf("Found %d github installations for user %s", len(gitInstallations), userID)
 
-	teamsToSync := currentTeams
+	teamsToSync := []models.Team{}
+
+	for _, team := range currentTeams {
+		if team.Type == models.TEAM_TYPE_GITHUB {
+			teamsToSync = append(teamsToSync, team)
+		}
+	}
 
 	for _, installation := range gitInstallations {
 		found := false

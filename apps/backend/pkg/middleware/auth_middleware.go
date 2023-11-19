@@ -109,7 +109,7 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				return err
 			}
 
-			err = git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams)
+			err = git_github.SyncGithubUsersTeams(c.Request().Context(), user.ID, teams)
 			if err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 				log.Err(err).Msg("Error syncing user teams")
 			}

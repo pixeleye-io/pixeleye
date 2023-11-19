@@ -1,5 +1,6 @@
 import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
+import { redirect } from "next/navigation";
 
 const endpoint = "http://localhost:5000/v1";
 
@@ -23,6 +24,16 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
       },
       credentials: "include",
     }).then((res) => {
+      console.log(res.headers.get("pixeleye-location"), res.status);
+
+      if (res.status === 300 && res.headers.get("pixeleye-location")) {
+        if (typeof window !== "undefined") {
+          window.location.href = res.headers.get("pixeleye-location")!;
+        }
+        console.log("redirecting to", res.headers.get("pixeleye-location"));
+        redirect(res.headers.get("pixeleye-location")!);
+      }
+
       if (res.ok) {
         return res.json().catch(() => undefined);
       }

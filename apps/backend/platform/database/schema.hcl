@@ -148,8 +148,9 @@ table "oauth_account_refresh" {
   }
 
   column "account_id" {
-    type = varchar(21)
-    null = false
+    type    = varchar(21)
+    null    = false
+    default = ""
   }
 
   foreign_key "account_id" {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -62,11 +63,11 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 	return &response, nil
 }
 
-// nolint:gochecknoglobals
 type GithubAccessError struct {
 	Code int
 }
 
+// nolint:gochecknoglobals
 var ExpiredRefreshTokenError = &GithubAccessError{
 	Code: 1,
 }
@@ -97,9 +98,11 @@ func RedirectGithubUserToLogin(c echo.Context, user models.User) error {
 
 	// TODO - we should store the users github username so we can use it to prefill the login field
 
-	requestURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&state=%s&allow_signup=false", clientID, accountState.ID, redirectURL)
+	requestURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&state=%s&allow_signup=false", clientID, url.QueryEscape(redirectURL), accountState.ID)
 
-	return c.Redirect(http.StatusTemporaryRedirect, requestURL)
+	c.Response().Writer.Header().Set("Pixeleye-Location", requestURL)
+
+	return c.NoContent(http.StatusMultipleChoices)
 }
 
 func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient, error) {

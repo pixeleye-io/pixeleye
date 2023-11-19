@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -263,9 +264,9 @@ func GithubAccountCallback(c echo.Context) error {
 
 	code := c.QueryParam("code")
 	state := c.QueryParam("state")
-	clientID := os.Getenv("GITHUB_CLIENT_ID")
-	clientSecret := os.Getenv("GITHUB_CLIENT_SECRET")
-	redirectURL := os.Getenv("NEXT_PUBLIC_SERVER_URL") + "/dashboard"
+	clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
+	clientSecret := os.Getenv("GITHUB_APP_CLIENT_SECRET")
+	redirectURL := os.Getenv("SERVER_ENDPOINT") + "/v1/git/github/callback"
 
 	if code == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Code is required")
@@ -295,20 +296,14 @@ func GithubAccountCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Github account is not linked to a pixeleye account, please link your github account to your pixeleye account first")
 	}
 
-	requestURL := "https://github.com/login/oauth/access_token"
+	requestURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s&redirect_uri=%s", clientID, clientSecret, code, url.QueryEscape(redirectURL))
+
+	log.Debug().Msgf("Github Access Token Request URL: %s", requestURL)
 
 	req, err := http.NewRequest("POST", requestURL, nil)
-
 	if err != nil {
 		return err
 	}
-
-	q := req.URL.Query()
-	q.Add("client_id", clientID)
-	q.Add("client_secret", clientSecret)
-	q.Add("code", code)
-	q.Add("redirect_uri", redirectURL)
-	req.URL.RawQuery = q.Encode()
 
 	req.Header.Add("Accept", "application/json")
 
@@ -335,6 +330,8 @@ func GithubAccountCallback(c echo.Context) error {
 		return err
 	}
 
+	log.Debug().Msgf("Github Access Token Response: %s", respBody)
+
 	var githubAccessToken githubAccessTokenResponse
 	if err := json.Unmarshal(respBody, &githubAccessToken); err != nil {
 		return err
@@ -344,7 +341,7 @@ func GithubAccountCallback(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Access token is required")
 	}
 
-	ghClient, err := git_github.NewGithubAppClient()
+	ghClient := github.NewClient(nil).WithAuthToken(githubAccessToken.AccessToken)
 	if err != nil {
 		return err
 	}
@@ -376,12 +373,13 @@ func GithubAccountCallback(c echo.Context) error {
 		return err
 	}
 
-	if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
+	if err := git_github.SyncGithubUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 		log.Err(err).Msg("Error syncing user teams")
 	} else if err == git_github.ExpiredRefreshTokenError {
 		// Our refresh token has expired, redirect the user to github to re-authenticate.
 		return git_github.RedirectGithubUserToLogin(c, user)
 	}
 
-	return c.NoContent(http.StatusOK)
+	// TODO - should add a custom redirect URL here
+	return c.Redirect(http.StatusSeeOther, os.Getenv("NEXT_PUBLIC_SERVER_URL")+"/dashboard")
 }

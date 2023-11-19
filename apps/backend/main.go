@@ -31,6 +31,7 @@ func main() {
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
 		AllowOrigins:     []string{"http://localhost:5000", "http://localhost:3000"},
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"Pixeleye-Location"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}}))
 
 	e.Use(echoMiddleware.Secure())

@@ -149,7 +149,7 @@ func SyncUserTeams(c echo.Context) error {
 		return err
 	}
 
-	if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
+	if err := git_github.SyncGithubUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 		return err
 	} else if err == git_github.ExpiredRefreshTokenError {
 		// Our refresh token has expired, redirect the user to github to re-authenticate.

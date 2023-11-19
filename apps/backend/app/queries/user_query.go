@@ -33,7 +33,7 @@ func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
 }
 
 func (q *UserQueries) CreateAccount(ctx context.Context, account *models.Account) error {
-	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id) ON CONFLICT (provider, provider_account_id) DO UPDATE SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at RETURNING *`
+	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id, provider_account_login) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id, :provider_account_login) ON CONFLICT (provider, provider_account_id) DO UPDATE SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at RETURNING *`
 
 	id, err := nanoid.New()
 	if err != nil {
