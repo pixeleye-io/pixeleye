@@ -145,11 +145,6 @@ func SyncUserTeams(c echo.Context) error {
 		return err
 	}
 
-	// Makes sure we are up to date with kratos.
-	if err := git.SyncUserAccounts(c.Request().Context(), user); err != nil {
-		return err
-	}
-
 	if err := git.SyncUserTeamsAndAccount(c.Request().Context(), user); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 		return err
 	} else if err == git_github.ExpiredRefreshTokenError {
