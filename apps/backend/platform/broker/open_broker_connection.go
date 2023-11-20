@@ -75,13 +75,6 @@ func GetConnection() (*amqp.Connection, error) {
 func GetBroker() (*Queues, error) {
 
 	channel, err := GetChannel()
-
-	if err != nil {
-		return nil, err
-	}
-
-	connection, err := GetConnection()
-
 	if err != nil {
 		return nil, err
 	}
@@ -90,13 +83,8 @@ func GetBroker() (*Queues, error) {
 		return SendToQueue(channel, queueName, queueType, body)
 	}
 
-	subscribe := func(queueType brokerTypes.QueueType, queueName string, callback func([]byte) error, quit chan bool) error {
-		return SubscribeToQueue(connection, queueName, queueType, callback, quit)
-	}
-
 	broker := &brokerTypes.Broker{
-		Send:      send,
-		Subscribe: subscribe,
+		Send: send,
 	}
 
 	return &Queues{
