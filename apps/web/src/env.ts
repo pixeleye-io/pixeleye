@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     GITHUB_APP_NAME: z.string(),
+    PIXELEYE_HOSTING: z.boolean().optional(),
   },
   client: {
     NEXT_PUBLIC_SERVER_URL: z.string(),

@@ -56,7 +56,7 @@ func main() {
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
-		if os.Getenv("SELF_HOSTING") != "false" {
+		if os.Getenv("PIXELEYE_HOSTING") != "true" {
 			go ingest.StartIngestServerWithGracefulShutdown()
 		}
 		utils.StartServerWithGracefulShutdown(e)
