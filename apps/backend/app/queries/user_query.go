@@ -20,24 +20,24 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
-func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
+func (q *UserQueries) GetUserByAuthID(ctx context.Context, authID string) (models.User, error) {
 	query := `SELECT * FROM users WHERE auth_id = $1`
 
 	user := models.User{}
 
-	if err := q.Get(&user, query, authID); err != nil {
+	if err := q.GetContext(ctx, &user, query, authID); err != nil {
 		return user, err
 	}
 
 	return user, nil
 }
 
-func (q *UserQueries) CreateAccount(ctx context.Context, account models.Account) (models.Account, error) {
-	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id) ON CONFLICT (provider, provider_account_id) DO UPDATE SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at RETURNING *`
+func (q *UserQueries) CreateAccount(ctx context.Context, account *models.Account) error {
+	query := `INSERT INTO account (id, user_id, provider, access_token, access_token_expires_at, refresh_token, refresh_token_expires_at, created_at, updated_at, provider_account_id, provider_account_login) VALUES (:id, :user_id, :provider, :access_token, :access_token_expires_at, :refresh_token, :refresh_token_expires_at, :created_at, :updated_at, :provider_account_id, :provider_account_login) ON CONFLICT (provider, provider_account_id) DO UPDATE SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at RETURNING *`
 
 	id, err := nanoid.New()
 	if err != nil {
-		return account, err
+		return err
 	}
 
 	time := utils.CurrentTime()
@@ -48,21 +48,80 @@ func (q *UserQueries) CreateAccount(ctx context.Context, account models.Account)
 
 	validator := utils.NewValidator()
 	if err := validator.Struct(account); err != nil {
-		return account, fmt.Errorf("%v", utils.ValidatorErrors(err))
+		return fmt.Errorf("%v", utils.ValidatorErrors(err))
 	}
 
 	rows, err := q.NamedQueryContext(ctx, query, account)
 	if err != nil {
-		return account, err
+		return err
 	}
 
 	if rows.Next() {
 		if err := rows.StructScan(&account); err != nil {
-			return account, err
+			return err
 		}
 	}
 
-	return account, nil
+	return nil
+}
+
+func (q *UserQueries) DeleteAccount(ctx context.Context, id string) error {
+	query := `DELETE FROM account WHERE id = $1`
+
+	_, err := q.ExecContext(ctx, query, id)
+
+	return err
+}
+
+func (q *UserQueries) GetUserAccounts(ctx context.Context, userID string) ([]models.Account, error) {
+	query := `SELECT * FROM account WHERE user_id = $1`
+
+	accounts := []models.Account{}
+
+	if err := q.SelectContext(ctx, &accounts, query, userID); err != nil {
+		return accounts, err
+	}
+
+	return accounts, nil
+}
+
+func (q *UserQueries) CreateOauthState(ctx context.Context, account models.Account) (models.OauthAccountRefresh, error) {
+	query := `INSERT INTO oauth_account_refresh (id, created_at, account_id) VALUES (:id, :created_at, :account_id)`
+
+	id, err := nanoid.New()
+	if err != nil {
+		return models.OauthAccountRefresh{}, err
+	}
+
+	oauth := models.OauthAccountRefresh{
+		ID:        id,
+		CreatedAt: utils.CurrentTime(),
+		AccountID: account.ID,
+	}
+
+	_, err = q.NamedExecContext(ctx, query, oauth)
+
+	return oauth, err
+}
+
+func (q *UserQueries) GetOauthState(ctx context.Context, id string) (models.OauthAccountRefresh, error) {
+	query := `SELECT * FROM oauth_account_refresh WHERE id = $1`
+
+	oauth := models.OauthAccountRefresh{}
+
+	if err := q.GetContext(ctx, &oauth, query, id); err != nil {
+		return oauth, err
+	}
+
+	return oauth, nil
+}
+
+func (q *UserQueries) DeleteExpiredOauthStates(ctx context.Context) error {
+	query := `DELETE FROM oauth_account_refresh WHERE created_at < $1`
+
+	_, err := q.ExecContext(ctx, query, time.Now().Add(-time.Hour)) // Avoids deleting the state before the user has a chance to use it
+
+	return err
 }
 
 func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits models.UserTraits) (models.User, error) {
@@ -289,7 +348,19 @@ func (q *UserQueries) GetUserAccountByProvider(ctx context.Context, id string, p
 	return accounts, nil
 }
 
-func (q *UserQueries) UpdateAccount(ctx context.Context, account models.Account) error {
+func (q *UserQueries) GetAccount(ctx context.Context, id string) (models.Account, error) {
+	query := `SELECT * FROM account WHERE id = $1`
+
+	accounts := models.Account{}
+
+	if err := q.GetContext(ctx, &accounts, query, id); err != nil {
+		return accounts, err
+	}
+
+	return accounts, nil
+}
+
+func (q *UserQueries) UpdateAccount(ctx context.Context, account *models.Account) error {
 	query := `UPDATE account SET access_token = :access_token, access_token_expires_at = :access_token_expires_at, refresh_token = :refresh_token, refresh_token_expires_at = :refresh_token_expires_at, updated_at = :updated_at WHERE id = :id`
 
 	account.UpdatedAt = utils.CurrentTime()

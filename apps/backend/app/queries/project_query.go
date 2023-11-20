@@ -17,6 +17,19 @@ type ProjectQueries struct {
 	*sqlx.DB
 }
 
+type ProjectQueriesTx struct {
+	*sqlx.Tx
+}
+
+func NewProjectTx(db *sqlx.DB, ctx context.Context) (*ProjectQueriesTx, error) {
+	tx, err := db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ProjectQueriesTx{tx}, nil
+}
+
 func (q *ProjectQueries) GetLatestBuild(projectID string) (models.Build, error) {
 	build := models.Build{}
 
@@ -271,7 +284,7 @@ func (q *ProjectQueries) IsUserOnProject(ctx context.Context, projectID string, 
 	return exists, nil
 }
 
-func (q *ProjectQueries) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
+func (q *ProjectQueriesTx) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
 	query := `DELETE FROM project_users WHERE project_id IN (SELECT id FROM project WHERE team_id = $1) AND user_id = $2 AND type = 'git'`
 
 	_, err := q.ExecContext(ctx, query, teamID, userID)
@@ -348,12 +361,21 @@ func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID s
 	return err
 }
 
-func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) error {
+func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) (found bool, err error) {
 	query := `UPDATE project_users SET role = $1, role_sync = $2 WHERE project_id = $3 AND user_id = $4`
 
-	_, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
+	res, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
+	if err != nil {
+		return false, err
+	}
 
-	return err
+	if n, err := res.RowsAffected(); err != nil {
+		return false, err
+	} else if n == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {

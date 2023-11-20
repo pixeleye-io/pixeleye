@@ -15,4 +15,5 @@ func GitRoutes(e *echo.Echo) {
 	v1.Use(authMiddleware.Session)
 
 	v1.POST("/github", controllers.GithubAppInstallation)
+	v1.GET("/github/callback", controllers.GithubAccountCallback)
 }

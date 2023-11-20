@@ -83,6 +83,21 @@ func (q *TeamQueries) GetUsersOnTeam(ctx context.Context, teamID string) ([]User
 	return users, err
 }
 
+func (q *TeamQueries) GetUserOnTeam(ctx context.Context, teamID string, userID string) (UserOnTeam, error) {
+	query := `SELECT users.*, team_users.type, team_users.role, team_users.role_sync, COALESCE(github_account.provider_account_id, '') as github_id FROM team_users
+	JOIN users ON team_users.user_id = users.id
+	LEFT JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
+	WHERE team_users.team_id = $1 AND team_users.user_id = $2`
+
+	user := UserOnTeam{}
+
+	if err := q.GetContext(ctx, &user, query, teamID, userID); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func (q *TeamQueries) IsUserOnTeam(ctx context.Context, userID string, teamID string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM team_users WHERE user_id = $1 AND team_id = $2)`
 
@@ -105,17 +120,11 @@ func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([
 	return installations, err
 }
 
-func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, gitType string, isUserTeam bool) (models.GitInstallation, error) {
+func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, gitType string) (models.GitInstallation, error) {
 	installations, err := q.GetGitInstallations(ctx, teamID)
 
 	if err != nil {
 		return models.GitInstallation{}, err
-	}
-
-	if len(installations) == 0 {
-		return models.GitInstallation{}, fmt.Errorf("no git installations found for team %s", teamID)
-	} else if !isUserTeam && len(installations) > 1 {
-		return models.GitInstallation{}, fmt.Errorf("multiple installations found for team %s. Only 1 per non user team allowed", teamID)
 	}
 
 	var installation models.GitInstallation

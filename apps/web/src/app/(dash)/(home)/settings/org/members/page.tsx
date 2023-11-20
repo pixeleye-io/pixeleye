@@ -51,7 +51,7 @@ export default async function OrgMemberSettings({
       </SettingsTemplate>
       <SettingsTemplate
         title={"Invited members"}
-        description="List of team members either manually invited"
+        description="List of team members manually invited directly to this team or via a project."
       >
         <MemberSection team={team} type="invited" />
       </SettingsTemplate>

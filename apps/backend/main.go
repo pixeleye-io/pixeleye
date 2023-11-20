@@ -31,6 +31,7 @@ func main() {
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
 		AllowOrigins:     []string{"http://localhost:5000", "http://localhost:3000"},
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"Pixeleye-Location"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}}))
 
 	e.Use(echoMiddleware.Secure())
@@ -55,7 +56,7 @@ func main() {
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
-		if os.Getenv("SELF_HOSTING") != "false" {
+		if os.Getenv("PIXELEYE_HOSTING") != "true" {
 			go ingest.StartIngestServerWithGracefulShutdown()
 		}
 		utils.StartServerWithGracefulShutdown(e)

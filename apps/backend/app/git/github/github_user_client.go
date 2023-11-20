@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
 	"github.com/google/go-github/v56/github"
+	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
@@ -61,9 +63,50 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 	return &response, nil
 }
 
+type GithubAccessError struct {
+	Code int
+}
+
+// nolint:gochecknoglobals
+var ExpiredRefreshTokenError = &GithubAccessError{
+	Code: 1,
+}
+
+func (e *GithubAccessError) Error() string {
+	return fmt.Sprintf("Github access error: %d", e.Code)
+}
+
+func RedirectGithubUserToLogin(c echo.Context, user models.User) error {
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	account, err := db.GetUserAccountByProvider(c.Request().Context(), user.ID, models.ACCOUNT_PROVIDER_GITHUB)
+	if err != nil {
+		return err
+	}
+
+	accountState, err := db.CreateOauthState(c.Request().Context(), account)
+	if err != nil {
+		return err
+	}
+
+	clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
+	redirectURL := os.Getenv("SERVER_ENDPOINT") + "/v1/git/github/callback"
+
+	// TODO - we should store the users github username so we can use it to prefill the login field
+
+	requestURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&state=%s&allow_signup=false", clientID, url.QueryEscape(redirectURL), accountState.ID)
+
+	c.Response().Writer.Header().Set("Pixeleye-Location", requestURL)
+
+	return c.NoContent(http.StatusMultipleChoices)
+}
+
 func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient, error) {
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return nil, err
 	}
@@ -76,9 +119,9 @@ func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient,
 	// We subtract a minute from the expiry time to make sure we don't run into any issues with the token expiring before we use it
 	if githubAccount.AccessTokenExpiresAt.Before(time.Now().Add(-time.Minute)) {
 		if githubAccount.RefreshTokenExpiresAt.Before(time.Now().Add(-(time.Second * 10))) {
-			// TODO - we need the user to re-authenticate with github, this happens every 6 months
 			log.Error().Msgf("Github refresh token has expired for user %s", userID)
-			return nil, fmt.Errorf("Github refresh token has expired for user %s", userID)
+
+			return nil, ExpiredRefreshTokenError
 		}
 
 		githubRefreshTokenResponse, err := RefreshGithubTokens(ctx, githubAccount.RefreshToken)
@@ -91,7 +134,7 @@ func NewGithubUserClient(ctx context.Context, userID string) (*GithubUserClient,
 		githubAccount.RefreshToken = githubRefreshTokenResponse.RefreshToken
 		githubAccount.RefreshTokenExpiresAt = time.Now().Add(time.Second * time.Duration(githubRefreshTokenResponse.RefreshTokenExpiresIn))
 
-		if err := db.UpdateAccount(ctx, githubAccount); err != nil {
+		if err := db.UpdateAccount(ctx, &githubAccount); err != nil {
 			return nil, err
 		}
 	}
