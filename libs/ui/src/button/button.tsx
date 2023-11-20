@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { cloneElement, forwardRef, isValidElement, ReactNode } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, cx, type VariantProps } from "class-variance-authority";
 import Spinner from "../spinner/spinner";
@@ -47,6 +47,36 @@ export interface Props extends VariantProps<typeof buttonVariants> {
 
 export type ButtonProps = Slottable<"button", Props>;
 
+function Inner({
+  loading,
+  children,
+  innerClassName,
+  outerClassName,
+}: {
+  loading?: boolean;
+  children: ReactNode;
+  innerClassName?: string;
+  outerClassName?: string;
+}) {
+  return (
+    <div className={cx("relative flex", outerClassName)}>
+      <div
+        className={cx(
+          loading && "opacity-0",
+          "flex items-center flex-1",
+          innerClassName
+        )}
+      >
+        {children}
+      </div>
+      <Spinner
+        className="absolute transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
+        loading={loading}
+      />
+    </div>
+  );
+}
+
 const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
   function Button(
     {
@@ -66,6 +96,30 @@ const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
   ) {
     const Component = asChild ? Slot : "button";
     const classes = cx(buttonVariants({ variant, size, full }), className);
+
+    const innerChildren =
+      isValidElement(children) && asChild ? (
+        cloneElement(children, rest, [
+          <Inner
+            key="inner"
+            loading={loading}
+            innerClassName={innerClassName}
+            outerClassName={outerClassName}
+          >
+            {(children.props as any).children}
+          </Inner>,
+        ])
+      ) : (
+        <Inner
+          key="inner"
+          loading={loading}
+          innerClassName={innerClassName}
+          outerClassName={outerClassName}
+        >
+          {children}
+        </Inner>
+      );
+
     return (
       <Component
         disabled={disabled || loading}
@@ -73,21 +127,7 @@ const Button = forwardRef<HTMLElement & HTMLButtonElement, ButtonProps>(
         {...rest}
         ref={ref}
       >
-        <div className={cx("relative flex", outerClassName)}>
-          <div
-            className={cx(
-              loading && "opacity-0",
-              "flex items-center flex-1",
-              innerClassName
-            )}
-          >
-            {children}
-          </div>
-          <Spinner
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
-            loading={loading}
-          />
-        </div>
+        {innerChildren}
       </Component>
     );
   }
