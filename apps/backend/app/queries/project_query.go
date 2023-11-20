@@ -364,9 +364,18 @@ func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID s
 func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) error {
 	query := `UPDATE project_users SET role = $1, role_sync = $2 WHERE project_id = $3 AND user_id = $4`
 
-	_, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
+	res, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
+	if err != nil {
+		return err
+	}
 
-	return err
+	if n, err := res.RowsAffected(); err != nil {
+		return err
+	} else if n == 0 {
+		return fmt.Errorf("user not found on project")
+	}
+
+	return nil
 }
 
 func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {

@@ -344,7 +344,7 @@ describe("Team admin projects", () => {
     );
   });
 
-  it("Jekyll should be able to delete their hydes", async (ctx) => {
+  it("Jekyll should be able to delete hydes project", async (ctx) => {
     await projectAPI.deleteProject(
       hydesProject.id,
       hydesProject.name,
