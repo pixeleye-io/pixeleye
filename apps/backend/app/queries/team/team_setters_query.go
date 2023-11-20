@@ -5,7 +5,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
@@ -44,10 +43,11 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	}
 
 	userOnTeam := models.TeamMember{
-		TeamID: team.ID,
-		UserID: creatorID,
-		Role:   models.TEAM_MEMBER_ROLE_OWNER,
-		Type:   teamType,
+		TeamID:   team.ID,
+		UserID:   creatorID,
+		Role:     models.TEAM_MEMBER_ROLE_OWNER,
+		RoleSync: false,
+		Type:     teamType,
 	}
 
 	if _, err = q.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam); err != nil {
@@ -76,8 +76,6 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 
 	query = tx.Rebind(query)
 
-	log.Debug().Msgf("query: %s", query)
-
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
@@ -89,8 +87,6 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 	}
 
 	projectQuery = tx.Rebind(projectQuery)
-
-	log.Debug().Msgf("projectQuery: %s", projectQuery)
 
 	_, err = tx.ExecContext(ctx, projectQuery, args...)
 	if err != nil {
@@ -108,10 +104,18 @@ func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamM
 	return err
 }
 
-func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string) error {
-	query := `UPDATE team_users SET role = $1 WHERE user_id = $2 AND team_id = $3`
+func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string, roleSync bool) error {
+	query := `UPDATE team_users SET role = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
 
-	_, err := q.ExecContext(ctx, query, role, memberID, teamID)
+	_, err := q.ExecContext(ctx, query, role, roleSync, memberID, teamID)
+
+	return err
+}
+
+func (q *TeamQueriesTx) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string, roleSync bool) error {
+	query := `UPDATE team_users SET role = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
+
+	_, err := q.ExecContext(ctx, query, role, roleSync, memberID, teamID)
 
 	return err
 }
@@ -119,7 +123,15 @@ func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, m
 func (q *TeamQueries) UpdateUserTypeOnTeam(ctx context.Context, teamID string, userID string, userType string, roleSync bool) error {
 	query := `UPDATE team_users SET type = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
 
-	_, err := q.ExecContext(ctx, query, userType, roleSync, userID)
+	_, err := q.ExecContext(ctx, query, userType, roleSync, userID, teamID)
+
+	return err
+}
+
+func (q *TeamQueriesTx) UpdateUserTypeOnTeam(ctx context.Context, teamID string, userID string, userType string, roleSync bool) error {
+	query := `UPDATE team_users SET type = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
+
+	_, err := q.ExecContext(ctx, query, userType, roleSync, userID, teamID)
 
 	return err
 }

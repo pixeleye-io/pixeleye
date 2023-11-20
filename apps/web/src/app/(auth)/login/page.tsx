@@ -37,7 +37,9 @@ export default async function LoginPage({
       const { data: verificationFlow } =
         await frontend.createBrowserVerificationFlow({
           returnTo:
-            (return_to && return_to.toString()) || loginFlow.return_to || "/dashboard",
+            (return_to && return_to.toString()) ||
+            loginFlow.return_to ||
+            "/dashboard",
         });
 
       const verificationParameters = new URLSearchParams({
@@ -60,6 +62,23 @@ export default async function LoginPage({
     );
   }
 
+  const oidcNodes = filterNodesByGroups({
+    nodes: loginFlow.ui.nodes,
+    withoutDefaultGroup: true,
+    groups: ["oidc"],
+  });
+
+  const passwordNodes = filterNodesByGroups({
+    nodes: loginFlow.ui.nodes,
+    groups: ["password"],
+    withoutDefaultGroup: true,
+  });
+
+  const defaultNodes = filterNodesByGroups({
+    nodes: loginFlow.ui.nodes,
+    groups: ["default"],
+  });
+
   return (
     <>
       <div>
@@ -81,35 +100,33 @@ export default async function LoginPage({
         action={loginFlow.ui.action}
         method={loginFlow.ui.method}
       >
-        {filterNodesByGroups({
-          nodes: loginFlow.ui.nodes,
-          withoutDefaultGroup: true,
-          groups: ["oidc"],
-        }).map((node, i) => (
+        {oidcNodes.map((node, i) => (
           <AuthNode node={node} key={i} />
         ))}
       </form>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-border" />
+      {oidcNodes.length > 0 && passwordNodes.length > 0 && (
+        <div className="relative my-6">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-sm font-medium leading-6">
+            <span className="px-6 bg-surface text-on-surface">
+              Or continue with
+            </span>
+          </div>
         </div>
-        <div className="relative flex justify-center text-sm font-medium leading-6">
-          <span className="px-6 bg-surface text-on-surface">
-            Or continue with
-          </span>
-        </div>
-      </div>
+      )}
 
       <form
         action={loginFlow.ui.action}
         method={loginFlow.ui.method}
         className="space-y-6"
       >
-        {filterNodesByGroups({
-          nodes: loginFlow.ui.nodes,
-          groups: ["password"],
-        }).map((node, i) => {
+        {[...passwordNodes, ...defaultNodes].map((node, i) => {
           if ((node.meta as any)?.label?.text === "ID") {
             (node.meta as any).label.text = "Email";
           }

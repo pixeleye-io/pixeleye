@@ -141,6 +141,9 @@ export function Navbar() {
 
   const params = new URLSearchParams(searchParams);
 
+  const paramsWithoutTeam = new URLSearchParams(searchParams);
+  paramsWithoutTeam.delete("team");
+
   const navigate = useTeamNavigation();
 
   const selectedTeam =
@@ -158,7 +161,7 @@ export function Navbar() {
             href={`/dashboard?` + params.toString()}
             className="flex items-center"
           >
-            <Logo className="h-7 w-7 text-on-surface hover:text-primary" />
+            <Logo className="h-7 w-7 text-on-surface hover:text-tertiary" />
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
@@ -217,7 +220,7 @@ export function Navbar() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href={`/settings?` + params.toString()}>Settings</Link>
+              <Link href={`/settings?` + paramsWithoutTeam.toString()}>Settings</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

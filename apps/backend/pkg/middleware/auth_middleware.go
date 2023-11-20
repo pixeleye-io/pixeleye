@@ -99,24 +99,12 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 				return err
 			}
 
-			if err := git.SyncUserAccounts(c.Request().Context(), user); err != nil {
-				log.Err(err).Msg("Error syncing user accounts")
-			}
-
-			teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
-			if err != nil && err != sql.ErrNoRows {
-				log.Err(err).Msg("Error getting user teams")
+			if err := git.SyncUserTeamsAndAccount(c.Request().Context(), user); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 				return err
-			}
-
-			err = git_github.SyncGithubUsersTeams(c.Request().Context(), user.ID, teams)
-			if err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
-				log.Err(err).Msg("Error syncing user teams")
-			}
-			if err == git_github.ExpiredRefreshTokenError {
+			} else if err == git_github.ExpiredRefreshTokenError {
+				// Our refresh token has expired, redirect the user to github to re-authenticate.
 				return git_github.RedirectGithubUserToLogin(c, user)
 			}
-
 		}
 
 		c.Set("user", &user)

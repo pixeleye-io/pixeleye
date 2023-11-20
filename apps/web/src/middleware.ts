@@ -14,15 +14,29 @@ export async function middleware(request: NextRequest) {
 
   const session = (await data?.json()) as Session | undefined;
 
+  const url = request.nextUrl.clone();
+
   if (!data || data.status >= 300 || data.status < 200 || !session) {
-    const url = request.nextUrl.clone();
+    if (request.nextUrl.pathname === "/") {
+      // Users not logged in who are trying to access the homepage are redirected to the actual homepage.
+      url.pathname = "/home";
+      return NextResponse.redirect(url);
+    }
+
     url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
+    return NextResponse.redirect(url);
+  }
+
+  if (request.nextUrl.pathname === "/") {
+    // Users logged in who are trying to access the homepage are redirected to the dashboard.
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 }
 
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/builds/:path*",
     "/add/:path*",

@@ -11,11 +11,7 @@ import (
 func StartCron() {
 	s := gocron.NewScheduler(time.UTC)
 
-	// if _, err := s.Every(1).Day().Do(jobs.DeleteUserJob); err != nil {
-	// 	log.Error().Err(err).Msg("Failed to schedule DeleteUserJob")
-	// }
-
-	// TODO - write cron to delete old oauth_account_refresh codes
+	// TODO - add cron to delete users marked as deleted after 30 days
 
 	if _, err := s.Every(15).Minutes().Do(jobs.UpdateStuckBuilds); err != nil {
 		log.Error().Err(err).Msg("Failed to schedule UpdateStuckBuilds")

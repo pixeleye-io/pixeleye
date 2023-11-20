@@ -17,6 +17,19 @@ type ProjectQueries struct {
 	*sqlx.DB
 }
 
+type ProjectQueriesTx struct {
+	*sqlx.Tx
+}
+
+func NewProjectTx(db *sqlx.DB, ctx context.Context) (*ProjectQueriesTx, error) {
+	tx, err := db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ProjectQueriesTx{tx}, nil
+}
+
 func (q *ProjectQueries) GetLatestBuild(projectID string) (models.Build, error) {
 	build := models.Build{}
 
@@ -271,7 +284,7 @@ func (q *ProjectQueries) IsUserOnProject(ctx context.Context, projectID string, 
 	return exists, nil
 }
 
-func (q *ProjectQueries) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
+func (q *ProjectQueriesTx) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
 	query := `DELETE FROM project_users WHERE project_id IN (SELECT id FROM project WHERE team_id = $1) AND user_id = $2 AND type = 'git'`
 
 	_, err := q.ExecContext(ctx, query, teamID, userID)

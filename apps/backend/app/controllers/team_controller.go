@@ -77,7 +77,16 @@ func RemoveTeamMember(c echo.Context) error {
 
 	userID := c.Param("user_id")
 
-	if err := db.RemoveTeamMembers(c.Request().Context(), team.ID, []string{userID}); err != nil {
+	userOnTeam, err := db.GetUserOnTeam(c.Request().Context(), team.ID, userID)
+	if err != nil {
+		return err
+	}
+
+	if userOnTeam.Type == models.TEAM_MEMBER_TYPE_GIT {
+		return c.String(http.StatusBadRequest, "You can only remove invited users from teams")
+	}
+
+	if err := db.RemoveTeamMembers(c.Request().Context(), team.ID, []string{userOnTeam.ID}); err != nil {
 		return err
 	}
 
