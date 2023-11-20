@@ -20,7 +20,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func SetupGithubInstallation(c echo.Context, installationID string) error {
+func GithubAppInstallation(c echo.Context) error {
+	installationID := c.QueryParam("installation_id")
+
+	if installationID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Installation ID is required")
+	}
+
+	log.Info().Msgf("Github App Installation ID: %s", installationID)
 
 	type response struct {
 		Installation models.GitInstallation `json:"installation"`
@@ -46,12 +53,6 @@ func SetupGithubInstallation(c echo.Context, installationID string) error {
 	}
 
 	if installation.ID != "" {
-
-		user, err := middleware.GetUser(c)
-		if err != nil {
-			return err
-		}
-
 		team, err := db.GetTeam(c.Request().Context(), installation.TeamID, user.ID)
 		if err != nil {
 			return err
@@ -100,18 +101,6 @@ func SetupGithubInstallation(c echo.Context, installationID string) error {
 		Installation: installation,
 		Team:         team,
 	})
-}
-
-func GithubAppInstallation(c echo.Context) error {
-	installationID := c.QueryParam("installation_id")
-
-	if installationID == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Installation ID is required")
-	}
-
-	log.Info().Msgf("Github App Installation ID: %s", installationID)
-
-	return SetupGithubInstallation(c, installationID)
 }
 
 func GithubAccountCallback(c echo.Context) error {
