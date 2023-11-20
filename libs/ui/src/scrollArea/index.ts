@@ -1,2 +1,2 @@
-export * from "./scrollArea";
-export { default } from "./scrollArea";
+export type { OverlayScrollbarProps } from "./scrollArea";
+export { default as ScrollArea } from "./scrollArea";

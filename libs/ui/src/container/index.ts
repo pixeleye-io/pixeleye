@@ -1,2 +1,2 @@
-export * from "./container";
-export { default } from "./container";
+export type { ContainerProps } from "./container";
+export { default as Container } from "./container";

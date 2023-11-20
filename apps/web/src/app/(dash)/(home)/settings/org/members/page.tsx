@@ -3,14 +3,6 @@ import { SettingsTemplate } from "../../settingsTemplate";
 import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@pixeleye/ui";
 import { getQueryClient, queries } from "@/queries";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { MemberSection } from "./sections";

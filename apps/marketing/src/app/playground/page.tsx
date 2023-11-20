@@ -5,6 +5,7 @@ import HomeBase from "./assets/home-baseline.png";
 import HomeChanged from "./assets/home-changed.png";
 import HomeDiff from "./assets/home-diff.png";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Playground | Pixeleye",
@@ -82,11 +83,13 @@ const dummySnapshots: ExtendedSnapshotPair[] = [
 
 export default function PlaygroundPage() {
   return (
-    <Reviewer
-      className="h-[calc(100vh-4.5rem-1px)]"
-      build={dummyBuild}
-      snapshots={dummySnapshots}
-      optimize
-    />
+    <Suspense>
+      <Reviewer
+        className="h-[calc(100vh-4.5rem-1px)]"
+        build={dummyBuild}
+        snapshots={dummySnapshots}
+        optimize
+      />
+    </Suspense>
   );
 }

@@ -1,2 +1,2 @@
 export * from "./logo";
-export { default } from "./logo";
+export { default as Logo } from "./logo";

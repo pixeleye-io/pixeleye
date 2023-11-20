@@ -24,13 +24,10 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
       },
       credentials: "include",
     }).then((res) => {
-      console.log(res.headers.get("pixeleye-location"), res.status);
-
       if (res.status === 300 && res.headers.get("pixeleye-location")) {
         if (typeof window !== "undefined") {
           window.location.href = res.headers.get("pixeleye-location")!;
         }
-        console.log("redirecting to", res.headers.get("pixeleye-location"));
         redirect(res.headers.get("pixeleye-location")!);
       }
 

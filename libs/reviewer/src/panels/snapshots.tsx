@@ -4,7 +4,7 @@ import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
-import Accordion from "@pixeleye/ui/src/accordion";
+import {Accordion} from "@pixeleye/ui";
 
 interface AccordionSnapsProps {
   snapshots: ExtendedSnapshotPair[];

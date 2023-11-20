@@ -7,9 +7,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import Table from "../table";
+import { Table } from "../table";
 
-interface DataTableProps<TData, TValue> {
+export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
