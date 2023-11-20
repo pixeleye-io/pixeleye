@@ -478,13 +478,17 @@ func UpdateUserOnProject(c echo.Context) error {
 	}
 
 	if body.Role != "" {
-		if err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, body.Role, false); err != nil {
+		if found, err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, body.Role, false); err != nil {
 			return err
+		} else if !found {
+			return echo.NewHTTPError(http.StatusNotFound, "user not found on project")
 		}
 	} else if body.Sync {
 		// We set the viewer as we're not sure what end role the user will get. This means the user won't be able to do anything until the sync is complete.
-		if err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, models.PROJECT_MEMBER_ROLE_VIEWER, true); err != nil {
+		if found, err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, models.PROJECT_MEMBER_ROLE_VIEWER, true); err != nil {
 			return err
+		} else if !found {
+			return echo.NewHTTPError(http.StatusNotFound, "user not found on project")
 		}
 
 		team, err := db.GetTeam(c.Request().Context(), project.TeamID, userID)

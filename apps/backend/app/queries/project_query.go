@@ -361,21 +361,21 @@ func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID s
 	return err
 }
 
-func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) error {
+func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) (found bool, err error) {
 	query := `UPDATE project_users SET role = $1, role_sync = $2 WHERE project_id = $3 AND user_id = $4`
 
 	res, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if n, err := res.RowsAffected(); err != nil {
-		return err
+		return false, err
 	} else if n == 0 {
-		return fmt.Errorf("user not found on project")
+		return false, nil
 	}
 
-	return nil
+	return true, nil
 }
 
 func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {
