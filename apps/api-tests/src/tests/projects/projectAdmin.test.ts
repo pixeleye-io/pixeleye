@@ -325,13 +325,6 @@ describe("Team admin projects", () => {
         createdAt: like("2021-01-01T00:00:00.000Z"),
         expiresAt: like("2021-01-01T00:00:00.000Z"),
       });
-
-    await projectAPI.updateUserRole(
-      hydesProject.id,
-      session.identity.userID,
-      "reviewer",
-      IDs.jekyll
-    );
   });
 
   // -------------------- deleting a project --------------------
