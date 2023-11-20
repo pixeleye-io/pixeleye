@@ -133,6 +133,8 @@ export async function createAllSessions() {
         },
       }).then((res) => res.json());
 
+      console.log("Created user", user.id, "with identity", identity.id)
+
       sessions[id] = {...session, session: {
         ...session.session,
         identity: {

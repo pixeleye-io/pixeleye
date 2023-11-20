@@ -20,12 +20,12 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
-func (q *UserQueries) GetUserByAuthID(authID string) (models.User, error) {
+func (q *UserQueries) GetUserByAuthID(ctx context.Context, authID string) (models.User, error) {
 	query := `SELECT * FROM users WHERE auth_id = $1`
 
 	user := models.User{}
 
-	if err := q.Get(&user, query, authID); err != nil {
+	if err := q.GetContext(ctx, &user, query, authID); err != nil {
 		return user, err
 	}
 
