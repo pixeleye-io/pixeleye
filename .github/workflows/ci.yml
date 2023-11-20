@@ -189,6 +189,7 @@ jobs:
           envkey_SERVER_ENDPOINT: http://127.0.0.1:5000
           envkey_SERVER_URL: 127.0.0.1:5000
           envkey_DB_URL: postgres://postgres:pass@127.0.0.1:5432/test?sslmode=disable
+          envkey_PIXELEYE_HOSTING: true
           envkey_DB_MAX_CONNECTIONS: 100
           envkey_DB_MAX_IDLE_CONNECTIONS: 10
           envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
