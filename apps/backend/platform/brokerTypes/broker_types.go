@@ -14,8 +14,7 @@ type Send func(queueType QueueType, queueName string, body []byte) error
 type Subscribe func(queueType QueueType, queueName string, callback func([]byte) error, quit chan bool) error
 
 type Broker struct {
-	Send      Send
-	Subscribe Subscribe
+	Send Send
 }
 
 func (t QueueType) String() (string, error) {

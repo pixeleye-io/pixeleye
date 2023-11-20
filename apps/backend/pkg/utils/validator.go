@@ -10,6 +10,16 @@ func ValidateNanoid(id string) bool {
 	return (len(id) == 21)
 }
 
+func ValidateNanoidArray(ids []string) bool {
+	for _, id := range ids {
+		if !ValidateNanoid(id) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func ValidateViewport(viewport string) bool {
 	viewportRegex := regexp.MustCompile(`^\d+x\d+$`)
 
@@ -25,6 +35,12 @@ func NewValidator() *validator.Validate {
 	_ = validate.RegisterValidation("nanoid", func(fl validator.FieldLevel) bool {
 		field := fl.Field().String()
 		return ValidateNanoid(field)
+	})
+
+	// validator for nanoid array
+	_ = validate.RegisterValidation("nanoid_array", func(fl validator.FieldLevel) bool {
+		field := fl.Field().Interface().([]string)
+		return ValidateNanoidArray(field)
 	})
 
 	// validator for viewport

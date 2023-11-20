@@ -12,8 +12,6 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-// TODO don't fail build if we can't connect to the broker
-
 func ConnectAMPQ(url string) (*amqp.Connection, error) {
 	// Define RabbitMQ server URL.
 
@@ -189,7 +187,7 @@ func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTyp
 	)
 }
 
-func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, quit chan bool) error {
+func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, maxGoroutines int, quit chan bool) error {
 
 	// Create a new channel.
 	channel, err := GetChannel()
@@ -218,8 +216,6 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		queue = getQueue(channel, name+consumer, queueType)
 	}
 
-	// TODO - we shouldn't auto ack ingest messages, we should ack after we've processed the message
-
 	if exchangeName != "" {
 		if err := channel.QueueBind(
 			queue.Name, // queue name
@@ -236,7 +232,7 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 	messages, err := channel.Consume(
 		queue.Name, // queue
 		consumer,   // consumer
-		true,       // auto-ack
+		false,      // auto-ack
 		false,      // exclusive
 		false,      // no-local
 		false,      // no-wait
@@ -247,13 +243,23 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
-	go func() {
+	go func(messages <-chan amqp.Delivery, maxGoroutines int) {
+		maxChannel := make(chan struct{}, maxGoroutines)
+
 		for message := range messages {
-			if err := callback(message.Body); err != nil {
-				log.Error().Err(err).Msg("Failed to process message")
-			}
+			maxChannel <- struct{}{}
+			go func(message amqp.Delivery) {
+				if err := callback(message.Body); err != nil {
+					log.Error().Err(err).Msg("Failed to process message")
+				}
+				if err := message.Ack(false); err != nil {
+					log.Error().Err(err).Msg("Failed to ack message")
+				}
+
+				<-maxChannel
+			}(message)
 		}
-	}()
+	}(messages, maxGoroutines)
 
 	<-quit
 

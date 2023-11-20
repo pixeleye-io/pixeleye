@@ -95,7 +95,7 @@ func (basics BucketClient) UploadFile(ctx context.Context, bucketName string, ob
 
 // DownloadFile gets an object from a bucket and stores it in a local file.
 func (basics BucketClient) DownloadFile(ctx context.Context, bucketName string, objectKey string) ([]byte, error) {
-	result, err := basics.S3Client.GetObject(context.TODO(), &s3.GetObjectInput{
+	result, err := basics.S3Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 	})

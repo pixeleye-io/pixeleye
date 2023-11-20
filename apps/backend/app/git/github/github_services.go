@@ -107,7 +107,6 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 	return admins, members, nil
 }
 
-// TODO - I should make this function generic so I can use it for other api calls
 func ListCollaborators(ctx context.Context, client *github.Client, org string, repo string) ([]*github.User, error) {
 	opts := &github.ListCollaboratorsOptions{
 		ListOptions: github.ListOptions{

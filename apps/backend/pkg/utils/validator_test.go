@@ -26,6 +26,16 @@ func TestValidateViewport(t *testing.T) {
 	assert.False(t, ValidateViewport(invalidViewport))
 }
 
+func TestValidateNanoidArray(t *testing.T) {
+	// Test a valid nanoid array.
+	validNanoidArray := []string{"V1StGXR8_Z5jdHi6B-myT", "V1StGXR8_Z5jdHi6B-myT"}
+	assert.True(t, ValidateNanoidArray(validNanoidArray))
+
+	// Test an invalid nanoid array.
+	invalidNanoidArray := []string{"V1StGXR8_Z5jdHi6B-myT", "invalidnanoid"}
+	assert.False(t, ValidateNanoidArray(invalidNanoidArray))
+}
+
 func TestValidatorErrors(t *testing.T) {
 	// Define a struct for testing validation errors.
 	type TestStruct struct {
