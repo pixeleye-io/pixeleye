@@ -9,11 +9,6 @@ import {
   TabsList,
   TabsTrigger,
   Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableCell,
 } from "@pixeleye/ui";
 import {
   ListBulletIcon,
@@ -107,22 +102,22 @@ export function DashboardProjects({ team }: { team: Team }) {
 
         <TabsContent value="table">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Last build</TableHead>
-                <TableHead>
+            <Table.Header>
+              <Table.Row>
+                <Table.Head>Name</Table.Head>
+                <Table.Head>Last build</Table.Head>
+                <Table.Head>
                   <span className="sr-only">Repository Link</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </Table.Head>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
               {projects?.map((project) => (
-                <TableRow
+                <Table.Row
                   key={project.id}
                   className="relative cursor-pointer z-0"
                 >
-                  <TableCell className="font-medium">
+                  <Table.Cell className="font-medium">
                     {project.name}
                     <NextLink
                       className="absolute inset-0"
@@ -130,13 +125,13 @@ export function DashboardProjects({ team }: { team: Team }) {
                     >
                       <span className="sr-only">Project page</span>
                     </NextLink>
-                  </TableCell>
-                  <TableCell>
+                  </Table.Cell>
+                  <Table.Cell>
                     {project.lastActivity
                       ? dayjs(project.lastActivity).fromNow()
                       : "No activity"}
-                  </TableCell>
-                  <TableCell className="text-right z-10">
+                  </Table.Cell>
+                  <Table.Cell className="text-right z-10">
                     <Button variant={"link"} size={"sm"} asChild>
                       <a
                         rel="noopener noreferrer"
@@ -146,10 +141,10 @@ export function DashboardProjects({ team }: { team: Team }) {
                         View repo
                       </a>
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </Table.Cell>
+                </Table.Row>
               ))}
-            </TableBody>
+            </Table.Body>
           </Table>
         </TabsContent>
         <TabsContent value="cards">

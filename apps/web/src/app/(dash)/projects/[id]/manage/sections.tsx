@@ -6,11 +6,6 @@ import { API } from "@/libs";
 import {
   Button,
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Input,
   DropdownMenu,
   Select,
@@ -197,11 +192,11 @@ export function MemberSection({
       const old = queryClient.getQueryData(
         type === "git"
           ? queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
-              .queryKey
+            .queryKey
           : queries.projects
-              .detail(project.id)
-              ._ctx.listMembers()
-              ._ctx.invited().queryKey
+            .detail(project.id)
+            ._ctx.listMembers()
+            ._ctx.invited().queryKey
       ) as UserOnProject[];
 
       const newMembers = old.map((member: UserOnProject) => {
@@ -218,11 +213,11 @@ export function MemberSection({
       queryClient.setQueryData(
         type === "git"
           ? queries.projects.detail(project.id)._ctx.listMembers()._ctx.git()
-              .queryKey
+            .queryKey
           : queries.projects
-              .detail(project.id)
-              ._ctx.listMembers()
-              ._ctx.invited().queryKey,
+            .detail(project.id)
+            ._ctx.listMembers()
+            ._ctx.invited().queryKey,
         newMembers
       );
 
@@ -266,29 +261,28 @@ export function MemberSection({
 
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Role</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Name</Table.Head>
+          <Table.Head>Role</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
         {members.data?.map((member) => {
           const memberRole = member.roleSync
-            ? `Synced (${
-                member.role.charAt(0).toUpperCase() +
-                member.role.slice(1).toLowerCase()
-              })`
+            ? `Synced (${member.role.charAt(0).toUpperCase() +
+            member.role.slice(1).toLowerCase()
+            })`
             : member.role.charAt(0).toUpperCase() +
-              member.role.slice(1).toLowerCase();
+            member.role.slice(1).toLowerCase();
 
           return (
-            <TableRow key={member.id}>
-              <TableCell className="flex flex-col">
+            <Table.Row key={member.id}>
+              <Table.Cell className="flex flex-col">
                 <span>{member.name}</span>
                 <span className="text-on-surface-variant">{member.email}</span>
-              </TableCell>
-              <TableCell className="w-0">
+              </Table.Cell>
+              <Table.Cell className="w-0">
                 <Select
                   disabled={
                     (!["admin", "owner"].includes(project.role || "") &&
@@ -321,12 +315,12 @@ export function MemberSection({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-              </TableCell>
+              </Table.Cell>
               {type === "invited" &&
                 ["admin", "owner"].includes(
                   project.role || project.teamRole || ""
                 ) && (
-                  <TableCell className="w-0">
+                  <Table.Cell className="w-0">
                     <Button
                       size="icon"
                       variant="ghost"
@@ -336,12 +330,12 @@ export function MemberSection({
                     >
                       <TrashIcon className="w-5 h-5 text-on-surface-variant" />
                     </Button>
-                  </TableCell>
+                  </Table.Cell>
                 )}
-            </TableRow>
+            </Table.Row>
           );
         })}
-      </TableBody>
+      </Table.Body>
     </Table>
   );
 }

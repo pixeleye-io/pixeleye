@@ -1,2 +1,2 @@
 export * from "./divider";
-export { default } from "./divider";
+export { default as Divider } from "./divider";

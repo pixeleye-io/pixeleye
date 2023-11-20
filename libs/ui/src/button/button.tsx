@@ -37,7 +37,7 @@ export const buttonVariants = cva(
   }
 );
 
-export interface Props extends VariantProps<typeof buttonVariants> {
+interface Props extends VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
   full?: boolean;

@@ -1,16 +1,14 @@
 "use client";
 
-import * as React from "react";
+import { useState, ComponentPropsWithoutRef } from "react";
 
 import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/24/outline";
 
-import Avatar from "../avatar";
-import Button from "../button";
+import { Avatar } from "../avatar";
+import { Button } from "../button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "../command";
@@ -18,11 +16,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cx } from "class-variance-authority";
 import { Team } from "@pixeleye/api";
 
-type PopoverTriggerProps = React.ComponentPropsWithoutRef<
-  typeof PopoverTrigger
->;
+type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
-interface TeamSwitcherProps extends PopoverTriggerProps {
+export interface TeamSwitcherProps extends PopoverTriggerProps {
   personal: Team;
   teams: Team[];
   selectedTeam: Team;
@@ -38,7 +34,7 @@ export default function TeamSwitcher({
   setSelectedTeam,
   teamsHeading,
 }: TeamSwitcherProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const groups = [
     {

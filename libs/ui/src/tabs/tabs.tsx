@@ -11,7 +11,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { LayoutGroup, m } from "framer-motion";
+import { m } from "framer-motion";
 
 const TabsContext = createContext<{
   layoutId?: string;
@@ -71,7 +71,9 @@ const TabsList = forwardRef<
     asChild
     {...props}
   >
-    <m.div layoutRoot layout>{children}</m.div>
+    <m.div layoutRoot layout>
+      {children}
+    </m.div>
   </TabsPrimitive.List>
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;

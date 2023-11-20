@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ElementRef, ComponentPropsWithoutRef, forwardRef } from "react";
+import { ElementRef, ComponentPropsWithoutRef, forwardRef } from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { cx } from "class-variance-authority";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";

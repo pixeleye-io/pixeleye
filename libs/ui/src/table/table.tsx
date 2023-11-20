@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from "react";
 
-const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
+const TableRoot = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
   function Table({ className, ...props }, ref) {
     return (
       <div className="w-full overflow-auto">
@@ -20,7 +20,7 @@ const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
   }
 );
 
-export const TableHeader = forwardRef<
+const TableHeader = forwardRef<
   HTMLTableSectionElement,
   HTMLAttributes<HTMLTableSectionElement>
 >(function TableHeader({ className, ...props }, ref) {
@@ -33,7 +33,7 @@ export const TableHeader = forwardRef<
   );
 });
 
-export const TableBody = forwardRef<
+const TableBody = forwardRef<
   HTMLTableSectionElement,
   HTMLAttributes<HTMLTableSectionElement>
 >(function TableBody({ className, ...props }, ref) {
@@ -46,7 +46,7 @@ export const TableBody = forwardRef<
   );
 });
 
-export const TableFooter = forwardRef<
+const TableFooter = forwardRef<
   HTMLTableSectionElement,
   HTMLAttributes<HTMLTableSectionElement>
 >(function TableFooter({ className, ...props }, ref) {
@@ -59,7 +59,7 @@ export const TableFooter = forwardRef<
   );
 });
 
-export const TableRow = forwardRef<
+const TableRow = forwardRef<
   HTMLTableRowElement,
   HTMLAttributes<HTMLTableRowElement>
 >(function TableRow({ className, ...props }, ref) {
@@ -75,7 +75,7 @@ export const TableRow = forwardRef<
   );
 });
 
-export const TableHead = forwardRef<
+const TableHead = forwardRef<
   HTMLTableCellElement,
   ThHTMLAttributes<HTMLTableCellElement>
 >(function TableHead({ className, ...props }, ref) {
@@ -91,7 +91,7 @@ export const TableHead = forwardRef<
   );
 });
 
-export const TableCell = forwardRef<
+const TableCell = forwardRef<
   HTMLTableCellElement,
   TdHTMLAttributes<HTMLTableCellElement>
 >(function TableCell({ className, ...props }, ref) {
@@ -107,7 +107,7 @@ export const TableCell = forwardRef<
   );
 });
 
-export const TableCaption = forwardRef<
+const TableCaption = forwardRef<
   HTMLTableCaptionElement,
   HTMLAttributes<HTMLTableCaptionElement>
 >(function TableCaption({ className, ...props }, ref) {
@@ -120,7 +120,7 @@ export const TableCaption = forwardRef<
   );
 });
 
-export default Object.assign(Table, {
+export default Object.assign(TableRoot, {
   Header: TableHeader,
   Body: TableBody,
   Footer: TableFooter,

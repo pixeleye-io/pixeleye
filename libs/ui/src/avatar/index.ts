@@ -1,2 +1,2 @@
-export * from "./avatar";
-export { default } from "./avatar";
+export type { AvatarImageProps } from "./avatar";
+export { default as Avatar } from "./avatar";
