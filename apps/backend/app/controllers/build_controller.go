@@ -33,8 +33,6 @@ import (
 // @Router /v1/builds/create [post]
 func CreateBuild(c echo.Context) error {
 
-	// TODO - handle case where we already have a build for this commit
-
 	build := models.Build{}
 
 	project := middleware.GetProject(c)
@@ -414,7 +412,6 @@ func UploadPartial(c echo.Context) error {
 	}
 
 	channel, err := broker.GetBroker()
-
 	if err != nil {
 		return err
 	}
