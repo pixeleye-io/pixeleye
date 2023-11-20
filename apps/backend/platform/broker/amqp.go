@@ -216,8 +216,6 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		queue = getQueue(channel, name+consumer, queueType)
 	}
 
-	// TODO - we shouldn't auto ack ingest messages, we should ack after we've processed the message
-
 	if exchangeName != "" {
 		if err := channel.QueueBind(
 			queue.Name, // queue name
