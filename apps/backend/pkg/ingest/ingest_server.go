@@ -66,7 +66,7 @@ func startIngestServer(quit chan bool) {
 			}(snapshotIDs)
 
 			return nil
-		}, 1, quit)
+		}, 100, quit)
 
 		log.Fatal().Err(err).Msg("Error while subscribing to queue, shutting down")
 
