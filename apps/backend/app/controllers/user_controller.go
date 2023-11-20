@@ -150,11 +150,6 @@ func SyncUserTeams(c echo.Context) error {
 		return err
 	}
 
-	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
-	if err != nil {
-		return err
-	}
-
 	if err := git.SyncUserTeamsAndAccount(c.Request().Context(), user); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 		return err
 	} else if err == git_github.ExpiredRefreshTokenError {
@@ -162,7 +157,7 @@ func SyncUserTeams(c echo.Context) error {
 		return git_github.RedirectGithubUserToLogin(c, user)
 	}
 
-	teams, err = db.GetUsersTeams(c.Request().Context(), user.ID)
+	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
 	if err != nil {
 		return err
 	}
