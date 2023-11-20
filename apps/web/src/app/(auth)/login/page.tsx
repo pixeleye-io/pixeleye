@@ -71,12 +71,6 @@ export default async function LoginPage({
   const passwordNodes = filterNodesByGroups({
     nodes: loginFlow.ui.nodes,
     groups: ["password"],
-    withoutDefaultGroup: true,
-  });
-
-  const defaultNodes = filterNodesByGroups({
-    nodes: loginFlow.ui.nodes,
-    groups: ["default"],
   });
 
   return (
@@ -105,7 +99,7 @@ export default async function LoginPage({
         ))}
       </form>
 
-      {oidcNodes.length > 0 && passwordNodes.length > 0 && (
+      {oidcNodes.length > 0 && passwordNodes.length > 1 && (
         <div className="relative my-6">
           <div
             className="absolute inset-0 flex items-center"
@@ -126,7 +120,7 @@ export default async function LoginPage({
         method={loginFlow.ui.method}
         className="space-y-6"
       >
-        {[...passwordNodes, ...defaultNodes].map((node, i) => {
+        {[...passwordNodes].map((node, i) => {
           if ((node.meta as any)?.label?.text === "ID") {
             (node.meta as any).label.text = "Email";
           }

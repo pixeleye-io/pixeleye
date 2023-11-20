@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -160,7 +159,7 @@ func SyncUserAccounts(ctx context.Context, user models.User) error {
 
 	configsRaw, ok := tokens.GetConfig()["providers"]
 	if !ok {
-		return fmt.Errorf("Failed to get providers from kratos")
+		return nil // No providers
 	}
 
 	configs, ok := configsRaw.([]interface{})
