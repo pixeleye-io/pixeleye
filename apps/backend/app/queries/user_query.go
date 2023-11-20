@@ -119,7 +119,7 @@ func (q *UserQueries) GetOauthState(ctx context.Context, id string) (models.Oaut
 func (q *UserQueries) DeleteExpiredOauthStates(ctx context.Context) error {
 	query := `DELETE FROM oauth_account_refresh WHERE created_at < $1`
 
-	_, err := q.ExecContext(ctx, query, time.Now())
+	_, err := q.ExecContext(ctx, query, time.Now().Add(-time.Hour)) // Avoids deleting the state before the user has a chance to use it
 
 	return err
 }
