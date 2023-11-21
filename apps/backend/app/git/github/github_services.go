@@ -670,7 +670,7 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 			Type:       models.TEAM_TYPE_GITHUB,
 			Name:       app.Account.GetLogin(),
 			URL:        app.Account.GetOrganizationsURL(),
-			AvatarURL:  app.Account.GetHTMLURL(),
+			AvatarURL:  app.Account.GetAvatarURL(),
 			Role:       models.TEAM_MEMBER_ROLE_OWNER,
 			ExternalID: strconv.Itoa(int(app.Account.GetID())),
 		}
