@@ -6,7 +6,14 @@ const nextConfig = {
     "@pixeleye/tailwind",
   ],
   images: {
-    domains: ["tailwindui.com"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'tailwindui.com',
+        port: '',
+        pathname: '/img/**',
+      }
+    ]
   },
   async redirects() {
     return [
