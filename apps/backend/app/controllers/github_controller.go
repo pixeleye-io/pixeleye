@@ -75,7 +75,6 @@ func GithubAppInstallation(c echo.Context) error {
 
 	app, err := ghClient.GetInstallationInfo(c.Request().Context(), installationID)
 	if err != nil {
-		// TODO - should check if the error is a 404, if it is, we should also return a 404
 		return err
 	}
 

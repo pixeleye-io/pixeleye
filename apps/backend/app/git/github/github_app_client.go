@@ -11,6 +11,7 @@ import (
 
 type GithubAppClient struct {
 	*github.Client
+	InstallationID string
 }
 
 func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
@@ -40,7 +41,8 @@ func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
 	client := github.NewClient(&http.Client{Transport: itr})
 
 	return &GithubAppClient{
-		Client: client,
+		Client:         client,
+		InstallationID: installationID,
 	}, nil
 }
 

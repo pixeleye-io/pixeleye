@@ -158,7 +158,7 @@ func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits 
 }
 
 func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Team, error) {
-	query := `SELECT team.*, team_users.role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team_users.user_id = $1`
+	query := `SELECT team.*, team_users.role, EXISTS(select * from git_installation where git_installation.team_id = team.id) as has_install FROM team JOIN team_users ON team.id = team_users.team_id WHERE team_users.user_id = $1`
 
 	teams := []models.Team{}
 

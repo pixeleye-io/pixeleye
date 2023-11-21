@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/google/go-github/v56/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -15,6 +16,19 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func removeInstallationFromDB(ctx context.Context, installationID string) error {
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if err := db.TeamQueries.DeleteTeamInstallation(ctx, installationID); err != nil {
+		return err
+	}
+
+	return fmt.Errorf("installation was uninstalled from github")
+}
+
 func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page int) (*github.ListRepositories, bool, error) {
 
 	opts := &github.ListOptions{
@@ -24,6 +38,16 @@ func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page 
 	repos, res, err := c.Apps.ListRepos(ctx, opts)
 
 	if err != nil {
+
+		// TODO - this is a hack, we should be able to check the status code of the response
+		if strings.Contains(err.Error(), "\"403") {
+			return nil, false, fmt.Errorf("installation was suspended from github")
+		}
+
+		if res != nil && res.StatusCode == 404 {
+			return nil, false, removeInstallationFromDB(ctx, c.InstallationID)
+		}
+
 		return nil, false, err
 	}
 
@@ -38,8 +62,22 @@ func (c *GithubAppClient) GetInstallationInfo(ctx context.Context, installationI
 		return nil, err
 	}
 
-	install, _, err := c.Apps.GetInstallation(ctx, int64(id))
-	return install, err
+	install, res, err := c.Apps.GetInstallation(ctx, int64(id))
+	if err != nil {
+
+		// TODO - this is a hack, we should be able to check the status code of the response
+		if strings.Contains(err.Error(), "\"403") {
+			return nil, fmt.Errorf("installation was suspended from github")
+		}
+
+		if res != nil && res.StatusCode == 404 {
+			return nil, removeInstallationFromDB(ctx, installationID)
+		}
+
+		return nil, err
+	}
+
+	return install, nil
 }
 
 func IsUserInstallation(app github.Installation) bool {
@@ -68,6 +106,11 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
 
 		if err != nil {
+
+			if res != nil && res.StatusCode == 404 {
+				return nil, nil, removeInstallationFromDB(ctx, c.InstallationID)
+			}
+
 			return nil, nil, err
 		}
 
@@ -89,6 +132,10 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 		opts.Page = page
 
 		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
+
+		if res != nil && res.StatusCode == 404 {
+			return nil, nil, removeInstallationFromDB(ctx, c.InstallationID)
+		}
 
 		if err != nil {
 			return nil, nil, err
@@ -637,7 +684,7 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
-	existingInstallation, err := tx.GetGithubAPpInstallationByTeamIDForUpdate(ctx, team.ID)
+	existingInstallation, err := tx.GetGithubAppInstallationByTeamIDForUpdate(ctx, team.ID)
 	if err != nil && err != sql.ErrNoRows {
 		return models.Team{}, models.GitInstallation{}, err
 	}

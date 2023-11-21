@@ -27,6 +27,8 @@ type Team struct {
 
 	OwnerID *string `db:"owner_id" json:"-"` // Used to ensure a user only has 1 personal team
 
+	HasInstall *bool `db:"has_install" json:"hasInstall"` // Used non user teams. Tells us if we have an install for this team
+
 	Role string `db:"role" json:"role,omitempty" validate:"omitempty,oneof=owner admin accountant member"` // only for user scoped queries
 }
 

@@ -96,19 +96,16 @@ func RemoveTeamMember(c echo.Context) error {
 func GetRepos(c echo.Context) error {
 
 	team, err := middleware.GetTeam(c)
-
 	if err != nil {
 		return err
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
 
 	installation, err := db.GetTeamInstallation(c.Request().Context(), team.ID)
-
 	if err != nil {
 		return err
 	}
@@ -118,7 +115,6 @@ func GetRepos(c echo.Context) error {
 	if installation.Type == models.TEAM_TYPE_GITHUB {
 
 		ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
-
 		if err != nil {
 			return err
 		}
@@ -132,12 +128,17 @@ func GetRepos(c echo.Context) error {
 
 			var repos *github.ListRepositories
 			repos, hasNext, err = ghClient.GetInstallationRepositories(c.Request().Context(), page)
-
-			page += 1
-
 			if err != nil {
+				if err.Error() == "installation was suspended from github" {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"code":  "github:installation_suspended",
+						"error": "Github installation was suspended from github",
+					})
+				}
 				return err
 			}
+
+			page += 1
 
 			formattedRepos := make([]models.GitRepo, len(repos.Repositories))
 
