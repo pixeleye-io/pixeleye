@@ -70,8 +70,6 @@ export default async function UsagePage({
     }
   ];
 
-
-
   return (
     <main>
       <div className="pt-12">

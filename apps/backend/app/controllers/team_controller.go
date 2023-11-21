@@ -143,6 +143,10 @@ func GetTeamSnapshotUsage(c echo.Context) error {
 		}
 	}
 
+	if startDateTime.After(endDateTime) {
+		return c.String(http.StatusBadRequest, "Start date can't be after end date")
+	}
+
 	team, err := middleware.GetTeam(c)
 	if err != nil {
 		return err
@@ -195,6 +199,10 @@ func GetTeamBuildUsage(c echo.Context) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	if startDateTime.After(endDateTime) {
+		return c.String(http.StatusBadRequest, "Start date can't be after end date")
 	}
 
 	team, err := middleware.GetTeam(c)
