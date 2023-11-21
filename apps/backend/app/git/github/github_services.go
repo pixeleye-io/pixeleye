@@ -44,7 +44,7 @@ func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page 
 			return nil, false, fmt.Errorf("installation was suspended from github")
 		}
 
-		if res.StatusCode == 404 {
+		if res != nil && res.StatusCode == 404 {
 			return nil, false, removeInstallationFromDB(ctx, c.InstallationID)
 		}
 
@@ -70,7 +70,7 @@ func (c *GithubAppClient) GetInstallationInfo(ctx context.Context, installationI
 			return nil, fmt.Errorf("installation was suspended from github")
 		}
 
-		if res.StatusCode == 404 {
+		if res != nil && res.StatusCode == 404 {
 			return nil, removeInstallationFromDB(ctx, installationID)
 		}
 
@@ -133,7 +133,7 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 
 		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
 
-		if res.StatusCode == 404 {
+		if res != nil && res.StatusCode == 404 {
 			return nil, nil, removeInstallationFromDB(ctx, c.InstallationID)
 		}
 
