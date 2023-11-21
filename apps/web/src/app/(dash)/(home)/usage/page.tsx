@@ -43,8 +43,12 @@ export default async function UsagePage({
     },
   })]);
 
+
   const snapshotChange = ((snapUsage.snapshotCount - snapUsage.prevSnapshotCount) / snapUsage.prevSnapshotCount) * 100;
+  const snapshotCostChange = ((Math.max(snapUsage.snapshotCount - 5000, 0) - Math.max(snapUsage.prevSnapshotCount - 5000, 0) / Math.max(snapUsage.prevSnapshotCount - 5000, 0)) * 100);
   const buildChange = ((buildUsage.buildCount - buildUsage.prevBuildCount) / buildUsage.prevBuildCount) * 100;
+
+
 
   const stats: StatType[] = [
     {
@@ -63,9 +67,9 @@ export default async function UsagePage({
     },
     {
       name: "Total cost ($0.003 per snapshot)",
-      stat: `$${(snapUsage.snapshotCount * 0.003).toFixed(2)}`,
-      previousStat: `$${(snapUsage.prevSnapshotCount * 0.003).toFixed(2)}`,
-      change: `${snapshotChange.toFixed(2)} %`,
+      stat: `$${(Math.max(snapUsage.snapshotCount - 5000, 0) * 0.003).toFixed(2)}`,
+      previousStat: `$${(Math.max(snapUsage.prevSnapshotCount - 5000, 0) * 0.003).toFixed(2)}`,
+      change: `${snapshotCostChange.toFixed(2)} %`,
       changeType: snapshotChange > 0 ? "increase" : "decrease",
     }
   ];
