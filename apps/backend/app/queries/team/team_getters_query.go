@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
@@ -31,6 +32,37 @@ func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string)
 	}
 
 	return team, nil
+}
+
+func (q *TeamQueries) GetTeamSnapshotCount(ctx context.Context, teamID string, startDate time.Time, endDate time.Time) (int, error) {
+	query := `SELECT COUNT(snapshot) FROM team 
+	JOIN project ON team.id = project.team_id 
+	JOIN build ON project.id = build.project_id 
+	JOIN snapshot ON build.id = snapshot.build_id 
+	WHERE team.id = $1 AND snapshot.created_at BETWEEN $2 AND $3`
+
+	var count int
+
+	if err := q.GetContext(ctx, &count, query, teamID, startDate, endDate); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (q *TeamQueries) GetTeamBuildCount(ctx context.Context, teamID string, startDate time.Time, endDate time.Time) (int, error) {
+	query := `SELECT COUNT(build) FROM team 
+	JOIN project ON team.id = project.team_id 
+	JOIN build ON project.id = build.project_id 
+	WHERE team.id = $1 AND build.created_at BETWEEN $2 AND $3`
+
+	var count int
+
+	if err := q.GetContext(ctx, &count, query, teamID, startDate, endDate); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (q *TeamQueries) GetTeamFromExternalID(ctx context.Context, externalID string) (models.Team, error) {
