@@ -34,5 +34,7 @@ func TeamRoutes(e *echo.Echo) {
 	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})
 	adminRoutes.Use(adminRoleMiddleware.TeamRoleAccess)
 
+	adminRoutes.PATCH("", controllers.UpdateTeam)
+
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveTeamMember)
 }

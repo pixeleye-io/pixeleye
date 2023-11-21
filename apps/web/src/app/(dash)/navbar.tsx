@@ -168,6 +168,7 @@ export function Navbar() {
           <div className="flex items-center ">
             {groupTeams && selectedTeam && personalTeam && (
               <TeamSwitcher
+                user={user}
                 personal={personalTeam}
                 teams={groupTeams}
                 selectedTeam={selectedTeam}
