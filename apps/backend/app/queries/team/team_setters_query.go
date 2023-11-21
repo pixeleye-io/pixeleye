@@ -57,6 +57,14 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	return nil
 }
 
+func (q *TeamQueries) DeleteTeamInstallation(ctx context.Context, installationID string) error {
+	query := `DELETE FROM git_installation WHERE installation_id = $1`
+
+	_, err := q.ExecContext(ctx, query, installationID)
+
+	return err
+}
+
 func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
 	query := `DELETE FROM team_users WHERE team_id = ? AND user_id IN (?)`
 	projectQuery := `DELETE FROM project_users WHERE project_id IN (SELECT id FROM project WHERE team_id = ?) AND user_id IN (?)`

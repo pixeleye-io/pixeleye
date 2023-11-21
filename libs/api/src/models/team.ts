@@ -12,6 +12,8 @@ export const TeamZod = z.object({
   url: z.string().url().optional(),
   avatarURL: z.string().url().optional(),
 
+  hasInstall: z.boolean().optional(),
+
   role: z.enum(["admin", "member", "accountant", "owner"]).optional(),
 });
 
