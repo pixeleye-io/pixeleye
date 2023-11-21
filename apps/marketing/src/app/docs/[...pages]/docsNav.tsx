@@ -57,21 +57,17 @@ export function DocsNavDesktop({ sections }: DocsNavProps) {
 
 export function DocsNavMobile({ sections }: DocsNavProps) {
 
-  const onOpenChange = (open: boolean) => {
-    if (open) {
-      document.body.classList.add("overflow-hidden");
-    } else {
-      document.body.classList.remove("overflow-hidden");
-    }
-  };
+
+
+
 
   return (
-    <Collapsible.Root onOpenChange={onOpenChange} className="bg-surface/90 backdrop-blur-sm fixed w-full inset-x-0 top-16 data-[state=open]:bottom-0">
+    <Collapsible.Root className="bg-surface/90 backdrop-blur-sm fixed w-full inset-x-0 top-16 data-[state=open]:bottom-0">
       <Collapsible.Trigger className="flex group py-3.5 border-b data-[state=open]:border-none border-outline-variant px-6 items-center text-on-surface text-sm w-full">
         <ChevronDownIcon className="h-4 w-4 group-data-[state=open]:rotate-180 mr-2" />{" "}
         Menu
       </Collapsible.Trigger>
-      <Collapsible.Content className="fixed lg:hidden w-full max-h-[calc(100vh-8rem)] overflow-y-auto px-6 py-4 ">
+      <Collapsible.Content className="fixed lg:hidden w-full max-h-[calc(100vh-8rem)] overflow-y-auto px-6 py-4 z-10 ">
         <DocsNavDesktop sections={sections} />
       </Collapsible.Content>
     </Collapsible.Root>
