@@ -21,7 +21,7 @@ type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 export interface TeamSwitcherProps extends PopoverTriggerProps {
   personal: Team;
   teams: Team[];
-  user: User;
+  user?: User;
   selectedTeam: Team;
   setSelectedTeam: (team: Team) => void;
   teamsHeading?: React.ReactNode;
@@ -64,7 +64,7 @@ export default function TeamSwitcher({
         >
           <Avatar className="mr-4 h-6 w-6">
             <Avatar.Image
-              src={(selectedTeam.type === "user" ? user.avatar : selectedTeam.avatarURL) || ""}
+              src={(selectedTeam.type === "user" ? user?.avatar : selectedTeam.avatarURL) || ""}
               alt={selectedTeam.name}
             />
             <Avatar.Fallback>{selectedTeam.name.charAt(0)}</Avatar.Fallback>
@@ -98,7 +98,7 @@ export default function TeamSwitcher({
                   >
                     <Avatar className="mr-2 h-5 w-5">
                       <Avatar.Image
-                        src={(team.type === "user" ? user.avatar : team.avatarURL) || ""}
+                        src={(team.type === "user" ? user?.avatar : team.avatarURL) || ""}
                         alt={team.name}
                         className="grayscale"
                       />
