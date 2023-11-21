@@ -1,5 +1,5 @@
 import { Method } from "api-typify";
-import { Repo, UserOnTeam } from "../models";
+import { Repo, Team, UserOnTeam } from "../models";
 import { Installation } from "../models/installation";
 
 type GET = Method<{
@@ -20,7 +20,15 @@ type DELETE = Method<{
   };
 }>;
 
+type PATCH = Method<{
+  "/teams/{teamID}/admin": {
+    res: undefined;
+    req: Pick<Team, "name" | "avatarURL" | "url">;
+  };
+}>;
+
 export interface TeamAPI {
   GET: GET;
   DELETE: DELETE;
+  PATCH: PATCH;
 }

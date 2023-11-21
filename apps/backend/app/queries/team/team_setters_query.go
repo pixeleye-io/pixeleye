@@ -143,3 +143,13 @@ func (q *TeamQueriesTx) UpdateUserTypeOnTeam(ctx context.Context, teamID string,
 
 	return err
 }
+
+func (q *TeamQueries) UpdateTeam(ctx context.Context, team models.Team) error {
+	query := `UPDATE team SET name = $1, avatar_url = $2, url = $3, updated_at = $4 WHERE id = $5`
+
+	team.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.ExecContext(ctx, query, team.Name, team.AvatarURL, team.URL, team.UpdatedAt, team.ID)
+
+	return err
+}

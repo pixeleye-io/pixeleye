@@ -9,6 +9,7 @@ import (
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
@@ -61,6 +62,58 @@ func GetTeamUsers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, users)
+}
+
+type UpdateTeamRequest struct {
+	Name      string `json:"name" validate:"omitempty,min=1,max=255"`
+	AvatarURL string `json:"avatarURL" validate:"omitempty,url"`
+	URL       string `json:"url" validate:"omitempty,url"`
+}
+
+func UpdateTeam(c echo.Context) error {
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	if team.Type == models.TEAM_TYPE_USER {
+		return c.String(http.StatusBadRequest, "You can't update your personal team")
+	}
+
+	var req UpdateTeamRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	if req.Name != "" {
+		team.Name = req.Name
+	}
+
+	if req.AvatarURL != "" {
+		team.AvatarURL = req.AvatarURL
+	}
+
+	if req.URL != "" {
+		team.URL = req.URL
+	}
+
+	if err := db.UpdateTeam(c.Request().Context(), team); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func RemoveTeamMember(c echo.Context) error {
