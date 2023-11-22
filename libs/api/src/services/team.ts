@@ -12,8 +12,6 @@ type GET = Method<{
   "/teams/{teamID}/users": {
     res: UserOnTeam[];
   };
-<<<<<<< Updated upstream
-=======
   "/teams/{teamID}/usage/snapshots": {
     res: {
       snapshotCount: number;
@@ -39,7 +37,6 @@ type GET = Method<{
       billingPortalURL: string;
     };
   };
->>>>>>> Stashed changes
 }>;
 
 type DELETE = Method<{

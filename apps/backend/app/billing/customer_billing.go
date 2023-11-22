@@ -87,7 +87,7 @@ func (c *CustomerBilling) SubscribeToPlan(team models.Team, planID string) (*str
 	})
 
 	// check if they have any subscriptions
-	if list.Current() != nil || list.Next() {
+	if list.Next() {
 		return nil, fmt.Errorf("team already has a subscription")
 	}
 

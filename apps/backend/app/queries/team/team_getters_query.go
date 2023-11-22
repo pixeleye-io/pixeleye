@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
@@ -33,8 +34,6 @@ func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string)
 	return team, nil
 }
 
-<<<<<<< Updated upstream
-=======
 func (q *TeamQueries) GetTeamByID(ctx context.Context, teamID string) (models.Team, error) {
 	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1`
 
@@ -81,7 +80,6 @@ func (q *TeamQueries) GetTeamBuildCount(ctx context.Context, teamID string, star
 	return count, nil
 }
 
->>>>>>> Stashed changes
 func (q *TeamQueries) GetTeamFromExternalID(ctx context.Context, externalID string) (models.Team, error) {
 	query := `SELECT * FROM team WHERE external_id = $1`
 

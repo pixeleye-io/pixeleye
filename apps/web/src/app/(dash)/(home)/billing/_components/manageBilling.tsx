@@ -46,7 +46,7 @@ export function ManageBillingAccount(
                             <CreditCardIcon
                                 className="mx-auto h-12 w-12 text-on-surface"
                             />
-                            <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Free tier</h3>
+                            <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Free</h3>
                             <p className="mt-1 text-sm text-on-surface-variant">
                                 You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month.
                             </p>
@@ -58,14 +58,31 @@ export function ManageBillingAccount(
                             </div></>
                         )
                     }
-                                        {
+                    {
                         team.billingStatus == "canceled" && (<>
                             <CreditCardIcon
                                 className="mx-auto h-12 w-12 text-on-surface"
                             />
-                            <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Free tier (canceled Pro tier)</h3>
+                            <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Free tier (canceled Pro)</h3>
                             <p className="mt-1 text-sm text-on-surface-variant">
-                                You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month.
+                                You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month. To upgrade to Pro, click the button below and reactivate your subscription.
+                            </p>
+                            <div className="mt-6">
+
+                                <Button loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
+                                    Manage account
+                                </Button>
+                            </div></>
+                        )
+                    }
+                    {
+                        team.billingStatus == "active" && (<>
+                            <CreditCardIcon
+                                className="mx-auto h-12 w-12 text-on-surface"
+                            />
+                            <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Pro</h3>
+                            <p className="mt-1 text-sm text-on-surface-variant">
+                                Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
                             </p>
                             <div className="mt-6">
 
