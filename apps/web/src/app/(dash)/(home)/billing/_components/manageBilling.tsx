@@ -76,18 +76,35 @@ export function ManageBillingAccount(
                         )
                     }
                     {
+                        team.billingStatus == "past_due" && (<>
+                            <CreditCardIcon
+                                className="mx-auto h-12 w-12 text-on-surface"
+                            />
+                            <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Free (<span className="text-error">Overdue</span>)</h3>
+                            <p className="mt-1 text-sm text-on-surface-variant">
+                                You&apos;re currently overdue on your subscription. Please update your payment information to continue using Pixeleye.
+                            </p>
+                            <div className="mt-6">
+
+                                <Button loading={manageBillingAccount.isPending} onClick={() => upgradeToPro.mutate()}>
+                                    Manage account
+                                </Button>
+                            </div></>
+                        )
+                    }
+                    {
                         team.billingStatus == "active" && (<>
                             <CreditCardIcon
                                 className="mx-auto h-12 w-12 text-on-surface"
                             />
                             <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Pro</h3>
                             <p className="mt-1 text-sm text-on-surface-variant">
-                                Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
+                                <span className="text-tertiary">Thank you for supporting open-source!</span> <br/> Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
                             </p>
                             <div className="mt-6">
 
-                                <Button loading={upgradeToPro.isPending} onClick={() => upgradeToPro.mutate()}>
-                                    Upgrade to Pro
+                                <Button loading={manageBillingAccount.isPending} onClick={() => upgradeToPro.mutate()}>
+                                    Manage account
                                 </Button>
                             </div></>
                         )
