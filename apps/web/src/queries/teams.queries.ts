@@ -13,6 +13,24 @@ export const teamKeys = createQueryKeys("teams", {
             params: { teamID: teamID },
           }),
       }),
+      getSnapshotUsage: (queries: { from: string; to: string }) => ({
+        queryKey: ["snapshotUsage"],
+        queryFn: () =>
+          API.get("/teams/{teamID}/usage/snapshots", {
+            headers: { cookie },
+            params: { teamID: teamID },
+            queries,
+          }),
+      }),
+      getBuildUsage: (queries: { from: string; to: string }) => ({
+        queryKey: ["buildUsage"],
+        queryFn: () =>
+          API.get("/teams/{teamID}/usage/builds", {
+            headers: { cookie },
+            params: { teamID: teamID },
+            queries,
+          }),
+      }),
       listMembers: () => ({
         queryKey: ["members"],
         queryFn: () =>

@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/google/go-github/v56/github"
 	"github.com/labstack/echo/v4"
@@ -114,6 +115,122 @@ func UpdateTeam(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func GetTeamSnapshotUsage(c echo.Context) error {
+
+	startDate := c.QueryParam("from")
+	endDate := c.QueryParam("end")
+
+	var startDateTime time.Time
+	var err error
+	if startDate == "" {
+		startDateTime = utils.CurrentTime().AddDate(0, -1, 0)
+	} else {
+		startDateTime, err = time.Parse(time.UnixDate, startDate)
+		if err != nil {
+			return err
+		}
+	}
+
+	var endDateTime time.Time
+	if endDate == "" {
+		endDateTime = utils.CurrentTime()
+	} else {
+		endDateTime, err = time.Parse(time.UnixDate, endDate)
+		if err != nil {
+			return err
+		}
+	}
+
+	if startDateTime.After(endDateTime) {
+		return c.String(http.StatusBadRequest, "Start date can't be after end date")
+	}
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+	if err != nil {
+		return err
+	}
+
+	differenceTime := endDateTime.Sub(startDateTime)
+
+	prevSnapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime.Add(-differenceTime), endDateTime.Add(-differenceTime))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"snapshotCount":     snapshotCount,
+		"prevSnapshotCount": prevSnapshotCount,
+	})
+}
+
+func GetTeamBuildUsage(c echo.Context) error {
+
+	startDate := c.QueryParam("from")
+	endDate := c.QueryParam("end")
+
+	var startDateTime time.Time
+	var err error
+	if startDate == "" {
+		startDateTime = utils.CurrentTime().AddDate(0, -1, 0)
+	} else {
+		startDateTime, err = time.Parse(time.UnixDate, startDate)
+		if err != nil {
+			return err
+		}
+	}
+
+	var endDateTime time.Time
+	if endDate == "" {
+		endDateTime = utils.CurrentTime()
+	} else {
+		endDateTime, err = time.Parse(time.UnixDate, endDate)
+		if err != nil {
+			return err
+		}
+	}
+
+	if startDateTime.After(endDateTime) {
+		return c.String(http.StatusBadRequest, "Start date can't be after end date")
+	}
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	buildCount, err := db.GetTeamBuildCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+	if err != nil {
+		return err
+	}
+
+	differenceTime := endDateTime.Sub(startDateTime)
+
+	prevBuildCount, err := db.GetTeamBuildCount(c.Request().Context(), team.ID, startDateTime.Add(-differenceTime), endDateTime.Add(-differenceTime))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"buildCount":     buildCount,
+		"prevBuildCount": prevBuildCount,
+	})
 }
 
 func RemoveTeamMember(c echo.Context) error {

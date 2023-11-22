@@ -29,6 +29,9 @@ func TeamRoutes(e *echo.Echo) {
 
 	baseRoutes.GET("/installations", controllers.GetInstallations)
 
+	baseRoutes.GET("/usage/snapshots", controllers.GetTeamSnapshotUsage)
+	baseRoutes.GET("/usage/builds", controllers.GetTeamBuildUsage)
+
 	adminRoutes := v1.Group("/admin")
 
 	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})
@@ -37,4 +40,5 @@ func TeamRoutes(e *echo.Echo) {
 	adminRoutes.PATCH("", controllers.UpdateTeam)
 
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveTeamMember)
+
 }

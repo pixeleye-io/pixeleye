@@ -12,6 +12,26 @@ type GET = Method<{
   "/teams/{teamID}/users": {
     res: UserOnTeam[];
   };
+  "/teams/{teamID}/usage/snapshots": {
+    res: {
+      snapshotCount: number;
+      prevSnapshotCount: number;
+    };
+    queries: {
+      from?: string;
+      to?: string;
+    };
+  };
+  "/teams/{teamID}/usage/builds": {
+    res: {
+      buildCount: number;
+      prevBuildCount: number;
+    };
+    queries: {
+      from?: string;
+      to?: string;
+    };
+  };
 }>;
 
 type DELETE = Method<{
