@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"os"
+
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/controllers"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -29,6 +31,23 @@ func TeamRoutes(e *echo.Echo) {
 
 	baseRoutes.GET("/installations", controllers.GetInstallations)
 
+<<<<<<< Updated upstream
+=======
+	baseRoutes.GET("/usage/snapshots", controllers.GetTeamSnapshotUsage)
+	baseRoutes.GET("/usage/builds", controllers.GetTeamBuildUsage)
+
+	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+		billingRoutes := v1.Group("/billing")
+
+		billingRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin", "accountant"})
+		billingRoutes.Use(billingRoleMiddleware.TeamRoleAccess)
+
+		billingRoutes.GET("/portal", controllers.GetBillingPortalSession)
+		billingRoutes.POST("/account", controllers.CreateBillingAccount)
+		billingRoutes.POST("/plan", controllers.SubscribeToPlan)
+	}
+
+>>>>>>> Stashed changes
 	adminRoutes := v1.Group("/admin")
 
 	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})

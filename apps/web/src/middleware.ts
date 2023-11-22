@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
   if (!data || data.status >= 300 || data.status < 200 || !session) {
     if (request.nextUrl.pathname === "/") {
       // Users not logged in who are trying to access the homepage are redirected to the actual homepage.
-      url.pathname = env.PIXELEYE_HOSTING ? "/home" : "/login";
+      url.pathname = env.NEXT_PUBLIC_PIXELEYE_HOSTING ? "/home" : "/login";
       return NextResponse.redirect(url);
     }
 
@@ -38,6 +38,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    "/billing/:path*",
     "/dashboard/:path*",
     "/builds/:path*",
     "/add/:path*",

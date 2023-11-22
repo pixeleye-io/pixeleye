@@ -8,9 +8,12 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_SERVER_URL: z.string(),
+    NEXT_PUBLIC_PIXELEYE_HOSTING: z.string().optional(),
   },
   experimental__runtimeEnv: {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     NEXT_PUBLIC_SERVER_URL: process.env.NEXT_PUBLIC_SERVER_URL,
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    NEXT_PUBLIC_PIXELEYE_HOSTING: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING,
   },
 });

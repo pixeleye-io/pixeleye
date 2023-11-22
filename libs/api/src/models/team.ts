@@ -12,6 +12,11 @@ export const TeamZod = z.object({
   url: z.string().url().optional(),
   avatarURL: z.string().url().optional(),
 
+  billingStatus: z
+    .enum(["active", "inactive", "past_due", "canceled", "not_created"])
+    .default("not_created"),
+  billingAccountID: z.string().optional(),
+
   hasInstall: z.boolean().optional(),
 
   role: z.enum(["admin", "member", "accountant", "owner"]).optional(),

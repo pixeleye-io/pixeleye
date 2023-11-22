@@ -70,6 +70,7 @@ require (
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.31.0
 	github.com/stretchr/testify v1.8.4
+	github.com/stripe/stripe-go/v76 v76.6.0
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/crypto v0.15.0
 	golang.org/x/sys v0.14.0 // indirect

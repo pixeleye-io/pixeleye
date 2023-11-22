@@ -165,6 +165,11 @@ enum "team_type" {
   values = ["github", "gitlab", "bitbucket", "user"]
 }
 
+enum "billing_status" {
+  schema = schema.public
+  values = ["active", "cancelled", "past_due", "inactive", "not_created"]
+}
+
 table "team" {
   schema = schema.public
   column "id" {
@@ -173,6 +178,17 @@ table "team" {
   }
   primary_key {
     columns = [column.id]
+  }
+
+  column "billing_status" {
+    type    = enum.billing_status
+    null    = false
+    default = "not_created"
+  }
+
+  column "billing_account_id" {
+    type = varchar(21)
+    null = true
   }
 
   column "created_at" {

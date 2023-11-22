@@ -12,11 +12,52 @@ type GET = Method<{
   "/teams/{teamID}/users": {
     res: UserOnTeam[];
   };
+<<<<<<< Updated upstream
+=======
+  "/teams/{teamID}/usage/snapshots": {
+    res: {
+      snapshotCount: number;
+      prevSnapshotCount: number;
+    };
+    queries: {
+      from?: string;
+      to?: string;
+    };
+  };
+  "/teams/{teamID}/usage/builds": {
+    res: {
+      buildCount: number;
+      prevBuildCount: number;
+    };
+    queries: {
+      from?: string;
+      to?: string;
+    };
+  };
+  "/teams/{teamID}/billing/portal": {
+    res: {
+      billingPortalURL: string;
+    };
+  };
+>>>>>>> Stashed changes
 }>;
 
 type DELETE = Method<{
   "/teams/{teamID}/admin/users/{userID}": {
     res: undefined;
+  };
+}>;
+
+type POST = Method<{
+  "/teams/{teamID}/billing/account": {
+    res: {
+      billingPortalURL: string;
+    };
+  };
+  "/teams/{teamID}/billing/plan": {
+    res: {
+      billingPortalURL: string;
+    };
   };
 }>;
 
@@ -31,4 +72,5 @@ export interface TeamAPI {
   GET: GET;
   DELETE: DELETE;
   PATCH: PATCH;
+  POST: POST;
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
@@ -44,6 +45,31 @@ func CreateBuild(c echo.Context) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
+	}
+
+	team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
+	if err != nil {
+		return err
+	}
+
+	if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE {
+		return echo.NewHTTPError(http.StatusBadRequest, "payment is overdue, please update your payment details")
+	}
+
+	if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
+
+		startDateTime := time.Now().AddDate(0, -1, 0)
+
+		endDateTime := time.Now()
+
+		snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+		if err != nil {
+			return err
+		}
+
+		if snapshotCount > 5_000 {
+			return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
+		}
 	}
 
 	validate := utils.NewValidator()

@@ -12,6 +12,14 @@ const (
 	TEAM_TYPE_USER      = "user"
 )
 
+const (
+	TEAM_BILLING_STATUS_ACTIVE      = "active"
+	TEAM_BILLING_STATUS_INACTIVE    = "inactive"
+	TEAM_BILLING_STATUS_CANCELED    = "canceled"
+	TEAM_BILLING_STATUS_PAST_DUE    = "past_due"
+	TEAM_BILLING_STATUS_NOT_CREATED = "not_created"
+)
+
 type Team struct {
 	ID        string    `db:"id" json:"id" validate:"required,nanoid"`
 	CreatedAt time.Time `db:"created_at" json:"createdAt"`
@@ -22,6 +30,9 @@ type Team struct {
 	Name      string `db:"name" json:"name" validate:"required"`
 	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
 	URL       string `db:"url" json:"url" validate:"omitempty,url"`
+
+	BillingStatus    string  `db:"billing_status" json:"billingStatus" validate:"required,oneof=active inactive canceled past_due not_created"`
+	BillingAccountID *string `db:"billing_account_id" json:"billingAccountID"`
 
 	ExternalID string `db:"external_id" json:"externalID" validate:"omitempty"` // Used for GitHub, GitLab, Bitbucket
 

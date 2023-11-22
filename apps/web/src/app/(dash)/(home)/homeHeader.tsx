@@ -5,10 +5,14 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Header, NavTab } from "@pixeleye/ui";
 import { useTeamStore } from "../breadcrumbStore";
+import { env } from "@/env";
+import { useTeam } from "@/libs";
 
 export function HomeHeader() {
   const pathName = usePathname();
   const teamId = useSearchParams()?.get("team");
+
+  const { team } = useTeam();
 
   const setTeamId = useTeamStore((state) => state.setTeamId);
 
@@ -38,6 +42,18 @@ export function HomeHeader() {
               Usage
             </Link>
           </NavTab>
+          {
+            env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" && ["admin", "owner", "accountant"].includes(team?.role || "") && (
+              <NavTab layoutId={layoutId} asChild active={pathName === "/billing"}>
+                <Link
+                  scroll={false}
+                  href={"/billing" + ((teamId && `?team=${teamId}`) || "")}
+                >
+                  Billing
+                </Link>
+              </NavTab>
+            )
+          }
           <NavTab
             layoutId={layoutId}
             asChild
