@@ -31,8 +31,6 @@ func TeamRoutes(e *echo.Echo) {
 
 	baseRoutes.GET("/installations", controllers.GetInstallations)
 
-<<<<<<< Updated upstream
-=======
 	baseRoutes.GET("/usage/snapshots", controllers.GetTeamSnapshotUsage)
 	baseRoutes.GET("/usage/builds", controllers.GetTeamBuildUsage)
 
@@ -47,7 +45,6 @@ func TeamRoutes(e *echo.Echo) {
 		billingRoutes.POST("/plan", controllers.SubscribeToPlan)
 	}
 
->>>>>>> Stashed changes
 	adminRoutes := v1.Group("/admin")
 
 	adminRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin"})
@@ -56,4 +53,5 @@ func TeamRoutes(e *echo.Echo) {
 	adminRoutes.PATCH("", controllers.UpdateTeam)
 
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveTeamMember)
+
 }
