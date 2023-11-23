@@ -56,7 +56,7 @@ const tiers = [
     href: "#",
     priceMonthly: "Custom",
     cta: "Contact us",
-    description: "Dedicated support and infrastructure for your company.",
+    description: "Dedicated support and discounted pricing.",
     features: ["Volume discounts", "Dedicated support", "Custom contracts"],
     mostPopular: false,
   },

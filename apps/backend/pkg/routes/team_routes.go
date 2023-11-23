@@ -43,6 +43,8 @@ func TeamRoutes(e *echo.Echo) {
 		billingRoutes.GET("/portal", controllers.GetBillingPortalSession)
 		billingRoutes.POST("/account", controllers.CreateBillingAccount)
 		billingRoutes.POST("/plan", controllers.SubscribeToPlan)
+		billingRoutes.GET("/plan", controllers.GetTeamBillingPlan)
+
 	}
 
 	adminRoutes := v1.Group("/admin")

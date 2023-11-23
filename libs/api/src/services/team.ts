@@ -1,5 +1,5 @@
 import { Method } from "api-typify";
-import { Repo, Team, UserOnTeam } from "../models";
+import { Repo, Team, TeamPlan, UserOnTeam } from "../models";
 import { Installation } from "../models/installation";
 
 type GET = Method<{
@@ -36,6 +36,9 @@ type GET = Method<{
     res: {
       billingPortalURL: string;
     };
+  };
+  "/teams/{teamID}/billing/plan": {
+    res: TeamPlan;
   };
 }>;
 

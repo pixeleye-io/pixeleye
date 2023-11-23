@@ -155,11 +155,11 @@ func (q *TeamQueries) UpdateTeam(ctx context.Context, team models.Team) error {
 }
 
 func (q *TeamQueries) UpdateTeamBilling(ctx context.Context, team models.Team) error {
-	query := `UPDATE team SET billing_status = $1, billing_account_id = $2, updated_at = $3 WHERE id = $4`
+	query := `UPDATE team SET billing_status = $1, billing_account_id = $2, billing_plan_id = $3, updated_at = $4 WHERE id = $5`
 
 	team.UpdatedAt = utils.CurrentTime()
 
-	_, err := q.ExecContext(ctx, query, team.BillingStatus, team.BillingAccountID, team.UpdatedAt, team.ID)
+	_, err := q.ExecContext(ctx, query, team.BillingStatus, team.BillingAccountID, team.BillingPlanID, team.UpdatedAt, team.ID)
 
 	return err
 }

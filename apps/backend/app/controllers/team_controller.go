@@ -466,11 +466,13 @@ func SubscribeToPlan(c echo.Context) error {
 	paymentClient := payments.NewPaymentClient()
 
 	// Create a subscription
-	if _, err := paymentClient.SubscribeToPlan(team, "price_1OFCn7JdnGhKgAvmlaxKaJuk"); err != nil {
+	_, plan, err := paymentClient.SubscribeToPlan(team)
+	if err != nil {
 		return err
 	}
 
 	team.BillingStatus = models.TEAM_BILLING_STATUS_ACTIVE
+	team.BillingPlanID = &plan.PricingID
 	if err := db.UpdateTeamBilling(c.Request().Context(), team); err != nil {
 		return err
 	}
@@ -498,4 +500,35 @@ func SubscribeToPlan(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"billingPortalURL": session.URL,
 	})
+}
+
+func GetTeamBillingPlan(c echo.Context) error {
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	freePlan := models.TeamPlan{
+		Name:      "Free",
+		ProductID: "",
+		PricingID: "",
+		Default:   false,
+	}
+
+	if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
+		return c.JSON(http.StatusOK, freePlan)
+	}
+
+	plans, err := billing.GetPlans()
+	if err != nil {
+		return err
+	}
+
+	for _, plan := range plans {
+		if plan.PricingID == *team.BillingPlanID {
+			return c.JSON(http.StatusOK, plan)
+		}
+	}
+
+	return c.NoContent(http.StatusNotFound)
 }

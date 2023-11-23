@@ -86,7 +86,7 @@ export function ManageBillingAccount(
                             </p>
                             <div className="mt-6">
 
-                                <Button loading={manageBillingAccount.isPending} onClick={() => upgradeToPro.mutate()}>
+                                <Button loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
                                     Manage account
                                 </Button>
                             </div></>
@@ -99,11 +99,11 @@ export function ManageBillingAccount(
                             />
                             <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Pro</h3>
                             <p className="mt-1 text-sm text-on-surface-variant">
-                                <span className="text-tertiary">Thank you for supporting open-source!</span> <br/> Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
+                                <span className="text-primary text-lg">Thank you for supporting open-source!</span> <br /> Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
                             </p>
                             <div className="mt-6">
 
-                                <Button loading={manageBillingAccount.isPending} onClick={() => upgradeToPro.mutate()}>
+                                <Button loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
                                     Manage account
                                 </Button>
                             </div></>
@@ -115,10 +115,3 @@ export function ManageBillingAccount(
         </>
     )
 }
-
-// : (<div className="mt-6 space-x-4">
-// <Button loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
-//     Manage billing
-// </Button>
-// </div>
-// )

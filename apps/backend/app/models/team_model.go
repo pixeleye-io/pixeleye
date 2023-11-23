@@ -33,6 +33,7 @@ type Team struct {
 
 	BillingStatus    string  `db:"billing_status" json:"billingStatus" validate:"required,oneof=active inactive canceled past_due not_created"`
 	BillingAccountID *string `db:"billing_account_id" json:"billingAccountID"`
+	BillingPlanID    *string `db:"billing_plan_id" json:"billingPlanID"`
 
 	ExternalID string `db:"external_id" json:"externalID" validate:"omitempty"` // Used for GitHub, GitLab, Bitbucket
 
@@ -61,4 +62,17 @@ type TeamMember struct {
 	Role     string `db:"role" json:"role" validate:"required,oneof=owner admin accountant member"`
 	RoleSync bool   `db:"role_sync" json:"roleSync"`
 	Type     string `db:"type" json:"type" validate:"required,oneof=invited git"`
+}
+
+// This represents values passed via .env. Ideally we'd sync with stripe but this is easier for now.
+type TeamPlan struct {
+	Name      string `json:"name" validate:"required"`
+	ProductID string `json:"productID" validate:"required"`
+	PricingID string `json:"pricingID" validate:"required"`
+	Default   bool   `json:"default" validate:"required"`
+	Pricing   []struct {
+		Price float64 `json:"price" validate:"required"`
+		From  int     `json:"from" validate:"required"`
+		To    int     `json:"to" validate:"required"`
+	} `json:"pricing" validate:"required"`
 }

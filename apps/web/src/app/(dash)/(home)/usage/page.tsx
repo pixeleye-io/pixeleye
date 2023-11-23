@@ -1,6 +1,7 @@
 import { API } from "@/libs";
 import { getTeam } from "@/serverLibs";
-import { ArrowDownIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
+import { ArrowDownIcon, ArrowRightIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
+import { TeamPlan } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
 import { cookies } from "next/headers";
 
@@ -10,7 +11,23 @@ interface StatType {
   stat: string;
   previousStat: string;
   change: string;
-  changeType: 'increase' | 'decrease';
+  changeType: 'increase' | 'decrease' | 'level';
+}
+
+function calculateCost(plan: TeamPlan, snapshots: number): number {
+  if (!plan.pricing) return 0;
+
+  return plan.pricing.reduce((prev, curr) => {
+    if (!curr.to) {
+      return prev + (Math.max(snapshots - curr.from, 0) * curr.price);
+    }
+
+    if (snapshots > curr.to) {
+      return prev + ((curr.to - curr.from) * curr.price);
+    }
+
+    return prev + (Math.max(snapshots - curr.from, 0) * curr.price);
+  }, 0);
 }
 
 export default async function UsagePage({
@@ -24,10 +41,9 @@ export default async function UsagePage({
 
   const team = await getTeam(searchParams)
 
-
   const cookie = cookies().toString();
 
-  const [snapUsage, buildUsage] = await Promise.all([API.get("/teams/{teamID}/usage/snapshots", {
+  const [snapUsage, buildUsage, teamPlan] = await Promise.all([API.get("/teams/{teamID}/usage/snapshots", {
     headers: {
       cookie,
     },
@@ -41,38 +57,48 @@ export default async function UsagePage({
     params: {
       teamID: team.id,
     },
-  })]);
+  }), API.get("/teams/{teamID}/billing/plan", {
+    headers: {
+      cookie,
+    },
+    params: {
+      teamID: team.id,
+    },
+  }).catch(() => ({
+    name: "Free",
+  } as TeamPlan))]);
 
+  const cost = calculateCost(teamPlan, snapUsage.snapshotCount);
+  const prevCost = calculateCost(teamPlan, snapUsage.prevSnapshotCount);
 
   const snapshotChange = ((snapUsage.snapshotCount - snapUsage.prevSnapshotCount) / snapUsage.prevSnapshotCount) * 100;
-  const snapshotCostChange = ((Math.max(snapUsage.snapshotCount - 5000, 0) - Math.max(snapUsage.prevSnapshotCount - 5000, 0) / Math.max(snapUsage.prevSnapshotCount - 5000, 0)) * 100);
+  const snapshotCostChange = (cost - prevCost / prevCost) * 100;
   const buildChange = ((buildUsage.buildCount - buildUsage.prevBuildCount) / buildUsage.prevBuildCount) * 100;
-
-
 
   const stats: StatType[] = [
     {
       name: "Total snapshots",
       stat: snapUsage.snapshotCount.toString(),
       previousStat: snapUsage.prevSnapshotCount.toString(),
-      change: `${snapshotChange.toFixed(2)} %`,
-      changeType: snapshotChange > 0 ? "increase" : "decrease",
+      change: `${Number.isNaN(snapshotChange) ? 0 : snapshotChange.toFixed(2)} %`,
+      changeType: snapshotChange > 0 ? "increase" : snapshotChange < 0 ? "decrease" : "level",
     },
     {
       name: "Total builds",
       stat: buildUsage.buildCount.toString(),
       previousStat: buildUsage.prevBuildCount.toString(),
-      change: `${buildChange.toFixed(2)} %`,
-      changeType: buildChange > 0 ? "increase" : "decrease",
+      change: `${Number.isNaN(buildChange) ? 0 : buildChange.toFixed(2)} %`,
+      changeType: buildChange > 0 ? "increase" : buildChange < 0 ? "decrease" : "level",
     },
     {
-      name: "Total cost ($0.003 per snapshot)",
-      stat: `$${(Math.max(snapUsage.snapshotCount - 5000, 0) * 0.003).toFixed(2)}`,
-      previousStat: `$${(Math.max(snapUsage.prevSnapshotCount - 5000, 0) * 0.003).toFixed(2)}`,
-      change: `${snapshotCostChange.toFixed(2)} %`,
-      changeType: snapshotChange > 0 ? "increase" : "decrease",
+      name: "Total cost",
+      stat: `$${cost.toFixed(2)}`,
+      previousStat: `$${prevCost.toFixed(2)}`,
+      change: `${Number.isNaN(snapshotCostChange) ? 0 : snapshotCostChange.toFixed(2)} %`,
+      changeType: snapshotCostChange > 0 ? "increase" : snapshotCostChange < 0 ? "decrease" : "level",
     }
   ];
+
 
   return (
     <main>
@@ -90,13 +116,18 @@ export default async function UsagePage({
 
                 <div
                   className={cx(
-                    item.changeType === 'increase' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
+                    item.changeType === 'increase' ? 'bg-green-100 text-green-800' : item.changeType === 'level' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800',
                     'inline-flex items-baseline rounded-full px-2.5 py-0.5 text-sm font-medium md:mt-2 lg:mt-0'
                   )}
                 >
                   {item.changeType === 'increase' ? (
                     <ArrowUpIcon
                       className="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-green-500"
+                      aria-hidden="true"
+                    />
+                  ) : item.changeType === 'level' ? (
+                    <ArrowRightIcon
+                      className="-ml-1 mr-0.5 h-5 w-5 flex-shrink-0 self-center text-blue-500"
                       aria-hidden="true"
                     />
                   ) : (

@@ -22,6 +22,20 @@ export const TeamZod = z.object({
   role: z.enum(["admin", "member", "accountant", "owner"]).optional(),
 });
 
+export const TeamPlanZod = z.object({
+  name: z.string(),
+  priceID: z.string(),
+  productID: z.string(),
+  default: z.boolean(),
+  pricing: z.array(
+    z.object({
+      price: z.number(),
+      from: z.number(),
+      to: z.number().optional(),
+    })
+  ).optional(),
+});
+
 export const UserOnTeamZod = UserZod.extend({
   role: z.enum(["admin", "member", "accountant", "owner"]),
   roleSync: z.boolean(),
@@ -30,3 +44,4 @@ export const UserOnTeamZod = UserZod.extend({
 
 export type Team = z.infer<typeof TeamZod>;
 export type UserOnTeam = z.infer<typeof UserOnTeamZod>;
+export type TeamPlan = z.infer<typeof TeamPlanZod>;

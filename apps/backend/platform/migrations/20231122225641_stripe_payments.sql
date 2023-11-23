@@ -5,4 +5,4 @@ ALTER TABLE "public"."account" ALTER COLUMN "provider_account_login" DROP DEFAUL
 -- Modify "oauth_account_refresh" table
 ALTER TABLE "public"."oauth_account_refresh" ALTER COLUMN "account_id" SET DEFAULT '';
 -- Modify "team" table
-ALTER TABLE "public"."team" ADD COLUMN "billing_status" "public"."billing_status" NOT NULL DEFAULT 'not_created', ADD COLUMN "billing_account_id" character varying(21) NULL;
+ALTER TABLE "public"."team" ADD COLUMN "billing_status" "public"."billing_status" NOT NULL DEFAULT 'not_created', ADD COLUMN "billing_account_id" character varying(21) NULL, ADD COLUMN "billing_plan_id" character varying(21) NULL;

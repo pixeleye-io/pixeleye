@@ -1,6 +1,7 @@
 package billing
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -9,6 +10,9 @@ import (
 	"github.com/stripe/stripe-go/v76/client"
 )
 
+// nolint:gochecknoglobals
+var stripePlans []models.TeamPlan
+
 type CustomerBilling struct {
 	API *client.API
 }
@@ -16,6 +20,18 @@ type CustomerBilling struct {
 type CreateCustomerOpts struct {
 	TeamID string
 	Email  *string
+}
+
+func GetPlans() ([]models.TeamPlan, error) {
+	if len(stripePlans) == 0 {
+		plans := os.Getenv("STRIPE_PLANS")
+
+		if err := json.Unmarshal([]byte(plans), &stripePlans); err != nil {
+			return []models.TeamPlan{}, err
+		}
+	}
+
+	return stripePlans, nil
 }
 
 // If it's a user team we attach their email
@@ -77,9 +93,9 @@ func (c *CustomerBilling) CreateBillingPortalSession(team models.Team, flow stri
 	return c.API.BillingPortalSessions.New(params)
 }
 
-func (c *CustomerBilling) SubscribeToPlan(team models.Team, planID string) (*stripe.Subscription, error) {
+func (c *CustomerBilling) SubscribeToPlan(team models.Team) (*stripe.Subscription, *models.TeamPlan, error) {
 	if team.BillingAccountID == nil {
-		return nil, fmt.Errorf("team does not have a customer id")
+		return nil, nil, fmt.Errorf("team does not have a customer id")
 	}
 
 	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
@@ -88,17 +104,32 @@ func (c *CustomerBilling) SubscribeToPlan(team models.Team, planID string) (*str
 
 	// check if they have any subscriptions
 	if list.Next() {
-		return nil, fmt.Errorf("team already has a subscription")
+		return nil, nil, fmt.Errorf("team already has a subscription")
 	}
 
-	return c.API.Subscriptions.New(&stripe.SubscriptionParams{
+	plans, err := GetPlans()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var defaultPlan *models.TeamPlan
+	for _, plan := range plans {
+		if plan.Default {
+			defaultPlan = &plan
+			break
+		}
+	}
+
+	sub, err := c.API.Subscriptions.New(&stripe.SubscriptionParams{
 		Customer: team.BillingAccountID,
 		Items: []*stripe.SubscriptionItemsParams{
 			{
-				Price: stripe.String(os.Getenv("STRIPE_PLAN_ID")),
+				Price: stripe.String(defaultPlan.PricingID),
 			},
 		},
 	})
+
+	return sub, defaultPlan, err
 }
 
 func (c *CustomerBilling) GetCustomer(customerID string) (*stripe.Customer, error) {

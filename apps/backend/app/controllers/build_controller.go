@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -52,26 +53,29 @@ func CreateBuild(c echo.Context) error {
 		return err
 	}
 
-	if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE {
-		return echo.NewHTTPError(http.StatusBadRequest, "payment is overdue, please update your payment details")
-	}
+	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
 
-	if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
-
-		startDateTime := time.Now().AddDate(0, -1, 0)
-
-		endDateTime := time.Now()
-
-		snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
-		if err != nil {
-			return err
+		if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE {
+			return echo.NewHTTPError(http.StatusBadRequest, "payment is overdue, please update your payment details")
 		}
 
-		if snapshotCount > 5_000 {
-			return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
-		}
-	}
+		if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
 
+			startDateTime := time.Now().AddDate(0, -1, 0)
+
+			endDateTime := time.Now()
+
+			snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+			if err != nil {
+				return err
+			}
+
+			if snapshotCount > 5_000 {
+				return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
+			}
+		}
+
+	}
 	validate := utils.NewValidator()
 
 	build.ID, err = nanoid.New()

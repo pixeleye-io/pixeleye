@@ -191,6 +191,11 @@ table "team" {
     null = true
   }
 
+  column "billing_plan_id" {
+    type = varchar(21)
+    null = true
+  }
+
   column "created_at" {
     type = timestamptz
     null = false
@@ -861,6 +866,35 @@ table "project_invite_code" {
   }
 
   column "expires_at" {
+    type = timestamptz
+    null = false
+  }
+}
+
+// This table is used to track the number of snapshots that have been billed for a given billing account
+// Once recorded on stripe, we will delete the record from this table
+table "snapshots_to_bill" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "billing_account_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  column "snapshot_count" {
+    type = integer
+    null = false
+  }
+
+  column "created_at" {
     type = timestamptz
     null = false
   }
