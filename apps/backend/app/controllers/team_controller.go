@@ -364,9 +364,7 @@ func GetBillingPortalSession(c echo.Context) error {
 		return err
 	}
 
-	if team.BillingStatus == models.TEAM_BILLING_STATUS_NOT_CREATED {
-		return c.String(http.StatusBadRequest, "Team does not have a billing account")
-	} else if team.BillingAccountID == nil {
+	if team.BillingAccountID == nil || *team.BillingAccountID == "" {
 
 		log.Error().Msgf("Team does not have a billing account id, This should never happen. Team: %+v", team)
 
@@ -432,7 +430,7 @@ func CreateBillingAccount(c echo.Context) error {
 
 	// Update the team with the customer id
 	team.BillingAccountID = &customer.ID
-	team.BillingStatus = models.TEAM_BILLING_STATUS_INACTIVE
+	team.BillingStatus = models.TEAM_BILLING_STATUS_NOT_CREATED
 
 	if err := db.UpdateTeamBilling(c.Request().Context(), team); err != nil {
 		return err
@@ -466,13 +464,14 @@ func SubscribeToPlan(c echo.Context) error {
 	paymentClient := payments.NewPaymentClient()
 
 	// Create a subscription
-	_, plan, err := paymentClient.SubscribeToPlan(team)
+	sub, plan, err := paymentClient.SubscribeToPlan(team)
 	if err != nil {
 		return err
 	}
 
 	team.BillingStatus = models.TEAM_BILLING_STATUS_ACTIVE
 	team.BillingPlanID = &plan.PricingID
+	team.BillingSubscriptionID = &sub.Items.Data[0].ID
 	if err := db.UpdateTeamBilling(c.Request().Context(), team); err != nil {
 		return err
 	}

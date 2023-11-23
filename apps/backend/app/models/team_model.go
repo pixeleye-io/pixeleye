@@ -13,11 +13,18 @@ const (
 )
 
 const (
-	TEAM_BILLING_STATUS_ACTIVE      = "active"
-	TEAM_BILLING_STATUS_INACTIVE    = "inactive"
-	TEAM_BILLING_STATUS_CANCELED    = "canceled"
-	TEAM_BILLING_STATUS_PAST_DUE    = "past_due"
-	TEAM_BILLING_STATUS_NOT_CREATED = "not_created"
+	TEAM_BILLING_STATUS_ACTIVE             = "active"
+	TEAM_BILLING_STATUS_INCOMPLETE         = "incomplete"
+	TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED = "incomplete_expired"
+	TEAM_BILLING_STATUS_UNPAID             = "unpaid"
+	TEAM_BILLING_STATUS_CANCELED           = "canceled"
+	TEAM_BILLING_STATUS_PAST_DUE           = "past_due"
+	TEAM_BILLING_STATUS_NOT_CREATED        = "not_created"
+)
+
+const (
+	TEAM_STATUS_ACTIVE    = "active"
+	TEAM_STATUS_SUSPENDED = "suspended"
 )
 
 type Team struct {
@@ -25,15 +32,17 @@ type Team struct {
 	CreatedAt time.Time `db:"created_at" json:"createdAt"`
 	UpdatedAt time.Time `db:"updated_at" json:"updatedAt"`
 
+	Status string `db:"status" json:"status" validate:"required,oneof=active suspended"`
+
 	Type string `db:"type" json:"type" validate:"required,oneof=github gitlab bitbucket user"`
 
-	Name      string `db:"name" json:"name" validate:"required"`
-	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
-	URL       string `db:"url" json:"url" validate:"omitempty,url"`
-
-	BillingStatus    string  `db:"billing_status" json:"billingStatus" validate:"required,oneof=active inactive canceled past_due not_created"`
-	BillingAccountID *string `db:"billing_account_id" json:"billingAccountID"`
-	BillingPlanID    *string `db:"billing_plan_id" json:"billingPlanID"`
+	Name                  string  `db:"name" json:"name" validate:"required"`
+	AvatarURL             string  `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
+	URL                   string  `db:"url" json:"url" validate:"omitempty,url"`
+	BillingStatus         string  `db:"billing_status" json:"billingStatus" validate:"required,oneof=active inactive canceled past_due not_created"`
+	BillingAccountID      *string `db:"billing_account_id" json:"billingAccountID"`
+	BillingPlanID         *string `db:"billing_plan_id" json:"billingPlanID"`
+	BillingSubscriptionID *string `db:"billing_subscription_id" json:"billingSubscriptionID"`
 
 	ExternalID string `db:"external_id" json:"externalID" validate:"omitempty"` // Used for GitHub, GitLab, Bitbucket
 

@@ -45,6 +45,7 @@ func main() {
 	routes.BuildRoutes(e)
 	routes.GitRoutes(e)
 	routes.InviteRoutes(e)
+	routes.WebhookRoutes(e)
 
 	cron.StartCron()
 

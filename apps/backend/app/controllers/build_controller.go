@@ -16,6 +16,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/payments"
 	"github.com/rs/zerolog/log"
 )
 
@@ -48,14 +49,14 @@ func CreateBuild(c echo.Context) error {
 		return err
 	}
 
-	team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
-	if err != nil {
-		return err
-	}
-
 	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
 
-		if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE {
+		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
+		if err != nil {
+			return err
+		}
+
+		if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE || team.BillingStatus == models.TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED {
 			return echo.NewHTTPError(http.StatusBadRequest, "payment is overdue, please update your payment details")
 		}
 
@@ -74,8 +75,8 @@ func CreateBuild(c echo.Context) error {
 				return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
 			}
 		}
-
 	}
+
 	validate := utils.NewValidator()
 
 	build.ID, err = nanoid.New()
@@ -472,10 +473,11 @@ func UploadPartial(c echo.Context) error {
 func UploadComplete(c echo.Context) error {
 
 	build, err := middleware.GetBuild(c)
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "build not found")
 	}
+
+	project := middleware.GetProject(c)
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -489,9 +491,27 @@ func UploadComplete(c echo.Context) error {
 	}
 
 	uploadedBuild, err := db.CompleteBuild(c.Request().Context(), build.ID)
-
 	if err != nil {
 		return err
+	}
+
+	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
+		if err != nil {
+			return err
+		}
+		if team.BillingStatus == models.TEAM_BILLING_STATUS_ACTIVE {
+
+			snapCount, err := db.CountBuildSnapshots(c.Request().Context(), build.ID)
+			if err != nil {
+				return err
+			}
+
+			paymentClient := payments.NewPaymentClient()
+			if err := paymentClient.ReportSnapshotUsage(team, build.ID, snapCount); err != nil {
+				log.Error().Err(err).Msg("Failed to report snapshot usage")
+			}
+		}
 	}
 
 	go func(build models.Build) {

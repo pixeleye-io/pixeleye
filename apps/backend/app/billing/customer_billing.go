@@ -150,3 +150,18 @@ func (c *CustomerBilling) GetCustomerPaymentMethods(customerID string) ([]*strip
 
 	return paymentMethods, nil
 }
+
+func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, snapshotCount int64) error {
+
+	params := &stripe.UsageRecordParams{
+		Quantity:         stripe.Int64(snapshotCount),
+		SubscriptionItem: team.BillingSubscriptionID,
+		Action:           stripe.String("increment"),
+	}
+
+	params.SetIdempotencyKey(buildID)
+
+	_, err := c.API.UsageRecords.New(params)
+
+	return err
+}

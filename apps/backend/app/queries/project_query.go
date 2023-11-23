@@ -79,6 +79,22 @@ func (q *ProjectQueries) GetProject(ctx context.Context, id string) (models.Proj
 	return project, err
 }
 
+type ProjectWithTeamStatus struct {
+	*models.Project
+	TeamStatus string `db:"team_status" json:"teamStatus"`
+}
+
+// There is no access control on this query, so be careful where you use it
+func (q *ProjectQueries) GetProjectWithTeamStatus(ctx context.Context, id string) (ProjectWithTeamStatus, error) {
+	project := ProjectWithTeamStatus{}
+
+	query := `SELECT project.*, team.status AS team_status FROM project JOIN team ON project.team_id = team.id WHERE project.id = $1`
+
+	err := q.Get(&project, query, id)
+
+	return project, err
+}
+
 func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, userID string, role string, email string) (models.ProjectInviteCode, error) {
 	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role, email, invited_by_id) VALUES (:id, :project_id, :created_at, :expires_at, :role, :email, :invited_by_id)`
 

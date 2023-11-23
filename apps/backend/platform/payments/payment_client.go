@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/pixeleye-io/pixeleye/app/billing"
+	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/client"
 )
 
@@ -13,12 +14,20 @@ type PaymentClient struct {
 
 func NewPaymentClient() PaymentClient {
 
-	stripe := &client.API{}
-	stripe.Init(os.Getenv("STRIPE_ACCESS_TOKEN"), nil)
+	stripeAPI := &client.API{}
+
+	config := &stripe.BackendConfig{
+		MaxNetworkRetries: stripe.Int64(3),
+	}
+
+	stripeAPI.Init(os.Getenv("STRIPE_ACCESS_TOKEN"), &stripe.Backends{
+		API:     stripe.GetBackendWithConfig(stripe.APIBackend, config),
+		Uploads: stripe.GetBackendWithConfig(stripe.UploadsBackend, config),
+	})
 
 	return PaymentClient{
 		CustomerBilling: &billing.CustomerBilling{
-			API: stripe,
+			API: stripeAPI,
 		},
 	}
 }

@@ -25,8 +25,8 @@ export default async function BillingPage({
 
     return (
         <main>
-            {team.billingStatus === "not_created" && (<NoBillingAccount team={team} />)}
-            {team.billingStatus !== "not_created" && (<ManageBillingAccount team={team} />)}
+            {!Boolean(team.billingAccountID) && (<NoBillingAccount team={team} />)}
+            {Boolean(team.billingAccountID) && (<ManageBillingAccount team={team} />)}
         </main>
     )
 

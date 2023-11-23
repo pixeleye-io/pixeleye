@@ -11,9 +11,16 @@ export const TeamZod = z.object({
   name: z.string(),
   url: z.string().url().optional(),
   avatarURL: z.string().url().optional(),
-
   billingStatus: z
-    .enum(["active", "inactive", "past_due", "canceled", "not_created"])
+    .enum([
+      "active",
+      "incomplete",
+      "incomplete_expired",
+      "past_due",
+      "canceled",
+      "unpaid",
+      "not_created",
+    ])
     .default("not_created"),
   billingAccountID: z.string().optional(),
 
@@ -27,13 +34,15 @@ export const TeamPlanZod = z.object({
   priceID: z.string(),
   productID: z.string(),
   default: z.boolean(),
-  pricing: z.array(
-    z.object({
-      price: z.number(),
-      from: z.number(),
-      to: z.number().optional(),
-    })
-  ).optional(),
+  pricing: z
+    .array(
+      z.object({
+        price: z.number(),
+        from: z.number(),
+        to: z.number().optional(),
+      })
+    )
+    .optional(),
 });
 
 export const UserOnTeamZod = UserZod.extend({

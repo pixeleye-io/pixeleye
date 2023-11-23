@@ -167,7 +167,12 @@ enum "team_type" {
 
 enum "billing_status" {
   schema = schema.public
-  values = ["active", "cancelled", "past_due", "inactive", "not_created"]
+  values = ["not_created", "incomplete", "incomplete_expired", "active", "past_due", "canceled", "unpaid"]
+}
+
+enum "team_status" {
+  schema = schema.public
+  values = ["active", "suspended"]
 }
 
 table "team" {
@@ -180,6 +185,12 @@ table "team" {
     columns = [column.id]
   }
 
+  column "status" {
+    type    = enum.team_status
+    null    = false
+    default = "active"
+  }
+
   column "billing_status" {
     type    = enum.billing_status
     null    = false
@@ -187,12 +198,17 @@ table "team" {
   }
 
   column "billing_account_id" {
-    type = varchar(21)
+    type = varchar(255)
+    null = true
+  }
+
+  column "billing_subscription_id" {
+    type = varchar(255)
     null = true
   }
 
   column "billing_plan_id" {
-    type = varchar(21)
+    type = varchar(255)
     null = true
   }
 
@@ -866,35 +882,6 @@ table "project_invite_code" {
   }
 
   column "expires_at" {
-    type = timestamptz
-    null = false
-  }
-}
-
-// This table is used to track the number of snapshots that have been billed for a given billing account
-// Once recorded on stripe, we will delete the record from this table
-table "snapshots_to_bill" {
-  schema = schema.public
-  column "id" {
-    type = varchar(21)
-    null = false
-  }
-
-  primary_key {
-    columns = [column.id]
-  }
-
-  column "billing_account_id" {
-    type = varchar(21)
-    null = false
-  }
-
-  column "snapshot_count" {
-    type = integer
-    null = false
-  }
-
-  column "created_at" {
     type = timestamptz
     null = false
   }

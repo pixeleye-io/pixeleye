@@ -42,7 +42,7 @@ export function ManageBillingAccount(
             <Container className="max-w-5xl flex items-center flex-col mt-12">
                 <div className="text-center">
                     {
-                        team.billingStatus == "inactive" && (<>
+                        team.billingStatus == "not_created" && (<>
                             <CreditCardIcon
                                 className="mx-auto h-12 w-12 text-on-surface"
                             />
@@ -76,7 +76,7 @@ export function ManageBillingAccount(
                         )
                     }
                     {
-                        team.billingStatus == "past_due" && (<>
+                        ["past_due", "incomplete_expired", "unpaid", "incomplete"].includes(team.billingStatus) && (<>
                             <CreditCardIcon
                                 className="mx-auto h-12 w-12 text-on-surface"
                             />
