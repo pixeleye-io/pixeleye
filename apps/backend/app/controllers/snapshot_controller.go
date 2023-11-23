@@ -52,7 +52,6 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 	}
 
 	s3, err := storage.GetClient()
-
 	if err != nil {
 		return nil, err
 	}
@@ -60,13 +59,11 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 	path := stores.GetSnapPath(project.ID, data.Hash)
 
 	fileExists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), path)
-
 	if err != nil {
 		return nil, err
 	}
 
 	snap, err := db.GetSnapImageByHash(data.Hash, project.ID)
-
 	if err == nil && fileExists {
 		// We already have this snapshot
 		return &UploadSnapReturn{
@@ -79,13 +76,11 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 	}
 
 	url, err := s3.PutObject(c.Request().Context(), os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
-
 	if err != nil {
 		return nil, err
 	}
 
 	id, err := nanoid.New()
-
 	if err != nil {
 		return nil, err
 	}
@@ -141,15 +136,31 @@ func CreateUploadURL(c echo.Context) error {
 
 	uploadMap := map[string]*UploadSnapReturn{}
 
+	ch := make(chan *UploadSnapReturn, len(body.SnapshotUploads))
+	errs := make(chan error, len(body.SnapshotUploads))
+
 	for _, data := range body.SnapshotUploads {
 
-		uploadData, err := createUploadURL(c, data)
+		go func(data SnapshotUpload) {
+			uploadData, err := createUploadURL(c, data)
 
+			if err != nil {
+				errs <- err
+				ch <- nil
+			}
+
+			ch <- uploadData
+			errs <- nil
+		}(data)
+	}
+
+	for i := 0; i < len(body.SnapshotUploads); i++ {
+		err := <-errs
 		if err != nil {
 			return err
 		}
-
-		uploadMap[data.Hash] = uploadData
+		uploadData := <-ch
+		uploadMap[uploadData.Hash] = uploadData
 	}
 
 	return c.JSON(http.StatusOK, uploadMap)

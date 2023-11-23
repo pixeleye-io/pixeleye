@@ -50,7 +50,7 @@ func SubscribeToProject(c echo.Context) error {
 			c.Response().Flush()
 
 			return nil
-		}, 100, quit)
+		}, 1, quit)
 
 		if err != nil {
 			log.Error().Err(err)
@@ -118,7 +118,7 @@ func SubscribeToBuild(c echo.Context) error {
 			}
 
 			return nil
-		}, 100, quit)
+		}, 1, quit)
 
 		if err != nil {
 			log.Error().Err(err)

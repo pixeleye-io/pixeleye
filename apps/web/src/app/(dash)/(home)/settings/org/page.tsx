@@ -1,7 +1,6 @@
 import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
 import { SettingsTemplate } from "../settingsTemplate";
-import { Input } from "@pixeleye/ui";
 import { OrgProfileSettingsSection } from "./sections";
 
 export default async function OrgSettingsPage({

@@ -100,7 +100,6 @@ export default function TeamSwitcher({
                       <Avatar.Image
                         src={(team.type === "user" ? user?.avatar : team.avatarURL) || ""}
                         alt={team.name}
-                        className="grayscale"
                       />
                       <Avatar.Fallback>{team.name.charAt(0)}</Avatar.Fallback>
                     </Avatar>

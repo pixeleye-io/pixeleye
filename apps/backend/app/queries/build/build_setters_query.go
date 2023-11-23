@@ -10,6 +10,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func (tx *BuildQueriesTx) UpdateBuildStatus(ctx context.Context, build *models.Build) error {
+	query := `UPDATE build SET status = :status, updated_at = :updated_at WHERE id = :id`
+
+	build.UpdatedAt = utils.CurrentTime()
+
+	_, err := tx.NamedExecContext(ctx, query, build)
+
+	return err
+}
+
 func (tx *BuildQueriesTx) UpdateBuild(ctx context.Context, build *models.Build) error {
 	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors, updated_at = :updated_at WHERE id = :id`
 

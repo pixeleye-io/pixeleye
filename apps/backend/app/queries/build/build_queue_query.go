@@ -52,7 +52,6 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 	defer tx.Rollback()
 
 	builds, err := tx.GetDependantQueuedBuildsForUpdate(ctx, parentBuild.ID)
-
 	if err != nil {
 		return err
 	}
@@ -62,13 +61,25 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 	snapshots := [][]models.Snapshot{}
 
 	for i, build := range builds {
+
+		if models.IsBuildPreProcessing(build.Status) {
+			log.Debug().Msgf("Build %s is still pre-processing", build.ID)
+
+			build.Status = models.BUILD_STATUS_UNREVIEWED
+			if err := tx.UpdateBuildStatus(ctx, &build); err != nil {
+				log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
+			}
+			builds[i] = build
+			continue
+		}
+
 		snaps, err := tx.GetQueuedSnapshots(ctx, &build)
 		if err != nil {
 			log.Error().Err(err).Msgf("Failed to get queued snapshots for build %s", build.ID)
 		} else {
 
 			build.Status = models.BUILD_STATUS_PROCESSING
-			if err := tx.UpdateBuild(ctx, &build); err != nil {
+			if err := tx.UpdateBuildStatus(ctx, &build); err != nil {
 				log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
 			}
 			builds[i] = build

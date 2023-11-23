@@ -6,6 +6,7 @@ import {
   createBuild,
   getAPI,
   linkSnapshotsToBuild,
+  splitIntoChunks,
   uploadSnapshot,
 } from "@pixeleye/js-sdk";
 import { PartialSnapshot } from "@pixeleye/api";
@@ -92,20 +93,39 @@ export async function upload(path: string, options: Config) {
 
   // TODO - we can and should upload + link snapshots in batches so we can begin processing them in the background
 
-  const snaps = await Promise.all(
-    files.map((file) =>
-      fs.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => {
-        const { id } = await uploadSnapshot(ctx, buffer, "image/png");
-        return {
-          imageId: id,
-          name: file.name,
-        };
+  const groups = splitIntoChunks(files, 10);
+  const chunks = splitIntoChunks(groups, 5);
+
+  const snaps: {
+    imageId: string;
+    name: string;
+  }[] = [];
+
+  for (const chunk of chunks) {
+    const tempSnaps = await Promise.all(
+      chunk.map(async (group) => {
+        const files = await Promise.all(
+          group.map(async (f) => ({
+            file: await fs.readFile(join(process.cwd(), path, f.name)),
+            format: "image/png",
+            name: f.name,
+          }))
+        );
+
+        return uploadSnapshot(ctx, files).then((res) => {
+          return res.map((snap) => ({
+            imageId: snap.id,
+            name: snap.name,
+          }));
+        });
       })
-    )
-  ).catch((err) => {
-    uploadSpinner.fail("Failed to upload snapshots to Pixeleye.");
-    program.error(err);
-  });
+    ).catch((err) => {
+      uploadSpinner.fail("Failed to upload snapshots to Pixeleye.");
+      program.error(err);
+    });
+
+    snaps.push(...tempSnaps.flat());
+  }
 
   uploadSpinner.succeed("Successfully uploaded snapshots to Pixeleye.");
 

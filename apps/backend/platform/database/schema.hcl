@@ -601,6 +601,10 @@ table "build_history" {
     ref_columns = [table.build.column.id]
     on_delete   = CASCADE
   }
+
+  index "idx_build_history-parent_id" {
+    columns = [column.parent_id]
+  }
 }
 
 table "snap_image" {
@@ -808,6 +812,10 @@ table "snapshot" {
   index "idx_snapshot-build_id__name__variant__target" {
     columns = [column.build_id, column.name, column.variant, column.target]
     unique  = true
+  }
+
+  index "idx_snapshot-hash__project_id" {
+    columns = [column.snap_image_id, column.build_id]
   }
 }
 
