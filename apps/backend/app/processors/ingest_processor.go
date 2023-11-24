@@ -23,7 +23,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/platform/storage"
 )
 
-func downloadSnapshotImages(s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, baseBytes []byte, err error) {
+func downloadSnapshotImages(ctx context.Context, s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, baseBytes []byte, err error) {
 	firstCH := make(chan []byte)
 	secondCH := make(chan []byte)
 
@@ -31,7 +31,7 @@ func downloadSnapshotImages(s3 storage.IBucketClient, snapImg models.SnapImage, 
 		go func(i int, img models.SnapImage) {
 			path := stores.GetSnapPath(img.ProjectID, img.Hash)
 
-			imgBytes, err := s3.DownloadFile(context.TODO(), os.Getenv("S3_BUCKET"), path)
+			imgBytes, err := s3.DownloadFile(ctx, os.Getenv("S3_BUCKET"), path)
 
 			if err != nil {
 				log.Error().Err(err).Str("ImageID", img.ID).Msg("Failed to get image from S3")
@@ -111,15 +111,23 @@ func processSnapshot(ctx context.Context, project models.Project, snapshot model
 		return err
 	}
 
-	snapImg := snapImages[0]
-	baseImg := snapImages[1]
+	var snapImg models.SnapImage
+	var baseImg models.SnapImage
+	for _, img := range snapImages {
+		if img.ID == snapshot.SnapID {
+			snapImg = img
+		} else {
+			baseImg = img
+		}
+	}
 
 	s3, err := storage.GetClient()
 	if err != nil {
 		return err
 	}
 
-	snapBytes, baseBytes, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	// TODO we need to check if the images exist. If the baseline doens't exist then we should treat this new snapshot as orphaned but with a deleted baseline
+	snapBytes, baseBytes, err := downloadSnapshotImages(ctx, s3, snapImg, baseImg)
 	if err != nil {
 		return err
 	}
@@ -306,7 +314,6 @@ func compareBuilds(project models.Project, snapshots []models.Snapshot, baseline
 				log.Error().Err(err).Msgf("Failed to set snapshots status to failed, SnapshotID %s", snapshot.ID)
 				// We don't want to return this error because we still want to process the remaining snapshots
 			}
-
 		}
 
 	}

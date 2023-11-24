@@ -46,7 +46,7 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	projectId := values[0]
+	projectId := values[1]
 
 	if !utils.ValidateNanoid(projectId) {
 		return nil, fmt.Errorf("authorization header is invalid")
@@ -57,7 +57,7 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, err
 	}
 
-	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[1]))) != nil {
+	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[0]))) != nil {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/pixeleye-io/pixeleye/app/billing"
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -18,6 +19,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/payments"
 	"github.com/rs/zerolog/log"
+	"github.com/stripe/stripe-go/v76"
 )
 
 // Create Build method for creating a new build.
@@ -417,8 +419,11 @@ func UploadPartial(c echo.Context) error {
 		return err
 	}
 
-	snapshots, updateBuild, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
+	if partial.Snapshots == nil || len(partial.Snapshots) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to upload")
+	}
 
+	snapshots, updateBuild, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
 	if err != nil {
 		return err
 	}
@@ -510,6 +515,19 @@ func UploadComplete(c echo.Context) error {
 			paymentClient := payments.NewPaymentClient()
 			if err := paymentClient.ReportSnapshotUsage(team, build.ID, snapCount); err != nil {
 				log.Error().Err(err).Msg("Failed to report snapshot usage")
+				if stripeErr, ok := err.(*stripe.Error); ok {
+					if stripeErr.HTTPStatusCode >= 400 && stripeErr.HTTPStatusCode < 500 {
+						subscription, err := paymentClient.GetCurrentSubscription(team)
+						if err != nil {
+							log.Error().Err(err).Msg("Failed to get current subscription")
+							return err
+						}
+						if subscription.Status != stripe.SubscriptionStatusActive {
+							db.UpdateTeamBillingStatus(c.Request().Context(), team.ID, billing.GetTeamBillingStatus(subscription.Status))
+						}
+					}
+				}
+
 			}
 		}
 	}

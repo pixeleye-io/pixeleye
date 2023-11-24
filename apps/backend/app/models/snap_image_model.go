@@ -12,5 +12,7 @@ type SnapImage struct {
 	Height int    `db:"height" json:"height" validate:"required"`
 	Format string `db:"format" json:"format" validate:"required"`
 
+	Exists bool `db:"exists" json:"exists"`
+
 	ProjectID string `db:"project_id" json:"projectID" validate:"required,nanoid"`
 }

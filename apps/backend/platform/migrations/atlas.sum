@@ -1,6 +1,7 @@
-h1:CYtNrmTQDcDbqKHFwJf5K9yyTp4pnf+VVk+vYyJjFKA=
+h1:1JPiimXIzT3ySx4xIU9TWVaL4UHeyoj49JqCC3EFQb0=
 20231003102525_hello_world.sql h1:gAoj3Lz7c+y7AUUoKHA/6SgbRkyYb19LAnPImfnz8B4=
 20231115223456_snapshot_threshold.sql h1:v9tOpYMKEC5cktNrUkw1RRj4JqBKDA0fBsNMjsViExQ=
 20231119162959_adding_account_login.sql h1:BJ7X6EW/yxlYN0CsGbJHnlK5ha1W6Q6McfjPDok6+/4=
 20231119165815_oauth_states.sql h1:IqUsMgPjVl6MQQJRv6DEHNgQIk2IDLN3NNhtgaCPai4=
 20231123123704_stripe_payments.sql h1:fnjhyT8+umLhIuwM218lrG10DbOBpvlSvvXDocJHTQY=
+20231124140929_stripe_sub_id.sql h1:lp2hInAmVWT3sJynoj2Xzg0btFm0dBk/Z+SZX3cuudI=

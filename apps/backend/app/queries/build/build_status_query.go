@@ -111,7 +111,6 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 	defer tx.Rollback()
 
 	build, err := tx.GetBuildForUpdate(ctx, buildID)
-
 	if err != nil {
 		return &build, err
 	}

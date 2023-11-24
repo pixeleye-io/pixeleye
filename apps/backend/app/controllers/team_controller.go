@@ -436,9 +436,12 @@ func CreateBillingAccount(c echo.Context) error {
 		return err
 	}
 
-	session, err := paymentClient.CreateBillingPortalSession(team, billing.CUSTOMER_BILLING_FLOW_METHOD_UPDATE)
+	session, err := paymentClient.CreateBillingPortalSession(team, billing.CUSTOMER_BILLING_FLOW_MANAGE_BILLING)
 	if err != nil {
-		return err
+		return c.String(
+			http.StatusBadRequest,
+			err.Error(),
+		)
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -466,12 +469,16 @@ func SubscribeToPlan(c echo.Context) error {
 	// Create a subscription
 	sub, plan, err := paymentClient.SubscribeToPlan(team)
 	if err != nil {
-		return err
+		return c.String(
+			http.StatusBadRequest,
+			err.Error(),
+		)
 	}
 
 	team.BillingStatus = models.TEAM_BILLING_STATUS_ACTIVE
 	team.BillingPlanID = &plan.PricingID
-	team.BillingSubscriptionID = &sub.Items.Data[0].ID
+	team.BillingSubscriptionID = &sub.ID
+	team.BillingSubscriptionItemID = &sub.Items.Data[0].ID
 	if err := db.UpdateTeamBilling(c.Request().Context(), team); err != nil {
 		return err
 	}

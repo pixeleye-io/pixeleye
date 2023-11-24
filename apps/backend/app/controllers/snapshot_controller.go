@@ -14,7 +14,6 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
-	"github.com/rs/zerolog/log"
 )
 
 type UploadSnapReturn struct {
@@ -33,47 +32,65 @@ type UploadSnapBody struct {
 	SnapshotUploads []SnapshotUpload `json:"snapshots" validate:"required,dive"`
 }
 
-func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, error) {
-	if data.Format != "image/png" {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "Only PNG format is currently supported")
-	}
+func createSnapImages(c echo.Context, db *database.Queries, data []SnapshotUpload, projectID string) ([]*UploadSnapReturn, error) {
 
-	validate := utils.NewValidator()
-
-	if err := validate.Struct(data); err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
-	}
-
-	project := middleware.GetProject(c)
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return nil, err
-	}
+	// These are snapshots which don't have an image in the database
 
 	s3, err := storage.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	path := stores.GetSnapPath(project.ID, data.Hash)
+	var urls []*UploadSnapReturn
 
-	fileExists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), path)
+	var snapImages []models.SnapImage
+
+	for _, snap := range data {
+		path := stores.GetSnapPath(projectID, snap.Hash)
+
+		url, err := s3.PutObject(c.Request().Context(), os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
+		if err != nil {
+			return nil, err
+		}
+
+		id, err := nanoid.New()
+		if err != nil {
+			return nil, err
+		}
+
+		snapImage := models.SnapImage{
+			ID:        id,
+			Hash:      snap.Hash,
+			ProjectID: projectID,
+			Height:    snap.Height,
+			Width:     snap.Width,
+			Format:    snap.Format,
+			CreatedAt: utils.CurrentTime(),
+		}
+
+		snapImages = append(snapImages, snapImage)
+
+		urls = append(urls, &UploadSnapReturn{
+			SnapImage:            &snapImage,
+			PresignedHTTPRequest: url,
+		})
+	}
+
+	if err := db.BatchCreateSnapImage(c.Request().Context(), snapImages); err != nil {
+		return nil, err
+	}
+
+	return urls, nil
+}
+
+func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, projectID string, exists bool) (*UploadSnapReturn, error) {
+
+	s3, err := storage.GetClient()
 	if err != nil {
 		return nil, err
 	}
 
-	snap, err := db.GetSnapImageByHash(data.Hash, project.ID)
-	if err == nil && fileExists {
-		// We already have this snapshot
-		return &UploadSnapReturn{
-			SnapImage: &snap,
-		}, nil
-	}
-
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
+	path := stores.GetSnapPath(projectID, data.Hash)
 
 	url, err := s3.PutObject(c.Request().Context(), os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
 	if err != nil {
@@ -85,35 +102,29 @@ func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, er
 		return nil, err
 	}
 
-	// We already have the snapshot but for some reason we don't have an upload
-	if snap.ID != "" {
-		log.Debug().Msg("We already have a snapshot but no file uploaded")
+	if exists {
 		return &UploadSnapReturn{
-			SnapImage:            &snap,
 			PresignedHTTPRequest: url,
 		}, nil
 	}
 
-	snapImage := models.SnapImage{
+	snapImage := &models.SnapImage{
 		ID:        id,
 		Hash:      data.Hash,
-		ProjectID: project.ID,
+		ProjectID: projectID,
 		Height:    data.Height,
 		Width:     data.Width,
+		Exists:    true,
 		Format:    data.Format,
 		CreatedAt: utils.CurrentTime(),
 	}
 
-	if err := validate.Struct(snapImage); err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
-	}
-
-	if err := db.CreateSnapImage(&snapImage); err != nil {
+	if err := db.CreateSnapImage(snapImage); err != nil {
 		return nil, err
 	}
 
 	return &UploadSnapReturn{
-		SnapImage:            &snapImage,
+		SnapImage:            snapImage,
 		PresignedHTTPRequest: url,
 	}, nil
 }
@@ -134,33 +145,62 @@ func CreateUploadURL(c echo.Context) error {
 		return err
 	}
 
-	uploadMap := map[string]*UploadSnapReturn{}
+	validate := utils.NewValidator()
 
-	ch := make(chan *UploadSnapReturn, len(body.SnapshotUploads))
-	errs := make(chan error, len(body.SnapshotUploads))
-
-	for _, data := range body.SnapshotUploads {
-
-		go func(data SnapshotUpload) {
-			uploadData, err := createUploadURL(c, data)
-
-			if err != nil {
-				errs <- err
-				ch <- nil
-			}
-
-			ch <- uploadData
-			errs <- nil
-		}(data)
+	if err := validate.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	for i := 0; i < len(body.SnapshotUploads); i++ {
-		err := <-errs
-		if err != nil {
-			return err
+	project := middleware.GetProject(c)
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	hashes := []string{}
+	for _, data := range body.SnapshotUploads {
+		hashes = append(hashes, data.Hash)
+	}
+
+	snaps, err := db.GetSnapImagesByHashes(c.Request().Context(), hashes, project.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	uploadMap := map[string]*UploadSnapReturn{}
+
+	for _, snap := range body.SnapshotUploads {
+		var existingSnap *models.SnapImage = nil
+
+		if uploadMap[snap.Hash] != nil {
+			continue
 		}
-		uploadData := <-ch
-		uploadMap[uploadData.Hash] = uploadData
+
+		for _, s := range snaps {
+			if s.Hash == snap.Hash {
+				existingSnap = &s
+				break
+			}
+		}
+
+		exists := false
+		if existingSnap != nil && existingSnap.Exists {
+			exists = true
+		}
+
+		if existingSnap != nil && exists {
+			uploadMap[snap.Hash] = &UploadSnapReturn{
+				SnapImage: existingSnap,
+			}
+		} else {
+			snapReturn, err := createSnapImage(c, db, snap, project.ID, exists)
+			if err != nil {
+				return err
+			}
+			snaps = append(snaps, *snapReturn.SnapImage) // we need to append the snap to the list of snaps so we don't create it again
+			uploadMap[snap.Hash] = snapReturn
+		}
 	}
 
 	return c.JSON(http.StatusOK, uploadMap)
@@ -183,7 +223,6 @@ func GetSnapURL(c echo.Context) error {
 	}
 
 	url, err := imageStore.GetSnapURL(project.ID, hash)
-
 	if err == echo.ErrNotFound {
 		return echo.NewHTTPError(404, "Snapshot not found")
 	} else if err != nil {

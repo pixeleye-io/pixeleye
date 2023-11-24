@@ -202,6 +202,11 @@ table "team" {
     null = true
   }
 
+  column "billing_subscription_item_id" {
+    type = varchar(255)
+    null = true
+  }
+
   column "billing_subscription_id" {
     type = varchar(255)
     null = true
@@ -625,7 +630,6 @@ table "snap_image" {
     null = false
   }
 
-
   column "width" {
     type = integer
     null = false
@@ -639,6 +643,11 @@ table "snap_image" {
     null = false
   }
 
+  column "exists" {
+    type    = boolean
+    default = true
+    null    = false
+  }
 
   column "project_id" {
     type = varchar(21)

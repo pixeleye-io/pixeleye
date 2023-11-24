@@ -23,7 +23,7 @@ import (
 func generateToken() (string, error) {
 	str, err := utils.GenerateRandomStringURLSafe(24)
 
-	return "pxi_" + str, err
+	return "pxi__" + str, err
 }
 
 func hashToken(token string) (string, error) {

@@ -30,6 +30,20 @@ export function SecuritySection({ id }: { id: string }) {
   const setKey = useKeyStore((state) => state.setKey);
   const apiKey = useKeyStore((state) => state.keys[id]);
 
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (copied) {
+      const timeout = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [copied]);
+
   return (
     <div className="flex space-x-4 rounded-md border border-outline-variant p-4 overflow-hidden">
       <div className="flex flex-col justify-around flex-1 max-w-full">
@@ -43,6 +57,7 @@ export function SecuritySection({ id }: { id: string }) {
           <Button
             onClick={() => {
               if (apiKey) {
+                setCopied(true);
                 navigator.clipboard.writeText(apiKey);
               } else {
                 API.post("/projects/{id}/admin/new-token", {
@@ -57,7 +72,7 @@ export function SecuritySection({ id }: { id: string }) {
             variant="secondary"
             className="shrink-0 mt-2 sm:mt-0 !ml-auto sm:!ml-2"
           >
-            {apiKey ? "Copy" : "Regenerate"}
+            {apiKey ? copied ? "Copied!" : "Copy" : "Regenerate"}
           </Button>
         </div>
         <p className="text-on-surface-variant text-sm pt-2 self-start">

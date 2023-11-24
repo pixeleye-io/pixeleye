@@ -43,7 +43,6 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 	}
 
 	tx, err := NewBuildTx(q.DB, ctx)
-
 	if err != nil {
 		return err
 	}
@@ -60,29 +59,38 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 
 	snapshots := [][]models.Snapshot{}
 
-	for i, build := range builds {
+	var postUploadingBuilds []models.Build
+
+	for _, build := range builds {
+
+		if parentBuild.Status == models.BUILD_STATUS_FAILED || parentBuild.Status == models.BUILD_STATUS_ABORTED {
+			build.TargetBuildID = parentBuild.TargetBuildID
+		}
 
 		if models.IsBuildPreProcessing(build.Status) {
 			log.Debug().Msgf("Build %s is still pre-processing", build.ID)
 
-			build.Status = models.BUILD_STATUS_UNREVIEWED
-			if err := tx.UpdateBuildStatus(ctx, &build); err != nil {
+			build.Status = models.BUILD_STATUS_UPLOADING
+			if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
 				log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
 			}
-			builds[i] = build
 			continue
 		}
 
 		snaps, err := tx.GetQueuedSnapshots(ctx, &build)
 		if err != nil {
+			if parentBuild.Status == models.BUILD_STATUS_FAILED || parentBuild.Status == models.BUILD_STATUS_ABORTED {
+				if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
+					log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
+				}
+			}
 			log.Error().Err(err).Msgf("Failed to get queued snapshots for build %s", build.ID)
 		} else {
 
 			build.Status = models.BUILD_STATUS_PROCESSING
-			if err := tx.UpdateBuildStatus(ctx, &build); err != nil {
+			if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
 				log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
 			}
-			builds[i] = build
 
 			snapIDs := make([]string, len(snaps))
 			for i, snap := range snaps {
@@ -99,6 +107,7 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 			}
 
 			snapshots = append(snapshots, snaps)
+			postUploadingBuilds = append(postUploadingBuilds, build)
 		}
 	}
 
@@ -112,7 +121,7 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 		return err
 	}
 
-	for i, build := range builds {
+	for i, build := range postUploadingBuilds {
 		go func(b *broker.Queues, build models.Build, snaps []models.Snapshot) {
 			notifier, err := events.GetNotifier(b)
 			if err != nil {

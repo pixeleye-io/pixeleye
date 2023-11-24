@@ -122,6 +122,10 @@ func (c *CustomerBilling) SubscribeToPlan(team models.Team) (*stripe.Subscriptio
 
 	sub, err := c.API.Subscriptions.New(&stripe.SubscriptionParams{
 		Customer: team.BillingAccountID,
+		AutomaticTax: &stripe.SubscriptionAutomaticTaxParams{
+			Enabled: stripe.Bool(true),
+		},
+
 		Items: []*stripe.SubscriptionItemsParams{
 			{
 				Price: stripe.String(defaultPlan.PricingID),
@@ -155,7 +159,7 @@ func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, 
 
 	params := &stripe.UsageRecordParams{
 		Quantity:         stripe.Int64(snapshotCount),
-		SubscriptionItem: team.BillingSubscriptionID,
+		SubscriptionItem: team.BillingSubscriptionItemID,
 		Action:           stripe.String("increment"),
 	}
 
@@ -164,4 +168,31 @@ func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, 
 	_, err := c.API.UsageRecords.New(params)
 
 	return err
+}
+
+func (c *CustomerBilling) GetCurrentSubscription(team models.Team) (*stripe.Subscription, error) {
+	if team.BillingSubscriptionID == nil {
+		return nil, fmt.Errorf("team does not have a subscription id")
+	}
+
+	return c.API.Subscriptions.Get(*team.BillingSubscriptionID, nil)
+}
+
+func GetTeamBillingStatus(status stripe.SubscriptionStatus) string {
+	switch status {
+	case stripe.SubscriptionStatusActive:
+		return models.TEAM_BILLING_STATUS_ACTIVE
+	case stripe.SubscriptionStatusPastDue:
+		return models.TEAM_BILLING_STATUS_PAST_DUE
+	case stripe.SubscriptionStatusUnpaid:
+		return models.TEAM_BILLING_STATUS_UNPAID
+	case stripe.SubscriptionStatusCanceled:
+		return models.TEAM_BILLING_STATUS_CANCELED
+	case stripe.SubscriptionStatusIncomplete:
+		return models.TEAM_BILLING_STATUS_INCOMPLETE
+	case stripe.SubscriptionStatusIncompleteExpired:
+		return models.TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED
+	default:
+		return models.TEAM_BILLING_STATUS_CANCELED
+	}
 }

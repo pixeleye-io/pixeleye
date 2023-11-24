@@ -51,37 +51,30 @@ export async function uploadSnapshot(
     },
   });
 
-  const snapsToUpload = snapshots.filter(
-    (snapshot) => presignedMap[snapshot.hash].URL
+  const snapsToUpload = snapshots.filter((snapshot) =>
+    Boolean(presignedMap[snapshot.hash].URL)
   );
 
-  console.log(
-    snapshots.length - snapsToUpload.length,
-    "snapshots already exist"
+  console.log(snapsToUpload);
+
+  await Promise.all(
+    snapsToUpload.map(({ file, hash, format }) => {
+      const presigned = presignedMap[hash];
+
+      const blob = new Blob([file], { type: format });
+
+      return fetch(presigned.URL!, {
+        method: presigned.Method,
+        headers: {
+          ...(presigned.SignedHeader
+            ? { Host: presigned.SignedHeader.Host.join(",") }
+            : {}),
+          contentType: format,
+        },
+        body: blob,
+      });
+    })
   );
-
-  const chunks = splitIntoChunks(snapsToUpload, 5);
-
-  for (const chunk of chunks) {
-    await Promise.all(
-      chunk.map(({ file, hash, format }) => {
-        const presigned = presignedMap[hash];
-
-        const blob = new Blob([file], { type: format });
-
-        return fetch(presigned.URL!, {
-          method: presigned.Method,
-          headers: {
-            ...(presigned.SignedHeader
-              ? { Host: presigned.SignedHeader.Host.join(",") }
-              : {}),
-            contentType: format,
-          },
-          body: blob,
-        });
-      })
-    );
-  }
 
   return snapshots.map(({ name, hash }) => ({
     name,

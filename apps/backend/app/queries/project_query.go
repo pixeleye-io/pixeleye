@@ -57,7 +57,7 @@ func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([
 				OR team_users.role = 'owner') AND project_users.user_id IS NULL
 			)
 		)
-	)`
+	) ORDER BY last_activity DESC`
 
 	projects := []models.Project{}
 

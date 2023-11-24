@@ -23,7 +23,7 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
         ...options?.headers,
       },
       credentials: "include",
-    }).then((res) => {
+    }).then(async (res) => {
       if (res.status === 300 && res.headers.get("pixeleye-location")) {
         if (typeof window !== "undefined") {
           window.location.href = res.headers.get("pixeleye-location")!;
@@ -34,7 +34,8 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
       if (res.ok) {
         return res.json().catch(() => undefined);
       }
-      return Promise.reject(res);
+
+      return Promise.reject(await res.json().catch(() => res));
     })
   );
 

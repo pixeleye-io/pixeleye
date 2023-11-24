@@ -37,6 +37,9 @@ export function ManageBillingAccount(
         }
     })
 
+
+    console.log(upgradeToPro)
+
     return (
         <>
             <Container className="max-w-5xl flex items-center flex-col mt-12">
@@ -50,10 +53,18 @@ export function ManageBillingAccount(
                             <p className="mt-1 text-sm text-on-surface-variant">
                                 You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month.
                             </p>
-                            <div className="mt-6">
-
+                            {
+                                upgradeToPro.error && (
+                                    <p className="py-2 text-error">
+                                        {upgradeToPro.error.message}
+                                    </p>
+                                )}
+                            <div className="mt-6 space-x-4">
                                 <Button loading={upgradeToPro.isPending} onClick={() => upgradeToPro.mutate()}>
                                     Upgrade to Pro
+                                </Button>
+                                <Button variant="ghost" loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
+                                    Manage account
                                 </Button>
                             </div></>
                         )
