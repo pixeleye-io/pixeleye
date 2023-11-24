@@ -523,7 +523,10 @@ func UploadComplete(c echo.Context) error {
 							return err
 						}
 						if subscription.Status != stripe.SubscriptionStatusActive {
-							db.UpdateTeamBillingStatus(c.Request().Context(), team.ID, billing.GetTeamBillingStatus(subscription.Status))
+							if err := db.UpdateTeamBillingStatus(c.Request().Context(), team.ID, billing.GetTeamBillingStatus(subscription.Status)); err != nil {
+								log.Error().Err(err).Msg("Failed to update team billing status")
+								return err
+							}
 						}
 					}
 				}
