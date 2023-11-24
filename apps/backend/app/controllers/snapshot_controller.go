@@ -14,6 +14,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
+	"github.com/rs/zerolog/log"
 )
 
 type UploadSnapReturn struct {
@@ -32,58 +33,7 @@ type UploadSnapBody struct {
 	SnapshotUploads []SnapshotUpload `json:"snapshots" validate:"required,dive"`
 }
 
-func createSnapImages(c echo.Context, db *database.Queries, data []SnapshotUpload, projectID string) ([]*UploadSnapReturn, error) {
-
-	// These are snapshots which don't have an image in the database
-
-	s3, err := storage.GetClient()
-	if err != nil {
-		return nil, err
-	}
-
-	var urls []*UploadSnapReturn
-
-	var snapImages []models.SnapImage
-
-	for _, snap := range data {
-		path := stores.GetSnapPath(projectID, snap.Hash)
-
-		url, err := s3.PutObject(c.Request().Context(), os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
-		if err != nil {
-			return nil, err
-		}
-
-		id, err := nanoid.New()
-		if err != nil {
-			return nil, err
-		}
-
-		snapImage := models.SnapImage{
-			ID:        id,
-			Hash:      snap.Hash,
-			ProjectID: projectID,
-			Height:    snap.Height,
-			Width:     snap.Width,
-			Format:    snap.Format,
-			CreatedAt: utils.CurrentTime(),
-		}
-
-		snapImages = append(snapImages, snapImage)
-
-		urls = append(urls, &UploadSnapReturn{
-			SnapImage:            &snapImage,
-			PresignedHTTPRequest: url,
-		})
-	}
-
-	if err := db.BatchCreateSnapImage(c.Request().Context(), snapImages); err != nil {
-		return nil, err
-	}
-
-	return urls, nil
-}
-
-func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, projectID string, exists bool) (*UploadSnapReturn, error) {
+func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string, exists bool) (*UploadSnapReturn, error) {
 
 	s3, err := storage.GetClient()
 	if err != nil {
@@ -102,9 +52,15 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 		return nil, err
 	}
 
-	if exists {
+	if !exists {
+
+		if err := db.SetSnapImageExists(c.Request().Context(), id, true); err != nil {
+			return nil, err
+		}
+
 		return &UploadSnapReturn{
 			PresignedHTTPRequest: url,
+			SnapImage:            snap,
 		}, nil
 	}
 
@@ -184,17 +140,19 @@ func CreateUploadURL(c echo.Context) error {
 			}
 		}
 
-		exists := false
-		if existingSnap != nil && existingSnap.Exists {
-			exists = true
+		exists := true
+		if existingSnap != nil && !existingSnap.Exists {
+			exists = false
 		}
+
+		log.Debug().Msgf("Snap %v exists: %v", snap.Hash, exists)
 
 		if existingSnap != nil && exists {
 			uploadMap[snap.Hash] = &UploadSnapReturn{
 				SnapImage: existingSnap,
 			}
 		} else {
-			snapReturn, err := createSnapImage(c, db, snap, project.ID, exists)
+			snapReturn, err := createSnapImage(c, db, snap, existingSnap, project.ID, exists)
 			if err != nil {
 				return err
 			}

@@ -11,15 +11,16 @@ import (
 // Snapshot status to order map
 // nolint: gochecknoglobals
 var snapshotStatusMap = map[string]int{
-	models.SNAPSHOT_STATUS_FAILED:     0,
-	models.SNAPSHOT_STATUS_QUEUED:     1,
-	models.SNAPSHOT_STATUS_PROCESSING: 2,
-	models.SNAPSHOT_STATUS_UNREVIEWED: 3,
-	models.SNAPSHOT_STATUS_REJECTED:   4,
-	models.SNAPSHOT_STATUS_APPROVED:   5,
-	models.SNAPSHOT_STATUS_UNCHANGED:  6,
-	models.SNAPSHOT_STATUS_ORPHANED:   7,
-	"unknown":                         8,
+	models.SNAPSHOT_STATUS_FAILED:           0,
+	models.SNAPSHOT_STATUS_QUEUED:           1,
+	models.SNAPSHOT_STATUS_PROCESSING:       2,
+	models.SNAPSHOT_STATUS_UNREVIEWED:       3,
+	models.SNAPSHOT_STATUS_REJECTED:         4,
+	models.SNAPSHOT_STATUS_APPROVED:         5,
+	models.SNAPSHOT_STATUS_UNCHANGED:        6,
+	models.SNAPSHOT_STATUS_MISSING_BASELINE: 7,
+	models.SNAPSHOT_STATUS_ORPHANED:         8,
+	"unknown":                               9,
 }
 
 // We assume that builds are past the preProcessing stage
@@ -46,6 +47,8 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	case models.SNAPSHOT_STATUS_APPROVED:
 		return models.BUILD_STATUS_APPROVED
 	case models.SNAPSHOT_STATUS_UNCHANGED:
+		return models.BUILD_STATUS_UNCHANGED
+	case models.SNAPSHOT_STATUS_MISSING_BASELINE:
 		return models.BUILD_STATUS_UNCHANGED
 	case models.SNAPSHOT_STATUS_ORPHANED:
 		return models.BUILD_STATUS_ORPHANED

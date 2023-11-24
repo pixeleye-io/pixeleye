@@ -70,7 +70,8 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		find_approved_snapshot 
 	  WHERE 
 		status = 'approved' 
-		or status = 'orphaned' 
+		or status = 'orphaned'
+		or status = 'missing_baseline' 
 	  ORDER BY 
 		depth ASC 
 	  LIMIT 

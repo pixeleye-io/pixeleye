@@ -75,3 +75,11 @@ func (q *SnapImageQueries) BatchCreateSnapImage(ctx context.Context, snapImages 
 
 	return err
 }
+
+func (q *SnapImageQueries) SetSnapImageExists(ctx context.Context, id string, exists bool) error {
+	query := `UPDATE snap_image SET exists = $1 WHERE id = $2`
+
+	_, err := q.ExecContext(ctx, query, exists, id)
+
+	return err
+}

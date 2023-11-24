@@ -29,11 +29,12 @@ const snapshotSortMap: Record<Snapshot["status"], number> = {
   unreviewed: 0,
   rejected: 1,
   approved: 2,
-  orphaned: 3,
-  unchanged: 4,
-  failed: 5,
-  aborted: 6,
-  processing: 7,
+  missing_baseline: 3,
+  orphaned: 4,
+  unchanged: 5,
+  failed: 6,
+  aborted: 7,
+  processing: 8,
 };
 
 export interface ReviewerProps {

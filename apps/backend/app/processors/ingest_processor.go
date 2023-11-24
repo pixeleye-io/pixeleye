@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -21,49 +22,70 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
+
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 )
 
-func downloadSnapshotImages(ctx context.Context, s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, baseBytes []byte, err error) {
-	firstCH := make(chan []byte)
-	secondCH := make(chan []byte)
+func downloadSnapshotImages(ctx context.Context, s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, snapExists bool, baseBytes []byte, baseExists bool, err error) {
+
+	type result struct {
+		bytes  []byte
+		exists bool
+		order  int
+	}
+
+	resultCH := make(chan result, 2)
 
 	for i, img := range []models.SnapImage{snapImg, baseImg} {
 		go func(i int, img models.SnapImage) {
 			path := stores.GetSnapPath(img.ProjectID, img.Hash)
 
 			imgBytes, err := s3.DownloadFile(ctx, os.Getenv("S3_BUCKET"), path)
-
 			if err != nil {
-				log.Error().Err(err).Str("ImageID", img.ID).Msg("Failed to get image from S3")
-				if i == 0 {
-					firstCH <- []byte{}
-				} else {
-					secondCH <- []byte{}
+				exists := true
+				var re *awshttp.ResponseError
+				if errors.As(err, &re) {
+					log.Debug().Msgf("Error code: %v", re.Response.StatusCode)
+					if re.Response.StatusCode == 404 {
+						exists = false
+					}
+				}
+				resultCH <- result{
+					bytes:  []byte{},
+					exists: exists,
+					order:  i,
 				}
 				return
 			}
 
-			if i == 0 {
-				firstCH <- imgBytes
-			} else {
-				secondCH <- imgBytes
+			resultCH <- result{
+				bytes:  imgBytes,
+				exists: true,
+				order:  i,
 			}
 		}(i, img)
 	}
 
-	snapBytes = <-firstCH
+	for i := 0; i < 2; i++ {
+		temp := <-resultCH
+		if temp.order == 0 {
+			snapBytes = temp.bytes
+			snapExists = temp.exists
+		} else {
+			baseBytes = temp.bytes
+			baseExists = temp.exists
+		}
+	}
 
 	if len(snapBytes) == 0 {
-		return snapBytes, baseBytes, fmt.Errorf("failed to get snapshot image from S3")
+		return snapBytes, snapExists, baseBytes, baseExists, fmt.Errorf("failed to get snapshot image from S3")
 	}
-
-	baseBytes = <-secondCH
 
 	if len(baseBytes) == 0 {
-		return snapBytes, baseBytes, fmt.Errorf("failed to get baseline image from S3")
+		return snapBytes, snapExists, baseBytes, baseExists, fmt.Errorf("failed to get baseline image from S3")
 	}
 
-	return snapBytes, baseBytes, nil
+	return snapBytes, snapExists, baseBytes, baseExists, nil
 }
 
 func generateBytesHash(imgBytes []byte) (string, error) {
@@ -126,10 +148,29 @@ func processSnapshot(ctx context.Context, project models.Project, snapshot model
 		return err
 	}
 
-	// TODO we need to check if the images exist. If the baseline doens't exist then we should treat this new snapshot as orphaned but with a deleted baseline
-	snapBytes, baseBytes, err := downloadSnapshotImages(ctx, s3, snapImg, baseImg)
+	snapBytes, snapExists, baseBytes, baseExists, err := downloadSnapshotImages(ctx, s3, snapImg, baseImg)
+
+	log.Debug().Msgf("Snapshot exists: %v, Baseline exists: %v", snapExists, baseExists)
+
 	if err != nil {
-		return err
+		if !snapExists {
+			if err := db.SetSnapImageExists(ctx, snapImg.ID, false); err != nil {
+				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to set snapshot image exists to false")
+			}
+		}
+
+		if !baseExists {
+			if err := db.SetSnapImageExists(ctx, baseImg.ID, false); err != nil {
+				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to set baseline image exists to false")
+			}
+
+			snapshot.Status = models.SNAPSHOT_STATUS_MISSING_BASELINE
+			return db.UpdateSnapshot(snapshot)
+		}
+
+		if !snapExists {
+			return err
+		}
 	}
 
 	snapshotImage, _, err := image.Decode(bytes.NewReader(snapBytes))
@@ -220,7 +261,7 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 
 				//  we can assume that the snapshots won't be an error as that should also be reflected by the build
 				if snapshot.SnapID == baseline.SnapID {
-					if baseline.Status == models.SNAPSHOT_STATUS_UNCHANGED || baseline.Status == models.SNAPSHOT_STATUS_APPROVED || baseline.Status == models.SNAPSHOT_STATUS_ORPHANED {
+					if baseline.Status == models.SNAPSHOT_STATUS_UNCHANGED || baseline.Status == models.SNAPSHOT_STATUS_APPROVED || baseline.Status == models.SNAPSHOT_STATUS_ORPHANED || baseline.Status == models.SNAPSHOT_STATUS_MISSING_BASELINE {
 						unchangedSnapshots = append(unchangedSnapshots, [2]models.Snapshot{snapshot, baseline})
 					} else if baseline.Status == models.SNAPSHOT_STATUS_REJECTED {
 						rejectedSnapshots = append(rejectedSnapshots, [2]models.Snapshot{snapshot, baseline})

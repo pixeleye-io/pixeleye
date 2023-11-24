@@ -216,7 +216,7 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 		found := false
 		for _, snapshot := range allSnapshots {
 			if snapshot.ID == id {
-				if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED {
+				if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED || snapshot.Status == models.SNAPSHOT_STATUS_MISSING_BASELINE {
 					return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is either unchanged or orphaned (you can't approve a snapshot in this state)", snapshot.ID))
 				}
 				found = true
