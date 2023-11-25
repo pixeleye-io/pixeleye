@@ -103,7 +103,8 @@ export default async function UsagePage({
   return (
     <main>
       <div className="pt-12">
-        <h3 className="text-base font-semibold leading-6 text-on-surface mb-4">Last 30 days</h3>
+        <h3 className="text-base font-semibold leading-6 text-on-surface">Last 30 days</h3>
+        <p className="text-on-surface-variant text-sm mb-6">Total cost is just an estimate based on the total snapshots used within this period. Please check your invoices for an accurate price</p>
         <dl className="mt-5 grid grid-cols-1 divide-y divide-outline overflow-hidden rounded-lg bg-surface-container shadow md:grid-cols-3 md:divide-x md:divide-y-0">
           {stats.map((item) => (
             <div key={item.name} className="px-4 py-5 sm:p-6">

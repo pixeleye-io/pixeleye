@@ -261,6 +261,7 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		for message := range messages {
 			maxChannel <- struct{}{}
 			go func(message amqp.Delivery) {
+
 				if err := callback(message.Body); err != nil {
 					log.Error().Err(err).Msg("Failed to process message")
 				}

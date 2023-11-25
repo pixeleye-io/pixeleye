@@ -95,9 +95,7 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
-	statusFromSnaps := getBuildStatusFromSnapshotStatuses(snapshotStatus)
-
-	return statusFromSnaps, nil
+	return getBuildStatusFromSnapshotStatuses(snapshotStatus), nil
 }
 
 func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buildID string) (*models.Build, error) {

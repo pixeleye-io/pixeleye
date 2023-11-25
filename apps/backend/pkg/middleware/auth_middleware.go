@@ -64,14 +64,12 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		db, err := database.OpenDBConnection()
-
 		if err != nil {
 			log.Err(err).Msg("Error opening database connection")
 			return err
 		}
 
 		user, err := db.GetUserByAuthID(c.Request().Context(), session.Identity.GetId())
-
 		if err != nil && err != sql.ErrNoRows {
 			log.Err(err).Msg("Error getting user")
 			return err

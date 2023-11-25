@@ -291,9 +291,12 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 	return newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots
 }
 
-func compareBuilds(project models.Project, snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
+func compareBuilds(ctx context.Context, project models.Project, snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build) error {
 
-	ctx := context.TODO()
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
 
 	newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots := groupSnapshots(snapshots, baselines)
 
@@ -303,18 +306,20 @@ func compareBuilds(project models.Project, snapshots []models.Snapshot, baseline
 		if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
 			log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
 			// We don't want to return this error because we still want to process the remaining snapshots
+			if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_FAILED); err != nil {
+				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
+			}
 		}
 	}
+
+	snapshotsToUpdate := []models.Snapshot{}
 
 	for _, snap := range unchangedSnapshots {
 		snapshot := snap[0]
 		snapshot.BaselineID = &snap[1].ID
 		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
 
-		if err := db.UpdateSnapshot(snapshot); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unchanged, SnapshotID %s", snapshot.ID)
-			// We don't want to return this error because we still want to process the remaining snapshots
-		}
+		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range unreviewedSnapshots {
@@ -323,10 +328,7 @@ func compareBuilds(project models.Project, snapshots []models.Snapshot, baseline
 		snapshot.Status = models.SNAPSHOT_STATUS_UNREVIEWED
 		snapshot.DiffID = snap[1].DiffID
 
-		if err := db.UpdateSnapshot(snapshot); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snapshot.ID)
-			// We don't want to return this error because we still want to process the remaining snapshots
-		}
+		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range rejectedSnapshots {
@@ -335,10 +337,7 @@ func compareBuilds(project models.Project, snapshots []models.Snapshot, baseline
 		snapshot.Status = models.SNAPSHOT_STATUS_REJECTED
 		snapshot.DiffID = snap[1].DiffID
 
-		if err := db.UpdateSnapshot(snapshot); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to rejected, SnapshotID %s", snapshot.ID)
-			// We don't want to return this error because we still want to process the remaining snapshots
-		}
+		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range changedSnapshots {
@@ -351,12 +350,23 @@ func compareBuilds(project models.Project, snapshots []models.Snapshot, baseline
 			snapshot.Status = models.SNAPSHOT_STATUS_FAILED
 			snapshot.Error = fmt.Sprintf("Failed to process snapshot: %s", err.Error())
 
-			if err := db.UpdateSnapshot(snapshot); err != nil {
-				log.Error().Err(err).Msgf("Failed to set snapshots status to failed, SnapshotID %s", snapshot.ID)
-				// We don't want to return this error because we still want to process the remaining snapshots
-			}
+			snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 		}
 
+	}
+
+	if len(snapshotsToUpdate) > 0 {
+		if err := db.BatchUpdateSnapshot(ctx, snapshotsToUpdate); err != nil {
+			log.Error().Err(err).Msg("Failed to batch update snapshots")
+
+			if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_FAILED); err != nil {
+				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
+
+				return err
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -381,7 +391,6 @@ func IngestSnapshots(snapshotIDs []string) error {
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
@@ -389,7 +398,6 @@ func IngestSnapshots(snapshotIDs []string) error {
 	fmt.Printf("Ingesting snapshots: %s\n", strings.Join(snapshotIDs, ", "))
 
 	snapshots, err := db.GetSnapshots(snapshotIDs)
-
 	if err != nil {
 		return err
 	}
@@ -415,32 +423,34 @@ func IngestSnapshots(snapshotIDs []string) error {
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
 
 	if strings.TrimSpace(build.TargetBuildID) == "" {
-		err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
 		log.Info().Str("BuildID", build.ID).Msg("Build has no parent build, marking all snapshots as orphaned")
-		if err != nil {
-			return err
+
+		if err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
+
+			// We don't want to return the error as we still want to check and update the build status
+
+			log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
+
+			if err := db.SetSnapshotsStatus(ctx, snapshotIDs, models.BUILD_STATUS_FAILED); err != nil {
+				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
+			}
 		}
 	} else {
 
 		fmt.Printf("Build parent ID: %s\n", build.TargetBuildID)
 		parentBuild, err := db.GetBuild(build.TargetBuildID)
-
 		if err != nil {
 			return err
 		}
 
 		parentBuildSnapshots, err := db.GetSnapshotsByBuild(ctx, parentBuild.ID)
-
 		if err != nil {
 			return err
 		}
 
-		err = compareBuilds(project, snapshots, parentBuildSnapshots, build, db)
-
-		if err != nil {
+		if err := compareBuilds(ctx, project, snapshots, parentBuildSnapshots, build); err != nil {
 			return err
 		}
-
 	}
 
 	if _, err := db.CheckAndUpdateStatusAccordingly(ctx, build.ID); err != nil {

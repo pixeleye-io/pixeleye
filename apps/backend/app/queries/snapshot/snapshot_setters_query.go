@@ -35,6 +35,19 @@ func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
 	return err
 }
 
+func (q *SnapshotQueries) BatchUpdateSnapshot(ctx context.Context, snapshots []models.Snapshot) error {
+	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at, error = :error WHERE id = :id`
+
+	time := utils.CurrentTime()
+	for i := range snapshots {
+		snapshots[i].UpdatedAt = time
+	}
+
+	_, err := q.NamedExec(query, snapshots)
+
+	return err
+}
+
 func (q *SnapshotQueries) SetSnapshotsStatus(ctx context.Context, ids []string, status string) error {
 	query, args, err := sqlx.In(`UPDATE snapshot SET status = ? WHERE id IN (?)`, status, ids)
 
