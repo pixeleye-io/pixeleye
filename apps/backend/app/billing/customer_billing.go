@@ -107,6 +107,18 @@ func (c *CustomerBilling) SubscribeToPlan(team models.Team) (*stripe.Subscriptio
 		return nil, nil, fmt.Errorf("team already has a subscription")
 	}
 
+	// Check if they have any outstanding payments
+
+	params := &stripe.InvoiceSearchParams{
+		SearchParams: stripe.SearchParams{Query: "(status:\"open\" OR status:\"uncollectible\") AND customer:" + *team.BillingAccountID},
+	}
+	invoices := c.API.Invoices.Search(params)
+
+	if invoices.Next() {
+		invoices.Invoice()
+		return nil, nil, fmt.Errorf("team has an outstanding payment")
+	}
+
 	plans, err := GetPlans()
 	if err != nil {
 		return nil, nil, err

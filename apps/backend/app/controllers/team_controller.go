@@ -469,9 +469,11 @@ func SubscribeToPlan(c echo.Context) error {
 	// Create a subscription
 	sub, plan, err := paymentClient.SubscribeToPlan(team)
 	if err != nil {
-		return c.String(
+		return c.JSON(
 			http.StatusBadRequest,
-			err.Error(),
+			map[string]interface{}{
+				"message": err.Error(),
+			},
 		)
 	}
 

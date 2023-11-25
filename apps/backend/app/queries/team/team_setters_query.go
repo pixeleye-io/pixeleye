@@ -164,10 +164,10 @@ func (q *TeamQueries) UpdateTeamBilling(ctx context.Context, team models.Team) e
 	return err
 }
 
-func (q *TeamQueries) UpdateTeamBillingStatus(ctx context.Context, billingAccountID string, status string) error {
-	query := `UPDATE team SET billing_status = $1 WHERE billing_account_id = $2`
+func (q *TeamQueries) UpdateTeamBillingStatus(ctx context.Context, teamID string, status string) error {
+	query := `UPDATE team SET billing_status = $1 WHERE id = $2`
 
-	_, err := q.ExecContext(ctx, query, status, billingAccountID)
+	_, err := q.ExecContext(ctx, query, status, teamID)
 
 	return err
 }

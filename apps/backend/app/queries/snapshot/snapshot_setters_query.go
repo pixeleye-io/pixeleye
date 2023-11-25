@@ -38,14 +38,23 @@ func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
 func (q *SnapshotQueries) BatchUpdateSnapshot(ctx context.Context, snapshots []models.Snapshot) error {
 	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at, error = :error WHERE id = :id`
 
-	time := utils.CurrentTime()
-	for i := range snapshots {
-		snapshots[i].UpdatedAt = time
+	prepared, err := q.PrepareNamed(query)
+	if err != nil {
+		return err
 	}
 
-	_, err := q.NamedExec(query, snapshots)
+	time := utils.CurrentTime()
 
-	return err
+	for i := range snapshots {
+		snapshots[i].UpdatedAt = time
+
+		_, err := prepared.ExecContext(ctx, snapshots[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (q *SnapshotQueries) SetSnapshotsStatus(ctx context.Context, ids []string, status string) error {
