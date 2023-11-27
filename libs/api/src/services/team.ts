@@ -1,5 +1,5 @@
 import { Method } from "api-typify";
-import { Repo, Team, UserOnTeam } from "../models";
+import { Repo, Team, TeamPlan, UserOnTeam } from "../models";
 import { Installation } from "../models/installation";
 
 type GET = Method<{
@@ -32,11 +32,32 @@ type GET = Method<{
       to?: string;
     };
   };
+  "/teams/{teamID}/billing/portal": {
+    res: {
+      billingPortalURL: string;
+    };
+  };
+  "/teams/{teamID}/billing/plan": {
+    res: TeamPlan;
+  };
 }>;
 
 type DELETE = Method<{
   "/teams/{teamID}/admin/users/{userID}": {
     res: undefined;
+  };
+}>;
+
+type POST = Method<{
+  "/teams/{teamID}/billing/account": {
+    res: {
+      billingPortalURL: string;
+    };
+  };
+  "/teams/{teamID}/billing/plan": {
+    res: {
+      billingPortalURL: string;
+    };
   };
 }>;
 
@@ -51,4 +72,5 @@ export interface TeamAPI {
   GET: GET;
   DELETE: DELETE;
   PATCH: PATCH;
+  POST: POST;
 }

@@ -5,14 +5,15 @@ import (
 )
 
 const (
-	SNAPSHOT_STATUS_QUEUED     = "queued"
-	SNAPSHOT_STATUS_PROCESSING = "processing"
-	SNAPSHOT_STATUS_FAILED     = "failed"
-	SNAPSHOT_STATUS_APPROVED   = "approved"
-	SNAPSHOT_STATUS_REJECTED   = "rejected"
-	SNAPSHOT_STATUS_UNREVIEWED = "unreviewed"
-	SNAPSHOT_STATUS_UNCHANGED  = "unchanged"
-	SNAPSHOT_STATUS_ORPHANED   = "orphaned"
+	SNAPSHOT_STATUS_QUEUED           = "queued"
+	SNAPSHOT_STATUS_PROCESSING       = "processing"
+	SNAPSHOT_STATUS_FAILED           = "failed"
+	SNAPSHOT_STATUS_APPROVED         = "approved"
+	SNAPSHOT_STATUS_REJECTED         = "rejected"
+	SNAPSHOT_STATUS_UNREVIEWED       = "unreviewed"
+	SNAPSHOT_STATUS_UNCHANGED        = "unchanged"
+	SNAPSHOT_STATUS_ORPHANED         = "orphaned"
+	SNAPSHOT_STATUS_MISSING_BASELINE = "missing_baseline"
 )
 
 type Snapshot struct {
@@ -36,7 +37,7 @@ type Snapshot struct {
 
 	Error string `db:"error" json:"error,omitempty"`
 
-	Status string `db:"status" json:"status" validate:"required,oneof=processing failed approved rejected unreviewed unchanged orphaned queued"`
+	Status string `db:"status" json:"status" validate:"required,oneof=processing failed approved rejected unreviewed unchanged orphaned queued missing_baseline"`
 
 	ReviewerID *string    `db:"reviewer_id" json:"reviewerID,omitempty" validate:"omitempty,nanoid"`
 	ReviewedAt *time.Time `db:"reviewed_at" json:"reviewedAt,omitempty"`

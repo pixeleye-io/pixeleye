@@ -21,7 +21,9 @@ import (
 )
 
 func generateToken() (string, error) {
-	return utils.GenerateRandomStringURLSafe(24)
+	str, err := utils.GenerateRandomStringURLSafe(24)
+
+	return "pxi__" + str, err
 }
 
 func hashToken(token string) (string, error) {
@@ -56,7 +58,6 @@ func CreateProject(c echo.Context) error {
 	}
 
 	user, err := middleware.GetUser(c)
-
 	if err != nil {
 		return err
 	}
@@ -69,7 +70,6 @@ func CreateProject(c echo.Context) error {
 	validate := utils.NewValidator()
 
 	id, err := nanoid.New()
-
 	if err != nil {
 		return err
 	}
@@ -77,19 +77,16 @@ func CreateProject(c echo.Context) error {
 	project.ID = id
 
 	token, err := generateToken()
-
 	if err != nil {
 		return err
 	}
 
 	hashedToken, err := hashToken(token)
-
 	if err != nil {
 		return err
 	}
 
 	project.Token = hashedToken
-
 	if err := validate.Struct(project); err != nil {
 		// Return, if some fields are not valid.
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))

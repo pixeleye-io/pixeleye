@@ -4,7 +4,7 @@ import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
-import {Accordion} from "@pixeleye/ui";
+import { Accordion } from "@pixeleye/ui";
 
 interface AccordionSnapsProps {
   snapshots: ExtendedSnapshotPair[];
@@ -130,7 +130,7 @@ export default function SnapshotsPanel() {
     (state) => state.setCurrentSnapshot
   );
 
-  const [unreviewed, approved, rejected, unchanged, orphaned, failed] =
+  const [unreviewed, approved, rejected, unchanged, missingBaseline, orphaned, failed] =
     snapshots.reduce(
       (acc, snapshot) => {
         switch (snapshot.status) {
@@ -146,22 +146,27 @@ export default function SnapshotsPanel() {
           case "unchanged":
             acc[3].push(snapshot);
             break;
-          case "orphaned":
+          case "missing_baseline":
             acc[4].push(snapshot);
             break;
-          case "failed":
+          case "orphaned":
             acc[5].push(snapshot);
+            break;
+          case "failed":
+            acc[6].push(snapshot);
             break;
         }
         return acc;
       },
-      [[], [], [], [], [], []] as [
+      [[], [], [], [], [], [], []] as [
         ExtendedSnapshotPair[],
         ExtendedSnapshotPair[],
         ExtendedSnapshotPair[],
         ExtendedSnapshotPair[],
         ExtendedSnapshotPair[],
         ExtendedSnapshotPair[],
+        ExtendedSnapshotPair[],
+
       ]
     );
 
@@ -199,6 +204,12 @@ export default function SnapshotsPanel() {
           <AccordionSnaps
             snapshots={approved}
             name="approved"
+            currentSnapshot={currentSnapshot}
+            setCurrentSnapshot={setCurrentSnapshot}
+          />
+          <AccordionSnaps
+            snapshots={missingBaseline}
+            name="missing_baseline"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />

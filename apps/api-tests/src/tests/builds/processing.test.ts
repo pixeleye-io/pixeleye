@@ -53,7 +53,7 @@ describe(
           return res.json;
         });
 
-      jekyllsToken = `${jekyllsProject.id}:${jekyllsProject.token}`;
+      jekyllsToken = `${jekyllsProject.token}:${jekyllsProject.id}`;
     });
 
     it.concurrent(

@@ -5,16 +5,21 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/pixeleye-io/pixeleye/app/billing"
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/pixeleye-io/pixeleye/platform/payments"
 	"github.com/rs/zerolog/log"
+	"github.com/stripe/stripe-go/v76"
 )
 
 // Create Build method for creating a new build.
@@ -44,6 +49,34 @@ func CreateBuild(c echo.Context) error {
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
+	}
+
+	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+
+		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
+		if err != nil {
+			return err
+		}
+
+		if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE || team.BillingStatus == models.TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED {
+			return echo.NewHTTPError(http.StatusBadRequest, "payment is overdue, please update your payment details")
+		}
+
+		if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
+
+			startDateTime := time.Now().AddDate(0, -1, 0)
+
+			endDateTime := time.Now()
+
+			snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+			if err != nil {
+				return err
+			}
+
+			if snapshotCount > 5_000 {
+				return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
+			}
+		}
 	}
 
 	validate := utils.NewValidator()
@@ -183,7 +216,7 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 		found := false
 		for _, snapshot := range allSnapshots {
 			if snapshot.ID == id {
-				if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED {
+				if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED || snapshot.Status == models.SNAPSHOT_STATUS_MISSING_BASELINE {
 					return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is either unchanged or orphaned (you can't approve a snapshot in this state)", snapshot.ID))
 				}
 				found = true
@@ -386,8 +419,11 @@ func UploadPartial(c echo.Context) error {
 		return err
 	}
 
-	snapshots, updateBuild, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
+	if partial.Snapshots == nil || len(partial.Snapshots) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to upload")
+	}
 
+	snapshots, updateBuild, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
 	if err != nil {
 		return err
 	}
@@ -442,10 +478,11 @@ func UploadPartial(c echo.Context) error {
 func UploadComplete(c echo.Context) error {
 
 	build, err := middleware.GetBuild(c)
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "build not found")
 	}
+
+	project := middleware.GetProject(c)
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -459,9 +496,43 @@ func UploadComplete(c echo.Context) error {
 	}
 
 	uploadedBuild, err := db.CompleteBuild(c.Request().Context(), build.ID)
-
 	if err != nil {
 		return err
+	}
+
+	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
+		if err != nil {
+			return err
+		}
+		if team.BillingStatus == models.TEAM_BILLING_STATUS_ACTIVE {
+
+			snapCount, err := db.CountBuildSnapshots(c.Request().Context(), build.ID)
+			if err != nil {
+				return err
+			}
+
+			paymentClient := payments.NewPaymentClient()
+			if err := paymentClient.ReportSnapshotUsage(team, build.ID, snapCount); err != nil {
+				log.Error().Err(err).Msg("Failed to report snapshot usage")
+				if stripeErr, ok := err.(*stripe.Error); ok {
+					if stripeErr.HTTPStatusCode >= 400 && stripeErr.HTTPStatusCode < 500 {
+						subscription, err := paymentClient.GetCurrentSubscription(team)
+						if err != nil {
+							log.Error().Err(err).Msg("Failed to get current subscription")
+							return err
+						}
+						if subscription.Status != stripe.SubscriptionStatusActive {
+							if err := db.UpdateTeamBillingStatus(c.Request().Context(), team.ID, billing.GetTeamBillingStatus(subscription.Status)); err != nil {
+								log.Error().Err(err).Msg("Failed to update team billing status")
+								return err
+							}
+						}
+					}
+				}
+
+			}
+		}
 	}
 
 	go func(build models.Build) {

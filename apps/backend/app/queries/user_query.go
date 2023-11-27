@@ -185,9 +185,9 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 		qt := team_queries.TeamQueriesTx{Tx: tx}
 
 		team := models.Team{
-			Type:      models.TEAM_TYPE_USER,
-			Name:      "Personal",
-			AvatarURL: "",
+			Type:    models.TEAM_TYPE_USER,
+			Name:    "Personal",
+			OwnerID: &id,
 		}
 
 		// This is a new user, so we need to create a new team for them.

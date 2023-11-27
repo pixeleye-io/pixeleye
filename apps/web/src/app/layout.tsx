@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import Providers from "./providers";
 import { cx } from "class-variance-authority";
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const dynamic = "force-dynamic";

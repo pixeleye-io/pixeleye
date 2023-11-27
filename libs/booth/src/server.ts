@@ -55,7 +55,13 @@ async function snapshotHandler(
 
   const uploadSnaps = await Promise.all(
     snaps.map(async (snap) => {
-      const { id } = await uploadSnapshot(ctx, snap.img, "image/png");
+      const [{ id }] = await uploadSnapshot(ctx, [
+        {
+          file: snap.img,
+          name: snap.name,
+          format: "image/png",
+        },
+      ]);
 
       return {
         name: snap.name,

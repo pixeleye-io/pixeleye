@@ -187,6 +187,16 @@ func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTyp
 	)
 }
 
+func getAutoAck(queueType brokerTypes.QueueType) bool {
+	switch queueType {
+	case brokerTypes.BuildProcess:
+		return false
+	case brokerTypes.ProjectUpdate:
+		return true
+	}
+	return true
+}
+
 func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, maxGoroutines int, quit chan bool) error {
 
 	// Create a new channel.
@@ -228,11 +238,13 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		}
 	}
 
+	autoAck := getAutoAck(queueType)
+
 	// Create a new consumer.
 	messages, err := channel.Consume(
 		queue.Name, // queue
 		consumer,   // consumer
-		false,      // auto-ack
+		autoAck,    // auto-ack
 		false,      // exclusive
 		false,      // no-local
 		false,      // no-wait
@@ -249,11 +261,14 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		for message := range messages {
 			maxChannel <- struct{}{}
 			go func(message amqp.Delivery) {
+
 				if err := callback(message.Body); err != nil {
 					log.Error().Err(err).Msg("Failed to process message")
 				}
-				if err := message.Ack(false); err != nil {
-					log.Error().Err(err).Msg("Failed to ack message")
+				if !autoAck {
+					if err := message.Ack(false); err != nil {
+						log.Error().Err(err).Msg("Failed to ack message")
+					}
 				}
 
 				<-maxChannel

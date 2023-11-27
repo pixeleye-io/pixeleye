@@ -11,7 +11,7 @@ export const useKeyStore = create<KeyStore>()((set) => ({
     set((state) => ({
       keys: {
         ...state.keys,
-        [id]: `${id}:${key}`,
+        [id]: `${key}:${id}`,
       },
     })),
 }));

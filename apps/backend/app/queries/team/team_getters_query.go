@@ -34,6 +34,21 @@ func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string)
 	return team, nil
 }
 
+func (q *TeamQueries) GetTeamByID(ctx context.Context, teamID string) (models.Team, error) {
+	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1`
+
+	team := models.Team{}
+
+	if err := q.GetContext(ctx, &team, query, teamID); err != nil {
+		if err == sql.ErrNoRows {
+			return team, fmt.Errorf("team not found")
+		}
+		return team, err
+	}
+
+	return team, nil
+}
+
 func (q *TeamQueries) GetTeamSnapshotCount(ctx context.Context, teamID string, startDate time.Time, endDate time.Time) (int, error) {
 	query := `SELECT COUNT(snapshot) FROM team 
 	JOIN project ON team.id = project.team_id 

@@ -46,23 +46,26 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	projectId := values[0]
+	projectId := values[1]
 
 	if !utils.ValidateNanoid(projectId) {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	project, err := k.db.GetProject(r.Context(), projectId)
-
+	project, err := k.db.GetProjectWithTeamStatus(r.Context(), projectId)
 	if err != nil {
 		return nil, err
 	}
 
-	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[1]))) != nil {
+	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[0]))) != nil {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	return &project, nil
+	if project.TeamStatus == models.TEAM_STATUS_SUSPENDED {
+		return nil, fmt.Errorf("team is currently suspended")
+	}
+
+	return project.Project, nil
 }
 
 func NewProjectMiddleware() *projectMiddleware {

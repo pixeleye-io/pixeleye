@@ -133,6 +133,17 @@ func TestCalculateBuildStatus(t *testing.T) {
 			want: "uploading",
 		},
 		{
+			name: "Missing baseline statuses",
+			statuses: []string{
+				"missing_baseline",
+			},
+			build: models.Build{
+				Status:         "processing",
+				TargetParentID: "targetParentID",
+			},
+			want: "unchanged",
+		},
+		{
 			name: "Failed statuses and uploading build",
 			statuses: []string{
 				"failed",

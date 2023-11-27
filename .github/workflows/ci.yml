@@ -33,6 +33,7 @@ jobs:
       DOCS_TOKEN: ${{ secrets.DOCS_TOKEN }}
       GITHUB_APP_NAME: "pixeleye-io"
       NEXT_PUBLIC_SERVER_URL: "http://localhost:5000"
+      NEXT_PUBLIC_SERVER_ENDPOINT: "http://localhost:3000"
 
     steps:
       - uses: actions/checkout@v3

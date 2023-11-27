@@ -165,6 +165,16 @@ enum "team_type" {
   values = ["github", "gitlab", "bitbucket", "user"]
 }
 
+enum "billing_status" {
+  schema = schema.public
+  values = ["not_created", "incomplete", "incomplete_expired", "active", "past_due", "canceled", "unpaid"]
+}
+
+enum "team_status" {
+  schema = schema.public
+  values = ["active", "suspended"]
+}
+
 table "team" {
   schema = schema.public
   column "id" {
@@ -173,6 +183,38 @@ table "team" {
   }
   primary_key {
     columns = [column.id]
+  }
+
+  column "status" {
+    type    = enum.team_status
+    null    = false
+    default = "active"
+  }
+
+  column "billing_status" {
+    type    = enum.billing_status
+    null    = false
+    default = "not_created"
+  }
+
+  column "billing_account_id" {
+    type = varchar(255)
+    null = true
+  }
+
+  column "billing_subscription_item_id" {
+    type = varchar(255)
+    null = true
+  }
+
+  column "billing_subscription_id" {
+    type = varchar(255)
+    null = true
+  }
+
+  column "billing_plan_id" {
+    type = varchar(255)
+    null = true
   }
 
   column "created_at" {
@@ -564,6 +606,10 @@ table "build_history" {
     ref_columns = [table.build.column.id]
     on_delete   = CASCADE
   }
+
+  index "idx_build_history-parent_id" {
+    columns = [column.parent_id]
+  }
 }
 
 table "snap_image" {
@@ -584,7 +630,6 @@ table "snap_image" {
     null = false
   }
 
-
   column "width" {
     type = integer
     null = false
@@ -598,6 +643,11 @@ table "snap_image" {
     null = false
   }
 
+  column "exists" {
+    type    = boolean
+    default = true
+    null    = false
+  }
 
   column "project_id" {
     type = varchar(21)
@@ -664,7 +714,7 @@ table "diff_image" {
 
 enum "snapshot_status" {
   schema = schema.public
-  values = ["queued", "processing", "failed", "approved", "rejected", "unreviewed", "unchanged", "orphaned"]
+  values = ["queued", "processing", "failed", "approved", "rejected", "unreviewed", "unchanged", "orphaned", "missing_baseline"]
 }
 
 table "snapshot" {
@@ -771,6 +821,10 @@ table "snapshot" {
   index "idx_snapshot-build_id__name__variant__target" {
     columns = [column.build_id, column.name, column.variant, column.target]
     unique  = true
+  }
+
+  index "idx_snapshot-hash__project_id" {
+    columns = [column.snap_image_id, column.build_id]
   }
 }
 

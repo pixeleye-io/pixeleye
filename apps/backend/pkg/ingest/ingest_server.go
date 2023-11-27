@@ -59,16 +59,17 @@ func startIngestServer(quit chan bool) {
 				return nil
 			}
 
-			go func(snapshotIDs []string) {
-				if err := processors.IngestSnapshots(snapshotIDs); err != nil {
-					log.Error().Err(err).Msg("Error while ingesting snapshots")
-				}
-			}(snapshotIDs)
+			if err := processors.IngestSnapshots(snapshotIDs); err != nil {
+				log.Error().Err(err).Msg("Error while ingesting snapshots")
+			}
 
 			return nil
-		}, 100, quit)
+		}, 10, quit)
 
-		log.Fatal().Err(err).Msg("Error while subscribing to queue, shutting down")
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error while subscribing to queue, shutting down")
+			panic(err)
+		}
 
 	}(quit)
 

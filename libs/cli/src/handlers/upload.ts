@@ -1,4 +1,5 @@
-import { promises as fs } from "fs";
+import fsCallback from "graceful-fs";
+import { promisify } from "util";
 import { join } from "path";
 import {
   Context,
@@ -6,6 +7,7 @@ import {
   createBuild,
   getAPI,
   linkSnapshotsToBuild,
+  splitIntoChunks,
   uploadSnapshot,
 } from "@pixeleye/js-sdk";
 import { PartialSnapshot } from "@pixeleye/api";
@@ -13,6 +15,11 @@ import { program } from "commander";
 import ora from "ora";
 import { dirNotFound, noImagesFound } from "../messages/files";
 import { noParentBuildFound } from "../messages/builds";
+
+const fs = {
+  readdir: promisify(fsCallback.readdir),
+  readFile: promisify(fsCallback.readFile),
+};
 
 async function readAllFiles(path: string) {
   const dir = join(process.cwd(), path);
@@ -79,6 +86,7 @@ export async function upload(path: string, options: Config) {
 
   const build = await createBuild(ctx).catch((err) => {
     buildSpinner.fail("Failed to create build.");
+    console.log(err);
     program.error(err);
   });
 
@@ -92,20 +100,37 @@ export async function upload(path: string, options: Config) {
 
   // TODO - we can and should upload + link snapshots in batches so we can begin processing them in the background
 
-  const snaps = await Promise.all(
-    files.map((file) =>
-      fs.readFile(join(process.cwd(), path, file.name)).then(async (buffer) => {
-        const { id } = await uploadSnapshot(ctx, buffer, "image/png");
-        return {
-          imageId: id,
-          name: file.name,
-        };
-      })
-    )
-  ).catch((err) => {
+  const groups = splitIntoChunks(files, 20);
+
+  const snaps: {
+    imageId: string;
+    name: string;
+  }[] = [];
+
+  try {
+    for (const files of groups) {
+      const readFiles = await Promise.all(
+        files.map(async (f) => ({
+          file: await fs.readFile(join(process.cwd(), path, f.name)),
+          format: "image/png",
+          name: f.name,
+        }))
+      );
+
+      snaps.push(
+        ...(await uploadSnapshot(ctx, readFiles).then((res) => {
+          return res.map((snap) => ({
+            imageId: snap.id,
+            name: snap.name,
+          }));
+        }))
+      );
+    }
+  } catch (err: any) {
     uploadSpinner.fail("Failed to upload snapshots to Pixeleye.");
+    console.log(err);
     program.error(err);
-  });
+  }
 
   uploadSpinner.succeed("Successfully uploaded snapshots to Pixeleye.");
 
@@ -119,6 +144,7 @@ export async function upload(path: string, options: Config) {
 
   await linkSnapshotsToBuild(ctx, build, snapshots).catch((err) => {
     uploadSpinner.fail("Failed to link snapshots to build.");
+    console.log(err);
     program.error(err);
   });
 
@@ -128,6 +154,7 @@ export async function upload(path: string, options: Config) {
 
   await completeBuild(ctx, build).catch((err) => {
     completeSpinner.fail("Failed to complete build.");
+    console.log(err);
     program.error(err?.toString() || err);
   });
 

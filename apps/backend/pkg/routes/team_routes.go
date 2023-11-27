@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"os"
+
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/controllers"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -31,6 +33,19 @@ func TeamRoutes(e *echo.Echo) {
 
 	baseRoutes.GET("/usage/snapshots", controllers.GetTeamSnapshotUsage)
 	baseRoutes.GET("/usage/builds", controllers.GetTeamBuildUsage)
+
+	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+		billingRoutes := v1.Group("/billing")
+
+		billingRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin", "accountant"})
+		billingRoutes.Use(billingRoleMiddleware.TeamRoleAccess)
+
+		billingRoutes.GET("/portal", controllers.GetBillingPortalSession)
+		billingRoutes.POST("/account", controllers.CreateBillingAccount)
+		billingRoutes.POST("/plan", controllers.SubscribeToPlan)
+		billingRoutes.GET("/plan", controllers.GetTeamBillingPlan)
+
+	}
 
 	adminRoutes := v1.Group("/admin")
 

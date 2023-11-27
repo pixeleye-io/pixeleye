@@ -33,92 +33,54 @@ type UploadSnapBody struct {
 	SnapshotUploads []SnapshotUpload `json:"snapshots" validate:"required,dive"`
 }
 
-func createUploadURL(c echo.Context, data SnapshotUpload) (*UploadSnapReturn, error) {
-	if data.Format != "image/png" {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "Only PNG format is currently supported")
-	}
-
-	validate := utils.NewValidator()
-
-	if err := validate.Struct(data); err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
-	}
-
-	project := middleware.GetProject(c)
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return nil, err
-	}
+func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string, exists bool) (*UploadSnapReturn, error) {
 
 	s3, err := storage.GetClient()
-
 	if err != nil {
 		return nil, err
 	}
 
-	path := stores.GetSnapPath(project.ID, data.Hash)
-
-	fileExists, err := s3.KeyExists(c.Request().Context(), os.Getenv("S3_BUCKET"), path)
-
-	if err != nil {
-		return nil, err
-	}
-
-	snap, err := db.GetSnapImageByHash(data.Hash, project.ID)
-
-	if err == nil && fileExists {
-		// We already have this snapshot
-		return &UploadSnapReturn{
-			SnapImage: &snap,
-		}, nil
-	}
-
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
+	path := stores.GetSnapPath(projectID, data.Hash)
 
 	url, err := s3.PutObject(c.Request().Context(), os.Getenv("S3_BUCKET"), path, "image/png", 900) // valid for 15 minutes
-
 	if err != nil {
 		return nil, err
 	}
 
 	id, err := nanoid.New()
-
 	if err != nil {
 		return nil, err
 	}
 
-	// We already have the snapshot but for some reason we don't have an upload
-	if snap.ID != "" {
-		log.Debug().Msg("We already have a snapshot but no file uploaded")
+	if !exists {
+
+		if err := db.SetSnapImageExists(c.Request().Context(), id, true); err != nil {
+			return nil, err
+		}
+
 		return &UploadSnapReturn{
-			SnapImage:            &snap,
 			PresignedHTTPRequest: url,
+			SnapImage:            snap,
 		}, nil
 	}
 
-	snapImage := models.SnapImage{
+	snapImage := &models.SnapImage{
 		ID:        id,
 		Hash:      data.Hash,
-		ProjectID: project.ID,
+		ProjectID: projectID,
 		Height:    data.Height,
 		Width:     data.Width,
+		Exists:    true,
 		Format:    data.Format,
 		CreatedAt: utils.CurrentTime(),
 	}
 
-	if err := validate.Struct(snapImage); err != nil {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
-	}
-
-	if err := db.CreateSnapImage(&snapImage); err != nil {
+	if err := db.CreateSnapImage(snapImage); err != nil {
 		return nil, err
 	}
 
 	return &UploadSnapReturn{
-		SnapImage:            &snapImage,
+		SnapImage:            snapImage,
 		PresignedHTTPRequest: url,
 	}, nil
 }
@@ -139,17 +101,64 @@ func CreateUploadURL(c echo.Context) error {
 		return err
 	}
 
+	validate := utils.NewValidator()
+
+	if err := validate.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	project := middleware.GetProject(c)
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	hashes := []string{}
+	for _, data := range body.SnapshotUploads {
+		hashes = append(hashes, data.Hash)
+	}
+
+	snaps, err := db.GetSnapImagesByHashes(c.Request().Context(), hashes, project.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
 	uploadMap := map[string]*UploadSnapReturn{}
 
-	for _, data := range body.SnapshotUploads {
+	for _, snap := range body.SnapshotUploads {
+		var existingSnap *models.SnapImage = nil
 
-		uploadData, err := createUploadURL(c, data)
-
-		if err != nil {
-			return err
+		if uploadMap[snap.Hash] != nil {
+			continue
 		}
 
-		uploadMap[data.Hash] = uploadData
+		for _, s := range snaps {
+			if s.Hash == snap.Hash {
+				existingSnap = &s
+				break
+			}
+		}
+
+		exists := true
+		if existingSnap != nil && !existingSnap.Exists {
+			exists = false
+		}
+
+		log.Debug().Msgf("Snap %v exists: %v", snap.Hash, exists)
+
+		if existingSnap != nil && exists {
+			uploadMap[snap.Hash] = &UploadSnapReturn{
+				SnapImage: existingSnap,
+			}
+		} else {
+			snapReturn, err := createSnapImage(c, db, snap, existingSnap, project.ID, exists)
+			if err != nil {
+				return err
+			}
+			snaps = append(snaps, *snapReturn.SnapImage) // we need to append the snap to the list of snaps so we don't create it again
+			uploadMap[snap.Hash] = snapReturn
+		}
 	}
 
 	return c.JSON(http.StatusOK, uploadMap)
@@ -172,7 +181,6 @@ func GetSnapURL(c echo.Context) error {
 	}
 
 	url, err := imageStore.GetSnapURL(project.ID, hash)
-
 	if err == echo.ErrNotFound {
 		return echo.NewHTTPError(404, "Snapshot not found")
 	} else if err != nil {

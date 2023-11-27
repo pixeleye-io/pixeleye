@@ -7,6 +7,7 @@ import (
 	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
 	snapshot_queries "github.com/pixeleye-io/pixeleye/app/queries/snapshot"
 	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
+	"github.com/rs/zerolog/log"
 )
 
 // TODO - create something similar for tx (transaction) queries.
@@ -23,19 +24,20 @@ type Queries struct {
 	*queries.UserQueries
 }
 
+// nolint:gochecknoglobals
+var db *sqlx.DB
+
 // OpenDBConnection func for opening database connection.
 func OpenDBConnection() (*Queries, error) {
-	// Define Database connection variables.
-	var (
-		db  *sqlx.DB
-		err error
-	)
 
-	// Define a new Database connection
-	db, err = PostgreSQLConnection()
-
-	if err != nil {
-		return nil, err
+	if db == nil {
+		log.Info().Msg("OpenDBConnection: db is nil, creating new connection")
+		var err error
+		// Define a new Database connection
+		db, err = PostgreSQLConnection()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &Queries{

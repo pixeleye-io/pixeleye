@@ -43,7 +43,7 @@ describe("Creating a build", () => {
         return res.json;
       });
 
-    jekyllsToken = `${jekyllsProject.id}:${jekyllsProject.token}`;
+    jekyllsToken = `${jekyllsProject.token}:${jekyllsProject.id}`;
 
     // We want to ensure we're using the correct project id in our token
     jekyllsInvalidToken = jekyllsToken.replace(

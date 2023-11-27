@@ -1,6 +1,8 @@
 package queries
 
 import (
+	"context"
+
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -11,24 +13,29 @@ type SnapImageQueries struct {
 	*sqlx.DB
 }
 
-func (q *SnapImageQueries) GetSnapImageByHash(hash string, projectID string) (models.SnapImage, error) {
+func (q *SnapImageQueries) GetSnapImageByHash(ctx context.Context, hash string, projectID string) (models.SnapImage, error) {
 	snapImage := models.SnapImage{}
 
 	query := `SELECT * FROM snap_image WHERE hash = $1 AND project_id = $2`
 
-	err := q.Get(&snapImage, query, hash, projectID)
+	err := q.GetContext(ctx, &snapImage, query, hash, projectID)
 
 	return snapImage, err
 }
 
-func (q *SnapImageQueries) GetSnapImage(id string) (models.SnapImage, error) {
-	snapImage := models.SnapImage{}
+func (q *SnapImageQueries) GetSnapImagesByHashes(ctx context.Context, hashes []string, projectID string) ([]models.SnapImage, error) {
+	snapImages := []models.SnapImage{}
 
-	query := `SELECT * FROM snap_image WHERE id = $1`
+	query, args, err := sqlx.In(`SELECT * FROM snap_image WHERE project_id = ? AND hash IN (?)`, projectID, hashes)
+	if err != nil {
+		return snapImages, err
+	}
 
-	err := q.Get(&snapImage, query, id)
+	query = q.Rebind(query)
 
-	return snapImage, err
+	err = q.SelectContext(ctx, &snapImages, query, args...)
+
+	return snapImages, err
 }
 
 func (q *SnapImageQueries) GetSnapImages(id ...string) ([]models.SnapImage, error) {
@@ -47,7 +54,7 @@ func (q *SnapImageQueries) GetSnapImages(id ...string) ([]models.SnapImage, erro
 }
 
 func (q *SnapImageQueries) CreateSnapImage(snapImage *models.SnapImage) error {
-	query := `INSERT INTO snap_image (id, hash, project_id, created_at, height, width, format) VALUES (:id, :hash, :project_id, :created_at, :height, :width, :format) ON CONFLICT DO NOTHING`
+	query := `INSERT INTO snap_image (id, hash, project_id, created_at, height, width, format) VALUES (:id, :hash, :project_id, :created_at, :height, :width, :format)`
 
 	snapImage.CreatedAt = utils.CurrentTime()
 
@@ -57,6 +64,22 @@ func (q *SnapImageQueries) CreateSnapImage(snapImage *models.SnapImage) error {
 	}
 
 	_, err = q.NamedExec(query, snapImage)
+
+	return err
+}
+
+func (q *SnapImageQueries) BatchCreateSnapImage(ctx context.Context, snapImages []models.SnapImage) error {
+	query := `INSERT INTO snap_image (id, hash, project_id, created_at, height, width, format) VALUES (:id, :hash, :project_id, :created_at, :height, :width, :format)`
+
+	_, err := q.NamedExecContext(ctx, query, snapImages)
+
+	return err
+}
+
+func (q *SnapImageQueries) SetSnapImageExists(ctx context.Context, id string, exists bool) error {
+	query := `UPDATE snap_image SET exists = $1 WHERE id = $2`
+
+	_, err := q.ExecContext(ctx, query, exists, id)
 
 	return err
 }
