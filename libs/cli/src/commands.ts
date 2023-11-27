@@ -32,8 +32,7 @@ const apiOptions = (name: string) =>
     .option("-t, --token <token>", "Pixeleye project token", undefined)
     .option(
       "-e, --endpoint <endpoint>",
-      "Pixeleye API endpoint (only use if self-hosting)",
-      defaults.endpoint
+      "Pixeleye API endpoint (only use if self-hosting)"
     );
 
 apiOptions("upload")
@@ -48,16 +47,10 @@ apiOptions("ping")
   .action(ping);
 
 apiOptions("e2e")
-  .option(
-    "-p, --port <port>",
-    "Port to run local snapshot server",
-    defaults.port
-  )
+  .option("-p, --port <port>", "Port to run local snapshot server")
   .argument("<command>", "Command to run e2e tests, e.g. cypress run")
   .description("Run e2e tests and upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(e2e);
-
-apiOptions;
 
 export default program.parse(process.argv);

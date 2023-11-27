@@ -1,5 +1,5 @@
 const configFile = "./pixeleye.config.js";
-const endpoint = "https://pixeleye.io";
+const endpoint = "https://api.pixeleye.io";
 const port = "3003";
 
 const browsers = ["chromium", "firefox", "webkit"];

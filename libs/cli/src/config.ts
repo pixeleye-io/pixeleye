@@ -16,14 +16,14 @@ export async function loadAndMergeConfig(
     // Map short options to long options
     const mappedKey = optionMap[key as keyof typeof optionMap] || key;
 
+    const defaultValue = defaults[mappedKey as keyof typeof defaults];
+
     // We don't want to override command line options
-    const newValue = commands[mappedKey] ?? value;
+    const newValue = commands[mappedKey] ?? value ?? defaultValue;
 
     subCommand.setOptionValue(mappedKey, newValue);
     commands[mappedKey] = newValue;
   }
-
-  commands.endpoint = commands.endpoint || defaults.endpoint;
 
   // Key and secret are required
   if (!commands.token)
