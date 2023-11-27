@@ -1,16 +1,24 @@
 {
   "name": "@pixeleye/js-sdk",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
+  "private": false,
+  "license": "AGPL-3.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "type": "module",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "build": "node ./build.js",
-    "build:types": "tsc --emitDeclarationOnly --outDir dist"
+    "build": "node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
   },
+  "publishConfig": {
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",

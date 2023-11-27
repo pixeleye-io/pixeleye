@@ -11,11 +11,7 @@ const getItems = (teamID: string): SidebarNavLink[] => [
   {
     href: `/settings/org/members${teamID && `?team=${teamID}`}`,
     title: "Members",
-  },
-  {
-    href: `/settings/org/advanced${teamID && `?team=${teamID}`}`,
-    title: "Advanced",
-  },
+  }
 ];
 
 export function OrgSidebar() {

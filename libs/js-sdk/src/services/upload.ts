@@ -55,8 +55,6 @@ export async function uploadSnapshot(
     Boolean(presignedMap[snapshot.hash].URL)
   );
 
-  console.log(snapsToUpload);
-
   await Promise.all(
     snapsToUpload.map(({ file, hash, format }) => {
       const presigned = presignedMap[hash];

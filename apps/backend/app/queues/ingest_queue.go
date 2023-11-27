@@ -13,7 +13,7 @@ type IngestQueue struct {
 }
 
 // TODO - I should investigate what the best batch size is here
-const batchSize = 15
+const batchSize = 30
 
 func (q *IngestQueue) QueueSnapshotsIngest(snapshots []models.Snapshot) error {
 	log.Debug().Msgf("Queueing %d snapshots for ingest", len(snapshots))
