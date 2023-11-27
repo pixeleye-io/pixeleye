@@ -3,16 +3,16 @@ import { Repo, Team, TeamPlan, UserOnTeam } from "../models";
 import { Installation } from "../models/installation";
 
 type GET = Method<{
-  "/teams/{teamID}/repos": {
+  "/v1/teams/{teamID}/repos": {
     res: Repo[];
   };
-  "/teams/{teamID}/installations": {
+  "/v1/teams/{teamID}/installations": {
     res: Installation[];
   };
-  "/teams/{teamID}/users": {
+  "/v1/teams/{teamID}/users": {
     res: UserOnTeam[];
   };
-  "/teams/{teamID}/usage/snapshots": {
+  "/v1/teams/{teamID}/usage/snapshots": {
     res: {
       snapshotCount: number;
       prevSnapshotCount: number;
@@ -22,7 +22,7 @@ type GET = Method<{
       to?: string;
     };
   };
-  "/teams/{teamID}/usage/builds": {
+  "/v1/teams/{teamID}/usage/builds": {
     res: {
       buildCount: number;
       prevBuildCount: number;
@@ -32,29 +32,29 @@ type GET = Method<{
       to?: string;
     };
   };
-  "/teams/{teamID}/billing/portal": {
+  "/v1/teams/{teamID}/billing/portal": {
     res: {
       billingPortalURL: string;
     };
   };
-  "/teams/{teamID}/billing/plan": {
+  "/v1/teams/{teamID}/billing/plan": {
     res: TeamPlan;
   };
 }>;
 
 type DELETE = Method<{
-  "/teams/{teamID}/admin/users/{userID}": {
+  "/v1/teams/{teamID}/admin/users/{userID}": {
     res: undefined;
   };
 }>;
 
 type POST = Method<{
-  "/teams/{teamID}/billing/account": {
+  "/v1/teams/{teamID}/billing/account": {
     res: {
       billingPortalURL: string;
     };
   };
-  "/teams/{teamID}/billing/plan": {
+  "/v1/teams/{teamID}/billing/plan": {
     res: {
       billingPortalURL: string;
     };
@@ -62,7 +62,7 @@ type POST = Method<{
 }>;
 
 type PATCH = Method<{
-  "/teams/{teamID}/admin": {
+  "/v1/teams/{teamID}/admin": {
     res: undefined;
     req: Pick<Team, "name" | "avatarURL" | "url">;
   };

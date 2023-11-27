@@ -14,7 +14,7 @@ program.configureOutput({
 
 export const optionMap = {
   t: "token",
-  u: "url",
+  e: "endpoint",
   p: "port",
 } as const;
 
@@ -31,8 +31,8 @@ const apiOptions = (name: string) =>
   configOption(name)
     .option("-t, --token <token>", "Pixeleye project token", undefined)
     .option(
-      "-u, --url <url>",
-      "Pixeleye API URL (only use if self-hosting)",
+      "-e, --endpoint <endpoint>",
+      "Pixeleye API endpoint (only use if self-hosting)",
       defaults.endpoint
     );
 

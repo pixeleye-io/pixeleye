@@ -41,7 +41,7 @@ function BuildRow({ build }: { build: Build }) {
 
   const abortBuild = useMutation({
     mutationFn: () =>
-      API.post("/builds/{id}/review/abort", {
+      API.post("/v1/builds/{id}/review/abort", {
         params: {
           id: build.id,
         },

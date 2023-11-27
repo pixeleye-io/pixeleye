@@ -24,6 +24,7 @@ export async function e2e(command: string, options: Config) {
 
   const build = await createBuild(ctx).catch((err) => {
     buildSpinner.fail("Failed to create build.");
+    console.log(err);
     program.error(err);
   });
 
@@ -42,6 +43,7 @@ export async function e2e(command: string, options: Config) {
     build,
   }).catch((err) => {
     fileSpinner.fail("Failed to start local snapshot server.");
+    console.log(err);
     program.error(err);
   });
 
@@ -55,6 +57,7 @@ export async function e2e(command: string, options: Config) {
     });
   } catch (err) {
     e2eSpinner.fail("Failed to run e2e tests.");
+    console.log(err);
     program.error(err as any);
   }
 
@@ -64,6 +67,7 @@ export async function e2e(command: string, options: Config) {
 
   await completeBuild(ctx, build).catch((err) => {
     completeSpinner.fail("Failed to complete build.");
+    console.log(err);
     program.error(err?.toString() || err);
   });
 

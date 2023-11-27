@@ -19,7 +19,7 @@ export function NoBillingAccount(
     const router = useRouter()
 
     const createBillingAccount = useMutation({
-        mutationFn: () => API.post("/teams/{teamID}/billing/account", {
+        mutationFn: () => API.post("/v1/teams/{teamID}/billing/account", {
             params: {
                 teamID: team!.id,
             },

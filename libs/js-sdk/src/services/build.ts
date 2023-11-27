@@ -23,7 +23,7 @@ export async function createBuild(ctx: Context) {
 
   const parentBuild = await getParentBuild(ctx);
 
-  const build = api.post("/client/builds/create", {
+  const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,

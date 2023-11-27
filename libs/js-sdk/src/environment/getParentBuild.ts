@@ -20,7 +20,7 @@ export async function getParentBuild(ctx: Context) {
 
   const api = getAPI(ctx);
 
-  const builds = await api.post("/client/builds", {
+  const builds = await api.post("/v1/client/builds", {
     body: {
       shas,
     },
@@ -32,7 +32,7 @@ export async function getParentBuild(ctx: Context) {
     return build;
   }
 
-  const branchBuild = await api.post("/client/builds", {
+  const branchBuild = await api.post("/v1/client/builds", {
     queries: {
       branch,
     },

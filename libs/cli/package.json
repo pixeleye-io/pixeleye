@@ -7,7 +7,7 @@
     "lint": "eslint",
     "types": "tsc --noEmit",
     "build": "pnpm rimraf ./bin && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./bin",
-    "upload-images": "node ./bin/index.js upload --url=http://localhost:5000/v1 ./test-images"
+    "upload-images": "node ./bin/index.js upload ./test-images"
   },
   "bin": {
     "pixeleye": "./bin/index.js"

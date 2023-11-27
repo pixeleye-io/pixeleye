@@ -51,13 +51,13 @@ function decode(fileName: string) {
 
 interface Config {
   token: string;
-  url: string;
+  endpoint: string;
 }
 
 export async function upload(path: string, options: Config) {
   const ctx: Context = {
     env: process.env,
-    endpoint: options.url,
+    endpoint: options.endpoint,
     token: options.token,
   };
 

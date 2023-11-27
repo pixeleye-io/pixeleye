@@ -5,7 +5,7 @@ export const inviteKeys = createQueryKeys("invites", {
   detail: (inviteID: string, cookie: string = "") => ({
     queryKey: [inviteID],
     queryFn: () =>
-      API.get("/invites/{id}", {
+      API.get("/v1/invites/{id}", {
         headers: { cookie },
         params: { id: inviteID },
       }),
@@ -13,7 +13,7 @@ export const inviteKeys = createQueryKeys("invites", {
       accept: () => ({
         queryKey: ["accept"],
         queryFn: () =>
-          API.post("/invites/{id}/accept", {
+          API.post("/v1/invites/{id}/accept", {
             headers: { cookie },
             params: { id: inviteID },
           }),

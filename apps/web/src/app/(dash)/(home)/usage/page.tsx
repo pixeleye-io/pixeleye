@@ -43,21 +43,21 @@ export default async function UsagePage({
 
   const cookie = cookies().toString();
 
-  const [snapUsage, buildUsage, teamPlan] = await Promise.all([API.get("/teams/{teamID}/usage/snapshots", {
+  const [snapUsage, buildUsage, teamPlan] = await Promise.all([API.get("/v1/teams/{teamID}/usage/snapshots", {
     headers: {
       cookie,
     },
     params: {
       teamID: team.id,
     },
-  }), API.get("/teams/{teamID}/usage/builds", {
+  }), API.get("/v1/teams/{teamID}/usage/builds", {
     headers: {
       cookie,
     },
     params: {
       teamID: team.id,
     },
-  }), API.get("/teams/{teamID}/billing/plan", {
+  }), API.get("/v1/teams/{teamID}/billing/plan", {
     headers: {
       cookie,
     },

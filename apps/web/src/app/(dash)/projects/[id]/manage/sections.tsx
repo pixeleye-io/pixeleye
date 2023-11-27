@@ -60,7 +60,7 @@ export function SecuritySection({ id }: { id: string }) {
                 setCopied(true);
                 navigator.clipboard.writeText(apiKey);
               } else {
-                API.post("/projects/{id}/admin/new-token", {
+                API.post("/v1/projects/{id}/admin/new-token", {
                   params: {
                     id,
                   },
@@ -88,7 +88,7 @@ export function DeleteProjectSection({ project }: { project: Project }) {
   const router = useRouter();
   const { mutate: deletedProject } = useMutation({
     mutationFn: () =>
-      API.delete("/projects/{id}/admin", {
+      API.delete("/v1/projects/{id}/admin", {
         params: { id: project.id },
         body: {
           name: project.name,
@@ -136,7 +136,7 @@ export function MemberSection({
 
   const deleteMember = useMutation({
     mutationFn: (userID: string) =>
-      API.delete("/projects/{id}/admin/users/{userID}", {
+      API.delete("/v1/projects/{id}/admin/users/{userID}", {
         params: {
           id: project.id,
           userID,
@@ -189,7 +189,7 @@ export function MemberSection({
       userID: string;
       role: UserOnProjectRole | "sync";
     }) =>
-      API.patch("/projects/{id}/admin/users/{userID}", {
+      API.patch("/v1/projects/{id}/admin/users/{userID}", {
         params: {
           id: project.id,
           userID,
@@ -364,7 +364,7 @@ export function InviteMemberSection({ project }: { project: Project }) {
     useForm<InviteMembersForm>();
 
   const onSubmit = handleSubmit(({ email }) =>
-    API.post("/projects/{id}/admin/users", {
+    API.post("/v1/projects/{id}/admin/users", {
       params: {
         id: project.id,
       },
@@ -415,7 +415,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
 
   const mutation = useMutation({
     mutationFn: (data: { name: string; snapshotThreshold: number }) =>
-      API.patch("/projects/{id}/admin", {
+      API.patch("/v1/projects/{id}/admin", {
         params: {
           id: project.id,
         },

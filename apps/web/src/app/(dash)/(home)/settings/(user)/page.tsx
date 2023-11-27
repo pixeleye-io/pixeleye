@@ -13,7 +13,7 @@ export default async function SettingsPage({
 
   const [team, user] = await Promise.all([
     getTeam(searchParams),
-    API.get("/user/me", {
+    API.get("/v1/user/me", {
       headers: {
         cookie,
       },

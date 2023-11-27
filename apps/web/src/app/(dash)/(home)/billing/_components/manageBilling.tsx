@@ -17,7 +17,7 @@ export function ManageBillingAccount(
     const router = useRouter()
 
     const manageBillingAccount = useMutation({
-        mutationFn: () => API.get("/teams/{teamID}/billing/portal", {
+        mutationFn: () => API.get("/v1/teams/{teamID}/billing/portal", {
             params: {
                 teamID: team!.id,
             },
@@ -28,7 +28,7 @@ export function ManageBillingAccount(
     })
 
     const upgradeToPro = useMutation({
-        mutationFn: () => API.post("/teams/{teamID}/billing/plan", {
+        mutationFn: () => API.post("/v1/teams/{teamID}/billing/plan", {
             params: {
                 teamID: team!.id,
             },

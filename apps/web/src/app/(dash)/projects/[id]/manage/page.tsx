@@ -65,7 +65,7 @@ export default async function Page({
   const queryClient = getQueryClient();
 
   const [project] = await Promise.all([
-    API.get("/projects/{id}", {
+    API.get("/v1/projects/{id}", {
       params: {
         id: projectId,
       },

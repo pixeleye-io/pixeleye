@@ -13,7 +13,7 @@ async function Repos({ team }: { team: Team; }) {
 
 
   const repos = await
-    API.get("/teams/{teamID}/repos", {
+    API.get("/v1/teams/{teamID}/repos", {
       params: {
         teamID: team.id,
       },
@@ -76,7 +76,7 @@ export default async function AddGithubProjectPage({
   const cookie = cookies().toString();
 
   if (installation_id) {
-    const { team } = await API.post("/git/github", {
+    const { team } = await API.post("/v1/git/github", {
       queries: {
         installation_id,
       },

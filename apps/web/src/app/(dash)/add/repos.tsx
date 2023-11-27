@@ -121,7 +121,7 @@ export function RepoList({ repos, team, source }: RepoListProps) {
 
   const { mutate: createProject } = useMutation({
     mutationFn: (repo: Repo) => {
-      return API.post("/teams/{teamID}/projects", {
+      return API.post("/v1/teams/{teamID}/projects", {
         body: {
           name: repo.name,
           source,

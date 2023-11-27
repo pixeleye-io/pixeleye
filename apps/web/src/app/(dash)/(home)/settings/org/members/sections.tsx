@@ -29,7 +29,7 @@ export function MemberSection({
 
   const deleteMember = useMutation({
     mutationFn: (userID: string) =>
-      API.delete("/teams/{teamID}/admin/users/{userID}", {
+      API.delete("/v1/teams/{teamID}/admin/users/{userID}", {
         params: {
           teamID: team.id,
           userID,

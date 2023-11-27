@@ -23,7 +23,7 @@ export async function loadAndMergeConfig(
     commands[mappedKey] = newValue;
   }
 
-  commands.url = commands.url || defaults.endpoint;
+  commands.endpoint = commands.endpoint || defaults.endpoint;
 
   // Key and secret are required
   if (!commands.token)

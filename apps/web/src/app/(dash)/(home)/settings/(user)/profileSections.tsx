@@ -24,7 +24,7 @@ export function UpdateAccountData({ user }: { user: User }) {
   const queryClient = useQueryClient();
 
   const onSubmit = methods.handleSubmit(async (data) =>
-    API.patch("/user/me", { body: data }).then(() => {
+    API.patch("/v1/user/me", { body: data }).then(() => {
       queryClient.invalidateQueries(queries.user.get());
     })
   );

@@ -52,7 +52,7 @@ export default async function AddProjectPage({
 
   if (team.type !== "user") redirect(`/add/${team.type}?${params.toString()}`);
 
-  const installations = await API.get("/teams/{teamID}/installations", {
+  const installations = await API.get("/v1/teams/{teamID}/installations", {
     params: {
       teamID: team.id,
     },

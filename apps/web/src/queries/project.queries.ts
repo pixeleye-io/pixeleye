@@ -6,7 +6,7 @@ export const projectKeys = createQueryKeys("projects", {
   detail: (projectID: string, cookie: string = "") => ({
     queryKey: [projectID],
     queryFn: () =>
-      API.get("/projects/{id}", {
+      API.get("/v1/projects/{id}", {
         headers: { cookie },
         params: { id: projectID },
       }),
@@ -14,7 +14,7 @@ export const projectKeys = createQueryKeys("projects", {
       listBuilds: () => ({
         queryKey: ["builds"],
         queryFn: () =>
-          API.get("/projects/{id}/builds", {
+          API.get("/v1/projects/{id}/builds", {
             headers: { cookie },
             params: { id: projectID },
           }),
@@ -22,7 +22,7 @@ export const projectKeys = createQueryKeys("projects", {
       listMembers: () => ({
         queryKey: ["members"],
         queryFn: () =>
-          API.get("/projects/{id}/users", {
+          API.get("/v1/projects/{id}/users", {
             headers: { cookie },
             params: { id: projectID },
           }),
@@ -30,7 +30,7 @@ export const projectKeys = createQueryKeys("projects", {
           invited: () => ({
             queryKey: ["invited"],
             queryFn: () =>
-              API.get("/projects/{id}/users", {
+              API.get("/v1/projects/{id}/users", {
                 headers: { cookie },
                 params: { id: projectID },
               }).then((res) => res.filter((user) => user.type === "invited")),
@@ -38,7 +38,7 @@ export const projectKeys = createQueryKeys("projects", {
           git: () => ({
             queryKey: ["git"],
             queryFn: () =>
-              API.get("/projects/{id}/users", {
+              API.get("/v1/projects/{id}/users", {
                 headers: { cookie },
                 params: { id: projectID },
               }).then((res) => res.filter((user) => user.type === "git")),
@@ -46,7 +46,7 @@ export const projectKeys = createQueryKeys("projects", {
           updateRole: (userID: string) => ({
             queryKey: [userID, "updateRole"],
             queryFn: (role: UserOnProjectRole) =>
-              API.patch("/projects/{id}/admin/users/{userID}", {
+              API.patch("/v1/projects/{id}/admin/users/{userID}", {
                 headers: { cookie },
                 params: { id: projectID, userID },
                 body: { role },

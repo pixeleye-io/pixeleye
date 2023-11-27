@@ -18,7 +18,7 @@ export default async function ProjectOverviewPage({
   const cookie = cookies().toString();
 
   const [build] = await Promise.all([
-    API.get("/builds/{id}", {
+    API.get("/v1/builds/{id}", {
       params: {
         id: buildID,
       },
@@ -36,7 +36,7 @@ export default async function ProjectOverviewPage({
       .catch(() => undefined),
   ]);
 
-  const project = await API.get("/projects/{id}", {
+  const project = await API.get("/v1/projects/{id}", {
     params: {
       id: build.projectID,
     },

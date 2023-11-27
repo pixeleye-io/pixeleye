@@ -142,7 +142,7 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const approveAll = useMutation({
     mutationFn: () =>
-      API.post("/builds/{id}/review/approve/all", {
+      API.post("/v1/builds/{id}/review/approve/all", {
         params: {
           id: buildID,
         },
@@ -156,7 +156,7 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const approveRemaining = useMutation({
     mutationFn: () =>
-      API.post("/builds/{id}/review/approve/remaining", {
+      API.post("/v1/builds/{id}/review/approve/remaining", {
         params: {
           id: buildID,
         },
@@ -166,7 +166,7 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const approve = useMutation({
     mutationFn: (id: string) =>
-      API.post("/builds/{id}/review/approve", {
+      API.post("/v1/builds/{id}/review/approve", {
         params: {
           id: buildID,
         },
@@ -179,7 +179,7 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const reject = useMutation({
     mutationFn: (id: string) =>
-      API.post("/builds/{id}/review/reject", {
+      API.post("/v1/builds/{id}/review/reject", {
         params: {
           id: buildID,
         },
@@ -192,7 +192,7 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const rejectAll = useMutation({
     mutationFn: () =>
-      API.post("/builds/{id}/review/reject/all", {
+      API.post("/v1/builds/{id}/review/reject/all", {
         params: {
           id: buildID,
         },
@@ -206,7 +206,7 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const rejectRemaining = useMutation({
     mutationFn: () =>
-      API.post("/builds/{id}/review/reject/remaining", {
+      API.post("/v1/builds/{id}/review/reject/remaining", {
         params: {
           id: buildID,
         },

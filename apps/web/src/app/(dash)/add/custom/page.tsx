@@ -29,7 +29,7 @@ export default function CustomGitPage() {
   }, [router, team]);
 
   const onSubmit: SubmitHandler<FormValues> = (data) =>
-    API.post("/teams/{teamID}/projects", {
+    API.post("/v1/teams/{teamID}/projects", {
       params: {
         teamID: team?.id || "",
       },

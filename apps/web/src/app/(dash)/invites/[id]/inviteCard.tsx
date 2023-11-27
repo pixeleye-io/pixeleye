@@ -14,7 +14,7 @@ export function InviteCard({ invite }: { invite: Invite }) {
 
   const acceptInvite = useMutation({
     mutationFn: () =>
-      API.post("/invites/{id}/accept", {
+      API.post("/v1/invites/{id}/accept", {
         params: {
           id: invite.id,
         },

@@ -3,32 +3,32 @@ import { User } from "../models/user";
 import { Team } from "../models";
 
 type GET = Method<{
-  "/user/me": {
+  "/v1/user/me": {
     res: User;
     req: undefined;
   };
-  "/user/teams": {
+  "/v1/user/teams": {
     res: Team[];
     req: undefined;
   };
 }>;
 
 type DELETE = Method<{
-  "/user/me": {
+  "/v1/user/me": {
     res: undefined;
     req: undefined;
   };
 }>;
 
 type POST = Method<{
-  "/user/teams/sync": {
+  "/v1/user/teams/sync": {
     res: undefined;
     req: undefined;
   };
 }>;
 
 type PATCH = Method<{
-  "/user/me": {
+  "/v1/user/me": {
     res: undefined;
     req: Partial<Pick<User, "avatar" | "name">>;
   };

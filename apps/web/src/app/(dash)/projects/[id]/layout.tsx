@@ -14,7 +14,7 @@ export default async function Layout({
 }) {
   const projectId = params.id;
 
-  const project = await API.get("/projects/{id}", {
+  const project = await API.get("/v1/projects/{id}", {
     params: {
       id: projectId,
     },

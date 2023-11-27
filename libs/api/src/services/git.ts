@@ -3,7 +3,7 @@ import { Installation } from "../models/installation";
 import { Team } from "../models";
 
 type POST = Method<{
-  "/git/github": {
+  "/v1/git/github": {
     res: {
       installation: Installation;
       team: Team;

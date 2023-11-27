@@ -40,7 +40,7 @@ export async function uploadSnapshot(
     })
   );
 
-  const presignedMap = await api.post("/client/snapshots/upload", {
+  const presignedMap = await api.post("/v1/client/snapshots/upload", {
     body: {
       snapshots: snapshots.map(({ hash, height, width, format }) => ({
         hash,
