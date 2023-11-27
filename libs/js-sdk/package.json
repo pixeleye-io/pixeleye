@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/js-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -28,7 +28,7 @@
     "undici": "^5.27.2"
   },
   "dependencies": {
-    "@pixeleye/api": "workspace:*",
+    "@pixeleye/api": "workspace:^",
     "api-typify": "^0.3.2",
     "env-ci": "^10.0.0",
     "execa": "^8.0.1",

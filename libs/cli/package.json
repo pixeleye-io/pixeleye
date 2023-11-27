@@ -1,25 +1,26 @@
 {
-  "name": "@pixeleye/cli",
-  "version": "0.0.3",
+  "name": "pixeleye",
+  "version": "0.0.13",
   "private": false,
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "build": "node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist",
-    "upload-images": "node ./dist/index.js upload --url=http://localhost:5000/v1 ./test-images"
+    "build": "pnpm rimraf ./bin && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./bin",
+    "upload-images": "node ./bin/index.js upload --url=http://localhost:5000/v1 ./test-images"
+  },
+  "bin": {
+    "pixeleye": "./bin/index.js"
   },
   "files": [
     "README.md",
-    "dist",
+    "bin",
     "LICENSE"
   ],
   "peerDependencies": {
     "jsdom": "^22 || ^23",
     "playwright": "^1"
   },
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
@@ -28,7 +29,8 @@
     "@types/graceful-fs": "^4.1.9",
     "@types/node": "20.9.0",
     "@types/require-relative": "^0.8.2",
-    "esbuild": "^0.19.5"
+    "esbuild": "^0.19.5",
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
     "@pixeleye/booth": "workspace:^",
