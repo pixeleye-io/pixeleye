@@ -29,21 +29,6 @@ function notFoundHandler(res: Response) {
   res.end("Not found");
 }
 
-// function scriptHandler(res: Response) {
-//   res.writeHead(200);
-//   const scriptRoot = require
-//     .resolve("@chromaui/rrweb-snapshot")
-//     .replaceAll("\\", "/")
-//     .replace(/(?<=@chromaui\/rrweb-snapshot).*/, "");
-
-//   const script = readFileSync(
-//     join(scriptRoot, "dist", "rrweb-snapshot.min.js"),
-//     "utf-8"
-//   );
-
-//   res.end(script);
-// }
-
 async function snapshotHandler(
   ctx: Context,
   browsers: Record<string, Browser>,
@@ -132,22 +117,17 @@ export async function start({
     await snapshotHandler(ctx, browsers, data, build, res).catch((err) => {
       res.status(500).json({ message: err.message }).end();
     });
+
+    return res.status(200).end();
   });
-
-  // app.get("/script", (_req, res) => {
-  //   scriptHandler(res);
-  // });
-
-  // app.get("/complete", (_req, res) => {
-  //   scriptHandler(res);
-  // });
 
   app.get("*", (_req, res) => {
     notFoundHandler(res);
   });
 
-  const server = app.listen(port, () => {
-    console.log(`@pixeleye/booth listening on port ${port}`);
+  const server = app.listen(port).on("error", (err) => {
+    console.error(err);
+    process.exit(1);
   });
 
   return {

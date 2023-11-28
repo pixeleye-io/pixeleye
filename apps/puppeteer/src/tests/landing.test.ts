@@ -22,4 +22,6 @@ describe("Landing page - e2e", () => {
     process.env.boothPort = "3000";
     await pixeleyeSnapshot(app.page, { name: "landing" });
   });
+}, {
+  timeout: 5_000,
 });

@@ -9,7 +9,7 @@ async function takeOnBrowser(
   data: SnapshotOptions
 ) {
   const page = await browser.newPage({
-    javaScriptEnabled: false,
+    // javaScriptEnabled: false,
   });
 
   if (data.url) await page.goto(data.url);
@@ -28,15 +28,18 @@ async function takeOnBrowser(
         number,
         number,
       ];
+
+      const selectedPage = () =>
+        data.selector ? page.locator(data.selector) : page;
+
       return page
         .setViewportSize({
           width,
           height,
         })
         .then(async () => ({
-          img: await page.screenshot({
+          img: await selectedPage().screenshot({
             fullPage: data.fullPage ?? true,
-            animations: "disabled",
             type: "png",
           }),
           viewport,

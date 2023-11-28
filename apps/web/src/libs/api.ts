@@ -2,7 +2,7 @@ import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
 import { redirect } from "next/navigation";
 
-const endpoint = "http://localhost:5000/v1";
+const endpoint = "http://localhost:5000";
 
 export interface CustomProps {
   headers?: Record<string, string>;

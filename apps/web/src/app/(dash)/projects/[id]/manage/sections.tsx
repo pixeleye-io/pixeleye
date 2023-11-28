@@ -407,7 +407,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
   }>({
     defaultValues: {
       name: project.name,
-      snapshotThreshold: project.snapshotThreshold || 0.1,
+      snapshotThreshold: project.snapshotThreshold || 0.2,
     },
   });
 
@@ -453,7 +453,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
   );
 
   const [threshold, setThreshold] = useState<number[]>([
-    project.snapshotThreshold || 0.1,
+    project.snapshotThreshold || 0.2,
   ]);
 
   return (
@@ -485,7 +485,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
           >
             Learn more
           </Link>
-          . Recommended: 0.1{" "}
+          . Recommended: 0.2{" "}
         </p>
       </div>
 

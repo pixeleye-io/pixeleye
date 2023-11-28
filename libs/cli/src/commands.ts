@@ -48,7 +48,7 @@ apiOptions("ping")
 
 apiOptions("e2e")
   .option("-p, --port <port>", "Port to run local snapshot server")
-  .argument("<command>", "Command to run e2e tests, e.g. cypress run")
+  .argument("[command...]", "Command to run e2e tests, e.g. cypress run")
   .description("Run e2e tests and upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(e2e);

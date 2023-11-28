@@ -10,7 +10,7 @@ export function ping(opts: Options) {
 }
 
 export function script(opts: Options) {
-  return fetch(`${opts.endpoint}/script`);
+  return fetch(`${opts.endpoint}/script`).then((res) => res.text());
 }
 
 export function snapshot(opts: Options, data: SnapshotOptions) {

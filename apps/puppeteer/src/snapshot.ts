@@ -4,11 +4,18 @@ import {
   snapshot as uploadSnapshot,
   Options as ServerOptions,
   SnapshotOptions,
+  script,
 } from "@pixeleye/booth";
-import { snapshot } from "@chromaui/rrweb-snapshot";
+import {
+  // snapshot,
+  Mirror,
+  serializeNodeWithId,
+} from "@chromaui/rrweb-snapshot";
 import { defaults, loadConfig } from "@pixeleye/js-sdk";
 
-type SnapshotFn = typeof snapshot;
+// type SnapshotFn = typeof snapshot;
+
+type MirrorClass = typeof Mirror;
 
 export interface Options {
   fullPage?: boolean;
@@ -16,6 +23,7 @@ export interface Options {
   variant?: string;
   browsers?: string[];
   viewports?: string[];
+  selector?: string;
 }
 
 export async function pixeleyeSnapshot(
@@ -29,21 +37,6 @@ export async function pixeleyeSnapshot(
     throw new Error("No name provided");
   }
 
-  await (page as Page).addScriptTag({
-    content: `
-    window.rrwebSnapshot = {
-      snapshot: ${snapshot},
-    };
-  `,
-  });
-
-  const domSnapshot = await (page as Page).evaluate(() => {
-    // @ts-ignore
-    const { snapshot } = window.rrwebSnapshot;
-
-    return (snapshot as SnapshotFn)(document);
-  });
-
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
       // eslint-disable-next-line turbo/no-undeclared-env-vars
@@ -51,8 +44,19 @@ export async function pixeleyeSnapshot(
     }`,
   };
 
+  await (page as Page).addScriptTag({
+    path: require.resolve(
+      "@chromaui/rrweb-snapshot/dist/rrweb-snapshot.min.js"
+    ),
+  });
+
+  const domSnapshot = await (page as Page).evaluate(() => {
+    // @ts-ignore
+    return rrwebSnapshot.snapshot(document);
+  });
+
   if (!domSnapshot) {
-    throw new Error("No DOM snapshot available");
+    throw new Error("No DOM snapshot available", domSnapshot);
   }
 
   const config = await loadConfig();
@@ -64,9 +68,15 @@ export async function pixeleyeSnapshot(
     dom: domSnapshot,
     fullPage: options.fullPage,
     variant: options.variant,
+    selector: options.selector,
   };
 
-  const res = await uploadSnapshot(opts, snap);
+  const res = await uploadSnapshot(opts, snap).catch((err) => {
+    console.log("Error uploading snapshot", err);
+    throw err;
+  });
+
+  console.log("Uploaded snapshot", res);
 
   if (res.status < 200 || res.status >= 300) {
     const data = await res.json();
