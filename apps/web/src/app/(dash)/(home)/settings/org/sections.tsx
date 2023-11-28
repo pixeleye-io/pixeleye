@@ -30,7 +30,7 @@ export function OrgProfileSettingsSection() {
 
     const mutateTeam = useMutation({
         mutationFn: (data: ProfileFormData) => {
-            return API.patch(`/teams/{teamID}/admin`, {
+            return API.patch("/v1/teams/{teamID}/admin", {
                 params: {
                     teamID: team!.id,
                 },
