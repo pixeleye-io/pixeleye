@@ -64,3 +64,13 @@ export async function completeBuild(ctx: Context, build: Build) {
     },
   });
 }
+
+export async function abortBuild(ctx: Context, build: Build) {
+  const api = getAPI(ctx);
+
+  return api.post("/v1/client/builds/{id}/abort", {
+    params: {
+      id: build.id,
+    },
+  });
+}

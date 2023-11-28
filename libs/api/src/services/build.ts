@@ -56,6 +56,9 @@ type POST = Method<{
       branch?: string;
     };
   };
+  "/v1/client/builds/{id}/abort": {
+    res: undefined;
+  };
   "/v1/builds/{id}/review/approve": {
     res: Build;
     req: {

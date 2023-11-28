@@ -21,6 +21,7 @@ func ProjectTokenRoutes(e *echo.Echo) {
 	v1.POST("/builds/create", controllers.CreateBuild)
 	buildIDV1.POST("/upload", controllers.UploadPartial)
 	buildIDV1.POST("/complete", controllers.UploadComplete)
+	buildIDV1.POST("/complete", controllers.AbortBuild)
 	buildIDV1.GET("/events", controllers.SubscribeToBuild)
 	v1.POST("/snapshots/upload", controllers.CreateUploadURL)
 	v1.POST("/builds", controllers.SearchBuilds)

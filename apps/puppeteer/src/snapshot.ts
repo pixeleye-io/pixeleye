@@ -76,8 +76,6 @@ export async function pixeleyeSnapshot(
     throw err;
   });
 
-  console.log("Uploaded snapshot", res);
-
   if (res.status < 200 || res.status >= 300) {
     const data = await res.json();
 

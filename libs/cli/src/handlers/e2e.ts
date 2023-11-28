@@ -1,4 +1,10 @@
-import { Context, createBuild, getAPI, completeBuild } from "@pixeleye/js-sdk";
+import {
+  Context,
+  createBuild,
+  getAPI,
+  completeBuild,
+  abortBuild,
+} from "@pixeleye/js-sdk";
 import ora from "ora";
 import { ping, start } from "@pixeleye/booth";
 import { program } from "commander";
@@ -19,6 +25,12 @@ export async function e2e(command: string[], options: Config) {
     env: process.env,
     endpoint: options.endpoint,
     token: options.token,
+  };
+
+  const exitBuild = async (err: any) => {
+    await abortBuild(ctx, build);
+    console.log(err);
+    program.error(err);
   };
 
   getAPI(ctx);
@@ -50,8 +62,7 @@ export async function e2e(command: string[], options: Config) {
     build,
   }).catch((err) => {
     fileSpinner.fail("Failed to start local snapshot server.");
-    console.log(err);
-    program.error(err);
+    exitBuild(err);
   });
 
   fileSpinner.succeed("Successfully started local snapshot server.");
@@ -62,8 +73,7 @@ export async function e2e(command: string[], options: Config) {
     endpoint: `http://localhost:${options.port}`,
   }).catch((err) => {
     pingSpinner.fail("Failed to ping booth server.");
-    console.log(err);
-    program.error(err);
+    exitBuild(err);
   });
 
   pingSpinner.succeed("Successfully pinged booth server.");
@@ -101,21 +111,19 @@ export async function e2e(command: string[], options: Config) {
 
   await promise().catch((err) => {
     e2eSpinner.fail("Failed to run e2e tests.");
-    console.log(err);
-    program.error(err as any);
+    exitBuild(err);
   });
 
   const completeSpinner = ora("Completing build...").start();
 
   await completeBuild(ctx, build).catch((err) => {
     completeSpinner.fail("Failed to complete build.");
-    console.log(err);
-    program.error(err?.toString() || err);
+    exitBuild(err);
   });
 
   completeSpinner.succeed("Successfully completed build.");
 
-  server.close();
+  server?.close();
 
   process.exit(0);
 }

@@ -21,12 +21,12 @@ describe(
       await pixeleyeSnapshot(app.page, { name: "landing" });
     });
 
-    test.skip("Landing page header screenshot", async () => {
+    test("Landing page header screenshot", async () => {
       await app.navigate("/");
 
       await pixeleyeSnapshot(app.page, {
         name: "landing-header",
-        selector: "header",
+        selector: "header.sticky",
       });
     });
   },

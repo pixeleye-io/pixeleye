@@ -154,7 +154,6 @@ func GetBuildSnapshots(c echo.Context) error {
 func AbortBuild(c echo.Context) error {
 
 	build, err := middleware.GetBuild(c)
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
@@ -164,7 +163,6 @@ func AbortBuild(c echo.Context) error {
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
