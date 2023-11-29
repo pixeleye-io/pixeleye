@@ -18,8 +18,11 @@ import (
 
 func main() {
 
-	//nolint:errcheck
-	godotenv.Load("./../../.env")
+	if os.Getenv("STAGE_STATUS") == "" {
+		if err := godotenv.Load("./../../.env"); err != nil {
+			panic(err)
+		}
+	}
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
@@ -57,7 +60,7 @@ func main() {
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
-		if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") != "true" {
+		if os.Getenv("PIXELEYE_HOSTING") != "true" {
 			go ingest.StartIngestServerWithGracefulShutdown()
 		}
 		utils.StartServerWithGracefulShutdown(e)

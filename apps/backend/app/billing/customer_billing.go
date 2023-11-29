@@ -79,9 +79,9 @@ func (c *CustomerBilling) CreateBillingPortalSession(team models.Team, flow stri
 
 	var returnURL string
 	if team.Type == models.TEAM_TYPE_USER {
-		returnURL = os.Getenv("NEXT_PUBLIC_SERVER_URL") + "/billing"
+		returnURL = os.Getenv("FRONTEND_URL") + "/billing"
 	} else {
-		returnURL = os.Getenv("NEXT_PUBLIC_SERVER_URL") + "/billing" + "?team=" + team.ID
+		returnURL = os.Getenv("FRONTEND_URL") + "/billing" + "?team=" + team.ID
 	}
 
 	params := &stripe.BillingPortalSessionParams{

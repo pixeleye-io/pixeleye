@@ -94,7 +94,7 @@ func RedirectGithubUserToLogin(c echo.Context, user models.User) error {
 	}
 
 	clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
-	redirectURL := os.Getenv("SERVER_ENDPOINT") + "/v1/git/github/callback"
+	redirectURL := os.Getenv("BACKEND_URL") + "/v1/git/github/callback"
 
 	// TODO - we should store the users github username so we can use it to prefill the login field
 

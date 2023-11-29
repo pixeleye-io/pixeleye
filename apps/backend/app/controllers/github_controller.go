@@ -113,7 +113,7 @@ func GithubAccountCallback(c echo.Context) error {
 	state := c.QueryParam("state")
 	clientID := os.Getenv("GITHUB_APP_CLIENT_ID")
 	clientSecret := os.Getenv("GITHUB_APP_CLIENT_SECRET")
-	redirectURL := os.Getenv("SERVER_ENDPOINT") + "/v1/git/github/callback"
+	redirectURL := os.Getenv("BACKEND_URL") + "/v1/git/github/callback"
 
 	if code == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "Code is required")
@@ -221,5 +221,5 @@ func GithubAccountCallback(c echo.Context) error {
 	}
 
 	// TODO - should add a custom redirect URL here
-	return c.Redirect(http.StatusSeeOther, os.Getenv("NEXT_PUBLIC_SERVER_URL")+"/dashboard")
+	return c.Redirect(http.StatusSeeOther, os.Getenv("FRONTEND_URL")+"/dashboard")
 }

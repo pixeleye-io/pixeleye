@@ -34,7 +34,7 @@ func TeamRoutes(e *echo.Echo) {
 	baseRoutes.GET("/usage/snapshots", controllers.GetTeamSnapshotUsage)
 	baseRoutes.GET("/usage/builds", controllers.GetTeamBuildUsage)
 
-	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+	if os.Getenv("PIXELEYE_HOSTING") == "true" {
 		billingRoutes := v1.Group("/billing")
 
 		billingRoleMiddleware := middleware.NewPermissionsRequired([]string{"owner", "admin", "accountant"})

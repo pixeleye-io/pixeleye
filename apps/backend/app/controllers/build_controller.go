@@ -51,7 +51,7 @@ func CreateBuild(c echo.Context) error {
 		return err
 	}
 
-	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+	if os.Getenv("PIXELEYE_HOSTING") == "true" {
 
 		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
 		if err != nil {
@@ -498,7 +498,7 @@ func UploadComplete(c echo.Context) error {
 		return err
 	}
 
-	if os.Getenv("NEXT_PUBLIC_PIXELEYE_HOSTING") == "true" {
+	if os.Getenv("PIXELEYE_HOSTING") == "true" {
 		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
 		if err != nil {
 			return err

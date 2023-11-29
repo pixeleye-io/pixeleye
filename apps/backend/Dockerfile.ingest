@@ -1,0 +1,28 @@
+# Build the application from source
+FROM golang:1.21 AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY ./cmd/ingest ./
+COPY ./app ./app
+COPY ./pkg ./pkg
+COPY ./platform ./platform
+
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-pixeleye-ingest
+
+# Deploy the application binary into a lean image
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
+
+WORKDIR /
+
+COPY --from=builder /docker-pixeleye-ingest /docker-pixeleye-ingest
+
+EXPOSE 5000
+
+USER nonroot:nonroot
+
+ENTRYPOINT ["/docker-pixeleye-ingest"]

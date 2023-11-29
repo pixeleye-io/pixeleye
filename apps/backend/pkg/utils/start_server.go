@@ -12,7 +12,7 @@ import (
 
 // StartServerWithGracefulShutdown function for starting server with a graceful shutdown.
 func StartServerWithGracefulShutdown(e *echo.Echo) {
-	address := os.Getenv("SERVER_URL")
+	address := os.Getenv("ADDRESS")
 
 	// Start server
 	go func() {
@@ -35,7 +35,7 @@ func StartServerWithGracefulShutdown(e *echo.Echo) {
 
 // StartServer func for starting a simple server.
 func StartServer(e *echo.Echo) {
-	address := os.Getenv("SERVER_URL")
+	address := os.Getenv("ADDRESS")
 
 	e.Logger.Fatal(e.Start(address))
 }

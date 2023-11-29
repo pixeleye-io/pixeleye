@@ -48,7 +48,7 @@ func NewOryMiddleware() *oryMiddleware {
 	cfg := ory.NewConfiguration()
 	cfg.Servers = ory.ServerConfigurations{
 		{
-			URL: os.Getenv("ORY_ENDPOINT"), // Ory Network Project URL
+			URL: os.Getenv("ORY_URL"),
 		},
 	}
 
