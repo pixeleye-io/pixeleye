@@ -180,13 +180,13 @@ jobs:
       - name: Install go dependencies
         working-directory: ./apps/backend
         env:
-          BACKEND_ADDRESS: localhost:5000
-          BACKEND_URL: http://localhost:5000
-          FRONTEND_URL: http://localhost:3000
+          BACKEND_ADDRESS: 127.0.0.1:5000
+          BACKEND_URL: http://127.0.0.1:5000
+          FRONTEND_URL: http://127.0.0.1:3000
 
-          AMPQ_URL: amqp://rabbitmq:rabbitmq@localhost:5672
+          AMPQ_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
 
-          DB_URL: postgres://postgres:pass@localhost:5432/test?sslmode=disable
+          DB_URL: postgres://postgres:pass@127.0.0.1:5432/test?sslmode=disable
           
           S3_BUCKET: pixeleye-ci
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
