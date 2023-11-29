@@ -21,7 +21,7 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 
 	postgresConnURL := os.Getenv("DB_URL")
 
-	log.Info().Msgf("DB_URL: %d", postgresConnURL)
+	log.Info().Msgf("DB_URL: %v", postgresConnURL)
 
 	// Define database connection for PostgreSQL.
 	db, err := sqlx.Connect("postgres", postgresConnURL)
