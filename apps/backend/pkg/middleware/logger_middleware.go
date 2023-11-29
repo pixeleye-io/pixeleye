@@ -13,7 +13,6 @@ func Logger() echo.MiddlewareFunc {
 
 	if os.Getenv("STAGE_STATUS") == "dev" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-
 	}
 
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
