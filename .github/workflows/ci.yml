@@ -124,20 +124,6 @@ jobs:
           dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
           cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 
-  # atlas-sync:
-  #   needs: atlas-lint
-  #   if: github.ref == 'refs/heads/main'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: ariga/atlas-sync-action@v0
-  #       with:
-  #         dir: "apps/backend/platform/migrations"
-  #         dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
-  #         dir-format: "atlas"
-  #         driver: postgres
-  #         cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
-
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
@@ -182,26 +168,6 @@ jobs:
         run: |
           go mod download
           go mod verify
-
-      # - name: Create .env file
-      #   uses: SpicyPizza/create-envfile@v1
-      #   with:
-      #     envkey_ORY_ENDPOINT: ${{ secrets.ORY_ENDPOINT }}
-      #     envkey_KRATOS_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
-      #     envkey_ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
-      #     envkey_SERVER_ENDPOINT: http://127.0.0.1:5000
-      #     envkey_SERVER_ADDRESS: 127.0.0.1:5000
-      #     envkey_DB_URL: postgres://postgres:pass@127.0.0.1:5432/test?sslmode=disable
-      #     envkey_DB_MAX_CONNECTIONS: 100
-      #     envkey_DB_MAX_IDLE_CONNECTIONS: 10
-      #     envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
-      #     envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
-      #     envkey_S3_BUCKET: pixeleye-ci
-      #     envkey_S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
-      #     envkey_S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
-      #     envkey_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-      #     envkey_GITHUB_APP_NAME: "pixeleye-io"
-      #     envkey_NEXT_PUBLIC_SERVER_URL: "http://127.0.0.1:5000"
 
       - uses: pnpm/action-setup@v2
         with:

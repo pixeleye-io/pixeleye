@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"os"
 	"sync"
 	"time"
 
@@ -119,7 +120,10 @@ func SyncUserTeamsAndAccount(ctx context.Context, user models.User) error {
 
 	go func(ctx context.Context, user models.User, teams []models.Team) {
 		// GITHUB TEAMS
-		if err := git_github.SyncNewGithubUserTeams(ctx, user.ID, teams); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
+
+		if os.Getenv("GITHUB_APP_NAME") == "" {
+			githubChannel <- nil
+		} else if err := git_github.SyncNewGithubUserTeams(ctx, user.ID, teams); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 			log.Error().Err(err).Msg("Failed to sync github teams")
 			githubChannel <- nil
 		} else if err == git_github.ExpiredRefreshTokenError {

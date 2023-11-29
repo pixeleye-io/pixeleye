@@ -127,7 +127,7 @@ export async function createAllSessions() {
 
       const session = await createOrySession(identity);
 
-      const user: any = await fetch(env.SERVER_ENDPOINT + "/v1/user/me", {
+      const user: any = await fetch(env.BACKEND_URL + "/v1/user/me", {
         headers: {
           Authorization: "Bearer " + session.session_token,
         },

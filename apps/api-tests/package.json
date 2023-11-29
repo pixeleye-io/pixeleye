@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
     "test:api": "env-cmd --silent --file ../../.env vitest"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@ import { env } from "../env";
 import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
 
-const userEndpoint = env.SERVER_ENDPOINT + "/v1/user";
+const userEndpoint = env.BACKEND_URL + "/v1/user";
 
 export const usersAPI = {
   getAuthenticatedUser: (user?: IDs, expectedStatus = 200) =>
