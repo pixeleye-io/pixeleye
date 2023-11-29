@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:api": "env-cmd -f ../../.env vitest"
+    "test:api": "env-cmd --silent --file ../../.env vitest"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
