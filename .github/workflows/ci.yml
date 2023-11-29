@@ -242,7 +242,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: apps/backend
-          file: Dockerfile.migrations
+          file: apps/backend/Dockerfile.migrations
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
