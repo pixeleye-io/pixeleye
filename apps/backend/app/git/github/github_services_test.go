@@ -139,7 +139,7 @@ func TestFindMembersToRemove(t *testing.T) {
 			name:           "1 team member not on git, 1 git member not on team",
 			currentMembers: members1,
 			gitMembers:     generateGitMembers(1, members2),
-			want:           []string{members1[0].ID},
+			want:           []string{members2[0].ID},
 		},
 		{
 			name:           "2 team members not on git, 1 git member not on team",
