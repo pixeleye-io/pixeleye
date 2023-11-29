@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
 
 	_ "github.com/lib/pq"
 )
@@ -19,6 +20,8 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
 
 	postgresConnURL := os.Getenv("DB_URL")
+
+	log.Info().Msgf("DB_URL: %d", postgresConnURL)
 
 	// Define database connection for PostgreSQL.
 	db, err := sqlx.Connect("postgres", postgresConnURL)
