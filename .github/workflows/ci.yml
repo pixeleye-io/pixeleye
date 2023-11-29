@@ -180,8 +180,7 @@ jobs:
       - name: Install go dependencies
         working-directory: ./apps/backend
         env:
-          BACKEND_ADDRESS: 127.0.0.1:5000
-          BACKEND_URL: http://127.0.0.1:5000
+          BACKEND_URL: http://127.0.0.1:8080
           FRONTEND_URL: http://127.0.0.1:3000
 
           AMPQ_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
@@ -237,7 +236,7 @@ jobs:
         env:
           ORY_URL: ${{ secrets.ORY_ENDPOINT }}
           ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
-          BACKEND_URL: http://localhost:5000
+          BACKEND_URL: http://127.0.0.1:8080
         run: go run main.go & pnpm turbo test:api
 
   deploy-private-migration-image:

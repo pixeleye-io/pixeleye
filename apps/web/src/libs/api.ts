@@ -1,8 +1,9 @@
+import { env } from "@/env";
 import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
 import { redirect } from "next/navigation";
 
-const endpoint = "http://localhost:5000";
+const endpoint = env.NEXT_PUBLIC_SERVER_ENDPOINT
 
 export interface CustomProps {
   headers?: Record<string, string>;
