@@ -234,6 +234,10 @@ jobs:
 
       - name: Run api tests
         working-directory: ./apps/backend
+        env:
+          ORY_URL: ${{ secrets.ORY_ENDPOINT }}
+          ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
+          BACKEND_URL: http://localhost:5000
         run: go run main.go & pnpm turbo test:api
 
   deploy-private-migration-image:
