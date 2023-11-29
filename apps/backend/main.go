@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/pkg/ingest"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -20,7 +21,7 @@ func main() {
 
 	if os.Getenv("STAGE_STATUS") == "" {
 		if err := godotenv.Load("./../../.env"); err != nil {
-			panic(err)
+			log.Info().Msg("No .env file found")
 		}
 	}
 
