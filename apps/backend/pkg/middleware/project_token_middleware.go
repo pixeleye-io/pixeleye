@@ -12,8 +12,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type projectMiddleware struct{}
-
 func GetProject(c echo.Context) *models.Project {
 	return c.Get("project").(*models.Project)
 }
