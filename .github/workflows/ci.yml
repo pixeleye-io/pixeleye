@@ -190,7 +190,7 @@ jobs:
           AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
 
           DB_URL: postgres://postgres:pass@127.0.0.1:5432/test?sslmode=disable
-          
+
           S3_BUCKET: pixeleye-ci
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
           S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
@@ -206,7 +206,7 @@ jobs:
     name: Deploy database migrations
     runs-on: ubuntu-latest
     needs: [api-tests, atlas-lint, paths-filter]
-    if: github.ref == 'refs/heads/main' && needs.paths-filter.outputs.migrations == 'true'
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.migrations == 'true' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -235,7 +235,7 @@ jobs:
     name: Deploy api image
     runs-on: ubuntu-latest
     needs: [api-tests, atlas-lint, paths-filter]
-    if: github.ref == 'refs/heads/main' && needs.paths-filter.outputs.backend == 'true'
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.backend == 'true' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -264,7 +264,7 @@ jobs:
     name: Deploy ingest image
     runs-on: ubuntu-latest
     needs: [api-tests, atlas-lint, paths-filter]
-    if: github.ref == 'refs/heads/main' && needs.paths-filter.outputs.backend == 'true'
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.backend == 'true' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4

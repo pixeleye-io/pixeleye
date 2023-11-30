@@ -13,9 +13,11 @@ import (
 
 func GetBuild(c echo.Context) (*models.Build, error) {
 	build := c.Get("build")
+
 	if build == nil {
 		return nil, fmt.Errorf("build not found")
 	}
+
 	return build.(*models.Build), nil
 }
 
