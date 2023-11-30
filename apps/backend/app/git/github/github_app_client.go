@@ -21,7 +21,7 @@ func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
 		return nil, err
 	}
 
-	key, err := utils.GetEnvStr("GITHUB_PRIVATE_KEY")
+	key, err := utils.GetEnvStr("GITHUB_APP_PRIVATE_KEY")
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func NewGithubAppClient() (*GithubAppClient, error) {
 		return nil, err
 	}
 
-	key, err := utils.GetEnvStr("GITHUB_PRIVATE_KEY")
+	key, err := utils.GetEnvStr("GITHUB_APP_PRIVATE_KEY")
 	if err != nil {
 		return nil, err
 	}

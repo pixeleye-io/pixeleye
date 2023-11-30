@@ -19,9 +19,9 @@ jobs:
         with:
           filters: |
             migrations:
-              - 'apps/backend/platform/migrations'
+              - 'apps/backend/platform/migrations/**'
             backend:
-              - 'apps/backend'
+              - 'apps/backend/**'
   node-ci:
     name: Node - Build, Lint, Test, Types
     timeout-minutes: 15
