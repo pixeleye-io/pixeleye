@@ -189,7 +189,12 @@ jobs:
 
           AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
 
-          DB_URL: postgres://postgres:pass@127.0.0.1:5432/test?sslmode=disable
+          DB_USERNAME: postgres
+          DB_PASSWORD: pass
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_NAME: test
+          DB_SSL_MODE: disable
 
           S3_BUCKET: pixeleye-ci
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
