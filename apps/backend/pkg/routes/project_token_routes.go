@@ -9,14 +9,12 @@ import (
 // These routes are protected by an api key. They're used by the pixeleye cli to upload builds.
 func ProjectTokenRoutes(e *echo.Echo) {
 
-	tokenMiddleware := middleware.NewProjectMiddleware()
-
 	v1 := e.Group("/v1/client")
 	buildIDV1 := v1.Group("/builds/:build_id")
 
-	v1.Use(tokenMiddleware.ProjectToken)
+	v1.Use(middleware.ProjectTokenMiddleware)
 	buildIDV1.Use(middleware.LoadBuild)
-	buildIDV1.Use(tokenMiddleware.ProjectToken)
+	buildIDV1.Use(middleware.ProjectTokenMiddleware)
 
 	v1.POST("/builds/create", controllers.CreateBuild)
 	buildIDV1.POST("/upload", controllers.UploadPartial)

@@ -12,9 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type projectMiddleware struct {
-	db *database.Queries
-}
+type projectMiddleware struct{}
 
 func GetProject(c echo.Context) *models.Project {
 	return c.Get("project").(*models.Project)
@@ -24,7 +22,12 @@ func SetProject(c echo.Context, project *models.Project) {
 	c.Set("project", project)
 }
 
-func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, error) {
+func validateToken(r *http.Request) (*models.Project, error) {
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return nil, err
+	}
 
 	// We first check if the session token is set in the header otherwise we use the cookie.
 
@@ -52,7 +55,7 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	project, err := k.db.GetProjectWithTeamStatus(r.Context(), projectId)
+	project, err := db.GetProjectWithTeamStatus(r.Context(), projectId)
 	if err != nil {
 		return nil, err
 	}
@@ -68,19 +71,9 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 	return project.Project, nil
 }
 
-func NewProjectMiddleware() *projectMiddleware {
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		panic(err)
-	}
-	return &projectMiddleware{
-		db: db,
-	}
-}
-
-func (k *projectMiddleware) ProjectToken(next echo.HandlerFunc) echo.HandlerFunc {
+func ProjectTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		project, err := k.validateToken(c.Request())
+		project, err := validateToken(c.Request())
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}

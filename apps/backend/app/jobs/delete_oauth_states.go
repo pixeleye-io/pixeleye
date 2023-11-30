@@ -9,9 +9,9 @@ import (
 
 func DeleteExpiredOauthStates() {
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open database connection for DeleteExpiredOauthStates")
+		return
 	}
 
 	if err := db.DeleteExpiredOauthStates(context.Background()); err != nil {
