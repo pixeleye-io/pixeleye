@@ -262,7 +262,10 @@ jobs:
           tags: |
             latest
             type=sha
-
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:

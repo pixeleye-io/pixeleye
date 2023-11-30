@@ -26,7 +26,7 @@ func ProjectRoutes(e *echo.Echo) {
 
 	baseRoutes.Any("/events", controllers.SubscribeToProject)
 
-	// Admin routes.
+	// Admin routes
 	adminRoutes := common.Group("/:project_id/admin")
 
 	adminRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin"}, []string{"admin", "owner"})
