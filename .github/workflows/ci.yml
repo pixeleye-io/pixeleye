@@ -227,6 +227,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: pixeleye/pixeleye-migrations-private
+          tags: |
+            latest
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -256,11 +259,15 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: pixeleye/pixeleye-api-private
+          tags: |
+            latest
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: apps/backend
+          platforms: linux/amd64,linux/arm64
           file: apps/backend/Dockerfile.api
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -285,6 +292,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: pixeleye/pixeleye-ingest-private
+          tags: |
+            latest
+            type=sha
+
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
