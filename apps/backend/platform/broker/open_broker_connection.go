@@ -1,6 +1,7 @@
 package broker
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/pixeleye-io/pixeleye/app/queues"
@@ -56,7 +57,14 @@ func GetChannel() (*amqp.Channel, error) {
 
 func GetConnection() (*amqp.Connection, error) {
 	if globalConnection == nil {
-		url := os.Getenv("AMQP_URL")
+		// url := os.Getenv("AMQP_URL")
+
+		userName := os.Getenv("AMQP_USER")
+		password := os.Getenv("AMQP_PASSWORD")
+		host := os.Getenv("AMQP_HOST")
+		port := os.Getenv("AMQP_PORT")
+
+		url := fmt.Sprintf("amqp://%s:%s@%s:%s/", userName, password, host, port)
 
 		log.Info().Msgf("Connecting to RabbitMQ at %s", url)
 
