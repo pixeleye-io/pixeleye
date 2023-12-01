@@ -86,6 +86,9 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 	// Get queue name.
 	queueName := getQueueName(queueType, name)
 
+	args := make(amqp.Table)
+	args["x-queue-type"] = "quorum"
+
 	// Create a new queue.
 	queue, err := channelRabbitMQ.QueueDeclare(
 		queueName,                     // queue name
@@ -93,7 +96,7 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 		getQueueAutoDelete(queueType), // delete when unused
 		false,                         // exclusive
 		false,                         // no-wait
-		nil,                           // arguments
+		args,                          // arguments
 	)
 
 	if err != nil {
