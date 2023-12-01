@@ -23,8 +23,6 @@ COPY --from=builder /docker-pixeleye-api /docker-pixeleye-api
 
 EXPOSE 8080
 
-ENV STATE_STATUS="prod"
-ENV PIXELEYE_HOSTING="true"
 
 USER nonroot:nonroot
 
