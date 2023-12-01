@@ -187,7 +187,10 @@ jobs:
           BACKEND_URL: http://127.0.0.1:8080
           FRONTEND_URL: http://127.0.0.1:3000
 
-          AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
+          AMQP_USER: rabbitmq
+          AMQP_PASSWORD: rabbitmq
+          AMPQ_HOST: 127.0.0.1
+          AMQP_PORT: 5672
 
           DB_USERNAME: postgres
           DB_PASSWORD: pass
