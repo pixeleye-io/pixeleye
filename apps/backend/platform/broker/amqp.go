@@ -93,12 +93,12 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 	}
 	// Create a new queue.
 	queue, err := channelRabbitMQ.QueueDeclare(
-		queueName,                     // queue name
-		getQueueDurability(queueType), // durable
-		false,                         // delete when unused
-		false,                         // exclusive
-		false,                         // no-wait
-		args,                          // arguments
+		queueName, // queue name
+		true,      // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // no-wait
+		args,      // arguments
 	)
 
 	if err != nil {
