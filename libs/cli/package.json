@@ -25,6 +25,7 @@
     "@pixeleye/api": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/storybook": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/graceful-fs": "^4.1.9",
     "@types/node": "20.9.0",

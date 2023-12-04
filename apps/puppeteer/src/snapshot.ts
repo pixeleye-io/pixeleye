@@ -30,7 +30,7 @@ export async function pixeleyeSnapshot(
 
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
-      env.boothPort || defaults.port
+      env.PX_BOOTH_PORT || defaults.port
     }`,
   };
 

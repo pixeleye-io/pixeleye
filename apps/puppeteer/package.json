@@ -25,8 +25,9 @@
     "puppeteer-core": "^20 || ^21"
   },
   "dependencies": {
-    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/booth": "workspace:*",
+    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
+    "@t3-oss/env-core": "^0.7.1",
     "puppeteer": "^21.5.2",
     "puppeteer-core": "^21.5.2",
     "undici": "^5.27.2"
