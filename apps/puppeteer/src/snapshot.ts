@@ -10,7 +10,7 @@ import {
   // snapshot,
   Mirror,
   serializeNodeWithId,
-} from "@chromaui/rrweb-snapshot";
+} from "@pixeleye/rrweb-snapshot";
 import { defaults, loadConfig } from "@pixeleye/js-sdk";
 
 // type SnapshotFn = typeof snapshot;
@@ -45,7 +45,7 @@ export async function pixeleyeSnapshot(
 
   await (page as Page).addScriptTag({
     path: require.resolve(
-      "@chromaui/rrweb-snapshot/dist/rrweb-snapshot.min.js"
+      "@pixeleye/rrweb-snapshot/dist/rrweb-snapshot.min.js"
     ),
   });
 

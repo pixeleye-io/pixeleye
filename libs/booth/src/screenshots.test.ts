@@ -1,6 +1,6 @@
 import { expect, test, describe, beforeAll } from "vitest";
 import { takeScreenshots } from "./screenshots";
-import { snapshot } from "@chromaui/rrweb-snapshot";
+import { snapshot } from "@pixeleye/rrweb-snapshot";
 import { JSDOM } from "jsdom";
 import { chromium, firefox, webkit } from "playwright";
 import fs from "fs/promises";

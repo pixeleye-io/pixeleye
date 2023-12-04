@@ -25,12 +25,12 @@ func Diff(image1 image.Image, image2 image.Image, options Options) (*Result, err
 
 	if options.Blur {
 		var err error
-		image1, err = stackblur.Process(image1, 5)
+		image1, err = stackblur.Process(image1, 2)
 		if err != nil {
 			return nil, err
 		}
 
-		image2, err = stackblur.Process(image2, 5)
+		image2, err = stackblur.Process(image2, 2)
 		if err != nil {
 			return nil, err
 		}

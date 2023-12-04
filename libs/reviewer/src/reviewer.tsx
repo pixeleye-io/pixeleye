@@ -9,12 +9,13 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
-import { BuildAPI, SnapshotTargetGroup, useReviewerStore } from "./store";
-import { useEffect, useMemo, useTransition } from "react";
+import { BuildAPI, SnapshotTargetGroup, StoreContext } from "./store";
+import { useContext, useEffect, useMemo, useTransition } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
 import { StaticImageData } from "next/image";
+import { useStore } from "zustand";
 
 
 export type ExtendedSnapshotPair = Omit<
@@ -72,17 +73,19 @@ export function Reviewer({
   userRole,
   isUpdatingSnapshotStatus,
 }: ReviewerProps) {
-  const setBuild = useReviewerStore((state) => state.setBuild);
-  const setSnapshots = useReviewerStore((state) => state.setSnapshots);
-  const setOptimize = useReviewerStore((state) => state.setOptimize);
-  const setCurrentSnapshot = useReviewerStore(
+  const store = useContext(StoreContext)
+
+  const setBuild = useStore(store, (state) => state.setBuild);
+  const setSnapshots = useStore(store, (state) => state.setSnapshots);
+  const setOptimize = useStore(store, (state) => state.setOptimize);
+  const setCurrentSnapshot = useStore(store, 
     (state) => state.setCurrentSnapshot
   );
-  const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
-  const panelOpen = useReviewerStore((state) => state.panelOpen);
-  const setBuildAPI = useReviewerStore((state) => state.setBuildAPI);
-  const setUserRole = useReviewerStore((state) => state.setUserRole);
-  const setIsUpdatingSnapshotStatus = useReviewerStore(
+  const currentSnapshot = useStore(store, (state) => state.currentSnapshot);
+  const panelOpen = useStore(store, (state) => state.panelOpen);
+  const setBuildAPI = useStore(store, (state) => state.setBuildAPI);
+  const setUserRole = useStore(store, (state) => state.setUserRole);
+  const setIsUpdatingSnapshotStatus = useStore(store, 
     (state) => state.setIsUpdatingStatus
   );
 
@@ -182,10 +185,12 @@ export function Reviewer({
   ]);
 
   return (
-    <div className={cx("w-full flex", className)}>
-      <Sidebar />
-      {panelOpen && <Panel />}
-      <Compare />
-    </div>
+    <StoreContext.Provider value={store}>
+      <div className={cx("w-full flex", className)}>
+        <Sidebar />
+        {panelOpen && <Panel />}
+        <Compare />
+      </div>
+    </StoreContext.Provider>
   );
 }

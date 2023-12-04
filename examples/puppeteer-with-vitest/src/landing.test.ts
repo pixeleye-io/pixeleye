@@ -26,9 +26,8 @@ describe(
     });
 
     test("Landing page header screenshot", async () => {
-      await app.navigate("/", {
-        waitUntil: "networkidle",
-      });
+      await app.navigate("/");
+
 
       await app.page.waitForSelector("kbd.ml-auto"); // This takes a while to load
 

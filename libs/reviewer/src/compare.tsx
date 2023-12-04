@@ -7,13 +7,14 @@ import {
   TabsTrigger,
   Toggle,
 } from "@pixeleye/ui";
-import { CompareTab, useReviewerStore } from "./store";
-import { FC, useCallback, useEffect, useMemo, useRef } from "react";
+import { CompareTab, StoreContext, store } from "./store";
+import { FC, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
 import { ChromiumLogo, FirefoxLogo, WebkitLogo } from "./logos";
 import { m } from "framer-motion";
+import { useStore } from "zustand";
 
 function TabSwitcher() {
   return (
@@ -60,9 +61,11 @@ interface DisplayOptionsProps {
   resetAlignment: (type?: "single" | "double") => void;
 }
 function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
-  const setShowDiff = useReviewerStore((state) => state.setShowDiff);
-  const showDiff = useReviewerStore((state) => state.showDiff);
-  const activeTab = useReviewerStore((state) => state.activeCompareTab);
+  const store = useContext(StoreContext)
+
+  const setShowDiff = useStore(store, (state) => state.setShowDiff);
+  const showDiff = useStore(store, (state) => state.showDiff);
+  const activeTab = useStore(store, (state) => state.activeCompareTab);
 
   return (
     <div className="flex">
@@ -118,16 +121,16 @@ const targetIconRepo = {
 } as const;
 
 export function Compare() {
-  const snapshot = useReviewerStore((state) => state.currentSnapshot);
-  const build = useReviewerStore((state) => state.build);
+  const snapshot = useStore(store, (state) => state.currentSnapshot);
+  const build = useStore(store, (state) => state.build);
 
-  const activeTab = useReviewerStore((state) => state.activeCompareTab);
-  const setActiveTab = useReviewerStore((state) => state.setActiveCompareTab);
-  const userRole = useReviewerStore((state) => state.userRole);
+  const activeTab = useStore(store, (state) => state.activeCompareTab);
+  const setActiveTab = useStore(store, (state) => state.setActiveCompareTab);
+  const userRole = useStore(store, (state) => state.userRole);
 
-  const buildAPI = useReviewerStore((state) => state.buildAPI);
-  const setCurrentSnapshot = useReviewerStore((state) => state.setCurrentSnapshot);
-  const snapshotTargetGroups = useReviewerStore((state) => state.snapshots);
+  const buildAPI = useStore(store, (state) => state.buildAPI);
+  const setCurrentSnapshot = useStore(store, (state) => state.setCurrentSnapshot);
+  const snapshotTargetGroups = useStore(store, (state) => state.snapshots);
 
 
   const currentSnapshotIndex = useMemo(() => {
@@ -256,11 +259,11 @@ function TargetTabs({
   snapshot: ExtendedSnapshotPair
 }) {
 
-  const groupedSnapshots = useReviewerStore((state) => state.snapshots);
+  const groupedSnapshots = useStore(store, (state) => state.snapshots);
 
   const targetGroup = groupedSnapshots.find((group) => group.name === snapshot.name && group.status === snapshot.status && group.variant === snapshot.variant && group.viewport === snapshot.viewport);
 
-  const setCurrentSnapshot = useReviewerStore((state) => state.setCurrentSnapshot);
+  const setCurrentSnapshot = useStore(store, (state) => state.setCurrentSnapshot);
 
   if (!targetGroup) {
     return null;

@@ -44,7 +44,6 @@ func GetChannel() (*amqp.Channel, error) {
 		}
 
 		channel, err = connection.Channel()
-
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to open a channel")
 			return nil, err
@@ -56,7 +55,7 @@ func GetChannel() (*amqp.Channel, error) {
 }
 
 func GetConnection() (*amqp.Connection, error) {
-	if globalConnection == nil {
+	if globalConnection == nil || globalConnection.IsClosed() {
 		// url := os.Getenv("AMQP_URL")
 
 		userName := os.Getenv("AMQP_USER")

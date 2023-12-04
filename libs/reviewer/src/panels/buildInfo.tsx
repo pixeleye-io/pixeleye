@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
-import { useReviewerStore } from "../store";
+import { ReactNode, useContext } from "react";
+import { StoreContext } from "../store";
 import { PanelHeader } from "./shared";
+import { useStore } from "zustand";
 
 // Errors
 // Warnings
@@ -18,9 +19,11 @@ function InfoLine({ label, children }: { label: string; children: ReactNode }) {
 // TODO - add pull request url for build
 // TODO - add child builds
 export default function BuildInfoPanel() {
-  const build = useReviewerStore((state) => state.build);
+  const store = useContext(StoreContext)
 
-  const snapshots = useReviewerStore((state) => state.snapshots);
+  const build = useStore(store, (state) => state.build);
+
+  const snapshots = useStore(store, (state) => state.snapshots);
 
   const snapshotCount = snapshots.length;
 

@@ -1,7 +1,8 @@
-import { create } from "zustand";
+import { create, createStore } from "zustand";
 import { Panel } from "./panel";
 import { Build, UserOnProjectRole } from "@pixeleye/api";
 import { ExtendedSnapshotPair } from "./reviewer";
+import { createContext } from "react";
 
 export type CompareTab = "single" | "double";
 
@@ -70,7 +71,7 @@ const defaultBuild: Build = {
   status: "uploading",
 };
 
-export const useReviewerStore = create<ReviewerState>()((set) => ({
+export const store = createStore<ReviewerState>()((set) => ({
   panel: "snapshots",
   setPanel: (panel) => set({ panel }),
   optimize: false,
@@ -111,3 +112,5 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   isUpdatingStatus: false,
   setIsUpdatingStatus: (isUpdatingStatus) => set({ isUpdatingStatus }),
 }));
+
+export const StoreContext = createContext(store);

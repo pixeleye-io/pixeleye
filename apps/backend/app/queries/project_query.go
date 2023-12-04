@@ -225,7 +225,7 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 }
 
 func (q *ProjectQueries) UpdateProject(project *models.Project) error {
-	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token, updated_at = :updated_at, url = :url, snapshot_threshold = :snapshot_threshold WHERE id = :id`
+	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token, updated_at = :updated_at, url = :url, snapshot_threshold = :snapshot_threshold, snapshot_blur = :snapshot_blur WHERE id = :id`
 
 	project.UpdatedAt = time.Now()
 

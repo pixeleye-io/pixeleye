@@ -1,5 +1,5 @@
 import NextImage, { StaticImageData } from "next/image";
-import { useReviewerStore } from "../store";
+import { StoreContext } from "../store";
 import { MotionValue, m, useMotionValueEvent } from "framer-motion";
 import {
   useEffect,
@@ -7,6 +7,7 @@ import {
   useCallback,
   forwardRef,
   useImperativeHandle,
+  useContext,
 } from "react";
 import { DottedBackground } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
@@ -16,6 +17,7 @@ import {
   pinchAction,
   wheelAction,
 } from "@use-gesture/react";
+import { useStore } from "zustand";
 
 interface ImageProps {
   base: {
@@ -76,8 +78,11 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const draggableRef = useRef<HTMLDivElement>(null);
 
-    const optimize = useReviewerStore((state) => state.optimize);
-    const showOverlay = useReviewerStore((state) => state.showDiff);
+    const store = useContext(StoreContext)
+
+
+    const optimize = useStore(store, (state) => state.optimize);
+    const showOverlay = useStore(store, (state) => state.showDiff);
 
     const cancelTap = useRef(false);
 
@@ -221,85 +226,85 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     return (
       <div className="h-full w-full flex-col flex items-center">
-        <div className="bg-surface-container border rounded-md border-outline px-2 py-1 text-sm mb-2">
-          {baseline === undefined? secondBase && showSecondBase? "Baseline" : "Changes" : baseline? "Baseline" : "Changes"} from <span className="font-bold">{branch}</span>
+        <div className="bg-surface-container-low border rounded-md border-outline px-2 py-1 text-sm mb-2">
+          <span className="">{baseline === undefined ? secondBase && showSecondBase ? "Baseline" : "Changes" : baseline ? "Baseline" : "Changes"}</span>
         </div>
-      <DottedBackground
-        ref={parentRef}
-        className={cx(
-          "h-full w-full bg-surface-container-low rounded border border-outline-variant overflow-hidden",
-          className
-        )}
-      >
-        <div
-          ref={containerRef}
-          className="grow-0 w-full h-full cursor-grab z-0 select-non touch-none	active:cursor-grabbing"
+        <DottedBackground
+          ref={parentRef}
+          className={cx(
+            "h-full w-full bg-surface-container-low rounded border border-outline-variant overflow-hidden",
+            className
+          )}
         >
-          <m.div
-            ref={draggableRef}
-            suppressHydrationWarning
-            style={{
-              scale,
-              x,
-              y,
-              aspectRatio: `${base.width} / ${base.height}`,
-              transformOrigin: "top center",
-            }}
-            className="relative z-0 pointer-events-none"
+          <div
+            ref={containerRef}
+            className="grow-0 w-full h-full cursor-grab z-0 select-non touch-none	active:cursor-grabbing"
           >
-            <NextImage
-              key={`base-${base.src.toString()}`}
-              quality={100}
-              priority
-              className={cx(
-                "pointer-events-none z-0 select-none z-0 absolute inset-0",
-                showSecondBase && "opacity-0",
-                showOverlay && overlay && "brightness-[50%]"
+            <m.div
+              ref={draggableRef}
+              suppressHydrationWarning
+              style={{
+                scale,
+                x,
+                y,
+                aspectRatio: `${base.width} / ${base.height}`,
+                transformOrigin: "top center",
+              }}
+              className="relative z-0 pointer-events-none"
+            >
+              <NextImage
+                key={`base-${base.src.toString()}`}
+                quality={100}
+                priority
+                className={cx(
+                  "pointer-events-none z-0 select-none z-0 absolute inset-0",
+                  showSecondBase && "opacity-0",
+                  showOverlay && overlay && "brightness-[50%]"
+                )}
+                draggable={false}
+                alt={base.alt}
+                src={base.src}
+                fill
+                unoptimized={!optimize}
+                placeholder={optimize ? "blur" : "empty"}
+              />
+              {secondBase && (
+                <NextImage
+                  key={`second-base-${secondBase.src.toString()}`}
+                  quality={100}
+                  priority
+                  className={cx(
+                    "pointer-events-none z-0 select-none z-0 absolute inset-0 ",
+                    !showSecondBase && "opacity-0"
+                  )}
+                  draggable={false}
+                  alt={secondBase.alt}
+                  src={secondBase.src}
+                  fill
+                  placeholder={optimize ? "blur" : "empty"}
+                  unoptimized={!optimize}
+                />
               )}
-              draggable={false}
-              alt={base.alt}
-              src={base.src}
-              fill
-              unoptimized={!optimize}
-              placeholder={optimize ? "blur" : "empty"}
-            />
-            {secondBase && (
-              <NextImage
-                key={`second-base-${secondBase.src.toString()}`}
-                quality={100}
-                priority
-                className={cx(
-                  "pointer-events-none z-0 select-none z-0 absolute inset-0 ",
-                  !showSecondBase && "opacity-0"
-                )}
-                draggable={false}
-                alt={secondBase.alt}
-                src={secondBase.src}
-                fill
-                placeholder={optimize ? "blur" : "empty"}
-                unoptimized={!optimize}
-              />
-            )}
-            {overlay && (
-              <NextImage
-                key={`overlay-${overlay.src.toString()}`}
-                priority
-                quality={100}
-                className={cx(
-                  (!showOverlay || showSecondBase) && "opacity-0",
-                  "pointer-events-none select-none z-10 absolute inset-0 z-10"
-                )}
-                draggable={false}
-                alt={overlay.alt}
-                src={overlay.src}
-                fill
-                placeholder={optimize ? "blur" : "empty"}
-                unoptimized={!optimize}
-              />
-            )}
-          </m.div>
-        </div>
-      </DottedBackground>
+              {overlay && (
+                <NextImage
+                  key={`overlay-${overlay.src.toString()}`}
+                  priority
+                  quality={100}
+                  className={cx(
+                    (!showOverlay || showSecondBase) && "opacity-0",
+                    "pointer-events-none select-none z-10 absolute inset-0 z-10"
+                  )}
+                  draggable={false}
+                  alt={overlay.alt}
+                  src={overlay.src}
+                  fill
+                  placeholder={optimize ? "blur" : "empty"}
+                  unoptimized={!optimize}
+                />
+              )}
+            </m.div>
+          </div>
+        </DottedBackground>
       </div>
     );
   }

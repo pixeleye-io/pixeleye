@@ -1,10 +1,11 @@
-import { useReviewerStore } from "../store";
+import { StoreContext } from "../store";
 import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
 import { Accordion } from "@pixeleye/ui";
+import { useStore } from "zustand";
 
 interface AccordionSnapsProps {
   groupedSnapshots: ExtendedSnapshotPair[][];
@@ -75,8 +76,10 @@ function SnapButton({
   active,
 }: SnapButtonProps) {
   const ref = useRef<HTMLButtonElement>(null);
+  const store = useContext(StoreContext)
 
-  const optimize = useReviewerStore((state) => state.optimize);
+
+  const optimize = useStore(store, (state) => state.optimize);
 
   useEffect(() => {
     if (active) {
@@ -136,10 +139,11 @@ function ShortcutHint() {
 }
 
 export default function SnapshotsPanel() {
-  const groupedSnapshots = useReviewerStore((state) => state.snapshots);
-  const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
+  const store = useContext(StoreContext)
+  const groupedSnapshots = useStore(store, (state) => state.snapshots);
+  const currentSnapshot = useStore(store, (state) => state.currentSnapshot);
 
-  const setCurrentSnapshot = useReviewerStore(
+  const setCurrentSnapshot = useStore(store,
     (state) => state.setCurrentSnapshot
   );
 

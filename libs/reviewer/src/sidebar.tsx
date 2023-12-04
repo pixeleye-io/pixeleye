@@ -26,8 +26,10 @@ import {
   ChatBubbleBottomCenterTextIcon as ChatBubbleBottomCenterTextOutlineIcon,
 } from "@heroicons/react/24/outline";
 import { Panel } from "./panel";
-import { useReviewerStore } from "./store";
 import { cx } from "class-variance-authority";
+import { useContext } from "react";
+import { useStore } from "zustand";
+import { store, StoreContext } from "./store";
 
 interface SidebarItem {
   name: string;
@@ -58,7 +60,7 @@ const SidebarNav: SidebarItem[] = [
 ];
 
 function BatchApprove() {
-  const buildAPI = useReviewerStore((state) => state.buildAPI);
+  const buildAPI = useStore(store, (state) => state.buildAPI);
 
   return (
     <DropdownMenu>
@@ -140,10 +142,12 @@ function BatchApprove() {
 }
 
 export function Sidebar() {
-  const setPanel = useReviewerStore((state) => state.setPanel);
-  const panel = useReviewerStore((state) => state.panel);
+  const store = useContext(StoreContext)
 
-  const setPanelOpen = useReviewerStore((state) => state.setPanelOpen);
+  const setPanel = useStore(store, (state) => state.setPanel);
+  const panel = useStore(store, (state) => state.panel);
+
+  const setPanelOpen = useStore(store, (state) => state.setPanelOpen);
 
   return (
     <div className="w-16 border-r bg-surface-container-lowest border-outline-variant flex-col flex items-center pt-2 shrink-0">

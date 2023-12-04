@@ -1,15 +1,18 @@
-import { useReviewerStore } from "../store";
 import { DraggableImage, DraggableImageRef } from "./draggableImage";
 import { useMotionValue } from "framer-motion";
-import { RefObject } from "react";
+import { RefObject, useContext } from "react";
+import { useStore } from "zustand";
+import { StoreContext } from "../store";
 
 interface DoubleProps {
   draggableImageRef?: RefObject<DraggableImageRef>;
 }
 
 export function Double({ draggableImageRef }: DoubleProps) {
-  const snapshot = useReviewerStore((state) => state.currentSnapshot)!;
-  const build = useReviewerStore((state) => state.build);
+  const store = useContext(StoreContext)
+
+  const snapshot = useStore(store, (state) => state.currentSnapshot)!;
+  const build = useStore(store, (state) => state.build);
 
   const validSnapshot = Boolean(
     snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight

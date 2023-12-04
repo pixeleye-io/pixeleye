@@ -1,17 +1,20 @@
-import { RefObject } from "react";
-import { useReviewerStore } from "../store";
+import { RefObject, useContext } from "react";
 import { DraggableImage, DraggableImageRef } from "./draggableImage";
 import { useMotionValue } from "framer-motion";
+import { useStore } from "zustand";
+import { StoreContext } from "../store";
 
 interface SingleProps {
   draggableImageRef?: RefObject<DraggableImageRef>;
 }
 
 export function Single({ draggableImageRef }: SingleProps) {
-  const snapshot = useReviewerStore((state) => state.currentSnapshot)!;
-  const singleSnapshot = useReviewerStore((state) => state.singleSnapshot);
-  const build = useReviewerStore((state) => state.build);
-  const setSingleSnapshot = useReviewerStore(
+  const store = useContext(StoreContext)
+
+  const snapshot = useStore(store, (state) => state.currentSnapshot)!;
+  const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
+  const build = useStore(store, (state) => state.build);
+  const setSingleSnapshot = useStore(store, 
     (state) => state.setSingleSnapshot
   );
 
