@@ -117,7 +117,7 @@ export function Reviewer({
         status: group[0].status
       } as SnapshotTargetGroup)
       )
-    }),
+    }).sort((a, b) => snapshotSortMap[a.status] - snapshotSortMap[b.status]),
     [snapshots]
   );
 
