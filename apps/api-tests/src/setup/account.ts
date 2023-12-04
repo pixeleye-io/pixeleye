@@ -9,7 +9,7 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const setup = async () => {
   let isUp = false;
   for (let i = 0; i < 100; i++) {
-    await fetch(env.SERVER_ENDPOINT + "/v1/ping", {
+    await fetch(env.BACKEND_URL + "/v1/ping", {
       method: "GET",
     })
       .then(async (res) => {

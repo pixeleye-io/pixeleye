@@ -1,2 +1,2 @@
 export * from "./navTab";
-export { default } from "./navTab";
+export { default as NavTab } from "./navTab";

@@ -1,7 +1,7 @@
 import { Method, Routes } from "api-typify";
 
 type GET = Method<{
-  "/ping": {
+  "/v1/ping": {
     res: {
       message: "pong";
     };

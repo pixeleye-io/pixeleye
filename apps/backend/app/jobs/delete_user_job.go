@@ -8,9 +8,9 @@ import (
 // Job is a job that deletes a user
 func DeleteUserJob() {
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open database connection for DeleteUserJob")
+		return
 	}
 
 	err = db.DeleteUsers()

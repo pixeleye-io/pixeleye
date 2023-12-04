@@ -1,16 +1,20 @@
-import { RefObject } from "react";
-import { useReviewerStore } from "../store";
+import { RefObject, useContext } from "react";
 import { DraggableImage, DraggableImageRef } from "./draggableImage";
 import { useMotionValue } from "framer-motion";
+import { useStore } from "zustand";
+import { StoreContext } from "../store";
 
 interface SingleProps {
   draggableImageRef?: RefObject<DraggableImageRef>;
 }
 
 export function Single({ draggableImageRef }: SingleProps) {
-  const snapshot = useReviewerStore((state) => state.currentSnapshot)!;
-  const singleSnapshot = useReviewerStore((state) => state.singleSnapshot);
-  const setSingleSnapshot = useReviewerStore(
+  const store = useContext(StoreContext)
+
+  const snapshot = useStore(store, (state) => state.currentSnapshot)!;
+  const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
+  const build = useStore(store, (state) => state.build);
+  const setSingleSnapshot = useStore(store, 
     (state) => state.setSingleSnapshot
   );
 
@@ -34,12 +38,10 @@ export function Single({ draggableImageRef }: SingleProps) {
 
   return (
     <div className="overflow-hidden w-full h-full">
-      <div></div>
       <div className="flex h-full w-full overflow-hidden">
-        {validHeadSnapshot && (
           <DraggableImage
-            onTap={() =>
-              setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head")
+            branch={build.branch}
+            onTap={() => validBaselineSnapshot && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head")
             }
             ref={draggableImageRef}
             x={x}
@@ -58,8 +60,7 @@ export function Single({ draggableImageRef }: SingleProps) {
                     width: snapshot.baselineWidth!,
                     height: snapshot.baselineHeight!,
                     alt: "Baseline snapshot",
-                  }
-                : undefined
+                  } : undefined
             }
             showSecondBase={singleSnapshot === "baseline"}
             overlay={
@@ -73,7 +74,6 @@ export function Single({ draggableImageRef }: SingleProps) {
                 : undefined
             }
           />
-        )}
       </div>
     </div>
   );

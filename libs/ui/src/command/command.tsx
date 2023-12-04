@@ -4,7 +4,7 @@ import * as React from "react";
 import { DialogProps } from "@radix-ui/react-dialog";
 import { Command as CommandPrimitive } from "cmdk";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import Dialog, { DialogContent } from "../dialog";
+import { DialogContent, Dialog } from "../dialog";
 import { cx } from "class-variance-authority";
 
 const Command = React.forwardRef<

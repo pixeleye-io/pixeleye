@@ -3,12 +3,7 @@
 import { API } from "@/libs";
 import {
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table
 } from "@pixeleye/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Team, UserOnTeam } from "@pixeleye/api";
@@ -34,7 +29,7 @@ export function MemberSection({
 
   const deleteMember = useMutation({
     mutationFn: (userID: string) =>
-      API.delete("/teams/{teamID}/admin/users/{userID}", {
+      API.delete("/v1/teams/{teamID}/admin/users/{userID}", {
         params: {
           teamID: team.id,
           userID,
@@ -97,22 +92,22 @@ export function MemberSection({
 
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Role</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Name</Table.Head>
+          <Table.Head>Role</Table.Head>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
         {members.data?.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell className="flex flex-col">
+          <Table.Row key={member.id}>
+            <Table.Cell className="flex flex-col">
               <span>{member.name}</span>
               <span className="text-on-surface-variant">{member.email}</span>
-            </TableCell>
-            <TableCell>{member.role}</TableCell>
+            </Table.Cell>
+            <Table.Cell>{member.role}</Table.Cell>
             {type === "invited" && ["admin", "owner"].includes(team.role || "") && (
-              <TableCell>
+              <Table.Cell>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -122,11 +117,11 @@ export function MemberSection({
                 >
                   <TrashIcon className="w-5 h-5 text-on-surface-variant" />
                 </Button>
-              </TableCell>
+              </Table.Cell>
             )}
-          </TableRow>
+          </Table.Row>
         ))}
-      </TableBody>
+      </Table.Body>
     </Table>
   );
 }

@@ -73,7 +73,7 @@ function TeamsHeading() {
   const queryClient = useQueryClient();
 
   const { mutate: syncTeams, isPending } = useMutation({
-    mutationFn: () => API.post("/user/teams/sync", {}),
+    mutationFn: () => API.post("/v1/user/teams/sync", {}),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queries.teams._def,
@@ -141,6 +141,9 @@ export function Navbar() {
 
   const params = new URLSearchParams(searchParams);
 
+  const paramsWithoutTeam = new URLSearchParams(searchParams);
+  paramsWithoutTeam.delete("team");
+
   const navigate = useTeamNavigation();
 
   const selectedTeam =
@@ -151,20 +154,21 @@ export function Navbar() {
   else if (selectedTeam) params.set("team", selectedTeam.id);
 
   return (
-    <nav className="flex justify-between px-4 pt-2 pb-1 bg-background">
+    <nav className="flex justify-between px-4 pt-2 pb-1 bg-surface-container-lowest">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
           <Link
             href={`/dashboard?` + params.toString()}
             className="flex items-center"
           >
-            <Logo className="h-7 w-7 text-on-surface hover:text-primary" />
+            <Logo className="h-7 w-7 text-on-surface hover:text-tertiary" />
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
           <div className="flex items-center ">
             {groupTeams && selectedTeam && personalTeam && (
               <TeamSwitcher
+                user={user}
                 personal={personalTeam}
                 teams={groupTeams}
                 selectedTeam={selectedTeam}
@@ -217,7 +221,7 @@ export function Navbar() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href={`/settings?` + params.toString()}>Settings</Link>
+              <Link href={`/settings?` + paramsWithoutTeam.toString()}>Settings</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

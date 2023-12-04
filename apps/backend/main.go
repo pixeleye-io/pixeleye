@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/pkg/ingest"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -18,8 +19,11 @@ import (
 
 func main() {
 
-	//nolint:errcheck
-	godotenv.Load("./../../.env")
+	if os.Getenv("STAGE_STATUS") == "" {
+		if err := godotenv.Load(".env", "./../../.env"); err != nil {
+			log.Info().Msg("No .env file found")
+		}
+	}
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
@@ -29,8 +33,9 @@ func main() {
 	e.Use(echoMiddleware.Recover())
 
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:5000", "http://localhost:4000", "http://localhost:3000"},
+		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
 		AllowCredentials: true,
+		ExposeHeaders:    []string{"Pixeleye-Location"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}}))
 
 	e.Use(echoMiddleware.Secure())
@@ -44,6 +49,7 @@ func main() {
 	routes.BuildRoutes(e)
 	routes.GitRoutes(e)
 	routes.InviteRoutes(e)
+	routes.WebhookRoutes(e)
 
 	cron.StartCron()
 
@@ -55,7 +61,7 @@ func main() {
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
-		if os.Getenv("SELF_HOSTING") != "false" {
+		if os.Getenv("PIXELEYE_HOSTING") != "true" {
 			go ingest.StartIngestServerWithGracefulShutdown()
 		}
 		utils.StartServerWithGracefulShutdown(e)

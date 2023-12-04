@@ -4,12 +4,12 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "eslint-config-next": "^13.5.3",
+    "eslint-config-next": "^14.0.2",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-config-turbo": "^1.10.14",
+    "eslint-config-turbo": "^1.10.16",
     "eslint-plugin-react": "7.33.2"
   },
   "devDependencies": {
-    "next": "13.5.3"
+    "next": "14.0.2"
   }
 }

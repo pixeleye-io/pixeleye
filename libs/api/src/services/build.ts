@@ -3,16 +3,16 @@ import { Build } from "../models/build";
 import { PartialSnapshot, Snapshot } from "../models";
 
 type GET = Method<{
-  "/builds/{id}": {
+  "/v1/builds/{id}": {
     res: Build;
   };
-  "/client/builds": {
+  "/v1/client/builds": {
     res: Build[];
     queries?: {
       branch?: string;
     };
   };
-  "/builds/{id}/snapshots": {
+  "/v1/builds/{id}/snapshots": {
     res: (Snapshot & {
       snapHash?: string;
       baselineHash?: string;
@@ -22,10 +22,10 @@ type GET = Method<{
 }>;
 
 type POST = Method<{
-  "/builds/{id}/review/abort": {
+  "/v1/builds/{id}/review/abort": {
     req: undefined;
   };
-  "/client/builds/create": {
+  "/v1/client/builds/create": {
     res: Build;
     req: Omit<
       Build,
@@ -38,16 +38,16 @@ type POST = Method<{
       | "buildNumber"
     >;
   };
-  "/client/builds/{id}/upload": {
+  "/v1/client/builds/{id}/upload": {
     res: undefined;
     req: {
       snapshots: PartialSnapshot[];
     };
   };
-  "/client/builds/{id}/complete": {
+  "/v1/client/builds/{id}/complete": {
     res: undefined;
   };
-  "/client/builds": {
+  "/v1/client/builds": {
     res: Build[];
     req?: {
       shas: string[];
@@ -56,28 +56,31 @@ type POST = Method<{
       branch?: string;
     };
   };
-  "/builds/{id}/review/approve": {
+  "/v1/client/builds/{id}/abort": {
+    res: undefined;
+  };
+  "/v1/builds/{id}/review/approve": {
     res: Build;
     req: {
       snapshotIDs: string[];
     };
   };
-  "/builds/{id}/review/reject": {
+  "/v1/builds/{id}/review/reject": {
     res: Build;
     req: {
       snapshotIDs: string[];
     };
   };
-  "/builds/{id}/review/approve/all": {
+  "/v1/builds/{id}/review/approve/all": {
     res: Build;
   };
-  "/builds/{id}/review/reject/all": {
+  "/v1/builds/{id}/review/reject/all": {
     res: Build;
   };
-  "/builds/{id}/review/approve/remaining": {
+  "/v1/builds/{id}/review/approve/remaining": {
     res: Build;
   };
-  "/builds/{id}/review/reject/remaining": {
+  "/v1/builds/{id}/review/reject/remaining": {
     res: Build;
   };
 }>;

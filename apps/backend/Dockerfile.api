@@ -23,6 +23,7 @@ COPY --from=builder /docker-pixeleye-api /docker-pixeleye-api
 
 EXPOSE 5000
 
+
 USER nonroot:nonroot
 
 ENTRYPOINT ["/docker-pixeleye-api"]

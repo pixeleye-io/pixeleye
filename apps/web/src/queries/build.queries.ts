@@ -5,7 +5,7 @@ export const buildKeys = createQueryKeys("builds", {
   detail: (buildID: string, cookie: string = "") => ({
     queryKey: [buildID],
     queryFn: () =>
-      API.get("/builds/{id}", {
+      API.get("/v1/builds/{id}", {
         headers: { cookie },
         params: { id: buildID },
       }),
@@ -13,7 +13,7 @@ export const buildKeys = createQueryKeys("builds", {
       listSnapshots: () => ({
         queryKey: ["snapshots"],
         queryFn: () =>
-          API.get("/builds/{id}/snapshots", {
+          API.get("/v1/builds/{id}/snapshots", {
             headers: { cookie },
             params: { id: buildID },
           }),
@@ -21,7 +21,7 @@ export const buildKeys = createQueryKeys("builds", {
       abort: () => ({
         queryKey: ["abort"],
         queryFn: () =>
-          API.post("/builds/{id}/review/abort", {
+          API.post("/v1/builds/{id}/review/abort", {
             headers: { cookie },
             params: { id: buildID },
           }),

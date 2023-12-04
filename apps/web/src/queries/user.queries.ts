@@ -6,7 +6,7 @@ export const userKeys = createQueryKeys("user", {
   get: (cookie: string = "") => ({
     queryKey: ["get"],
     queryFn: () =>
-      API.get("/user/me", {
+      API.get("/v1/user/me", {
         headers: {
           cookie,
         },
@@ -14,8 +14,8 @@ export const userKeys = createQueryKeys("user", {
   }),
   update: (cookie: string = "") => ({
     queryKey: ["update"],
-    queryFn: (user: UserAPI["PATCH"]["/user/me"]["req"]) =>
-      API.patch("/user/me", {
+    queryFn: (user: UserAPI["PATCH"]["/v1/user/me"]["req"]) =>
+      API.patch("/v1/user/me", {
         headers: {
           cookie,
         },

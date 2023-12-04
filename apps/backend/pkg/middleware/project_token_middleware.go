@@ -12,10 +12,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type projectMiddleware struct {
-	db *database.Queries
-}
-
 func GetProject(c echo.Context) *models.Project {
 	return c.Get("project").(*models.Project)
 }
@@ -24,7 +20,12 @@ func SetProject(c echo.Context, project *models.Project) {
 	c.Set("project", project)
 }
 
-func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, error) {
+func validateToken(r *http.Request) (*models.Project, error) {
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return nil, err
+	}
 
 	// We first check if the session token is set in the header otherwise we use the cookie.
 
@@ -46,38 +47,31 @@ func (k *projectMiddleware) validateToken(r *http.Request) (*models.Project, err
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	projectId := values[0]
+	projectId := values[1]
 
 	if !utils.ValidateNanoid(projectId) {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	project, err := k.db.GetProject(r.Context(), projectId)
-
+	project, err := db.GetProjectWithTeamStatus(r.Context(), projectId)
 	if err != nil {
 		return nil, err
 	}
 
-	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[1]))) != nil {
+	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[0]))) != nil {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
 
-	return &project, nil
+	if project.TeamStatus == models.TEAM_STATUS_SUSPENDED {
+		return nil, fmt.Errorf("team is currently suspended")
+	}
+
+	return project.Project, nil
 }
 
-func NewProjectMiddleware() *projectMiddleware {
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		panic(err)
-	}
-	return &projectMiddleware{
-		db: db,
-	}
-}
-
-func (k *projectMiddleware) ProjectToken(next echo.HandlerFunc) echo.HandlerFunc {
+func ProjectTokenMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		project, err := k.validateToken(c.Request())
+		project, err := validateToken(c.Request())
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}

@@ -1,7 +1,7 @@
+import { env } from "@/env";
 import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
-
-const endpoint = "http://localhost:4000/v1";
+import { redirect } from "next/navigation";
 
 export interface CustomProps {
   headers?: Record<string, string>;
@@ -12,7 +12,7 @@ export interface CustomProps {
 }
 
 export const createAPI = (extraHeaders: Record<string, string> = {}) =>
-  getAPI<Services, CustomProps>(endpoint, (url, options) =>
+  getAPI<Services, CustomProps>(env.NEXT_PUBLIC_BACKEND_URL, (url, options) =>
     fetch(url, {
       ...options,
       headers: {
@@ -22,11 +22,19 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
         ...options?.headers,
       },
       credentials: "include",
-    }).then((res) => {
-      if (res.ok) {
-        return res.json();
+    }).then(async (res) => {
+      if (res.status === 300 && res.headers.get("pixeleye-location")) {
+        if (typeof window !== "undefined") {
+          window.location.href = res.headers.get("pixeleye-location")!;
+        }
+        redirect(res.headers.get("pixeleye-location")!);
       }
-      return Promise.reject(res);
+
+      if (res.ok) {
+        return res.json().catch(() => undefined);
+      }
+
+      return Promise.reject(await res.json().catch(() => res));
     })
   );
 

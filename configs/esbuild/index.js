@@ -1,14 +1,12 @@
 import * as esbuild from "esbuild";
 
 
-export function build(entryPoints, outfile, external = []) {
+export function build(entryPoints, outfile, external = [], banner = {}) {
   esbuild.build({
     entryPoints,
-    loader: { ".node": "file" },
+    // loader: { ".node": "file" },
+    banner,
     bundle: true,
-    banner: {
-      // js: `#!/usr/bin/env node`,
-    },
     platform: "node",
     target: "node18",
     outfile,

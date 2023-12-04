@@ -1,7 +1,7 @@
-import FenceComponent from "@pixeleye/ui/src/fence";
+import { Fence } from "@pixeleye/ui/src/fence";
 
-const Fence = {
-  render: FenceComponent,
+const FenceComponent = {
+  render: Fence,
   attributes: {
     language: {
       type: String,
@@ -9,4 +9,4 @@ const Fence = {
   },
 };
 
-export default Fence;
+export default FenceComponent;

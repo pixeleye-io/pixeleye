@@ -1,5 +1,4 @@
 import { Build, PartialSnapshot } from "@pixeleye/api";
-import { sleep } from "pactum";
 import { buildTokenAPI } from "../../routes/build";
 import { snapshotTokenAPI } from "../../routes/snapshots";
 import { fetch, request } from "undici";
@@ -32,7 +31,7 @@ async function waitForBuildStatus(
   return new Promise<void>((resolve, reject) => {
     let didProcess = false;
     const es = new EventSource(
-      `${env.SERVER_ENDPOINT}/v1/client/builds/${build?.id}/events`,
+      `${env.BACKEND_URL}/v1/client/builds/${build?.id}/events`,
       {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,

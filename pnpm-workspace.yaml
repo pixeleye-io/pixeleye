@@ -1,6 +1,7 @@
 packages:
   - 'configs/*'
   - 'libs/*'
+  - 'examples/*'
   - 'apps/web'
   - 'apps/marketing'
   - 'apps/api-tests'

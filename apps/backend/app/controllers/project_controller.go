@@ -21,7 +21,9 @@ import (
 )
 
 func generateToken() (string, error) {
-	return utils.GenerateRandomStringURLSafe(24)
+	str, err := utils.GenerateRandomStringURLSafe(24)
+
+	return "pxi__" + str, err
 }
 
 func hashToken(token string) (string, error) {
@@ -38,7 +40,6 @@ func CreateProject(c echo.Context) error {
 	project := models.Project{}
 
 	team, err := middleware.GetTeam(c)
-
 	if err != nil {
 		return err
 	}
@@ -56,7 +57,6 @@ func CreateProject(c echo.Context) error {
 	}
 
 	user, err := middleware.GetUser(c)
-
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,6 @@ func CreateProject(c echo.Context) error {
 	validate := utils.NewValidator()
 
 	id, err := nanoid.New()
-
 	if err != nil {
 		return err
 	}
@@ -77,19 +76,16 @@ func CreateProject(c echo.Context) error {
 	project.ID = id
 
 	token, err := generateToken()
-
 	if err != nil {
 		return err
 	}
 
 	hashedToken, err := hashToken(token)
-
 	if err != nil {
 		return err
 	}
 
 	project.Token = hashedToken
-
 	if err := validate.Struct(project); err != nil {
 		// Return, if some fields are not valid.
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
@@ -140,6 +136,52 @@ func GetProject(c echo.Context) error {
 	return c.JSON(http.StatusOK, project)
 }
 
+type updateProjectRequest struct {
+	Name         string   `json:"name"`
+	Threshold    *float64 `json:"threshold" validate:"omitempty,min=0,max=1"`
+	SnapshotBlur *bool    `json:"snapshotBlur"`
+}
+
+func UpdateProject(c echo.Context) error {
+
+	project := middleware.GetProject(c)
+
+	body := updateProjectRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+
+	if err := validator.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	if body.Name != "" {
+		project.Name = body.Name
+	}
+
+	if body.Threshold != nil {
+		project.SnapshotThreshold = *body.Threshold
+	}
+
+	if body.SnapshotBlur != nil {
+		project.SnapshotBlur = *body.SnapshotBlur
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if err := db.UpdateProject(project); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, project)
+}
+
 func RegenerateToken(c echo.Context) error {
 
 	project := middleware.GetProject(c)
@@ -173,7 +215,7 @@ func RegenerateToken(c echo.Context) error {
 	return c.JSON(http.StatusOK, project)
 }
 
-type UpdateProjectRequest struct {
+type DeleteProjectRequest struct {
 	Name string `json:"name" validate:"required"`
 }
 
@@ -181,7 +223,7 @@ func DeleteProject(c echo.Context) error {
 
 	project := middleware.GetProject(c)
 
-	body := UpdateProjectRequest{}
+	body := DeleteProjectRequest{}
 
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -224,7 +266,7 @@ func GetProjectUsers(c echo.Context) error {
 		return err
 	}
 
-	users, err := db.GetProjectUsers(c.Request().Context(), project.ID)
+	users, err := db.GetProjectUsers(c.Request().Context(), *project)
 
 	if err != nil {
 		return err
@@ -288,7 +330,7 @@ func AddUserToProject(c echo.Context) error {
 	
 	Thanks,
 	
-	Pixeleye Team`, os.Getenv("SERVER_URL")+"/invite/"+invite.ID)
+	Pixeleye Team`, os.Getenv("FRONTEND_URL")+"/invite/"+invite.ID)
 
 		if err := email.SendEmail(body.Email, "Pixeleye project invite", emailBody); err != nil {
 			return err
@@ -404,10 +446,11 @@ func RemoveUserFromProject(c echo.Context) error {
 }
 
 type UpdateProjectRoleRequest struct {
-	Role string `json:"role" validate:"required,oneof=admin reviewer viewer"`
+	Role string `json:"role" validate:"omitempty,oneof=admin reviewer viewer"`
+	Sync bool   `json:"sync"`
 }
 
-func UpdateProjectRole(c echo.Context) error {
+func UpdateUserOnProject(c echo.Context) error {
 
 	userID := c.Param("user_id")
 
@@ -425,14 +468,37 @@ func UpdateProjectRole(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	db, err := database.OpenDBConnection()
+	if body.Role != "" && body.Sync {
+		return echo.NewHTTPError(http.StatusBadRequest, "cannot sync and update role at the same time")
+	}
 
+	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
 	}
 
-	if err := db.UpdateUserRoleOnProject(project.ID, userID, body.Role); err != nil {
-		return err
+	if body.Role != "" {
+		if found, err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, body.Role, false); err != nil {
+			return err
+		} else if !found {
+			return echo.NewHTTPError(http.StatusNotFound, "user not found on project")
+		}
+	} else if body.Sync {
+		// We set the viewer as we're not sure what end role the user will get. This means the user won't be able to do anything until the sync is complete.
+		if found, err := db.UpdateUserRoleOnProject(c.Request().Context(), project.ID, userID, models.PROJECT_MEMBER_ROLE_VIEWER, true); err != nil {
+			return err
+		} else if !found {
+			return echo.NewHTTPError(http.StatusNotFound, "user not found on project")
+		}
+
+		team, err := db.GetTeam(c.Request().Context(), project.TeamID, userID)
+		if err != nil {
+			return err
+		}
+
+		if err := git.SyncProjectMembers(c.Request().Context(), team, *project); err != nil {
+			return err
+		}
 	}
 
 	return c.NoContent(http.StatusNoContent)

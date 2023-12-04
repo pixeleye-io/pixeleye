@@ -22,7 +22,7 @@ function getOryAuthAPI(): FrontendApi {
     new Configuration({
       accessToken: `bearer ${env.ORY_API_KEY}`,
     }),
-    env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT
+    env.ORY_URL
   );
   return oryAuthAPI;
 }
@@ -30,7 +30,7 @@ function getOryAuthAPI(): FrontendApi {
 // Requires an ory api key
 async function createOryIdentity(id: IDs = IDs.jekyll) {
   const identity = await fetch(
-    (env.ORY_TEST_ENDPOINT || env.ORY_ENDPOINT) + "/admin/identities",
+    (env.ORY_URL) + "/admin/identities",
     {
       method: "POST",
       headers: {
@@ -127,11 +127,13 @@ export async function createAllSessions() {
 
       const session = await createOrySession(identity);
 
-      const user: any = await fetch(env.SERVER_ENDPOINT + "/v1/user/me", {
+      const user: any = await fetch(env.BACKEND_URL + "/v1/user/me", {
         headers: {
           Authorization: "Bearer " + session.session_token,
         },
       }).then((res) => res.json());
+
+      console.log("Created user", user.id, "with identity", identity.id)
 
       sessions[id] = {...session, session: {
         ...session.session,

@@ -23,7 +23,7 @@ export async function createBuild(ctx: Context) {
 
   const parentBuild = await getParentBuild(ctx);
 
-  const build = api.post("/client/builds/create", {
+  const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
@@ -44,7 +44,7 @@ export async function linkSnapshotsToBuild(
   // TODO - build in a retry mechanism
   const api = getAPI(ctx);
 
-  await api.post(`/client/builds/{id}/upload`, {
+  await api.post("/v1/client/builds/{id}/upload", {
     body: {
       snapshots,
     },
@@ -58,7 +58,17 @@ export async function completeBuild(ctx: Context, build: Build) {
   // TODO - build in a retry mechanism
   const api = getAPI(ctx);
 
-  return api.post(`/client/builds/{id}/complete`, {
+  return api.post("/v1/client/builds/{id}/complete", {
+    params: {
+      id: build.id,
+    },
+  });
+}
+
+export async function abortBuild(ctx: Context, build: Build) {
+  const api = getAPI(ctx);
+
+  return api.post("/v1/client/builds/{id}/abort", {
     params: {
       id: build.id,
     },

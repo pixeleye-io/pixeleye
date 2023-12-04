@@ -18,7 +18,14 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
 	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
 
-	postgresConnURL := os.Getenv("DB_URL")
+	username := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	dbSSLMode := os.Getenv("DB_SSL_MODE")
+
+	postgresConnURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", username, password, host, port, dbName, dbSSLMode)
 
 	// Define database connection for PostgreSQL.
 	db, err := sqlx.Connect("postgres", postgresConnURL)

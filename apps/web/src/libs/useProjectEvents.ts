@@ -98,7 +98,7 @@ export function useProjectEvents({ projectID }: ProjectEvent) {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `${env.NEXT_PUBLIC_SERVER_URL}/v1/projects/${projectID}/events`,
+      `${env.NEXT_PUBLIC_BACKEND_URL}/v1/projects/${projectID}/events`,
       {
         withCredentials: true,
       }

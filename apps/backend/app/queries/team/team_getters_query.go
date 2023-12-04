@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
@@ -31,6 +32,52 @@ func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string)
 	}
 
 	return team, nil
+}
+
+func (q *TeamQueries) GetTeamByID(ctx context.Context, teamID string) (models.Team, error) {
+	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1`
+
+	team := models.Team{}
+
+	if err := q.GetContext(ctx, &team, query, teamID); err != nil {
+		if err == sql.ErrNoRows {
+			return team, fmt.Errorf("team not found")
+		}
+		return team, err
+	}
+
+	return team, nil
+}
+
+func (q *TeamQueries) GetTeamSnapshotCount(ctx context.Context, teamID string, startDate time.Time, endDate time.Time) (int, error) {
+	query := `SELECT COUNT(snapshot) FROM team 
+	JOIN project ON team.id = project.team_id 
+	JOIN build ON project.id = build.project_id 
+	JOIN snapshot ON build.id = snapshot.build_id 
+	WHERE team.id = $1 AND snapshot.created_at BETWEEN $2 AND $3`
+
+	var count int
+
+	if err := q.GetContext(ctx, &count, query, teamID, startDate, endDate); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (q *TeamQueries) GetTeamBuildCount(ctx context.Context, teamID string, startDate time.Time, endDate time.Time) (int, error) {
+	query := `SELECT COUNT(build) FROM team 
+	JOIN project ON team.id = project.team_id 
+	JOIN build ON project.id = build.project_id 
+	WHERE team.id = $1 AND build.created_at BETWEEN $2 AND $3`
+
+	var count int
+
+	if err := q.GetContext(ctx, &count, query, teamID, startDate, endDate); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (q *TeamQueries) GetTeamFromExternalID(ctx context.Context, externalID string) (models.Team, error) {
@@ -83,6 +130,21 @@ func (q *TeamQueries) GetUsersOnTeam(ctx context.Context, teamID string) ([]User
 	return users, err
 }
 
+func (q *TeamQueries) GetUserOnTeam(ctx context.Context, teamID string, userID string) (UserOnTeam, error) {
+	query := `SELECT users.*, team_users.type, team_users.role, team_users.role_sync, COALESCE(github_account.provider_account_id, '') as github_id FROM team_users
+	JOIN users ON team_users.user_id = users.id
+	LEFT JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
+	WHERE team_users.team_id = $1 AND team_users.user_id = $2`
+
+	user := UserOnTeam{}
+
+	if err := q.GetContext(ctx, &user, query, teamID, userID); err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 func (q *TeamQueries) IsUserOnTeam(ctx context.Context, userID string, teamID string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM team_users WHERE user_id = $1 AND team_id = $2)`
 
@@ -105,17 +167,11 @@ func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([
 	return installations, err
 }
 
-func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, gitType string, isUserTeam bool) (models.GitInstallation, error) {
+func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, gitType string) (models.GitInstallation, error) {
 	installations, err := q.GetGitInstallations(ctx, teamID)
 
 	if err != nil {
 		return models.GitInstallation{}, err
-	}
-
-	if len(installations) == 0 {
-		return models.GitInstallation{}, fmt.Errorf("no git installations found for team %s", teamID)
-	} else if !isUserTeam && len(installations) > 1 {
-		return models.GitInstallation{}, fmt.Errorf("multiple installations found for team %s. Only 1 per non user team allowed", teamID)
 	}
 
 	var installation models.GitInstallation

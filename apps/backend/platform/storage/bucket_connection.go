@@ -25,8 +25,10 @@ type BucketClient struct {
 	PresignClient *s3.PresignClient
 }
 
+// nolint:gochecknoglobals
 var globalClient *BucketClient
 
+// nolint:gochecknoglobals
 var globalS3Client *s3.Client
 
 func getConfig() (aws.Config, error) {

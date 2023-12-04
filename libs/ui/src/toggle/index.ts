@@ -1,2 +1,2 @@
-export * from "./toggle";
-export { default } from "./toggle";
+export type { toggleVariants } from "./toggle";
+export { default as Toggle } from "./toggle";

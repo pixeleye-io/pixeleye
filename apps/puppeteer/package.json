@@ -1,24 +1,35 @@
 {
   "name": "@pixeleye/puppeteer",
   "private": false,
-  "version": "0.0.0",
+  "version": "0.0.3",
+  "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "test:e2e": "vitest",
-    "build": "tsup",
-    "dev": "pnpm run build -- --watch"
+    "build": "pnpm rimraf ./dist && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist",
+    "test:e2e": "vitest"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "type": "module",
+  "publishConfig": {
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts"
+  },
+  "main": "src/index.ts",
+  "typings": "src/index.ts",
+  "files": [
+    "README.md",
+    "bin",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "puppeteer": "^20 || ^21",
+    "puppeteer-core": "^20 || ^21"
+  },
   "dependencies": {
-    "rrweb-snapshot": "2.0.0-alpha.11",
+    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/booth": "workspace:*",
-    "puppeteer": "^21.3.5",
-    "puppeteer-core": "^21.3.5",
-    "undici": "^5.25.2"
+    "puppeteer": "^21.5.2",
+    "puppeteer-core": "^21.5.2",
+    "undici": "^5.27.2"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
@@ -26,12 +37,12 @@
     "@pixeleye/js-sdk": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@swc-node/register": "^1.6.8",
-    "@types/node": "20.7.0",
+    "@types/node": "20.9.0",
     "execa": "^8.0.1",
     "get-port": "^7.0.0",
     "pptr-testing-library": "^0.7.0",
-    "tsup": "^7.2.0",
+    "rimraf": "^5.0.5",
     "typescript": "5.2.2",
-    "vitest": "^0.34.5"
+    "vitest": "^0.34.6"
   }
 }

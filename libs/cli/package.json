@@ -1,49 +1,48 @@
 {
-  "name": "@pixeleye/cli",
-  "description": "Pixeleye CLI",
-  "version": "0.0.0",
+  "name": "pixeleye",
+  "version": "0.0.15",
   "private": false,
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "type": "module",
-  "files": [
-    "dist",
-    "package.json",
-    "README.md"
-  ],
+  "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "upload-images": "node ./dist/index.js upload --url=http://localhost:5000/v1 ./test-images",
-    "run:storybook": "node ./dist/index.js storybook http://localhost:6006 --config ./pixeleye.config.cjs",
-    "build": "tsup",
-    "dev": "pnpm run build -- --watch"
+    "build": "pnpm rimraf ./bin && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./bin",
+    "upload-images": "node ./bin/index.js upload ./test-images"
+  },
+  "bin": {
+    "pixeleye": "./bin/index.js"
+  },
+  "files": [
+    "README.md",
+    "bin",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "jsdom": "^22 || ^23",
+    "playwright": "^1"
   },
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
-    "@pixeleye/booth": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.7.0",
-    "@types/require-relative": "^0.8.0",
-    "esbuild": "^0.19.3",
-    "tsup": "^7.2.0"
+    "@types/graceful-fs": "^4.1.9",
+    "@types/node": "20.9.0",
+    "@types/require-relative": "^0.8.2",
+    "esbuild": "^0.19.5",
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "rrweb-snapshot": "2.0.0-alpha.11",
-    "@pixeleye/js-sdk": "workspace:*",
-    "@pixeleye/storybook": "workspace:*",
+    "@pixeleye/booth": "workspace:^",
+    "@pixeleye/js-sdk": "workspace:^",
     "chalk": "^5.3.0",
-    "commander": "^11.0.0",
-    "config": "^3.3.9",
+    "commander": "^11.1.0",
     "dedent": "^1.5.1",
     "env-ci": "^10.0.0",
     "execa": "^8.0.1",
+    "graceful-fs": "^4.2.11",
     "jsdom": "^22.1.0",
     "ora": "^7.0.1",
-    "require-relative": "^0.8.7",
     "ts-node": "^10.9.1"
   }
 }

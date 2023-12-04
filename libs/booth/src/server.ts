@@ -1,5 +1,7 @@
 import { Browser, chromium, firefox, webkit } from "playwright";
 import { SnapshotOptions, SnapshotOptionsZod } from "./types";
+import { readFileSync } from "fs";
+import { join } from "path";
 import { takeScreenshots } from "./screenshots";
 import express, { NextFunction, Request, Response } from "express";
 import {
@@ -38,7 +40,13 @@ async function snapshotHandler(
 
   const uploadSnaps = await Promise.all(
     snaps.map(async (snap) => {
-      const { id } = await uploadSnapshot(ctx, snap.img, "image/png");
+      const [{ id }] = await uploadSnapshot(ctx, [
+        {
+          file: snap.img,
+          name: snap.name,
+          format: "image/png",
+        },
+      ]);
 
       return {
         name: snap.name,
@@ -109,13 +117,18 @@ export async function start({
     await snapshotHandler(ctx, browsers, data, build, res).catch((err) => {
       res.status(500).json({ message: err.message }).end();
     });
+
+    return res.status(200).end();
   });
 
   app.get("*", (_req, res) => {
     notFoundHandler(res);
   });
 
-  const server = app.listen(port);
+  const server = app.listen(port).on("error", (err) => {
+    console.error(err);
+    process.exit(1);
+  });
 
   return {
     close: () => server.close(),

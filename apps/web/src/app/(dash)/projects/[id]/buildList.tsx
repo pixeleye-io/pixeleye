@@ -4,11 +4,6 @@ import { API, useProjectEvents } from "@/libs";
 import { queries } from "@/queries";
 import {
   Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
   Button,
   DropdownMenu,
   DropdownMenuTrigger,
@@ -46,7 +41,7 @@ function BuildRow({ build }: { build: Build }) {
 
   const abortBuild = useMutation({
     mutationFn: () =>
-      API.post("/builds/{id}/review/abort", {
+      API.post("/v1/builds/{id}/review/abort", {
         params: {
           id: build.id,
         },
@@ -71,9 +66,9 @@ function BuildRow({ build }: { build: Build }) {
         (old) =>
           old
             ? {
-                ...old,
-                status: "aborted",
-              }
+              ...old,
+              status: "aborted",
+            }
             : undefined
       );
 
@@ -118,22 +113,22 @@ function BuildRow({ build }: { build: Build }) {
   });
 
   return (
-    <TableRow key={build.id} className="relative cursor-pointer z-0">
-      <TableCell className="font-medium">
+    <Table.Row key={build.id} className="relative cursor-pointer z-0 h-[4.25rem]">
+      <Table.Cell className="font-medium">
         Build #{build.buildNumber}
         <NextLink className="absolute inset-0" href={`/builds/${build.id}`}>
           <span className="sr-only">Project page</span>
         </NextLink>
-      </TableCell>
-      <TableCell>{build.branch}</TableCell>
-      <TableCell>{build.status}</TableCell>
+      </Table.Cell>
+      <Table.Cell>{build.branch}</Table.Cell>
+      <Table.Cell>{build.status}</Table.Cell>
       {[
         "uploading",
         "queued-uploading",
         "processing",
         "queued-processing",
-      ].includes(build.status) && (
-        <TableCell className="w-0">
+      ].includes(build.status) ? (
+        <Table.Cell className="w-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -146,9 +141,10 @@ function BuildRow({ build }: { build: Build }) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </TableCell>
-      )}
-    </TableRow>
+        </Table.Cell>
+      ) : (
+        <Table.Cell className="w-0" />)}
+    </Table.Row>
   );
 }
 
@@ -165,16 +161,20 @@ export function BuildList({ projectID }: { projectID: string }) {
 
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Branch</TableHead>
-          <TableHead>Status</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+      <Table.Header>
+        <Table.Row>
+          <Table.Head>Name</Table.Head>
+          <Table.Head>Branch</Table.Head>
+          <Table.Head>Status</Table.Head>
+          <Table.Head>
+            <span className="sr-only">Actions</span>
+          </Table.Head>
+
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
         {builds?.map((build) => <BuildRow key={build.id} build={build} />)}
-      </TableBody>
+      </Table.Body>
     </Table>
   );
 }

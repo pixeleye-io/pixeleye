@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/jobs"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -144,16 +145,14 @@ func SyncUserTeams(c echo.Context) error {
 		return err
 	}
 
+	if err := git.SyncUserTeamsAndAccount(c.Request().Context(), user); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
+		return err
+	} else if err == git_github.ExpiredRefreshTokenError {
+		// Our refresh token has expired, redirect the user to github to re-authenticate.
+		return git_github.RedirectGithubUserToLogin(c, user)
+	}
+
 	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
-	if err != nil {
-		return err
-	}
-
-	if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	teams, err = db.GetUsersTeams(c.Request().Context(), user.ID)
 	if err != nil {
 		return err
 	}

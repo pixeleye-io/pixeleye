@@ -5,8 +5,10 @@ import {
   Options as ServerOptions,
   SnapshotOptions,
 } from "@pixeleye/booth";
-import * as rrweb from "rrweb-snapshot";
 import { defaults, loadConfig } from "@pixeleye/js-sdk";
+import { env } from "./env";
+
+
 
 export interface Options {
   fullPage?: boolean;
@@ -14,7 +16,7 @@ export interface Options {
   variant?: string;
   browsers?: string[];
   viewports?: string[];
-  config?: Partial<Awaited<ReturnType<typeof loadConfig>>>;
+  selector?: string;
 }
 
 export async function pixeleyeSnapshot(
@@ -28,32 +30,28 @@ export async function pixeleyeSnapshot(
     throw new Error("No name provided");
   }
 
-  const content = await fetch(
-    "https://unpkg.com/rrweb-snapshot@2.0.0-alpha.11/es/rrweb-snapshot.js"
-  ).then((res) => res.text());
-
-  await page.addScriptTag({
-    content: content + "window.snapshot = snapshot;\n",
-    type: "module",
-  });
-
-  const domSnapshot = await (page as Page).evaluate(async () => {
-    const { snapshot } = window as any;
-    return snapshot(document);
-  });
-
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
-      // eslint-disable-next-line turbo/no-undeclared-env-vars
-      options.config?.port || process.env.boothPort || defaults.port
+      env.boothPort || defaults.port
     }`,
   };
 
+  await (page as Page).addScriptTag({
+    path: require.resolve(
+      "@pixeleye/rrweb-snapshot/dist/rrweb-snapshot.min.js"
+    ),
+  });
+
+  const domSnapshot = await (page as Page).evaluate(() => {
+    // @ts-ignore
+    return rrwebSnapshot.snapshot(document);
+  });
+
   if (!domSnapshot) {
-    throw new Error("No DOM snapshot available");
+    throw new Error("No DOM snapshot available", domSnapshot);
   }
 
-  const config = options.config || (await loadConfig());
+  const config = (await loadConfig());
 
   const snap: SnapshotOptions = {
     name: options.name,
@@ -62,9 +60,13 @@ export async function pixeleyeSnapshot(
     dom: domSnapshot,
     fullPage: options.fullPage,
     variant: options.variant,
+    selector: options.selector,
   };
 
-  const res = await uploadSnapshot(opts, snap);
+  const res = await uploadSnapshot(opts, snap).catch((err) => {
+    console.log("Error uploading snapshot", err);
+    throw err;
+  });
 
   if (res.status < 200 || res.status >= 300) {
     const data = await res.json().catch(() => res.statusText);

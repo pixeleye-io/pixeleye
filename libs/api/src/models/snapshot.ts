@@ -29,6 +29,7 @@ export const SnapshotZod = z.object({
     "unreviewed",
     "unchanged",
     "orphaned",
+    "missing_baseline",
   ]),
 });
 

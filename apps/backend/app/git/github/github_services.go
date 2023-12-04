@@ -3,15 +3,31 @@ package git_github
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"strconv"
+	"strings"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/app/queries"
-	Team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
+	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
+	team_queries "github.com/pixeleye-io/pixeleye/app/queries/team"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
+
+func removeInstallationFromDB(ctx context.Context, installationID string) error {
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if err := db.TeamQueries.DeleteTeamInstallation(ctx, installationID); err != nil {
+		return err
+	}
+
+	return fmt.Errorf("installation was uninstalled from github")
+}
 
 func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page int) (*github.ListRepositories, bool, error) {
 
@@ -22,6 +38,16 @@ func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page 
 	repos, res, err := c.Apps.ListRepos(ctx, opts)
 
 	if err != nil {
+
+		// TODO - this is a hack, we should be able to check the status code of the response
+		if strings.Contains(err.Error(), "\"403") {
+			return nil, false, fmt.Errorf("installation was suspended from github")
+		}
+
+		if res != nil && res.StatusCode == 404 {
+			return nil, false, removeInstallationFromDB(ctx, c.InstallationID)
+		}
+
 		return nil, false, err
 	}
 
@@ -36,8 +62,22 @@ func (c *GithubAppClient) GetInstallationInfo(ctx context.Context, installationI
 		return nil, err
 	}
 
-	install, _, err := c.Apps.GetInstallation(ctx, int64(id))
-	return install, err
+	install, res, err := c.Apps.GetInstallation(ctx, int64(id))
+	if err != nil {
+
+		// TODO - this is a hack, we should be able to check the status code of the response
+		if strings.Contains(err.Error(), "\"403") {
+			return nil, fmt.Errorf("installation was suspended from github")
+		}
+
+		if res != nil && res.StatusCode == 404 {
+			return nil, removeInstallationFromDB(ctx, installationID)
+		}
+
+		return nil, err
+	}
+
+	return install, nil
 }
 
 func IsUserInstallation(app github.Installation) bool {
@@ -66,6 +106,11 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
 
 		if err != nil {
+
+			if res != nil && res.StatusCode == 404 {
+				return nil, nil, removeInstallationFromDB(ctx, c.InstallationID)
+			}
+
 			return nil, nil, err
 		}
 
@@ -88,6 +133,10 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 
 		users, res, err := c.Organizations.ListMembers(ctx, org, opts)
 
+		if res != nil && res.StatusCode == 404 {
+			return nil, nil, removeInstallationFromDB(ctx, c.InstallationID)
+		}
+
 		if err != nil {
 			return nil, nil, err
 		}
@@ -105,7 +154,6 @@ func (c *GithubAppClient) GetMembers(ctx context.Context, org string) (admins []
 	return admins, members, nil
 }
 
-// TODO - I should make this function generic so I can use it for other api calls
 func ListCollaborators(ctx context.Context, client *github.Client, org string, repo string) ([]*github.User, error) {
 	opts := &github.ListCollaboratorsOptions{
 		ListOptions: github.ListOptions{
@@ -167,7 +215,7 @@ func findMembersToRemove(currentMembers []queries.UserOnProject, gitMembers []*g
 	return membersToRemove
 }
 
-func findProjectMembersToUpdate(teamUsers []Team_queries.UserOnTeam, currentMembers []queries.UserOnProject, gitMembers []*github.User) (viewerCollaborators []string, reviewerCollaborators []string, adminCollaborators []string) {
+func findProjectMembersToUpdate(teamUsers []team_queries.UserOnTeam, currentMembers []queries.UserOnProject, gitMembers []*github.User) (viewerCollaborators []string, reviewerCollaborators []string, adminCollaborators []string) {
 
 	for _, user := range teamUsers {
 
@@ -218,9 +266,23 @@ func findProjectMembersToUpdate(teamUsers []Team_queries.UserOnTeam, currentMemb
 	return viewerCollaborators, reviewerCollaborators, adminCollaborators
 }
 
-func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team models.Team, teamUsers []Team_queries.UserOnTeam, project models.Project) error {
+func SyncGithubProjectMembers(ctx context.Context, team models.Team, project models.Project) error {
 
-	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB, false)
+	if (team.Type != models.TEAM_TYPE_GITHUB && team.Type != models.TEAM_TYPE_USER) && project.Source != models.GIT_TYPE_GITHUB {
+		return fmt.Errorf("project %s is not a github project", project.ID)
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	teamUsers, err := db.GetUsersOnTeam(ctx, team.ID)
+	if err != nil {
+		return err
+	}
+
+	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB)
 	if err != nil {
 		return err
 	}
@@ -245,7 +307,7 @@ func SyncGithubProjectMembers(ctx context.Context, db *database.Queries, team mo
 		return err
 	}
 
-	projectMembers, err := db.GetProjectUsers(ctx, project.ID)
+	projectMembers, err := db.GetProjectUsers(ctx, project)
 	if err != nil {
 		return err
 	}
@@ -308,7 +370,7 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		return err
 	}
 
-	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB, false)
+	installation, err := db.GetGitInstallation(ctx, team.ID, models.TEAM_TYPE_GITHUB)
 	if err != nil {
 		return err
 	}
@@ -358,19 +420,19 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 				log.Debug().Msgf("RoleSync: %t", currentMember.RoleSync)
 
 				if currentMember.Type == models.TEAM_MEMBER_TYPE_INVITED {
-					// We're upgrading the user to a vcs synced account but they will keep the same role and it won't be synced
-					if err := db.UpdateUserTypeOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_TYPE_INVITED, false); err != nil {
+					// We're upgrading the user to a vcs account but they will keep the same role and it won't be synced
+					if err := db.UpdateUserTypeOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_TYPE_GIT, false); err != nil {
 						log.Error().Err(err).Msgf("Failed to update user type on team %s", team.ID)
 						break
 					}
 				} else if currentMember.RoleSync {
 					if admin && currentMember.Role != models.TEAM_MEMBER_ROLE_ADMIN {
-						if err := db.UpdateUserRoleOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_ROLE_ADMIN); err != nil {
+						if err := db.UpdateUserRoleOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_ROLE_ADMIN, true); err != nil {
 							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
 							break
 						}
 					} else if !admin && currentMember.Role != models.TEAM_MEMBER_ROLE_MEMBER {
-						if err := db.UpdateUserRoleOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_ROLE_MEMBER); err != nil {
+						if err := db.UpdateUserRoleOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_ROLE_MEMBER, true); err != nil {
 							log.Error().Err(err).Msgf("Failed to update user role on team %s", team.ID)
 							break
 						}
@@ -380,21 +442,47 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 			}
 		}
 
+		log.Debug().Msgf("Found: %t, RoleSync: %t, CurrentMember: %+v", found, currentMember.RoleSync, currentMember)
+
+		// TODO - we shouldn't allow admins to transfer ownership to invited users
+
 		// Don't remove invited users
 		if !found && currentMember.Type == models.TEAM_MEMBER_TYPE_GIT {
 			if isInvited, err := db.IsUserInvitedToProjects(ctx, team.ID, currentMember.ID); err != nil {
 				log.Error().Err(err).Msgf("Failed to check if user is invited to projects on team %s", team.ID)
-				break
-			} else if isInvited {
+				continue
+			} else if isInvited || currentMember.Role == models.TEAM_MEMBER_ROLE_OWNER {
+				// if user is an owner we should move the user to invited since they are no longer part of the github team
+				// later down we'll attempt to transfer ownership to the first admin, this avoids situations where the owner is a bad actor with complete control over the team
+
+				tx, err := team_queries.NewTeamTx(db.TeamQueries.DB, ctx)
+				if err != nil {
+					log.Error().Err(err).Msgf("Failed to create team tx")
+					continue
+				}
+
+				pTx := queries.ProjectQueriesTx{
+					Tx: tx.Tx,
+				}
+
 				// Remove user from all projects they're not invited to and set their team type to invited
-				if err := db.RemoveUserFromAllGitProjects(ctx, team.ID, currentMember.ID); err != nil {
+				if err := pTx.RemoveUserFromAllGitProjects(ctx, team.ID, currentMember.ID); err != nil {
 					log.Error().Err(err).Msgf("Failed to remove user from all git projects on team %s", team.ID)
-					break
+					if err := tx.Rollback(); err != nil {
+						log.Error().Err(err).Msgf("Failed to rollback team tx")
+					}
 				}
-				if err := db.UpdateUserTypeOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_TYPE_INVITED, false); err != nil {
+				if err := tx.UpdateUserTypeOnTeam(ctx, team.ID, currentMember.ID, models.TEAM_MEMBER_TYPE_INVITED, false); err != nil {
 					log.Error().Err(err).Msgf("Failed to update user type on team %s", team.ID)
-					break
+					if err := tx.Rollback(); err != nil {
+						log.Error().Err(err).Msgf("Failed to rollback team tx")
+					}
 				}
+
+				if err := tx.Commit(); err != nil {
+					log.Error().Err(err).Msgf("Failed to commit team tx")
+				}
+
 			} else {
 				// User isn't invited to any projects so we can remove them from the team
 				membersToRemove = append(membersToRemove, currentMember.ID)
@@ -458,10 +546,183 @@ func SyncGithubTeamMembers(ctx context.Context, team models.Team) error {
 		}
 	}
 
+	// We can transfer ownership to the first admin if the owner is not a git member
+	if err := tryMakeOwnerGitMember(ctx, team.ID); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Team) error {
+// tryMakeOwnerGitMember is a function that attempts to make the owner of a team a git member.
+// It takes a context and a teamID as input parameters.
+// It returns an error if there is any issue with the database connection or the database operations.
+func tryMakeOwnerGitMember(ctx context.Context, teamID string) error {
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	teamMembers, err := db.GetUsersOnTeam(ctx, teamID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	firstAdmin := team_queries.UserOnTeam{}
+	owner := team_queries.UserOnTeam{}
+
+	for _, member := range teamMembers {
+		if member.Role == models.TEAM_MEMBER_ROLE_ADMIN {
+			firstAdmin = member
+		} else if member.Role == models.TEAM_MEMBER_ROLE_OWNER {
+			owner = member
+		}
+
+		if (firstAdmin.User != nil && owner.User != nil) || (owner.User != nil && owner.Type == models.TEAM_MEMBER_TYPE_GIT) {
+			// We don't have an admin to make the owner or the owner is already a git member
+			break
+		}
+	}
+
+	if firstAdmin.User == nil || owner.Type == models.TEAM_MEMBER_TYPE_GIT {
+		// We either don't have an admin to make the owner or the owner is already a git member
+		return nil
+	}
+
+	// We have an admin to make the owner and the owner is not a git member so we can make them a git member
+	tx, err := team_queries.NewTeamTx(db.TeamQueries.DB, ctx)
+	if err != nil {
+		return err
+	}
+
+	// nolint:errcheck
+	defer tx.Rollback()
+
+	if err := tx.UpdateUserRoleOnTeam(ctx, teamID, owner.ID, models.TEAM_MEMBER_ROLE_ADMIN, false); err != nil {
+		return err
+	}
+
+	if err := tx.UpdateUserRoleOnTeam(ctx, teamID, firstAdmin.ID, models.TEAM_MEMBER_ROLE_OWNER, false); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func LinkPersonalGithubTeam(ctx context.Context, user models.User, installationID string) (models.Team, models.GitInstallation, error) {
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	tx, err := github_queries.NewGithubTx(db.GithubQueries.DB, ctx)
+	if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	// nolint:errcheck
+	defer tx.Rollback()
+
+	personalTeam, err := db.GetUsersPersonalTeam(ctx, user.ID)
+	if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	log.Debug().Msgf("Personal Team: %+v", personalTeam)
+
+	installation, err := tx.CreateGithubAppInstallation(ctx, installationID, personalTeam.ID)
+	if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	return personalTeam, installation, tx.Commit()
+}
+
+func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Installation, installationID string) (models.Team, models.GitInstallation, error) {
+
+	db, err := database.OpenDBConnection()
+
+	if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	tx, err := github_queries.NewGithubTx(db.GithubQueries.DB, ctx)
+
+	if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	// nolint:errcheck
+	defer tx.Rollback()
+
+	team, err := db.GetTeamFromExternalID(ctx, strconv.Itoa(int(*app.Account.ID)))
+
+	if err == sql.ErrNoRows {
+		// Team does not exist, we create it
+		ttx := team_queries.TeamQueriesTx{
+			Tx: tx.Tx,
+		}
+
+		log.Debug().Msgf("App: %+v", app)
+
+		team = models.Team{
+			Type:       models.TEAM_TYPE_GITHUB,
+			Name:       app.Account.GetLogin(),
+			URL:        app.Account.GetOrganizationsURL(),
+			AvatarURL:  app.Account.GetAvatarURL(),
+			Role:       models.TEAM_MEMBER_ROLE_OWNER,
+			ExternalID: strconv.Itoa(int(app.Account.GetID())),
+		}
+
+		err = ttx.CreateTeam(ctx, &team, user.ID)
+		if err != nil {
+			return models.Team{}, models.GitInstallation{}, err
+		}
+
+	} else if err != nil {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	existingInstallation, err := tx.GetGithubAppInstallationByTeamIDForUpdate(ctx, team.ID)
+	if err != nil && err != sql.ErrNoRows {
+		return models.Team{}, models.GitInstallation{}, err
+	}
+
+	if err != sql.ErrNoRows {
+		// Installation already exists, we can update it
+
+		existingInstallation.InstallationID = installationID
+
+		err := tx.UpdateGithubAppInstallation(ctx, &existingInstallation)
+		if err != nil {
+			return models.Team{}, models.GitInstallation{}, err
+		}
+
+		if err := tx.Commit(); err != nil {
+			return models.Team{}, models.GitInstallation{}, err
+		}
+
+		return team, existingInstallation, nil
+	}
+
+	log.Debug().Msgf("Team: %+v", team)
+
+	installation, err := tx.CreateGithubAppInstallation(ctx, installationID, team.ID)
+	if err != nil {
+		return team, installation, err
+	}
+
+	log.Debug().Msgf("Created Github App Installation: %+v", installation)
+
+	if err := tx.Commit(); err != nil {
+		return team, installation, err
+	}
+
+	return team, installation, nil
+}
+
+func SyncNewGithubUserTeams(ctx context.Context, userID string, currentTeams []models.Team) error {
 
 	userClient, err := NewGithubUserClient(ctx, userID)
 	if err != nil {
@@ -510,23 +771,49 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 
 	log.Debug().Msgf("Found %d github installations for user %s", len(gitInstallations), userID)
 
-	teamsToSync := currentTeams
+	teamsToSync := []models.Team{}
 
-	for _, installation := range gitInstallations {
+	for _, installation := range installationIDs {
 		found := false
 
-		for _, team := range currentTeams {
-			if team.ID == installation.TeamID {
+		for _, gitInstallation := range gitInstallations {
+			if gitInstallation.InstallationID == installation {
 				found = true
 				break
 			}
 		}
 
 		if !found {
-			teamsToSync = append(teamsToSync, models.Team{
-				Type: models.TEAM_TYPE_GITHUB,
-				ID:   installation.TeamID,
-			})
+			ghClient, err := NewGithubAppClient()
+			if err != nil {
+				return err
+			}
+
+			app, err := ghClient.GetInstallationInfo(ctx, installation)
+			if err != nil {
+				return err
+			}
+
+			if IsUserInstallation(*app) {
+				team, _, err := LinkPersonalGithubTeam(ctx, models.User{
+					ID: userID,
+				}, installation)
+				if err != nil {
+					return err
+				}
+
+				teamsToSync = append(teamsToSync, team)
+
+			} else if IsOrgInstallation(*app) {
+				team, _, err := LinkOrgGithubTeam(ctx, models.User{
+					ID: userID,
+				}, app, installation)
+				if err != nil {
+					return err
+				}
+
+				teamsToSync = append(teamsToSync, team)
+			}
 		}
 	}
 
@@ -549,13 +836,6 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 				return
 			}
 
-			members, err := db.GetUsersOnTeam(ctx, team.ID)
-			if err != nil {
-				log.Err(err).Msgf("Failed to get users on team %s", team.ID)
-				errors <- err
-				return
-			}
-
 			projects, err := db.GetTeamsProjects(ctx, team.ID)
 			if err != nil && err != sql.ErrNoRows {
 				log.Err(err).Msgf("Failed to get projects for team %s", team.ID)
@@ -567,7 +847,7 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 			}
 
 			for _, project := range projects {
-				if err := SyncGithubProjectMembers(ctx, db, team, members, project); err != nil {
+				if err := SyncGithubProjectMembers(ctx, team, project); err != nil {
 					log.Error().Err(err).Msgf("Failed to sync project members for team %s", team.ID)
 					errors <- err
 					return
@@ -576,7 +856,6 @@ func SyncUsersTeams(ctx context.Context, userID string, currentTeams []models.Te
 
 			errors <- nil
 		}(team, errors)
-
 	}
 
 	for i := 0; i < len(teamsToSync); i++ {

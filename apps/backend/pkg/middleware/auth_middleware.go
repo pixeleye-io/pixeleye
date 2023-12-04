@@ -48,7 +48,7 @@ func NewOryMiddleware() *oryMiddleware {
 	cfg := ory.NewConfiguration()
 	cfg.Servers = ory.ServerConfigurations{
 		{
-			URL: os.Getenv("ORY_ENDPOINT"), // Ory Network Project URL
+			URL: os.Getenv("ORY_URL"),
 		},
 	}
 
@@ -64,14 +64,12 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		db, err := database.OpenDBConnection()
-
 		if err != nil {
 			log.Err(err).Msg("Error opening database connection")
 			return err
 		}
 
-		user, err := db.GetUserByAuthID(session.Identity.GetId())
-
+		user, err := db.GetUserByAuthID(c.Request().Context(), session.Identity.GetId())
 		if err != nil && err != sql.ErrNoRows {
 			log.Err(err).Msg("Error getting user")
 			return err
@@ -86,33 +84,25 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 
 			user, err = db.CreateUser(c.Request().Context(), session.Identity.GetId(), *userTraits)
-
 			if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
 				log.Error().Err(err).Msg("Error creating user, user already exists")
-				user, err = db.GetUserByAuthID(session.Identity.GetId())
+				user, err = db.GetUserByAuthID(c.Request().Context(), session.Identity.GetId())
 				if err != nil {
 					log.Error().Err(err).Msg("Error creating user")
 					return err
 				}
+
 			} else if err != nil {
 				log.Err(err).Msg("Error creating user")
 				return err
 			}
 
-			if err := git.InitUserAccounts(c.Request().Context(), user); err != nil {
-				log.Err(err).Msg("Error syncing user accounts")
-			}
-
-			teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
-			if err != nil && err != sql.ErrNoRows {
-				log.Err(err).Msg("Error getting user teams")
+			if err := git.SyncUserTeamsAndAccount(c.Request().Context(), user); err != nil && err != sql.ErrNoRows && err != git_github.ExpiredRefreshTokenError {
 				return err
+			} else if err == git_github.ExpiredRefreshTokenError {
+				// Our refresh token has expired, redirect the user to github to re-authenticate.
+				return git_github.RedirectGithubUserToLogin(c, user)
 			}
-
-			if err := git_github.SyncUsersTeams(c.Request().Context(), user.ID, teams); err != nil && err != sql.ErrNoRows {
-				log.Err(err).Msg("Error syncing user teams")
-			}
-
 		}
 
 		c.Set("user", &user)
@@ -138,7 +128,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 		authorization = authorization[7:]
 
-		resp, _, err := k.ory.FrontendApi.ToSession(r.Context()).XSessionToken(authorization).Execute()
+		resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).XSessionToken(authorization).Execute()
 		if err != nil {
 			log.Err(err).Msg("Error validating session")
 			return nil, err
@@ -148,7 +138,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 	cookies := r.Header.Get("Cookie")
 
-	resp, _, err := k.ory.FrontendApi.ToSession(r.Context()).Cookie(cookies).Execute()
+	resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).Cookie(cookies).Execute()
 	if err != nil {
 		return nil, err
 	}

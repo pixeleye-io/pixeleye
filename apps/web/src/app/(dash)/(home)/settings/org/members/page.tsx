@@ -3,14 +3,6 @@ import { SettingsTemplate } from "../../settingsTemplate";
 import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@pixeleye/ui";
 import { getQueryClient, queries } from "@/queries";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { MemberSection } from "./sections";
@@ -51,7 +43,7 @@ export default async function OrgMemberSettings({
       </SettingsTemplate>
       <SettingsTemplate
         title={"Invited members"}
-        description="List of team members either manually invited"
+        description="List of team members manually invited directly to this team or via a project."
       >
         <MemberSection team={team} type="invited" />
       </SettingsTemplate>

@@ -2,6 +2,7 @@ package processors
 
 import (
 	"bytes"
+	"context"
 	"slices"
 	"testing"
 
@@ -27,7 +28,7 @@ func TestDownloadSnapshotImages(t *testing.T) {
 	snapImg := models.SnapImage{ProjectID: "project1", Hash: "snapHash"}
 	baseImg := models.SnapImage{ProjectID: "project1", Hash: "baseHash"}
 
-	snapBytes, baseBytes, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	snapBytes, _, baseBytes, _, err := downloadSnapshotImages(context.TODO(), s3, snapImg, baseImg)
 
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
@@ -56,7 +57,7 @@ func TestDownloadSnapshotImages2(t *testing.T) {
 	snapImg := models.SnapImage{ProjectID: "project2", Hash: "snapHash"}
 	baseImg := models.SnapImage{ProjectID: "project2", Hash: "baseHash"}
 
-	snapBytes, baseBytes, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	snapBytes, _, baseBytes, _, err := downloadSnapshotImages(context.TODO(), s3, snapImg, baseImg)
 
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
@@ -85,7 +86,7 @@ func TestDownloadSnapshotImagesError(t *testing.T) {
 	snapImg := models.SnapImage{ProjectID: "project1", Hash: "snapHash"}
 	baseImg := models.SnapImage{ProjectID: "project1", Hash: "baseHash"}
 
-	_, _, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	_, _, _, _, err := downloadSnapshotImages(context.TODO(), s3, snapImg, baseImg)
 
 	if err == nil {
 		t.Errorf("Expected error")
@@ -105,7 +106,7 @@ func TestDownloadSnapshotImagesError2(t *testing.T) {
 	snapImg := models.SnapImage{ProjectID: "project1", Hash: "snapHash"}
 	baseImg := models.SnapImage{ProjectID: "project1", Hash: "baseHash"}
 
-	_, _, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	_, _, _, _, err := downloadSnapshotImages(context.TODO(), s3, snapImg, baseImg)
 
 	if err == nil {
 		t.Errorf("Expected error")
@@ -125,7 +126,7 @@ func TestDownloadSnapshotImagesError3(t *testing.T) {
 	snapImg := models.SnapImage{ProjectID: "project1", Hash: "snapHash"}
 	baseImg := models.SnapImage{ProjectID: "project1", Hash: "baseHash"}
 
-	_, _, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	_, _, _, _, err := downloadSnapshotImages(context.TODO(), s3, snapImg, baseImg)
 
 	if err == nil {
 		t.Errorf("Expected error")

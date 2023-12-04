@@ -12,11 +12,10 @@ import (
 
 // StartServerWithGracefulShutdown function for starting server with a graceful shutdown.
 func StartServerWithGracefulShutdown(e *echo.Echo) {
-	address := os.Getenv("SERVER_URL")
 
 	// Start server
 	go func() {
-		if err := e.Start(address); err != nil && err != http.ErrServerClosed {
+		if err := e.Start(":5000"); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
@@ -35,7 +34,5 @@ func StartServerWithGracefulShutdown(e *echo.Echo) {
 
 // StartServer func for starting a simple server.
 func StartServer(e *echo.Echo) {
-	address := os.Getenv("SERVER_URL")
-
-	e.Logger.Fatal(e.Start(address))
+	e.Logger.Fatal(e.Start(":5000"))
 }

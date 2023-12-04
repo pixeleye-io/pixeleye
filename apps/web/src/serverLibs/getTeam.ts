@@ -3,7 +3,7 @@ import { API } from "@/libs";
 import { cookies } from "next/headers";
 
 export async function getTeam(searchParams: { team?: string }): Promise<Team> {
-  const teams = await API.get("/user/teams", {
+  const teams = await API.get("/v1/user/teams", {
     headers: {
       cookie: cookies().toString(),
     },

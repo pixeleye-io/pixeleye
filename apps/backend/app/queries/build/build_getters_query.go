@@ -65,3 +65,13 @@ func (tx *BuildQueriesTx) GetBuildForUpdate(ctx context.Context, id string) (mod
 
 	return build, err
 }
+
+func (q *BuildQueries) CountBuildSnapshots(ctx context.Context, buildID string) (int64, error) {
+	query := `SELECT COUNT(snapshot) FROM build JOIN snapshot ON snapshot.build_id = build.id WHERE build.id = $1`
+
+	var count int64
+
+	err := q.GetContext(ctx, &count, query, buildID)
+
+	return count, err
+}

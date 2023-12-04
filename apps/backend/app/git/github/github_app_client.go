@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/bradleyfalzon/ghinstallation"
-	"github.com/google/go-github/v55/github"
+	"github.com/bradleyfalzon/ghinstallation/v2"
+	"github.com/google/go-github/v56/github"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 type GithubAppClient struct {
 	*github.Client
+	InstallationID string
 }
 
 func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
@@ -20,7 +21,7 @@ func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
 		return nil, err
 	}
 
-	key, err := utils.GetEnvStr("GITHUB_PRIVATE_KEY")
+	key, err := utils.GetEnvStr("GITHUB_APP_PRIVATE_KEY")
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,8 @@ func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
 	client := github.NewClient(&http.Client{Transport: itr})
 
 	return &GithubAppClient{
-		Client: client,
+		Client:         client,
+		InstallationID: installationID,
 	}, nil
 }
 
@@ -51,7 +53,7 @@ func NewGithubAppClient() (*GithubAppClient, error) {
 		return nil, err
 	}
 
-	key, err := utils.GetEnvStr("GITHUB_PRIVATE_KEY")
+	key, err := utils.GetEnvStr("GITHUB_APP_PRIVATE_KEY")
 	if err != nil {
 		return nil, err
 	}

@@ -13,7 +13,6 @@ func Logger() echo.MiddlewareFunc {
 
 	if os.Getenv("STAGE_STATUS") == "dev" {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-
 	}
 
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
@@ -22,6 +21,7 @@ func Logger() echo.MiddlewareFunc {
 		LogError:    true,
 		LogRemoteIP: true,
 		LogMethod:   true,
+		LogLatency:  true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
 				logger.Error().
@@ -30,6 +30,7 @@ func Logger() echo.MiddlewareFunc {
 					Int("status", v.Status).
 					Str("method", v.Method).
 					Str("remote_ip", v.RemoteIP).
+					Str("latency", v.Latency.String()).
 					Msg("request")
 			}
 			logger.Info().
@@ -37,6 +38,7 @@ func Logger() echo.MiddlewareFunc {
 				Int("status", v.Status).
 				Str("method", v.Method).
 				Str("remote_ip", v.RemoteIP).
+				Str("latency", v.Latency.String()).
 				Msg("request")
 
 			return nil

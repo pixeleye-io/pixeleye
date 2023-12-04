@@ -19,20 +19,24 @@ jobs:
         with:
           filters: |
             migrations:
-              - 'apps/backend/platform/migrations'
+              - 'apps/backend/platform/migrations/**'
+            backend:
+              - 'apps/backend/**'
   node-ci:
     name: Node - Build, Lint, Test, Types
     timeout-minutes: 15
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 16]
+        node-version: [18, 20]
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
       DOCS_TOKEN: ${{ secrets.DOCS_TOKEN }}
       GITHUB_APP_NAME: "pixeleye-io"
-      NEXT_PUBLIC_SERVER_URL: "http://localhost:5000"
+      ORY_URL: ${{ secrets.ORY_ENDPOINT }}
+      NEXT_PUBLIC_BACKEND_URL: "http://localhost:5000"
+      
 
     steps:
       - uses: actions/checkout@v3
@@ -121,20 +125,6 @@ jobs:
           dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
           cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 
-  # atlas-sync:
-  #   needs: atlas-lint
-  #   if: github.ref == 'refs/heads/main'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: ariga/atlas-sync-action@v0
-  #       with:
-  #         dir: "apps/backend/platform/migrations"
-  #         dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
-  #         dir-format: "atlas"
-  #         driver: postgres
-  #         cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
-
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
@@ -180,25 +170,6 @@ jobs:
           go mod download
           go mod verify
 
-      - name: Create .env file
-        uses: SpicyPizza/create-envfile@v1
-        with:
-          envkey_ORY_ENDPOINT: ${{ secrets.ORY_ENDPOINT }}
-          envkey_ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
-          envkey_SERVER_ENDPOINT: http://127.0.0.1:5000
-          envkey_SERVER_URL: 127.0.0.1:5000
-          envkey_DB_URL: postgres://postgres:pass@127.0.0.1:5432/test?sslmode=disable
-          envkey_DB_MAX_CONNECTIONS: 100
-          envkey_DB_MAX_IDLE_CONNECTIONS: 10
-          envkey_DB_MAX_LIFETIME_CONNECTIONS: 2
-          envkey_AMQP_URL: amqp://rabbitmq:rabbitmq@127.0.0.1:5672
-          envkey_S3_BUCKET: pixeleye-ci
-          envkey_S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
-          envkey_S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
-          envkey_S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-          envkey_GITHUB_APP_NAME: "pixeleye-io"
-          envkey_NEXT_PUBLIC_SERVER_URL: "http://127.0.0.1:5000"
-
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -213,4 +184,138 @@ jobs:
 
       - name: Run api tests
         working-directory: ./apps/backend
+        env:
+          BACKEND_URL: http://127.0.0.1:5000
+          FRONTEND_URL: http://127.0.0.1:3000
+
+          AMQP_USER: rabbitmq
+          AMQP_PASSWORD: rabbitmq
+          AMPQ_HOST: 127.0.0.1
+          AMQP_PORT: 5672
+
+          DB_USERNAME: postgres
+          DB_PASSWORD: pass
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_NAME: test
+          DB_SSL_MODE: disable
+
+          S3_BUCKET: pixeleye-ci
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_KEY_SECRET: ${{ secrets.S3_KEY_SECRET }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+
+          ORY_URL: ${{ secrets.ORY_ENDPOINT }}
+          ORY_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
+          ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
+
         run: go run main.go & pnpm turbo test:api
+
+  deploy-private-migration-image:
+    name: Deploy database migrations
+    runs-on: ubuntu-latest
+    needs: [api-tests, atlas-lint, paths-filter]
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.migrations == 'true' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: pixeleye/pixeleye-migrations-private
+          tags: |
+            latest
+            type=sha
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/backend
+          file: apps/backend/Dockerfile.migrations
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  deploy-private-api-image:
+    name: Deploy api image
+    runs-on: ubuntu-latest
+    needs: [api-tests, atlas-lint, paths-filter]
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.backend == 'true' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: pixeleye/pixeleye-api-private
+          tags: |
+            latest
+            type=sha
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/backend
+          platforms: linux/amd64,linux/arm64
+          file: apps/backend/Dockerfile.api
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+  deploy-private-ingest-image:
+    name: Deploy ingest image
+    runs-on: ubuntu-latest
+    needs: [api-tests, atlas-lint, paths-filter]
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.backend == 'true' }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: pixeleye/pixeleye-ingest-private
+          tags: |
+            latest
+            type=sha
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/backend
+          file: apps/backend/Dockerfile.ingest
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

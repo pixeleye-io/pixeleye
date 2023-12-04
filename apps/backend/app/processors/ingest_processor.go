@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -21,49 +22,70 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/storage"
+
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 )
 
-func downloadSnapshotImages(s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, baseBytes []byte, err error) {
-	firstCH := make(chan []byte)
-	secondCH := make(chan []byte)
+func downloadSnapshotImages(ctx context.Context, s3 storage.IBucketClient, snapImg models.SnapImage, baseImg models.SnapImage) (snapBytes []byte, snapExists bool, baseBytes []byte, baseExists bool, err error) {
+
+	type result struct {
+		bytes  []byte
+		exists bool
+		order  int
+	}
+
+	resultCH := make(chan result, 2)
 
 	for i, img := range []models.SnapImage{snapImg, baseImg} {
 		go func(i int, img models.SnapImage) {
 			path := stores.GetSnapPath(img.ProjectID, img.Hash)
 
-			imgBytes, err := s3.DownloadFile(context.TODO(), os.Getenv("S3_BUCKET"), path)
-
+			imgBytes, err := s3.DownloadFile(ctx, os.Getenv("S3_BUCKET"), path)
 			if err != nil {
-				log.Error().Err(err).Str("ImageID", img.ID).Msg("Failed to get image from S3")
-				if i == 0 {
-					firstCH <- []byte{}
-				} else {
-					secondCH <- []byte{}
+				exists := true
+				var re *awshttp.ResponseError
+				if errors.As(err, &re) {
+					log.Debug().Msgf("Error code: %v", re.Response.StatusCode)
+					if re.Response.StatusCode == 404 {
+						exists = false
+					}
+				}
+				resultCH <- result{
+					bytes:  []byte{},
+					exists: exists,
+					order:  i,
 				}
 				return
 			}
 
-			if i == 0 {
-				firstCH <- imgBytes
-			} else {
-				secondCH <- imgBytes
+			resultCH <- result{
+				bytes:  imgBytes,
+				exists: true,
+				order:  i,
 			}
 		}(i, img)
 	}
 
-	snapBytes = <-firstCH
+	for i := 0; i < 2; i++ {
+		temp := <-resultCH
+		if temp.order == 0 {
+			snapBytes = temp.bytes
+			snapExists = temp.exists
+		} else {
+			baseBytes = temp.bytes
+			baseExists = temp.exists
+		}
+	}
 
 	if len(snapBytes) == 0 {
-		return snapBytes, baseBytes, fmt.Errorf("failed to get snapshot image from S3")
+		return snapBytes, snapExists, baseBytes, baseExists, fmt.Errorf("failed to get snapshot image from S3")
 	}
-
-	baseBytes = <-secondCH
 
 	if len(baseBytes) == 0 {
-		return snapBytes, baseBytes, fmt.Errorf("failed to get baseline image from S3")
+		return snapBytes, snapExists, baseBytes, baseExists, fmt.Errorf("failed to get baseline image from S3")
 	}
 
-	return snapBytes, baseBytes, nil
+	return snapBytes, snapExists, baseBytes, baseExists, nil
 }
 
 func generateBytesHash(imgBytes []byte) (string, error) {
@@ -81,7 +103,7 @@ func generateBytesHash(imgBytes []byte) (string, error) {
 // 1) Check in build history for an approved snapshot, get first
 // 2) If the approved snapshot is the same as the baseline, then we can approve this snapshot
 // 3) If the approved snapshot is different, then we need to generate a diff and set the status to unreviewed
-func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
+func processSnapshot(ctx context.Context, project models.Project, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
 
 	snapshot.BaselineID = &baselineSnapshot.ID
 
@@ -111,17 +133,44 @@ func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnap
 		return err
 	}
 
-	snapImg := snapImages[0]
-	baseImg := snapImages[1]
+	var snapImg models.SnapImage
+	var baseImg models.SnapImage
+	for _, img := range snapImages {
+		if img.ID == snapshot.SnapID {
+			snapImg = img
+		} else {
+			baseImg = img
+		}
+	}
 
 	s3, err := storage.GetClient()
 	if err != nil {
 		return err
 	}
 
-	snapBytes, baseBytes, err := downloadSnapshotImages(s3, snapImg, baseImg)
+	snapBytes, snapExists, baseBytes, baseExists, err := downloadSnapshotImages(ctx, s3, snapImg, baseImg)
+
+	log.Debug().Msgf("Snapshot exists: %v, Baseline exists: %v", snapExists, baseExists)
+
 	if err != nil {
-		return err
+		if !snapExists {
+			if err := db.SetSnapImageExists(ctx, snapImg.ID, false); err != nil {
+				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to set snapshot image exists to false")
+			}
+		}
+
+		if !baseExists {
+			if err := db.SetSnapImageExists(ctx, baseImg.ID, false); err != nil {
+				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to set baseline image exists to false")
+			}
+
+			snapshot.Status = models.SNAPSHOT_STATUS_MISSING_BASELINE
+			return db.UpdateSnapshot(snapshot)
+		}
+
+		if !snapExists {
+			return err
+		}
 	}
 
 	snapshotImage, _, err := image.Decode(bytes.NewReader(snapBytes))
@@ -136,7 +185,11 @@ func processSnapshot(ctx context.Context, snapshot models.Snapshot, baselineSnap
 		return err
 	}
 
-	diffImage := imageDiff.Diff(snapshotImage, baselineImage, &imageDiff.Options{Threshold: 0})
+	diffImage, err := imageDiff.Diff(snapshotImage, baselineImage, imageDiff.Options{Threshold: project.SnapshotThreshold, Blur: project.SnapshotBlur})
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to generate diff image")
+		return err
+	}
 
 	if diffImage.Equal {
 		log.Info().Str("SnapshotID", snapshot.ID).Msg("Diff image is equal to baseline after comparing pixels, setting to unchanged")
@@ -212,7 +265,7 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 
 				//  we can assume that the snapshots won't be an error as that should also be reflected by the build
 				if snapshot.SnapID == baseline.SnapID {
-					if baseline.Status == models.SNAPSHOT_STATUS_UNCHANGED || baseline.Status == models.SNAPSHOT_STATUS_APPROVED || baseline.Status == models.SNAPSHOT_STATUS_ORPHANED {
+					if baseline.Status == models.SNAPSHOT_STATUS_UNCHANGED || baseline.Status == models.SNAPSHOT_STATUS_APPROVED || baseline.Status == models.SNAPSHOT_STATUS_ORPHANED || baseline.Status == models.SNAPSHOT_STATUS_MISSING_BASELINE {
 						unchangedSnapshots = append(unchangedSnapshots, [2]models.Snapshot{snapshot, baseline})
 					} else if baseline.Status == models.SNAPSHOT_STATUS_REJECTED {
 						rejectedSnapshots = append(rejectedSnapshots, [2]models.Snapshot{snapshot, baseline})
@@ -242,9 +295,12 @@ func groupSnapshots(snapshots []models.Snapshot, baselines []models.Snapshot) (n
 	return newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots
 }
 
-func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build, db *database.Queries) error {
+func compareBuilds(ctx context.Context, project models.Project, snapshots []models.Snapshot, baselines []models.Snapshot, build models.Build) error {
 
-	ctx := context.TODO()
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
 
 	newSnapshots, unchangedSnapshots, unreviewedSnapshots, changedSnapshots, rejectedSnapshots := groupSnapshots(snapshots, baselines)
 
@@ -254,18 +310,20 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 		if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
 			log.Error().Err(err).Str("Snapshots", strings.Join(newSnapshots, ", ")).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
 			// We don't want to return this error because we still want to process the remaining snapshots
+			if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_FAILED); err != nil {
+				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
+			}
 		}
 	}
+
+	snapshotsToUpdate := []models.Snapshot{}
 
 	for _, snap := range unchangedSnapshots {
 		snapshot := snap[0]
 		snapshot.BaselineID = &snap[1].ID
 		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
 
-		if err := db.UpdateSnapshot(snapshot); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unchanged, SnapshotID %s", snapshot.ID)
-			// We don't want to return this error because we still want to process the remaining snapshots
-		}
+		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range unreviewedSnapshots {
@@ -274,10 +332,7 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 		snapshot.Status = models.SNAPSHOT_STATUS_UNREVIEWED
 		snapshot.DiffID = snap[1].DiffID
 
-		if err := db.UpdateSnapshot(snapshot); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to unreviewed, SnapshotID %s", snapshot.ID)
-			// We don't want to return this error because we still want to process the remaining snapshots
-		}
+		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range rejectedSnapshots {
@@ -286,14 +341,11 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 		snapshot.Status = models.SNAPSHOT_STATUS_REJECTED
 		snapshot.DiffID = snap[1].DiffID
 
-		if err := db.UpdateSnapshot(snapshot); err != nil {
-			log.Error().Err(err).Msgf("Failed to set snapshots status to rejected, SnapshotID %s", snapshot.ID)
-			// We don't want to return this error because we still want to process the remaining snapshots
-		}
+		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range changedSnapshots {
-		err := processSnapshot(ctx, snap[0], snap[1], db)
+		err := processSnapshot(ctx, project, snap[0], snap[1], db)
 
 		if err != nil {
 			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
@@ -302,13 +354,23 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 			snapshot.Status = models.SNAPSHOT_STATUS_FAILED
 			snapshot.Error = fmt.Sprintf("Failed to process snapshot: %s", err.Error())
 
-			if err := db.UpdateSnapshot(snapshot); err != nil {
-				log.Error().Err(err).Msgf("Failed to set snapshots status to failed, SnapshotID %s", snapshot.ID)
-				// We don't want to return this error because we still want to process the remaining snapshots
-			}
-
+			snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 		}
 
+	}
+
+	if len(snapshotsToUpdate) > 0 {
+		if err := db.BatchUpdateSnapshot(ctx, snapshotsToUpdate); err != nil {
+			log.Error().Err(err).Msg("Failed to batch update snapshots")
+
+			if err := db.SetSnapshotsStatus(ctx, newSnapshots, models.SNAPSHOT_STATUS_FAILED); err != nil {
+				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
+
+				return err
+			}
+
+			return err
+		}
 	}
 
 	return nil
@@ -326,12 +388,13 @@ func compareBuilds(snapshots []models.Snapshot, baselines []models.Snapshot, bui
 // We assume all the snapshots belong to the same build
 func IngestSnapshots(snapshotIDs []string) error {
 
+	ctx := context.TODO()
+
 	if len(snapshotIDs) == 0 {
 		return fmt.Errorf("no snapshot IDs provided")
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
@@ -339,7 +402,6 @@ func IngestSnapshots(snapshotIDs []string) error {
 	fmt.Printf("Ingesting snapshots: %s\n", strings.Join(snapshotIDs, ", "))
 
 	snapshots, err := db.GetSnapshots(snapshotIDs)
-
 	if err != nil {
 		return err
 	}
@@ -353,42 +415,46 @@ func IngestSnapshots(snapshotIDs []string) error {
 	}
 
 	build, err := db.GetBuild(snapshots[0].BuildID)
+	if err != nil {
+		return err
+	}
 
+	project, err := db.GetProject(ctx, build.ProjectID)
 	if err != nil {
 		return err
 	}
 
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
 
-	ctx := context.TODO()
-
 	if strings.TrimSpace(build.TargetBuildID) == "" {
-		err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED)
 		log.Info().Str("BuildID", build.ID).Msg("Build has no parent build, marking all snapshots as orphaned")
-		if err != nil {
-			return err
+
+		if err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
+
+			// We don't want to return the error as we still want to check and update the build status
+
+			log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
+
+			if err := db.SetSnapshotsStatus(ctx, snapshotIDs, models.BUILD_STATUS_FAILED); err != nil {
+				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
+			}
 		}
 	} else {
 
 		fmt.Printf("Build parent ID: %s\n", build.TargetBuildID)
 		parentBuild, err := db.GetBuild(build.TargetBuildID)
-
 		if err != nil {
 			return err
 		}
 
 		parentBuildSnapshots, err := db.GetSnapshotsByBuild(ctx, parentBuild.ID)
-
 		if err != nil {
 			return err
 		}
 
-		err = compareBuilds(snapshots, parentBuildSnapshots, build, db)
-
-		if err != nil {
+		if err := compareBuilds(ctx, project, snapshots, parentBuildSnapshots, build); err != nil {
 			return err
 		}
-
 	}
 
 	if _, err := db.CheckAndUpdateStatusAccordingly(ctx, build.ID); err != nil {

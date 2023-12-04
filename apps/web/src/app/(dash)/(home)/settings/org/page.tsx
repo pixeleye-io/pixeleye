@@ -1,7 +1,7 @@
 import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
 import { SettingsTemplate } from "../settingsTemplate";
-import { Input } from "@pixeleye/ui";
+import { OrgProfileSettingsSection } from "./sections";
 
 export default async function OrgSettingsPage({
   searchParams,
@@ -13,13 +13,12 @@ export default async function OrgSettingsPage({
   if (team.type === "user") {
     redirect("/settings");
   }
+
+
   return (
     <>
       <SettingsTemplate title="Profile" description="Manage your profile">
-        <form className="space-y-4">
-          <Input label="Name" />
-          <Input label="Website" />
-        </form>
+        <OrgProfileSettingsSection />
       </SettingsTemplate>
     </>
   );

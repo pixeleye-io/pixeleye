@@ -1,12 +1,11 @@
 import { cx } from "class-variance-authority";
-import * as React from "react";
-import Label from "../label";
+import { forwardRef, InputHTMLAttributes, ReactNode } from "react";
+import { Label } from "../label";
 import { useId } from "react";
 
-export interface InputBaseProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputBaseProps extends InputHTMLAttributes<HTMLInputElement> {}
 
-export const InputBase = React.forwardRef<HTMLInputElement, InputBaseProps>(
+export const InputBase = forwardRef<HTMLInputElement, InputBaseProps>(
   function InputBase({ className, type, ...props }, ref) {
     return (
       <input
@@ -22,12 +21,11 @@ export const InputBase = React.forwardRef<HTMLInputElement, InputBaseProps>(
   }
 );
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: React.ReactNode;
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: ReactNode;
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
+const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { label, id: passedId, ...rest },
   ref
 ) {

@@ -17,7 +17,7 @@
   --color-on-error-container-light: 65 0 2;
   --color-surface-light: 253 248 253;
   --color-on-surface-light: 28 27 30;
-  --color-surface-container-lowest-light: 255 255 255;
+  --color-surface-container-lowest-light: 255 252 255;
   --color-surface-container-low-light: 247 242 247;
   --color-surface-container-light: 242 236 241;
   --color-surface-container-high-light: 236 231 235;
@@ -44,7 +44,7 @@
   --color-on-error-container-dark: 255 218 214;
   --color-surface-dark: 17 17 17;
   --color-on-surface-dark: 250 250 250;
-  --color-surface-container-lowest-dark: 15 14 17;
+  --color-surface-container-lowest-dark: 15 15 15;
   --color-surface-container-low-dark: 28 27 30;
   --color-surface-container-dark: 33 31 34;
   --color-surface-container-high-dark: 43 41 45;

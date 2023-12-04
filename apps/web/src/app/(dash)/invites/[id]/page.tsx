@@ -17,7 +17,7 @@ export default async function ProjectInvitePage({
 
   const cookie = cookies().toString();
 
-  const invite = await API.get("/invites/{id}", {
+  const invite = await API.get("/v1/invites/{id}", {
     params: {
       id: inviteID,
     },

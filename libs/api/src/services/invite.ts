@@ -3,13 +3,13 @@ import { Project } from "../models/project";
 import { Invite } from "../models";
 
 type GET = Method<{
-  "/invites/{id}": {
+  "/v1/invites/{id}": {
     res: Invite;
   };
 }>;
 
 type POST = Method<{
-  "/invites/{id}/accept": {
+  "/v1/invites/{id}/accept": {
     res: undefined;
   };
 }>;

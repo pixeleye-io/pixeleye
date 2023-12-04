@@ -16,6 +16,9 @@ export const ProjectZod = z.object({
   sourceID: z.string().optional(),
   token: z.string().optional(),
 
+  snapshotThreshold: z.number().min(0).max(1).optional(),
+  snapshotBlur: z.boolean().optional(),
+
   lastActivity: z.string().datetime().optional(),
 
   role: z.enum(["admin", "reviewer", "viewer"]).optional(),
@@ -26,6 +29,7 @@ export const UserOnProjectZod = UserZod.extend({
   role: z.enum(["admin", "reviewer", "viewer"]),
   roleSync: z.boolean(),
   type: z.enum(["invited", "git"]),
+  teamRole: z.enum(["admin", "member", "accountant", "owner"]).optional(),
 });
 
 export type Project = z.infer<typeof ProjectZod>;

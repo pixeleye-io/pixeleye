@@ -1,6 +1,7 @@
 package broker
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/pixeleye-io/pixeleye/app/queues"
@@ -43,7 +44,6 @@ func GetChannel() (*amqp.Channel, error) {
 		}
 
 		channel, err = connection.Channel()
-
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to open a channel")
 			return nil, err
@@ -55,8 +55,15 @@ func GetChannel() (*amqp.Channel, error) {
 }
 
 func GetConnection() (*amqp.Connection, error) {
-	if globalConnection == nil {
-		url := os.Getenv("AMQP_URL")
+	if globalConnection == nil || globalConnection.IsClosed() {
+		// url := os.Getenv("AMQP_URL")
+
+		userName := os.Getenv("AMQP_USER")
+		password := os.Getenv("AMQP_PASSWORD")
+		host := os.Getenv("AMQP_HOST")
+		port := os.Getenv("AMQP_PORT")
+
+		url := fmt.Sprintf("amqp://%s:%s@%s:%s/", userName, password, host, port)
 
 		log.Info().Msgf("Connecting to RabbitMQ at %s", url)
 
@@ -75,13 +82,6 @@ func GetConnection() (*amqp.Connection, error) {
 func GetBroker() (*Queues, error) {
 
 	channel, err := GetChannel()
-
-	if err != nil {
-		return nil, err
-	}
-
-	connection, err := GetConnection()
-
 	if err != nil {
 		return nil, err
 	}
@@ -90,13 +90,8 @@ func GetBroker() (*Queues, error) {
 		return SendToQueue(channel, queueName, queueType, body)
 	}
 
-	subscribe := func(queueType brokerTypes.QueueType, queueName string, callback func([]byte) error, quit chan bool) error {
-		return SubscribeToQueue(connection, queueName, queueType, callback, quit)
-	}
-
 	broker := &brokerTypes.Broker{
-		Send:      send,
-		Subscribe: subscribe,
+		Send: send,
 	}
 
 	return &Queues{

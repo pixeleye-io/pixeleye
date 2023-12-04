@@ -66,7 +66,7 @@ services:
     environment:
       - STAGE_STATUS="prod"
       - SERVER_ENDPOINT="localhost:5000"
-      - SELF_HOSTING="false"
+      - NEXT_PUBLIC_PIXELEYE_HOSTING="true"
       - godebug="netdns=cgo"
       - AMQP_URL="amqp://guest:guest@broker:5672"
       - DB_URL="host=database port=5432 user=postgres password=postgres dbname=preview sslmode=disable"

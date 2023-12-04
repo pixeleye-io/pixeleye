@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { serializedNodeWithId } from "rrweb-snapshot";
+import { serializedNodeWithId } from "@pixeleye/rrweb-snapshot";
 
 const BaseSnapshotOptionsZod = z.object({
   viewports: z.array(z.string()),
@@ -9,6 +9,7 @@ const BaseSnapshotOptionsZod = z.object({
   fullPage: z.boolean().optional(),
   url: z.string().optional(),
   dom: z.any().optional() as z.Schema<serializedNodeWithId | undefined>,
+  selector: z.string().optional(),
 });
 
 export const SnapshotOptionsZod = BaseSnapshotOptionsZod.and(

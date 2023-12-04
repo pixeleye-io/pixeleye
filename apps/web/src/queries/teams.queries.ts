@@ -8,15 +8,33 @@ export const teamKeys = createQueryKeys("teams", {
       listProjects: () => ({
         queryKey: ["projects"],
         queryFn: () =>
-          API.get("/teams/{teamID}/projects", {
+          API.get("/v1/teams/{teamID}/projects", {
             headers: { cookie },
             params: { teamID: teamID },
+          }),
+      }),
+      getSnapshotUsage: (queries: { from: string; to: string }) => ({
+        queryKey: ["snapshotUsage"],
+        queryFn: () =>
+          API.get("/v1/teams/{teamID}/usage/snapshots", {
+            headers: { cookie },
+            params: { teamID: teamID },
+            queries,
+          }),
+      }),
+      getBuildUsage: (queries: { from: string; to: string }) => ({
+        queryKey: ["buildUsage"],
+        queryFn: () =>
+          API.get("/v1/teams/{teamID}/usage/builds", {
+            headers: { cookie },
+            params: { teamID: teamID },
+            queries,
           }),
       }),
       listMembers: () => ({
         queryKey: ["members"],
         queryFn: () =>
-          API.get("/teams/{teamID}/users", {
+          API.get("/v1/teams/{teamID}/users", {
             headers: { cookie },
             params: { teamID: teamID },
           }),
@@ -24,7 +42,7 @@ export const teamKeys = createQueryKeys("teams", {
           invited: () => ({
             queryKey: ["invited"],
             queryFn: () =>
-              API.get("/teams/{teamID}/users", {
+              API.get("/v1/teams/{teamID}/users", {
                 headers: { cookie },
                 params: { teamID: teamID },
               }).then((res) => res.filter((user) => user.type === "invited")),
@@ -32,7 +50,7 @@ export const teamKeys = createQueryKeys("teams", {
           git: () => ({
             queryKey: ["git"],
             queryFn: () =>
-              API.get("/teams/{teamID}/users", {
+              API.get("/v1/teams/{teamID}/users", {
                 headers: { cookie },
                 params: { teamID: teamID },
               }).then((res) => res.filter((user) => user.type === "git")),
@@ -45,7 +63,7 @@ export const teamKeys = createQueryKeys("teams", {
   list: (cookie?: string) => ({
     queryKey: [{}],
     queryFn: () =>
-      API.get("/user/teams", {
+      API.get("/v1/user/teams", {
         headers: {
           ...(cookie ? { cookie } : {}),
         },

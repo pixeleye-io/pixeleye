@@ -17,6 +17,19 @@ type ProjectQueries struct {
 	*sqlx.DB
 }
 
+type ProjectQueriesTx struct {
+	*sqlx.Tx
+}
+
+func NewProjectTx(db *sqlx.DB, ctx context.Context) (*ProjectQueriesTx, error) {
+	tx, err := db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ProjectQueriesTx{tx}, nil
+}
+
 func (q *ProjectQueries) GetLatestBuild(projectID string) (models.Build, error) {
 	build := models.Build{}
 
@@ -44,7 +57,7 @@ func (q *ProjectQueries) GetTeamsProjectsAsUser(teamID string, userID string) ([
 				OR team_users.role = 'owner') AND project_users.user_id IS NULL
 			)
 		)
-	)`
+	) ORDER BY last_activity DESC`
 
 	projects := []models.Project{}
 
@@ -60,6 +73,22 @@ func (q *ProjectQueries) GetProject(ctx context.Context, id string) (models.Proj
 	project := models.Project{}
 
 	query := `SELECT * FROM project WHERE id = $1`
+
+	err := q.Get(&project, query, id)
+
+	return project, err
+}
+
+type ProjectWithTeamStatus struct {
+	*models.Project
+	TeamStatus string `db:"team_status" json:"teamStatus"`
+}
+
+// There is no access control on this query, so be careful where you use it
+func (q *ProjectQueries) GetProjectWithTeamStatus(ctx context.Context, id string) (ProjectWithTeamStatus, error) {
+	project := ProjectWithTeamStatus{}
+
+	query := `SELECT project.*, team.status AS team_status FROM project JOIN team ON project.team_id = team.id WHERE project.id = $1`
 
 	err := q.Get(&project, query, id)
 
@@ -156,7 +185,7 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 }
 
 func (q *ProjectQueries) CreateProject(project *models.Project, userID string) error {
-	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url)`
+	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url, snapshot_threshold, snapshot_blur) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url, :snapshot_threshold, :snapshot_blur)`
 	setUsersQuery := `INSERT INTO project_users (project_id, user_id, role, type) VALUES (:project_id, :user_id, :role, :type)`
 
 	time := utils.CurrentTime()
@@ -196,7 +225,7 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 }
 
 func (q *ProjectQueries) UpdateProject(project *models.Project) error {
-	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token WHERE id = :id`
+	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token, updated_at = :updated_at, url = :url, snapshot_threshold = :snapshot_threshold, snapshot_blur = :snapshot_blur WHERE id = :id`
 
 	project.UpdatedAt = time.Now()
 
@@ -216,20 +245,22 @@ func (q *ProjectQueries) DeleteProject(id string) error {
 type UserOnProject struct {
 	*models.User
 	Role     string `db:"role" json:"role"`
-	RoleSync bool   `db:"role_sync" json:"role_sync"`
+	RoleSync bool   `db:"role_sync" json:"roleSync"`
 	Type     string `db:"type" json:"type"`
+	TeamRole string `db:"team_role" json:"teamRole"`
 }
 
-func (q *ProjectQueries) GetProjectUsers(ctx context.Context, projectID string) ([]UserOnProject, error) {
-	query := `SELECT users.*, project_users.role, project_users.type, project_users.role_sync, COALESCE(github_account.provider_account_id, '') as github_id 
+func (q *ProjectQueries) GetProjectUsers(ctx context.Context, project models.Project) ([]UserOnProject, error) {
+	query := `SELECT users.*, project_users.role, project_users.type, project_users.role_sync, team_users.role as team_role, COALESCE(github_account.provider_account_id, '') as github_id
 	FROM users 
-	JOIN project_users ON project_users.user_id = users.id 
+	JOIN project_users ON project_users.user_id = users.id
+	JOIN team_users ON team_users.user_id = users.id AND team_users.team_id = $1
 	LEFT JOIN account github_account ON users.id = github_account.user_id AND github_account.provider = 'github' 
-	WHERE project_id = $1`
+	WHERE project_id = $2`
 
 	projectUsers := []UserOnProject{}
 
-	err := q.Select(&projectUsers, query, projectID)
+	err := q.Select(&projectUsers, query, project.TeamID, project.ID)
 
 	return projectUsers, err
 }
@@ -269,7 +300,7 @@ func (q *ProjectQueries) IsUserOnProject(ctx context.Context, projectID string, 
 	return exists, nil
 }
 
-func (q *ProjectQueries) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
+func (q *ProjectQueriesTx) RemoveUserFromAllGitProjects(ctx context.Context, teamID string, userID string) error {
 	query := `DELETE FROM project_users WHERE project_id IN (SELECT id FROM project WHERE team_id = $1) AND user_id = $2 AND type = 'git'`
 
 	_, err := q.ExecContext(ctx, query, teamID, userID)
@@ -346,12 +377,21 @@ func (q *ProjectQueries) RemoveUsersFromProject(ctx context.Context, projectID s
 	return err
 }
 
-func (q *ProjectQueries) UpdateUserRoleOnProject(projectID string, userID string, role string) error {
-	query := `UPDATE project_users SET role = $1 WHERE project_id = $2 AND user_id = $3`
+func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID string, userID string, role string, sync bool) (found bool, err error) {
+	query := `UPDATE project_users SET role = $1, role_sync = $2 WHERE project_id = $3 AND user_id = $4`
 
-	_, err := q.Exec(query, role, projectID, userID)
+	res, err := q.ExecContext(ctx, query, role, sync, projectID, userID)
+	if err != nil {
+		return false, err
+	}
 
-	return err
+	if n, err := res.RowsAffected(); err != nil {
+		return false, err
+	} else if n == 0 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {

@@ -1,2 +1,2 @@
-export * from "./sidebarNav";
-export { default } from "./sidebarNav";
+export type { SidebarNavLink, SidebarNavProps } from "./sidebarNav";
+export { default as SidebarNav } from "./sidebarNav";

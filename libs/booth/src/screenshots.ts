@@ -1,7 +1,7 @@
 import { Browser } from "playwright";
 import { SnapshotOptions } from "./types";
 import { JSDOM } from "jsdom";
-import { createCache, createMirror, rebuild } from "rrweb-snapshot";
+import { createCache, createMirror, rebuild } from "@pixeleye/rrweb-snapshot";
 
 async function takeOnBrowser(
   browser: Browser,
@@ -10,20 +10,17 @@ async function takeOnBrowser(
 ) {
   const page = await browser.newPage({});
 
-  if (data.url) {
-    await page.goto(data.url);
-  } else {
+  if (data.url) await page.goto(data.url);
+  else {
     const doc = new JSDOM().window.document;
     const cache = createCache();
     const mirror = createMirror();
     rebuild(data.dom!, { doc, cache, mirror });
 
-    const styleEl = doc.createElement("style");
-
-    doc.documentElement.appendChild(styleEl);
-
     await page.setContent(doc.documentElement.outerHTML);
   }
+
+  await page.waitForLoadState();
 
   const buffers = await Promise.all(
     data.viewports.map(async (viewport) => {
@@ -31,15 +28,18 @@ async function takeOnBrowser(
         number,
         number,
       ];
+
+      const selectedPage = () =>
+        data.selector ? page.locator(data.selector) : page;
+
       return page
         .setViewportSize({
           width,
           height,
         })
         .then(async () => ({
-          img: await page.screenshot({
+          img: await selectedPage().screenshot({
             fullPage: data.fullPage ?? true,
-            animations: "disabled",
             type: "png",
           }),
           viewport,

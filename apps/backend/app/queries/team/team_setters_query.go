@@ -5,7 +5,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
@@ -44,10 +43,11 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	}
 
 	userOnTeam := models.TeamMember{
-		TeamID: team.ID,
-		UserID: creatorID,
-		Role:   models.TEAM_MEMBER_ROLE_OWNER,
-		Type:   teamType,
+		TeamID:   team.ID,
+		UserID:   creatorID,
+		Role:     models.TEAM_MEMBER_ROLE_OWNER,
+		RoleSync: false,
+		Type:     teamType,
 	}
 
 	if _, err = q.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam); err != nil {
@@ -55,6 +55,14 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	}
 
 	return nil
+}
+
+func (q *TeamQueries) DeleteTeamInstallation(ctx context.Context, installationID string) error {
+	query := `DELETE FROM git_installation WHERE installation_id = $1`
+
+	_, err := q.ExecContext(ctx, query, installationID)
+
+	return err
 }
 
 func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memberIDs []string) error {
@@ -76,8 +84,6 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 
 	query = tx.Rebind(query)
 
-	log.Debug().Msgf("query: %s", query)
-
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
@@ -89,8 +95,6 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 	}
 
 	projectQuery = tx.Rebind(projectQuery)
-
-	log.Debug().Msgf("projectQuery: %s", projectQuery)
 
 	_, err = tx.ExecContext(ctx, projectQuery, args...)
 	if err != nil {
@@ -108,10 +112,18 @@ func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamM
 	return err
 }
 
-func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string) error {
-	query := `UPDATE team_users SET role = $1 WHERE user_id = $2 AND team_id = $3`
+func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string, roleSync bool) error {
+	query := `UPDATE team_users SET role = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
 
-	_, err := q.ExecContext(ctx, query, role, memberID, teamID)
+	_, err := q.ExecContext(ctx, query, role, roleSync, memberID, teamID)
+
+	return err
+}
+
+func (q *TeamQueriesTx) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string, roleSync bool) error {
+	query := `UPDATE team_users SET role = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
+
+	_, err := q.ExecContext(ctx, query, role, roleSync, memberID, teamID)
 
 	return err
 }
@@ -119,7 +131,43 @@ func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, m
 func (q *TeamQueries) UpdateUserTypeOnTeam(ctx context.Context, teamID string, userID string, userType string, roleSync bool) error {
 	query := `UPDATE team_users SET type = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
 
-	_, err := q.ExecContext(ctx, query, userType, roleSync, userID)
+	_, err := q.ExecContext(ctx, query, userType, roleSync, userID, teamID)
+
+	return err
+}
+
+func (q *TeamQueriesTx) UpdateUserTypeOnTeam(ctx context.Context, teamID string, userID string, userType string, roleSync bool) error {
+	query := `UPDATE team_users SET type = $1, role_sync = $2 WHERE user_id = $3 AND team_id = $4`
+
+	_, err := q.ExecContext(ctx, query, userType, roleSync, userID, teamID)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateTeam(ctx context.Context, team models.Team) error {
+	query := `UPDATE team SET name = $1, avatar_url = $2, url = $3, updated_at = $4 WHERE id = $5`
+
+	team.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.ExecContext(ctx, query, team.Name, team.AvatarURL, team.URL, team.UpdatedAt, team.ID)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateTeamBilling(ctx context.Context, team models.Team) error {
+	query := `UPDATE team SET billing_status = $1, billing_account_id = $2, billing_plan_id = $3, billing_subscription_id = $4, billing_subscription_item_id = $5, updated_at = $6 WHERE id = $7`
+
+	team.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.ExecContext(ctx, query, team.BillingStatus, team.BillingAccountID, team.BillingPlanID, team.BillingSubscriptionID, team.BillingSubscriptionItemID, team.UpdatedAt, team.ID)
+
+	return err
+}
+
+func (q *TeamQueries) UpdateTeamBillingStatus(ctx context.Context, teamID string, status string) error {
+	query := `UPDATE team SET billing_status = $1 WHERE id = $2`
+
+	_, err := q.ExecContext(ctx, query, status, teamID)
 
 	return err
 }

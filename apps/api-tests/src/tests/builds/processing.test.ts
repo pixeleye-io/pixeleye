@@ -53,7 +53,7 @@ describe(
           return res.json;
         });
 
-      jekyllsToken = `${jekyllsProject.id}:${jekyllsProject.token}`;
+      jekyllsToken = `${jekyllsProject.token}:${jekyllsProject.id}`;
     });
 
     it.concurrent(
@@ -584,7 +584,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 

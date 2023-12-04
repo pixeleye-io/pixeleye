@@ -26,7 +26,7 @@ func ProjectRoutes(e *echo.Echo) {
 
 	baseRoutes.Any("/events", controllers.SubscribeToProject)
 
-	// Admin routes.
+	// Admin routes
 	adminRoutes := common.Group("/:project_id/admin")
 
 	adminRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin"}, []string{"admin", "owner"})
@@ -34,8 +34,9 @@ func ProjectRoutes(e *echo.Echo) {
 	adminRoutes.Use(adminRoleMiddleware.ProjectRoleAccess)
 
 	adminRoutes.DELETE("", controllers.DeleteProject)
+	adminRoutes.PATCH("", controllers.UpdateProject)
 	adminRoutes.POST("/new-token", controllers.RegenerateToken)
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveUserFromProject)
-	adminRoutes.PATCH("/users/:user_id", controllers.UpdateProjectRole)
+	adminRoutes.PATCH("/users/:user_id", controllers.UpdateUserOnProject)
 	adminRoutes.POST("/users", controllers.AddUserToProject)
 }

@@ -325,13 +325,6 @@ describe("Team admin projects", () => {
         createdAt: like("2021-01-01T00:00:00.000Z"),
         expiresAt: like("2021-01-01T00:00:00.000Z"),
       });
-
-    await projectAPI.updateUserRole(
-      hydesProject.id,
-      session.identity.userID,
-      "reviewer",
-      IDs.jekyll
-    );
   });
 
   // -------------------- deleting a project --------------------
@@ -344,7 +337,7 @@ describe("Team admin projects", () => {
     );
   });
 
-  it("Jekyll should be able to delete their hydes", async (ctx) => {
+  it("Jekyll should be able to delete hydes project", async (ctx) => {
     await projectAPI.deleteProject(
       hydesProject.id,
       hydesProject.name,
