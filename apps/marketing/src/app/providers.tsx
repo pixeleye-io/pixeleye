@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useContext } from "react";
 import { LazyMotion } from "framer-motion";
 import { ThemeProvider } from "next-themes";
-import { create } from "zustand";
-import { useReviewerStore } from "@pixeleye/reviewer";
+import { create, useStore } from "zustand";
 
 export interface GlobalStore {
   framerLoaded: boolean;
@@ -18,14 +17,11 @@ export const useGlobalStore = create<GlobalStore>()((set) => ({
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const setFramerLoaded = useGlobalStore((state) => state.setFramerLoaded);
-  const setFramerLoadedReviewer = useReviewerStore(
-    (state) => state.setFramerLoaded
-  );
+
 
   const loadFeatures = () =>
     import("./features.js").then((res) => {
       setFramerLoaded();
-      setFramerLoadedReviewer();
       return res.default;
     });
 

@@ -3,7 +3,6 @@ import { Button } from "@pixeleye/ui";
 import { Session } from "@ory/client";
 import { cookies } from "next/headers";
 import { oryEndpoint } from "./(auth)/utils";
-import { env } from "@/env";
 
 export function UnauthenticatedPage() {
   return (
@@ -52,7 +51,7 @@ export default async function NotFoundPage() {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Button asChild>
-              <Link href={`${env.NEXT_PUBLIC_SERVER_URL}/dashboard`}>Back to dashboard</Link>
+              <Link href="/dashboard">Back to dashboard</Link>
             </Button>
           </div>
         </div>

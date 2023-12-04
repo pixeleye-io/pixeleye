@@ -15,9 +15,9 @@ export default async function AuthErrorPage({
 }) {
   const { id } = searchParams;
 
-  if( id === undefined) {
+  if (id === undefined) {
     redirect("/dashboard");
-    }
+  }
 
   const error = await frontend
     .getFlowError({ id: String(id) })
@@ -53,8 +53,8 @@ export default async function AuthErrorPage({
               Something went wrong
             </h3>
             {error && (
-              <div className="mt-4 text-sm text-error bg-surface-container-low p-4 rounded break-words">
-                <code>{JSON.stringify(error, null, 2)}</code>
+              <div className="mt-4 text-sm text-error bg-surface-container-low p-4 rounded">
+                <code className="break-all">{JSON.stringify(error, null, 2)}</code>
               </div>
             )}
           </div>

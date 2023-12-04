@@ -33,7 +33,7 @@ func main() {
 	e.Use(echoMiddleware.Recover())
 
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{os.ExpandEnv("FRONTEND_URL")},
+		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Pixeleye-Location"},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}}))

@@ -1,13 +1,13 @@
 "use client";
 
 import { m, useMotionValue, useMotionValueEvent } from "framer-motion";
-import { FC, useEffect } from "react";
+import { FC, useContext, useEffect } from "react";
 import BuildInfoPanel from "./panels/buildInfo";
 import SnapshotsPanel from "./panels/snapshots";
 import FeedPanel from "./panels/feed";
-import { useReviewerStore } from "./store";
+import { StoreContext } from "./store";
 import OverlayScrollbar from "@pixeleye/ui/src/scrollArea/scrollArea";
-import { useWindowSize } from "usehooks-ts";
+import { useStore } from "zustand";
 
 export type Panel = "snapshots" | "build-info" | "feed";
 
@@ -30,7 +30,9 @@ function initialWidth() {
 
 export function Panel() {
   const width = useMotionValue(initialWidth());
-  const panel = useReviewerStore((state) => state.panel);
+  const store = useContext(StoreContext)
+
+  const panel = useStore(store, (state) => state.panel);
 
   const PanelComponent = panelRepo[panel];
 

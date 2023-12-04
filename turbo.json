@@ -5,7 +5,6 @@
     "ORY_SDK_URL",
     "ORY_ENDPOINT",
     "GITHUB_DOCS_TOKEN",
-    "NEXT_PUBLIC_SERVER_URL",
     "GITHUB_APP_NAME"
   ],
   "pipeline": {

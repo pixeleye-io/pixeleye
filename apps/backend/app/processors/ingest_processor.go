@@ -185,7 +185,11 @@ func processSnapshot(ctx context.Context, project models.Project, snapshot model
 		return err
 	}
 
-	diffImage := imageDiff.Diff(snapshotImage, baselineImage, &imageDiff.Options{Threshold: project.SnapshotThreshold})
+	diffImage, err := imageDiff.Diff(snapshotImage, baselineImage, imageDiff.Options{Threshold: project.SnapshotThreshold, Blur: project.SnapshotBlur})
+	if err != nil {
+		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to generate diff image")
+		return err
+	}
 
 	if diffImage.Equal {
 		log.Info().Str("SnapshotID", snapshot.ID).Msg("Diff image is equal to baseline after comparing pixels, setting to unchanged")

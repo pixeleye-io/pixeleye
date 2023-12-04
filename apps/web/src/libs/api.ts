@@ -3,8 +3,6 @@ import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
 import { redirect } from "next/navigation";
 
-const endpoint = env.NEXT_PUBLIC_SERVER_ENDPOINT
-
 export interface CustomProps {
   headers?: Record<string, string>;
   next?: {
@@ -14,7 +12,7 @@ export interface CustomProps {
 }
 
 export const createAPI = (extraHeaders: Record<string, string> = {}) =>
-  getAPI<Services, CustomProps>(endpoint, (url, options) =>
+  getAPI<Services, CustomProps>(env.NEXT_PUBLIC_BACKEND_URL, (url, options) =>
     fetch(url, {
       ...options,
       headers: {

@@ -17,6 +17,7 @@ export const ProjectZod = z.object({
   token: z.string().optional(),
 
   snapshotThreshold: z.number().min(0).max(1).optional(),
+  snapshotBlur: z.boolean().optional(),
 
   lastActivity: z.string().datetime().optional(),
 

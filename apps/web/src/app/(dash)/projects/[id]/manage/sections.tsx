@@ -16,6 +16,9 @@ import {
   SelectValue,
   Slider,
   Link,
+  Toggle,
+  Switch,
+  Label,
 } from "@pixeleye/ui";
 import { InputBase } from "@pixeleye/ui/src/input";
 import { useRouter } from "next/navigation";
@@ -401,7 +404,7 @@ export function InviteMemberSection({ project }: { project: Project }) {
 }
 
 export function UpdateProjectSection({ project }: { project: Project }) {
-  const { register, handleSubmit, formState } = useForm<{
+  const { register, handleSubmit } = useForm<{
     name: string;
     snapshotThreshold: number;
   }>({
@@ -413,8 +416,11 @@ export function UpdateProjectSection({ project }: { project: Project }) {
 
   const queryClient = useQueryClient();
 
+  const [snapshotBlur, setSnapshotBlur] = useState<boolean>(project.snapshotBlur ?? true);
+
+
   const mutation = useMutation({
-    mutationFn: (data: { name: string; snapshotThreshold: number }) =>
+    mutationFn: (data: { name: string; snapshotThreshold: number, snapshotBlur: boolean }) =>
       API.patch("/v1/projects/{id}/admin", {
         params: {
           id: project.id,
@@ -449,15 +455,17 @@ export function UpdateProjectSection({ project }: { project: Project }) {
   });
 
   const onSubmit = handleSubmit(({ name, snapshotThreshold }) =>
-    mutation.mutate({ name, snapshotThreshold })
+    mutation.mutate({ name, snapshotThreshold, snapshotBlur })
   );
 
   const [threshold, setThreshold] = useState<number[]>([
     project.snapshotThreshold || 0.2,
   ]);
 
+
+
   return (
-    <form onSubmit={onSubmit} className="flex flex-col space-y-4 mt-8">
+    <form onSubmit={onSubmit} className="flex flex-col space-y-8 mt-8">
       <Input
         label="Project name"
         placeholder="Project name"
@@ -465,7 +473,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
         {...register("name", { required: true })}
       />
       <div className="flex flex-col">
-        <label className="text-on-surface text-sm pb-2">
+        <label className="pb-2">
           Snapshot threshold: {threshold[0]}
         </label>
         <Slider
@@ -488,7 +496,21 @@ export function UpdateProjectSection({ project }: { project: Project }) {
           . Recommended: 0.2{" "}
         </p>
       </div>
+      <div className="flex flex-col">
+        <div className="flex space-x-2 items-center">
+          <Label className="pr-2">
+            Snapshot blur
+          </Label>
+          <Switch checked={snapshotBlur} onCheckedChange={setSnapshotBlur} />
+        </div>
 
+        <p className="text-on-surface-variant text-sm pt-2">
+          Temporary blur when comparing snapshots. <Link className="!text-sm"
+            href="https://pixeleye.io/docs/features/diff-highlighting#blur"
+            target="_blank">Learn more</Link>. Recommended: Enabled
+        </p>
+
+      </div>
       <div>
         <Button className="grow-0" loading={mutation.isPending} type="submit">
           Update

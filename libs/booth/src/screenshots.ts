@@ -1,16 +1,14 @@
 import { Browser } from "playwright";
 import { SnapshotOptions } from "./types";
 import { JSDOM } from "jsdom";
-import { createCache, createMirror, rebuild } from "@chromaui/rrweb-snapshot";
+import { createCache, createMirror, rebuild } from "@pixeleye/rrweb-snapshot";
 
 async function takeOnBrowser(
   browser: Browser,
   target: string,
   data: SnapshotOptions
 ) {
-  const page = await browser.newPage({
-    // javaScriptEnabled: false,
-  });
+  const page = await browser.newPage({});
 
   if (data.url) await page.goto(data.url);
   else {
@@ -21,6 +19,8 @@ async function takeOnBrowser(
 
     await page.setContent(doc.documentElement.outerHTML);
   }
+
+  await page.waitForLoadState();
 
   const buffers = await Promise.all(
     data.viewports.map(async (viewport) => {

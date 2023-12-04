@@ -15,6 +15,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cx } from "class-variance-authority";
 import { Team, User } from "@pixeleye/api";
+import Link from "next/link";
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
@@ -28,7 +29,6 @@ export interface TeamSwitcherProps extends PopoverTriggerProps {
 }
 
 export default function TeamSwitcher({
-  className,
   personal,
   teams,
   user,
@@ -51,17 +51,16 @@ export default function TeamSwitcher({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          size="sm"
-          variant="ghost"
-          role="combobox"
-          aria-expanded={open}
-          aria-label="Select a team"
-          className={cx("max-w-[12rem] overflow-hidden", className)}
-          innerClassName={"justify-between overflow-hidden"}
-          outerClassName="flex-1 overflow-hidden"
-        >
+      <Button
+        size="sm"
+        variant="ghost"
+        innerClassName={"justify-between overflow-hidden"}
+        outerClassName="flex-1 overflow-hidden"
+        asChild
+      >
+        <Link
+          className="max-w-[12rem] overflow-hidden"
+          href={`/dashboard${selectedTeam.type === "user" ? "" : "?team=" + selectedTeam.id}`}>
           <Avatar className="mr-4 h-6 w-6">
             <Avatar.Image
               src={(selectedTeam.type === "user" ? user?.avatar : selectedTeam.avatarURL) || ""}
@@ -72,7 +71,19 @@ export default function TeamSwitcher({
           <span className="truncate min-w-0 max-w-full">
             {selectedTeam.name}
           </span>
-          <ChevronUpDownIcon className="ml-4 h-4 w-4 shrink-0 text-on-surface-variant" />
+        </Link>
+      </Button>
+      <PopoverTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          role="combobox"
+          aria-expanded={open}
+          aria-label="Select a team"
+          className={"max-w-[12rem] overflow-hidden"}
+          innerClassName={"justify-between overflow-hidden"}
+          outerClassName="flex-1 overflow-hidden">
+          <ChevronUpDownIcon className="h-4 w-4 shrink-0 text-on-surface-variant" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] !p-0">

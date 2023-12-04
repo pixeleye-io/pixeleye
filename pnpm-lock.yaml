@@ -209,12 +209,12 @@ importers:
 
   apps/puppeteer:
     dependencies:
-      '@chromaui/rrweb-snapshot':
-        specifier: 2.0.0-alpha.7-noAbsolute.2
-        version: 2.0.0-alpha.7-noAbsolute.2
       '@pixeleye/booth':
         specifier: workspace:*
         version: link:../../libs/booth
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       puppeteer:
         specifier: ^21.5.2
         version: 21.5.2(typescript@5.2.2)
@@ -499,15 +499,15 @@ importers:
 
   libs/booth:
     dependencies:
-      '@chromaui/rrweb-snapshot':
-        specifier: 2.0.0-alpha.7-noAbsolute.2
-        version: 2.0.0-alpha.7-noAbsolute.2
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../api
       '@pixeleye/js-sdk':
         specifier: workspace:*
         version: link:../js-sdk
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -627,9 +627,6 @@ importers:
 
   libs/cypress:
     dependencies:
-      '@chromaui/rrweb-snapshot':
-        specifier: 2.0.0-alpha.7-noAbsolute.2
-        version: 2.0.0-alpha.7-noAbsolute.2
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../api
@@ -639,6 +636,9 @@ importers:
       '@pixeleye/js-sdk':
         specifier: workspace:*
         version: link:../js-sdk
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../configs/tsconfig
@@ -820,6 +820,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.2.37)(react@18.2.0)
+      '@radix-ui/react-switch':
+        specifier: ^1.0.3
+        version: 1.0.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-tabs':
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
@@ -1103,10 +1106,6 @@ packages:
       fs-extra: 7.0.1
       human-id: 1.0.2
       prettier: 2.8.8
-    dev: false
-
-  /@chromaui/rrweb-snapshot@2.0.0-alpha.7-noAbsolute.2:
-    resolution: {integrity: sha512-vOVSOgfNyxomxm6ENMqm1C4rLkLLOlyEyhR5J2SKBALuFfuJHjhIqNLSOgqVRO9J3++AUOCktknyJ/F+mSvEfA==}
     dev: false
 
   /@code-hike/lighter@0.8.1:
@@ -2293,6 +2292,10 @@ packages:
       - debug
     dev: false
 
+  /@pixeleye/rrweb-snapshot@2.0.0-alpha.11:
+    resolution: {integrity: sha512-VTVPoAsr9IfkVGUWty7H4k+Lm9OQur4IPUMHIcQ8LFkM/B0x9AtTrCwdKyUYWaOEDul3gNNh8XLEkEb3wXEloQ==}
+    dev: false
+
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -3086,6 +3089,33 @@ packages:
       '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.37)(react@18.2.0)
       '@types/react': 18.2.37
       react: 18.2.0
+    dev: false
+
+  /@radix-ui/react-switch@1.0.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-mxm87F88HyHztsI7N+ZUmEoARGkC22YVW5CaC+Byc+HRpuvCrOBPTAnXgf+tZ/7i0Sg/eOePGdMhUKhPaQEqow==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.23.2
+      '@radix-ui/primitive': 1.0.1
+      '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.37)(react@18.2.0)
+      '@radix-ui/react-context': 1.0.1(@types/react@18.2.37)(react@18.2.0)
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
+      '@radix-ui/react-use-controllable-state': 1.0.1(@types/react@18.2.37)(react@18.2.0)
+      '@radix-ui/react-use-previous': 1.0.1(@types/react@18.2.37)(react@18.2.0)
+      '@radix-ui/react-use-size': 1.0.1(@types/react@18.2.37)(react@18.2.0)
+      '@types/react': 18.2.37
+      '@types/react-dom': 18.2.15
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@radix-ui/react-tabs@1.0.4(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0):

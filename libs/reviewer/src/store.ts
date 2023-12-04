@@ -1,20 +1,31 @@
-import { create } from "zustand";
+"use client";
+
+import { create, createStore } from "zustand";
 import { Panel } from "./panel";
 import { Build, UserOnProjectRole } from "@pixeleye/api";
 import { ExtendedSnapshotPair } from "./reviewer";
+import { createContext } from "react";
 
 export type CompareTab = "single" | "double";
 
 export type SingleSnapshot = "baseline" | "head";
 
 export interface BuildAPI {
-  approveSnapshot: (id: string) => void;
-  rejectSnapshot: (id: string) => void;
+  approveSnapshots: (ids: string[]) => void;
+  rejectSnapshots: (ids: string[]) => void;
   approveAllSnapshots: () => void;
   approveRemainingSnapshots: () => void;
   rejectAllSnapshots: () => void;
   rejectRemainingSnapshots: () => void;
 }
+
+export type SnapshotTargetGroup = {
+  snapshots: ExtendedSnapshotPair[];
+  name: ExtendedSnapshotPair["name"];
+  variant: ExtendedSnapshotPair["variant"];
+  viewport: ExtendedSnapshotPair["viewport"];
+  status: ExtendedSnapshotPair["status"];
+};
 
 interface ReviewerState {
   panel: Panel;
@@ -23,8 +34,8 @@ interface ReviewerState {
   setOptimize: (optimize: boolean) => void;
   build: Build;
   setBuild: (build: Build) => void;
-  snapshots: ExtendedSnapshotPair[];
-  setSnapshots: (snapshots: ExtendedSnapshotPair[]) => void;
+  snapshots: SnapshotTargetGroup[];
+  setSnapshots: (snapshots: SnapshotTargetGroup[]) => void;
   currentSnapshot?: ExtendedSnapshotPair;
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
   showDiff: boolean;
@@ -62,7 +73,7 @@ const defaultBuild: Build = {
   status: "uploading",
 };
 
-export const useReviewerStore = create<ReviewerState>()((set) => ({
+export const store = createStore<ReviewerState>()((set) => ({
   panel: "snapshots",
   setPanel: (panel) => set({ panel }),
   optimize: false,
@@ -88,8 +99,8 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
 
   buildAPI: {
-    approveSnapshot: () => {},
-    rejectSnapshot: () => {},
+    approveSnapshots: () => {},
+    rejectSnapshots: () => {},
     approveAllSnapshots: () => {},
     rejectAllSnapshots: () => {},
     approveRemainingSnapshots: () => {},
@@ -103,3 +114,5 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   isUpdatingStatus: false,
   setIsUpdatingStatus: (isUpdatingStatus) => set({ isUpdatingStatus }),
 }));
+
+export const StoreContext = createContext(store);

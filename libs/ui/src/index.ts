@@ -27,3 +27,4 @@ export * from "./dottedBackground";
 export * from "./dataTable";
 export * from "./accordion";
 export * from "./code";
+export * from "./switch";

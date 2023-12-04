@@ -113,7 +113,7 @@ function BuildRow({ build }: { build: Build }) {
   });
 
   return (
-    <Table.Row key={build.id} className="relative cursor-pointer z-0">
+    <Table.Row key={build.id} className="relative cursor-pointer z-0 h-[4.25rem]">
       <Table.Cell className="font-medium">
         Build #{build.buildNumber}
         <NextLink className="absolute inset-0" href={`/builds/${build.id}`}>
@@ -127,22 +127,23 @@ function BuildRow({ build }: { build: Build }) {
         "queued-uploading",
         "processing",
         "queued-processing",
-      ].includes(build.status) && (
-          <Table.Cell className="w-0">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <EllipsisVerticalIcon className="h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => abortBuild.mutate()}>
-                  Cancel build
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </Table.Cell>
-        )}
+      ].includes(build.status) ? (
+        <Table.Cell className="w-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <EllipsisVerticalIcon className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => abortBuild.mutate()}>
+                Cancel build
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </Table.Cell>
+      ) : (
+        <Table.Cell className="w-0" />)}
     </Table.Row>
   );
 }
@@ -165,6 +166,10 @@ export function BuildList({ projectID }: { projectID: string }) {
           <Table.Head>Name</Table.Head>
           <Table.Head>Branch</Table.Head>
           <Table.Head>Status</Table.Head>
+          <Table.Head>
+            <span className="sr-only">Actions</span>
+          </Table.Head>
+
         </Table.Row>
       </Table.Header>
       <Table.Body>

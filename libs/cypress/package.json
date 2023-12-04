@@ -8,7 +8,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@chromaui/rrweb-snapshot": "2.0.0-alpha.7-noAbsolute.2",
+    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/api": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/js-sdk": "workspace:*",

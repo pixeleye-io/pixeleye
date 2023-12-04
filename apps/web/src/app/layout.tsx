@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={cx(
           inter.className,
-          "dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50 h-full"
+          "dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50 h-fit"
         )}
       >
         <Providers>{children}</Providers>
