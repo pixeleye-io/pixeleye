@@ -34,8 +34,9 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
       DOCS_TOKEN: ${{ secrets.DOCS_TOKEN }}
       GITHUB_APP_NAME: "pixeleye-io"
-      NEXT_PUBLIC_SERVER_URL: "http://localhost:5000"
-      NEXT_PUBLIC_SERVER_ENDPOINT: "http://localhost:3000"
+      ORY_URL: ${{ secrets.ORY_ENDPOINT }}
+      NEXT_PUBLIC_BACKEND_URL: "http://localhost:8080"
+      
 
     steps:
       - uses: actions/checkout@v3
