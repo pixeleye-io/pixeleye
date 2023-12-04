@@ -3,11 +3,14 @@ package imageDiff
 import (
 	"image"
 	"image/color"
+
+	"github.com/esimov/stackblur-go"
 )
 
 // Options struct.
 type Options struct {
 	Threshold float64
+	Blur      bool
 }
 
 // Result struct.
@@ -18,7 +21,20 @@ type Result struct {
 }
 
 // Diff between two images.
-func Diff(image1 image.Image, image2 image.Image, options *Options) *Result {
+func Diff(image1 image.Image, image2 image.Image, options Options) (*Result, error) {
+
+	if options.Blur {
+		var err error
+		image1, err = stackblur.Process(image1, 5)
+		if err != nil {
+			return nil, err
+		}
+
+		image2, err = stackblur.Process(image2, 5)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	maxDelta := MaxDelta * options.Threshold * options.Threshold
 
@@ -46,5 +62,5 @@ func Diff(image1 image.Image, image2 image.Image, options *Options) *Result {
 		Equal:           diffPixelsCount == 0,
 		DiffPixelsCount: diffPixelsCount,
 		Image:           diff,
-	}
+	}, nil
 }

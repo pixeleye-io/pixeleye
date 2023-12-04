@@ -60,19 +60,7 @@ const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
     return previous;
   }, {} as Record<K, T[]>);
 
-const deepFind = <T, K extends keyof any>(list: T[][], comparator: (item: T) => boolean) => {
-  for (const group of list) {
-    const item = group.find(comparator);
-    if (item) return item;
-  }
-}
 
-const deepFindIndex = <T, K extends keyof any>(list: T[][], comparator: (item: T) => boolean) => {
-  for (const [groupIndex, group] of list.entries()) {
-    const itemIndex = group.findIndex(comparator);
-    if (itemIndex !== -1) return [groupIndex, itemIndex];
-  }
-}
 
 
 export function Reviewer({

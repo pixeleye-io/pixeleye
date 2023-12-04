@@ -40,7 +40,6 @@ func CreateProject(c echo.Context) error {
 	project := models.Project{}
 
 	team, err := middleware.GetTeam(c)
-
 	if err != nil {
 		return err
 	}

@@ -440,6 +440,12 @@ table "project" {
     default = 0.2
   }
 
+  column "snapshot_blur" {
+    type    = boolean
+    null    = false
+    default = false
+  }
+
   // we use this to track the number of builds for a project & it allows us to create a unique index on build_number since we can lock the row 
   column "build_count" {
     type    = integer

@@ -154,7 +154,7 @@ export function Navbar() {
   else if (selectedTeam) params.set("team", selectedTeam.id);
 
   return (
-    <nav className="flex justify-between px-4 pt-2 pb-1 bg-background">
+    <nav className="flex justify-between px-4 pt-2 pb-1 bg-surface-container-lowest">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
           <Link

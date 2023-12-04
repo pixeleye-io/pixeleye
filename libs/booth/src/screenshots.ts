@@ -8,9 +8,7 @@ async function takeOnBrowser(
   target: string,
   data: SnapshotOptions
 ) {
-  const page = await browser.newPage({
-    // javaScriptEnabled: false,
-  });
+  const page = await browser.newPage({});
 
   if (data.url) await page.goto(data.url);
   else {
@@ -21,6 +19,8 @@ async function takeOnBrowser(
 
     await page.setContent(doc.documentElement.outerHTML);
   }
+
+  await page.waitForLoadState();
 
   const buffers = await Promise.all(
     data.viewports.map(async (viewport) => {

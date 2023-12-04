@@ -10,6 +10,7 @@ interface SingleProps {
 export function Single({ draggableImageRef }: SingleProps) {
   const snapshot = useReviewerStore((state) => state.currentSnapshot)!;
   const singleSnapshot = useReviewerStore((state) => state.singleSnapshot);
+  const build = useReviewerStore((state) => state.build);
   const setSingleSnapshot = useReviewerStore(
     (state) => state.setSingleSnapshot
   );
@@ -34,12 +35,10 @@ export function Single({ draggableImageRef }: SingleProps) {
 
   return (
     <div className="overflow-hidden w-full h-full">
-      <div></div>
       <div className="flex h-full w-full overflow-hidden">
-        {validHeadSnapshot && (
           <DraggableImage
-            onTap={() =>
-              setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head")
+            branch={build.branch}
+            onTap={() => validBaselineSnapshot && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head")
             }
             ref={draggableImageRef}
             x={x}
@@ -58,8 +57,7 @@ export function Single({ draggableImageRef }: SingleProps) {
                     width: snapshot.baselineWidth!,
                     height: snapshot.baselineHeight!,
                     alt: "Baseline snapshot",
-                  }
-                : undefined
+                  } : undefined
             }
             showSecondBase={singleSnapshot === "baseline"}
             overlay={
@@ -73,7 +71,6 @@ export function Single({ draggableImageRef }: SingleProps) {
                 : undefined
             }
           />
-        )}
       </div>
     </div>
   );

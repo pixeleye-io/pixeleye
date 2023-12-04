@@ -8,12 +8,11 @@ import {
   Toggle,
 } from "@pixeleye/ui";
 import { CompareTab, useReviewerStore } from "./store";
-import { FC, useCallback, useEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
 import { ChromiumLogo, FirefoxLogo, WebkitLogo } from "./logos";
-import Link from "next/link";
 import { m } from "framer-motion";
 
 function TabSwitcher() {
@@ -83,7 +82,7 @@ function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
 
 function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
   return (
-    <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold">
+    <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold py-1">
       {snapshot.name}
 
       {snapshot.variant && (
@@ -127,6 +126,14 @@ export function Compare() {
   const userRole = useReviewerStore((state) => state.userRole);
 
   const buildAPI = useReviewerStore((state) => state.buildAPI);
+  const setCurrentSnapshot = useReviewerStore((state) => state.setCurrentSnapshot);
+  const snapshotTargetGroups = useReviewerStore((state) => state.snapshots);
+
+
+  const currentSnapshotIndex = useMemo(() => {
+    const index = snapshotTargetGroups.findIndex((group) => group.snapshots.some((snap) => snap.id === snapshot?.id));
+    return index !== -1 ? index : 0;
+  }, [snapshot, snapshotTargetGroups]);
 
   const singleRef = useRef<DraggableImageRef>(null);
   const doubleRef = useRef<DraggableImageRef>(null);
@@ -158,8 +165,7 @@ export function Compare() {
 
   const validCompare = validSnapshot && validBaseline;
 
-
-
+  const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
 
 
 
@@ -181,18 +187,34 @@ export function Compare() {
                   snapshot.status
                 ) &&
                 build.isLatest && (
-                  <div>
+                  <div className="space-x-2">
                     <Button
-                      variant="ghost"
+                      variant="destructive"
+                      size="sm"
                       className="text-error"
-                      onClick={() => buildAPI.rejectSnapshot(snapshot.id)}
+                      onClick={() => {
+                        buildAPI.rejectSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
+
+                        setCurrentSnapshot(
+                          snapshotTargetGroups[currentSnapshotIndex + 1]?.snapshots[0] ||
+                          snapshotTargetGroups[currentSnapshotIndex]?.snapshots[0]
+                        )
+                      }}
                     >
                       Reject
                     </Button>
                     <Button
-                      variant="ghost"
-                      className="text-green-500 dark:text-green-300 dark:hover:text-on-surface"
-                      onClick={() => buildAPI.approveSnapshot(snapshot.id)}
+                      size="sm"
+                      variant="affirmative"
+                      onClick={() => {
+                        buildAPI.approveSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
+
+                        setCurrentSnapshot(
+                          snapshotTargetGroups[currentSnapshotIndex + 1]?.snapshots[0] ||
+                          snapshotTargetGroups[currentSnapshotIndex]?.snapshots[0]
+                        )
+
+                      }}
                     >
                       Approve
                     </Button>
@@ -255,9 +277,10 @@ function TargetTabs({
 
           return (
             <li key={snap.id}>
+
               <Button variant="ghost" aria-selected={isActive} className={
-                isActive ? "text-primary" : "text-on-surface-variant"
-              } onClick={() => setCurrentSnapshot(snap)}>
+                isActive ? "text-on-surface" : "text-on-surface-variant"
+              } onClick={() => setCurrentSnapshot(snap)} tooltip={snap.target}>
                 {
                   TargetLogo ? (
                     <TargetLogo className="w-6 h-6" />
@@ -272,7 +295,7 @@ function TargetTabs({
                   isActive && (
                     <m.hr layoutId={
                       "target-switcher-" + targetGroup.name + "-" + targetGroup.status + "-" + targetGroup.variant + "-" + targetGroup.viewport
-                    } className="border-t border-primary w-full absolute" />
+                    } className="border-t border-on-surface w-full absolute" />
                   )
                 }
               </div>

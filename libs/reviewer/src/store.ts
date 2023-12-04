@@ -8,8 +8,8 @@ export type CompareTab = "single" | "double";
 export type SingleSnapshot = "baseline" | "head";
 
 export interface BuildAPI {
-  approveSnapshot: (id: string) => void;
-  rejectSnapshot: (id: string) => void;
+  approveSnapshots: (ids: string[]) => void;
+  rejectSnapshots: (ids: string[]) => void;
   approveAllSnapshots: () => void;
   approveRemainingSnapshots: () => void;
   rejectAllSnapshots: () => void;
@@ -96,8 +96,8 @@ export const useReviewerStore = create<ReviewerState>()((set) => ({
   setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
 
   buildAPI: {
-    approveSnapshot: () => {},
-    rejectSnapshot: () => {},
+    approveSnapshots: () => {},
+    rejectSnapshots: () => {},
     approveAllSnapshots: () => {},
     rejectAllSnapshots: () => {},
     approveRemainingSnapshots: () => {},

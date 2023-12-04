@@ -18,11 +18,19 @@ describe(
     test("Landing page screenshot", async () => {
       await app.navigate("/");
 
+      await app.page.waitForNetworkIdle();
+
+      await app.page.waitForSelector("kbd.ml-auto"); // This takes a while to load
+
       await pixeleyeSnapshot(app.page, { name: "landing" });
     });
 
     test("Landing page header screenshot", async () => {
-      await app.navigate("/");
+      await app.navigate("/", {
+        waitUntil: "networkidle",
+      });
+
+      await app.page.waitForSelector("kbd.ml-auto"); // This takes a while to load
 
       await pixeleyeSnapshot(app.page, {
         name: "landing-header",
@@ -31,6 +39,6 @@ describe(
     });
   },
   {
-    timeout: 20_000,
+    timeout: 30_000,
   }
 );

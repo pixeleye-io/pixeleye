@@ -29,7 +29,7 @@ export function Review({ buildID, project }: ReviewProps) {
     status: ExtendedSnapshotPair["status"]
   ) =>
     ({
-      onMutate: async (id) => {
+      onMutate: async (ids) => {
         // Optimistically update the snapshots
         await queryClient.cancelQueries(
           queries.builds.detail(buildID)._ctx.listSnapshots()
@@ -42,7 +42,7 @@ export function Review({ buildID, project }: ReviewProps) {
           queries.builds.detail(buildID)._ctx.listSnapshots().queryKey,
           (old) => {
             return old?.map((snapshot) => {
-              if (snapshot.id === id) {
+              if (ids.includes(snapshot.id)) {
                 return {
                   ...snapshot,
                   status,
@@ -74,7 +74,7 @@ export function Review({ buildID, project }: ReviewProps) {
       UseMutationOptions<
         unknown,
         unknown,
-        string,
+        string[],
         {
           previousSnapshots: ExtendedSnapshotPair[];
         }
@@ -165,26 +165,26 @@ export function Review({ buildID, project }: ReviewProps) {
   });
 
   const approve = useMutation({
-    mutationFn: (id: string) =>
+    mutationFn: (snapshotIDs: string[]) =>
       API.post("/v1/builds/{id}/review/approve", {
         params: {
           id: buildID,
         },
         body: {
-          snapshotIDs: [id],
+          snapshotIDs,
         },
       }),
     ...reviewSingleOptimisticUpdate("rejected"),
   });
 
   const reject = useMutation({
-    mutationFn: (id: string) =>
+    mutationFn: (snapshotIDs: string[]) =>
       API.post("/v1/builds/{id}/review/reject", {
         params: {
           id: buildID,
         },
         body: {
-          snapshotIDs: [id],
+          snapshotIDs,
         },
       }),
     ...reviewSingleOptimisticUpdate("rejected"),
@@ -216,10 +216,10 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const buildAPI: BuildAPI = {
     approveAllSnapshots: approveAll.mutate,
-    approveSnapshot: approve.mutate,
+    approveSnapshots: approve.mutate,
     approveRemainingSnapshots: approveRemaining.mutate,
     rejectAllSnapshots: rejectAll.mutate,
-    rejectSnapshot: reject.mutate,
+    rejectSnapshots: reject.mutate,
     rejectRemainingSnapshots: rejectRemaining.mutate,
   };
 

@@ -3,7 +3,7 @@ import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import { ExtendedSnapshotPair, snapshotSortMap } from "../reviewer";
+import { ExtendedSnapshotPair } from "../reviewer";
 import { Accordion } from "@pixeleye/ui";
 
 interface AccordionSnapsProps {
@@ -102,7 +102,7 @@ function SnapButton({
       }}
       onClick={() => setIndex(index)}
       className={cx(
-        "p-2 rounded transition flex w-full justify-center items-center hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
+        "p-2 rounded transition flex w-full justify-center items-center border border-outline-variant/50 hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
         active && "bg-surface-container-low"
       )}
     >
@@ -113,7 +113,7 @@ function SnapButton({
         src={snapshot.snapURL || ""}
         width={snapshot.snapWidth}
         height={snapshot.snapHeight}
-        className="object-contain w-full max-h-[20rem] rounded brightness-50"
+        className="object-contain w-full max-h-[20rem] rounded brightness-[65%] p-1"
         alt={`Name: ${snapshot.name}, Variant ${snapshot.variant}`}
       />
     </button>
@@ -194,7 +194,7 @@ export default function SnapshotsPanel() {
   return (
     <div className="pl-0.5 pt-4 flex flex-col grow">
       <PanelHeader className="px-4" title="Snapshots" />
-      <nav className="grow mt-4 flex pb-12">
+      <nav className="grow mt-4 flex pb-12 border-t border-outline-variant">
         <Accordion
           type="single"
           value={accordionValue}

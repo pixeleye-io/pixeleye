@@ -9,6 +9,7 @@ interface DoubleProps {
 
 export function Double({ draggableImageRef }: DoubleProps) {
   const snapshot = useReviewerStore((state) => state.currentSnapshot)!;
+  const build = useReviewerStore((state) => state.build);
 
   const validSnapshot = Boolean(
     snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight
@@ -29,10 +30,11 @@ export function Double({ draggableImageRef }: DoubleProps) {
 
   return (
     <div className="overflow-hidden w-full h-full">
-      <div></div>
       <div className="flex flex-col sm:flex-row h-full w-full space-y-4 sm:space-x-4 sm:space-y-0 overflow-hidden">
         {validBaseline && (
           <DraggableImage
+            baseline
+            branch={build.branch}
             ref={draggableImageRef}
             base={{
               src: snapshot.baselineURL!,
@@ -48,6 +50,8 @@ export function Double({ draggableImageRef }: DoubleProps) {
         {validSnapshot && (
           <DraggableImage
             ref={draggableImageRef}
+            baseline={false}
+            branch={build.branch}
             base={{
               src: snapshot.snapURL!,
               width: snapshot.snapWidth!,

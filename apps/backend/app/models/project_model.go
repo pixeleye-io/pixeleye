@@ -27,6 +27,7 @@ type Project struct {
 	BuildCount int       `db:"build_count" json:"buildCount"`
 
 	SnapshotThreshold float64 `db:"snapshot_threshold" json:"snapshotThreshold" validate:"omitempty,min=0,max=1"`
+	SnapshotBlur      bool    `db:"snapshot_blur" json:"snapshotBlur"`
 
 	Token        string     `db:"token" json:"-"`
 	RawToken     string     `json:"token,omitempty" db:"-"` // This is used for sending the token to the client. It should only be populated when a project is first created

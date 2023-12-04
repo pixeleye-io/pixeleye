@@ -36,6 +36,8 @@ interface ImageProps {
     width: number;
     height: number;
   };
+  baseline?: boolean;
+  branch: string;
   showSecondBase?: boolean;
   x: MotionValue<number>;
   y: MotionValue<number>;
@@ -65,6 +67,8 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       className,
       secondBase,
       showSecondBase = false,
+      baseline,
+      branch,
     },
     ref
   ) {
@@ -216,6 +220,10 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     });
 
     return (
+      <div className="h-full w-full flex-col flex items-center">
+        <div className="bg-surface-container border rounded-md border-outline px-2 py-1 text-sm mb-2">
+          {baseline === undefined? secondBase && showSecondBase? "Baseline" : "Changes" : baseline? "Baseline" : "Changes"} from <span className="font-bold">{branch}</span>
+        </div>
       <DottedBackground
         ref={parentRef}
         className={cx(
@@ -246,7 +254,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               className={cx(
                 "pointer-events-none z-0 select-none z-0 absolute inset-0",
                 showSecondBase && "opacity-0",
-                showOverlay && overlay && "brightness-75"
+                showOverlay && overlay && "brightness-[50%]"
               )}
               draggable={false}
               alt={base.alt}
@@ -292,6 +300,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
           </m.div>
         </div>
       </DottedBackground>
+      </div>
     );
   }
 );

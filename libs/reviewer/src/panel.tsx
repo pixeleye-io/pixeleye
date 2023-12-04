@@ -7,7 +7,6 @@ import SnapshotsPanel from "./panels/snapshots";
 import FeedPanel from "./panels/feed";
 import { useReviewerStore } from "./store";
 import OverlayScrollbar from "@pixeleye/ui/src/scrollArea/scrollArea";
-import { useWindowSize } from "usehooks-ts";
 
 export type Panel = "snapshots" | "build-info" | "feed";
 

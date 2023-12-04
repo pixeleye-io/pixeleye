@@ -35,6 +35,7 @@ export default function CustomGitPage() {
       },
       body: {
         ...data,
+        snapshotBlur: true,
         source: "custom",
       },
     }).then((project) => {
