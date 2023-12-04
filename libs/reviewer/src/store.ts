@@ -1,3 +1,5 @@
+"use client";
+
 import { create, createStore } from "zustand";
 import { Panel } from "./panel";
 import { Build, UserOnProjectRole } from "@pixeleye/api";
