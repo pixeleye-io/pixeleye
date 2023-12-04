@@ -8,8 +8,6 @@ import {
 import { defaults, loadConfig } from "@pixeleye/js-sdk";
 import { env } from "./env";
 
-
-
 export interface Options {
   fullPage?: boolean;
   name: string;
