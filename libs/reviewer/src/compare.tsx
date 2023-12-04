@@ -175,9 +175,9 @@ export function Compare() {
   return (
     <main className="w-full ml-1 z-0 h-full grow-0 flex relative">
       <Tabs
-        value={validCompare ? activeTab : "single"}
+        value={activeTab}
         onValueChange={setActiveTab as (value: string) => void}
-        defaultValue={validCompare ? "double" : "single"}
+        defaultValue={activeTab}
         className=" w-full h-full grow-0 relative max-h-full"
       >
         <header className="w-full border-b border-outline-variant">
