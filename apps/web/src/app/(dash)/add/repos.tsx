@@ -5,6 +5,7 @@ import { useKeyStore } from "@/stores/apiKeyStore";
 import {
   ArrowTopRightOnSquareIcon,
   ChevronRightIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import { Project, Repo, Team } from "@pixeleye/api";
 import {
@@ -29,10 +30,12 @@ dayjs.extend(relativeTime);
 
 interface RepoItemProps {
   repo: Repo;
+  isLoading?: boolean;
+  isDisabled?: boolean;
   handleRepoSelect: (repo: Repo) => void;
 }
 
-function RepoItem({ repo, handleRepoSelect }: RepoItemProps) {
+function RepoItem({ repo, handleRepoSelect, isLoading, isDisabled }: RepoItemProps) {
   return (
     <li
       key={repo.id}
@@ -70,13 +73,23 @@ function RepoItem({ repo, handleRepoSelect }: RepoItemProps) {
           </div>
         </div>
         <div className="flex-shrink-0 ml-5">
-          <ChevronRightIcon
-            className="w-5 h-5 text-on-surface-variant"
-            aria-hidden="true"
-          />
+          {
+            isLoading ? (
+            <ArrowPathIcon
+              className="w-5 h-5 text-on-surface-variant animate-spin"
+              aria-hidden="true"
+            />
+            ) : (
+              <ChevronRightIcon
+                className="w-5 h-5 text-on-surface-variant"
+                aria-hidden="true"
+              />
+            )
+          }
         </div>
       </div>
       <button
+        disabled={isDisabled}
         className="absolute inset-0 w-full h-full"
         onClick={() => handleRepoSelect(repo)}
       >
@@ -119,7 +132,7 @@ export function RepoList({ repos, team, source }: RepoListProps) {
     }
   }, [filteredRepos, sort]);
 
-  const { mutate: createProject } = useMutation({
+  const { mutate: createProject, context, isPending } = useMutation({
     mutationFn: (repo: Repo) => {
       return API.post("/v1/teams/{teamID}/projects", {
         body: {
@@ -133,11 +146,14 @@ export function RepoList({ repos, team, source }: RepoListProps) {
         },
       })
     },
+    onMutate: (repo: Repo) => repo,
     onSuccess: (project) => {
-        setKey(project.id, project.token!);
-        router.push(`/projects/${project.id}`);
-      },
+      setKey(project.id, project.token!);
+      router.push(`/projects/${project.id}`);
+    },
   });
+
+
 
   return (
     <div className="max-w-4xl mx-auto pb-8">
@@ -182,6 +198,8 @@ export function RepoList({ repos, team, source }: RepoListProps) {
             <RepoItem
               key={repo.id}
               repo={repo}
+              isLoading={context?.id === repo.id && isPending}
+              isDisabled={context?.id !== repo.id && isPending}
               handleRepoSelect={() => createProject(repo)}
             />
           ))}

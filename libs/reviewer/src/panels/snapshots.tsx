@@ -3,43 +3,56 @@ import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import { ExtendedSnapshotPair } from "../reviewer";
+import { ExtendedSnapshotPair, snapshotSortMap } from "../reviewer";
 import { Accordion } from "@pixeleye/ui";
 
 interface AccordionSnapsProps {
-  snapshots: ExtendedSnapshotPair[];
+  groupedSnapshots: ExtendedSnapshotPair[][];
   name: string;
   currentSnapshot: ExtendedSnapshotPair | undefined;
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
 }
 
 function AccordionSnaps({
-  snapshots,
+  groupedSnapshots,
   name,
   currentSnapshot,
   setCurrentSnapshot,
 }: AccordionSnapsProps) {
-  if (snapshots.length === 0) {
+  if (groupedSnapshots.length === 0) {
     return null;
   }
+
+
   return (
     <Accordion.Item value={name}>
       <Accordion.Trigger className="px-2" size="sm">
         <span className="first-letter:capitalize">{name}</span>
       </Accordion.Trigger>
       <Accordion.Content>
-        <ul className="flex flex-col space-y-4 overflow-y-auto  grow">
-          {snapshots.map((snapshot, i) => (
-            <li className="h-fit" key={snapshot.id}>
-              <SnapButton
-                active={snapshot.id === currentSnapshot?.id}
-                index={i}
-                total={snapshots.length}
-                setIndex={(i) => setCurrentSnapshot(snapshots.at(i))}
-                snapshot={snapshot}
-              />
-            </li>
-          ))}
+        <ul className="flex flex-col space-y-4 overflow-y-auto grow">
+          {groupedSnapshots.map((snapshots, i) => {
+            const active = snapshots.some((snapshot) =>
+              currentSnapshot?.id === snapshot.id
+            );
+            return (
+              <li className="h-fit p-1" key={snapshots[0].id}>
+                <SnapButton
+                  active={active}
+                  index={i}
+                  total={groupedSnapshots.length}
+                  setIndex={(i) => {
+                    const newSnapGroup = groupedSnapshots.at(i)
+                    newSnapGroup?.some((snapshot) =>
+                      currentSnapshot?.id === snapshot.id
+                    ) ? setCurrentSnapshot(currentSnapshot) : setCurrentSnapshot(newSnapGroup?.[0])
+                  }
+                  }
+                  snapshot={active ? currentSnapshot! : snapshots[0]}
+                />
+              </li>
+            )
+          })}
         </ul>
       </Accordion.Content>
     </Accordion.Item>
@@ -123,7 +136,7 @@ function ShortcutHint() {
 }
 
 export default function SnapshotsPanel() {
-  const snapshots = useReviewerStore((state) => state.snapshots);
+  const groupedSnapshots = useReviewerStore((state) => state.snapshots);
   const currentSnapshot = useReviewerStore((state) => state.currentSnapshot);
 
   const setCurrentSnapshot = useReviewerStore(
@@ -131,42 +144,42 @@ export default function SnapshotsPanel() {
   );
 
   const [unreviewed, approved, rejected, unchanged, missingBaseline, orphaned, failed] =
-    snapshots.reduce(
-      (acc, snapshot) => {
-        switch (snapshot.status) {
+    groupedSnapshots.reduce(
+      (acc, { snapshots, status }) => {
+
+        switch (status) {
           case "unreviewed":
-            acc[0].push(snapshot);
+            acc[0].push(snapshots);
             break;
           case "approved":
-            acc[1].push(snapshot);
+            acc[1].push(snapshots);
             break;
           case "rejected":
-            acc[2].push(snapshot);
+            acc[2].push(snapshots);
             break;
           case "unchanged":
-            acc[3].push(snapshot);
+            acc[3].push(snapshots);
             break;
           case "missing_baseline":
-            acc[4].push(snapshot);
+            acc[4].push(snapshots);
             break;
           case "orphaned":
-            acc[5].push(snapshot);
+            acc[5].push(snapshots);
             break;
           case "failed":
-            acc[6].push(snapshot);
+            acc[6].push(snapshots);
             break;
         }
         return acc;
       },
       [[], [], [], [], [], [], []] as [
-        ExtendedSnapshotPair[],
-        ExtendedSnapshotPair[],
-        ExtendedSnapshotPair[],
-        ExtendedSnapshotPair[],
-        ExtendedSnapshotPair[],
-        ExtendedSnapshotPair[],
-        ExtendedSnapshotPair[],
-
+        ExtendedSnapshotPair[][],
+        ExtendedSnapshotPair[][],
+        ExtendedSnapshotPair[][],
+        ExtendedSnapshotPair[][],
+        ExtendedSnapshotPair[][],
+        ExtendedSnapshotPair[][],
+        ExtendedSnapshotPair[][],
       ]
     );
 
@@ -190,43 +203,43 @@ export default function SnapshotsPanel() {
           className="w-full"
         >
           <AccordionSnaps
-            snapshots={unreviewed}
+            groupedSnapshots={unreviewed}
             name="unreviewed"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
-            snapshots={rejected}
+            groupedSnapshots={rejected}
             name="rejected"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
-            snapshots={approved}
+            groupedSnapshots={approved}
             name="approved"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
-            snapshots={missingBaseline}
+            groupedSnapshots={missingBaseline}
             name="missing_baseline"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
-            snapshots={orphaned}
+            groupedSnapshots={orphaned}
             name="orphaned"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
-            snapshots={unchanged}
+            groupedSnapshots={unchanged}
             name="unchanged"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}
           />
           <AccordionSnaps
-            snapshots={failed}
+            groupedSnapshots={failed}
             name="failed"
             currentSnapshot={currentSnapshot}
             setCurrentSnapshot={setCurrentSnapshot}

@@ -16,6 +16,14 @@ export interface BuildAPI {
   rejectRemainingSnapshots: () => void;
 }
 
+export type SnapshotTargetGroup = {
+  snapshots: ExtendedSnapshotPair[];
+  name: ExtendedSnapshotPair["name"];
+  variant: ExtendedSnapshotPair["variant"];
+  viewport: ExtendedSnapshotPair["viewport"];
+  status: ExtendedSnapshotPair["status"];
+};
+
 interface ReviewerState {
   panel: Panel;
   setPanel: (panel: Panel) => void;
@@ -23,8 +31,8 @@ interface ReviewerState {
   setOptimize: (optimize: boolean) => void;
   build: Build;
   setBuild: (build: Build) => void;
-  snapshots: ExtendedSnapshotPair[];
-  setSnapshots: (snapshots: ExtendedSnapshotPair[]) => void;
+  snapshots: SnapshotTargetGroup[];
+  setSnapshots: (snapshots: SnapshotTargetGroup[]) => void;
   currentSnapshot?: ExtendedSnapshotPair;
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
   showDiff: boolean;

@@ -21,7 +21,7 @@ WORKDIR /
 
 COPY --from=builder /docker-pixeleye-api /docker-pixeleye-api
 
-EXPOSE 8080
+EXPOSE 5000
 
 
 USER nonroot:nonroot

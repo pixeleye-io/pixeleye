@@ -21,7 +21,7 @@ WORKDIR /
 
 COPY --from=builder /docker-pixeleye-ingest /docker-pixeleye-ingest
 
-EXPOSE 8080
+EXPOSE 5000
 
 USER nonroot:nonroot
 

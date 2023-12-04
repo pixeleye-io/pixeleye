@@ -8,10 +8,13 @@ import {
   Toggle,
 } from "@pixeleye/ui";
 import { CompareTab, useReviewerStore } from "./store";
-import { useCallback, useEffect, useRef } from "react";
+import { FC, useCallback, useEffect, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
+import { ChromiumLogo, FirefoxLogo, WebkitLogo } from "./logos";
+import Link from "next/link";
+import { m } from "framer-motion";
 
 function TabSwitcher() {
   return (
@@ -109,6 +112,12 @@ function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
   );
 }
 
+const targetIconRepo = {
+  "chromium": ChromiumLogo,
+  "firefox": FirefoxLogo,
+  "webkit": WebkitLogo
+} as const;
+
 export function Compare() {
   const snapshot = useReviewerStore((state) => state.currentSnapshot);
   const build = useReviewerStore((state) => state.build);
@@ -149,6 +158,11 @@ export function Compare() {
 
   const validCompare = validSnapshot && validBaseline;
 
+
+
+
+
+
   return (
     <main className="w-full ml-1 z-0 h-full grow-0 flex relative">
       <Tabs
@@ -158,22 +172,16 @@ export function Compare() {
         className=" w-full h-full grow-0 relative max-h-full"
       >
         <header className="w-full border-b border-outline-variant">
-          <div className="flex px-4 justify-between py-2">
-            <div className="flex flex-col">
+          <div className="flex px-4 py-2 flex-col">
+            <div className="flex justify-between items-center">
               <Title snapshot={snapshot} />
-              <div className="mt-4 flex space-x-4">
-                <TabSwitcher />
-                <DisplayOptions resetAlignment={resetAlignment} />
-              </div>
-            </div>
 
-            <div className="">
               {userRole !== "viewer" &&
                 ["unreviewed", "approved", "rejected"].includes(
                   snapshot.status
                 ) &&
                 build.isLatest && (
-                  <>
+                  <div>
                     <Button
                       variant="ghost"
                       className="text-error"
@@ -188,14 +196,24 @@ export function Compare() {
                     >
                       Approve
                     </Button>
-                  </>
+                  </div>
                 )}
+
+            </div>
+
+            <div className="flex items-center justify-between">
+
+              <div className="mt-4 flex space-x-4">
+                <TabSwitcher />
+                <DisplayOptions resetAlignment={resetAlignment} />
+              </div>
+              <TargetTabs snapshot={snapshot} />
             </div>
           </div>
         </header>
         <div className="p-4 w-full h-[calc(100%-6.25rem-1px)]">
           {snapshot.error && (
-              <p className="text-error">{snapshot.error}</p>
+            <p className="text-error">{snapshot.error}</p>
           )}
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
             <Single draggableImageRef={singleRef} />
@@ -208,3 +226,61 @@ export function Compare() {
     </main>
   );
 }
+
+
+function TargetTabs({
+  snapshot
+}: {
+  snapshot: ExtendedSnapshotPair
+}) {
+
+  const groupedSnapshots = useReviewerStore((state) => state.snapshots);
+
+  const targetGroup = groupedSnapshots.find((group) => group.name === snapshot.name && group.status === snapshot.status && group.variant === snapshot.variant && group.viewport === snapshot.viewport);
+
+  const setCurrentSnapshot = useReviewerStore((state) => state.setCurrentSnapshot);
+
+  if (!targetGroup) {
+    return null;
+  }
+
+  return (
+    <ul className="flex items-center">
+      {
+        targetGroup.snapshots.sort((a, b) => (a.target || "").localeCompare(b.target || "")).map((snap) => {
+
+          const TargetLogo = targetIconRepo[snap.target as keyof typeof targetIconRepo] as FC<{ className?: string }> | undefined;
+
+          const isActive = snap.id === snapshot.id;
+
+          return (
+            <li key={snap.id}>
+              <Button variant="ghost" aria-selected={isActive} className={
+                isActive ? "text-primary" : "text-on-surface-variant"
+              } onClick={() => setCurrentSnapshot(snap)}>
+                {
+                  TargetLogo ? (
+                    <TargetLogo className="w-6 h-6" />
+                  ) : (
+                    <span className="capitalize text-xs">{snap.target}</span>
+                  )
+                }
+              </Button>
+              <div className="relative mx-auto w-6">
+
+                {
+                  isActive && (
+                    <m.hr layoutId={
+                      "target-switcher-" + targetGroup.name + "-" + targetGroup.status + "-" + targetGroup.variant + "-" + targetGroup.viewport
+                    } className="border-t border-primary w-full absolute" />
+                  )
+                }
+              </div>
+
+            </li>
+          )
+        })
+      }
+    </ul>
+  )
+} 

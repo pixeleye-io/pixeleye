@@ -15,7 +15,6 @@ import { defaults, loadConfig } from "@pixeleye/js-sdk";
 
 // type SnapshotFn = typeof snapshot;
 
-type MirrorClass = typeof Mirror;
 
 export interface Options {
   fullPage?: boolean;
