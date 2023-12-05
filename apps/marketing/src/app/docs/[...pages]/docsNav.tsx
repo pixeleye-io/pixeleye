@@ -16,13 +16,14 @@ export interface Section {
 
 interface DocsNavProps {
   sections: Section[];
+  mobile?: boolean;
 }
 
-export function DocsNavDesktop({ sections }: DocsNavProps) {
+export function DocsNavDesktop({ sections, mobile }: DocsNavProps) {
   const pathname = usePathname();
   return (
     <nav className="text-base md:text-sm">
-      <ul role="list" className="space-y-9">
+      <ul role="list" className={cx("space-y-9", mobile && "mb-20")}>
         {sections.map((section) => (
           <li key={section.title}>
             <h2 className="font-display capitalize font-medium text-on-surface">
@@ -68,7 +69,7 @@ export function DocsNavMobile({ sections }: DocsNavProps) {
         Menu
       </Collapsible.Trigger>
       <Collapsible.Content className="fixed lg:hidden w-full max-h-[calc(100vh-8rem)] overflow-y-auto px-6 py-4 z-10 ">
-        <DocsNavDesktop sections={sections} />
+        <DocsNavDesktop mobile sections={sections} />
       </Collapsible.Content>
     </Collapsible.Root>
   );
