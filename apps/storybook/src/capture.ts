@@ -66,11 +66,13 @@ export async function captureStories({
       }
     );
 
+    await page.waitForNetworkIdle();
+
+    await page.waitForSelector("#storybook-root");
+
     await pixeleyeSnapshot(page, {
       name: story.id,
-      browsers: ["chromium", "firefox", "webkit"],
-      viewports: ["1024x768"],
-      fullPage: true
+      selector: "#storybook-root > *",
     });
   }
 

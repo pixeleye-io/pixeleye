@@ -21,14 +21,15 @@
   ],
   "peerDependencies": {
     "puppeteer": "^20 || ^21",
-    "puppeteer-core": "^20 || ^21"
+    "puppeteer-core": "^20 || ^21",
+    "@pixeleye/rrweb-snapshot": "^2.0.0-alpha.11"
   },
   "dependencies": {
     "@pixeleye/booth": "workspace:*",
     "@pixeleye/puppeteer": "workspace:*",
     "@storybook/addons": "^7.4.6",
     "puppeteer": "^21.3.5",
-    "rrweb-snapshot": "2.0.0-alpha.11",
+    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
     "undici": "^5.25.2"
   },
   "devDependencies": {
