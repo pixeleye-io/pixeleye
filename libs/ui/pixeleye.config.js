@@ -1,4 +1,4 @@
 module.exports = {
-    token: "pxi__YCOgTAE8uYLI-_5ztiW4d1Gbz-CAjfxb:5pnJst6jn_j_IC1Vwsb1p",
+    token: "pxi__evy2yl8Wv67jTk4hoAzGw8PQg0jEiX6l:yo7WRnb4-SeXOQkDM62uI",
     endpoint: "http://localhost:5000",
 };

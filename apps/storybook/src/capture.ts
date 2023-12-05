@@ -69,13 +69,8 @@ export async function captureStories({
     await pixeleyeSnapshot(page, {
       name: story.id,
       browsers: ["chromium", "firefox", "webkit"],
-      config: {
-        endpoint,
-        token,
-        port,
-      },
       viewports: ["1024x768"],
-      fullPage: true,
+      fullPage: true
     });
   }
 

@@ -9,20 +9,15 @@ import ora from "ora";
 import { ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
-import { execSync, exec } from "child_process";
-import { promisify } from "util";
 import { captureStories } from "@pixeleye/storybook";
-
-const execAsync = promisify(exec);
 
 interface Config {
   token: string;
   endpoint: string;
   port: number;
-  storybookURL: string;
 }
 
-export async function e2e(command: string[], options: Config) {
+export async function storybook(url: string, options: Config) {
   const ctx: Context = {
     env: process.env,
     endpoint: options.endpoint,
@@ -80,21 +75,19 @@ export async function e2e(command: string[], options: Config) {
 
   pingSpinner.succeed("Successfully pinged booth server.");
 
-  const e2eSpinner = ora(`Starting e2e tests (${command.join(" ")}) ...`)
-    .start()
-    .succeed();
+  const storybookSpinner = ora(`Starting storybook at ${url}`).start();
 
   await captureStories({
     endpoint: options.endpoint,
     port: options.port,
-    storybookURL: options.storybookURL,
+    storybookURL: url,
     token: options.token,
   }).catch((err) => {
-    e2eSpinner.fail("Failed to capture stories.");
+    storybookSpinner.fail("Failed to capture stories.");
     exitBuild(err);
   });
 
-  e2eSpinner.succeed("Successfully captured stories.");
+  storybookSpinner.succeed("Successfully captured stories.");
 
   const completeSpinner = ora("Completing build...").start();
 
