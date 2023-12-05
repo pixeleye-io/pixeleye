@@ -1,4 +1,4 @@
-import '../src/tailwind.css';
+import './styles.css';
 import { withThemeByClassName } from '@storybook/addon-themes';
 
 export const decorators = [

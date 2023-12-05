@@ -4,8 +4,6 @@ const sharedConfig = require("@pixeleye/tailwind");
 module.exports = {
   presets: [sharedConfig],
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "../../libs/ui/src/**/*.{js,jsx,ts,tsx}",
-    "../../libs/reviewer/src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}"
   ],
 };

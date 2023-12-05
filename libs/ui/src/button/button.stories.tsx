@@ -2,7 +2,7 @@
 
 import Button from "./button";
 
-const meta= {
+const meta = {
   component: Button,
   title: "UI/Button",
 };
@@ -16,6 +16,13 @@ export const Outline = () => <Button variant="outline">Outline</Button>;
 export const Destructive = () => (
   <Button variant="destructive">Destructive</Button>
 );
+
+export const Affirmative = () => (
+  <Button variant="affirmative">Affirmative</Button>
+);
+
+export const Ghost = () => <Button variant="ghost">Ghost</Button>;
+
 
 export const Link = () => <Button variant="link">Link</Button>;
 

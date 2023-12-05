@@ -14,7 +14,7 @@ export const buttonVariants = cva(
         destructive: "bg-error text-on-error hover:bg-error/90",
         affirmative: "dark:bg-emerald-300 dark:text-green-900 hover:dark:bg-emerald-300/90 bg-emerald-500 text-emerald-50 hover:bg-emerald-500/90",
         outline:
-          "border border-outline-variant bg-surface hover:bg-surface-container-low hover:text-primary",
+          "border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container-low hover:text-primary",
         secondary:
           "bg-surface-container-high text-on-surface hover:bg-surface-container-highest",
         ghost: "hover:bg-surface-container hover:text-on-surface",

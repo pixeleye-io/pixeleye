@@ -3,7 +3,7 @@ import { defaults } from "./defaults";
 
 export async function loadConfig(path?: string): Promise<typeof defaults> {
   try {
-    let userConfig = requireRelative(path || defaults.config, process.cwd());
+    let userConfig = requireRelative(path || defaults.configFile, process.cwd());
 
     if (typeof userConfig === "function") {
       userConfig = await userConfig();

@@ -146,11 +146,12 @@ export function Sidebar() {
 
   const setPanel = useStore(store, (state) => state.setPanel);
   const panel = useStore(store, (state) => state.panel);
+  const optimize = useStore(store, (state) => state.optimize);
 
   const setPanelOpen = useStore(store, (state) => state.setPanelOpen);
 
   return (
-    <div className="w-16 border-r bg-surface-container-lowest border-outline-variant flex-col flex items-center pt-2 shrink-0">
+    <div className={cx("w-16 border-r  border-outline-variant flex-col flex items-center pt-2 shrink-0", optimize? "bg-surface" : "bg-surface-container-lowest" )}>
       <nav>
         <ul role="list" className="space-y-2">
           {SidebarNav.map((item) => (
