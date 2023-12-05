@@ -158,19 +158,7 @@ export function Compare() {
     return null;
   }
 
-  const validSnapshot = Boolean(
-    snapshot.snapURL && snapshot.snapWidth && snapshot.snapHeight
-  );
-
-  const validBaseline = Boolean(
-    snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
-  );
-
-  const validCompare = validSnapshot && validBaseline;
-
   const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
-
-
 
   return (
     <main className="w-full ml-1 z-0 h-full grow-0 flex relative">

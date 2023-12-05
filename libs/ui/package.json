@@ -6,13 +6,29 @@
   "types": "./src/index.ts",
   "scripts": {
     "lint": "eslint",
-    "types": "tsc --noEmit"
+    "types": "tsc --noEmit",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "test:pixeleye": "pixeleye storybook http://localhost:6006"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
+    "@pixeleye/tailwind": "workspace:*",
+    "@storybook/addon-essentials": "^7.6.3",
+    "@storybook/addon-interactions": "^7.6.3",
+    "@storybook/addon-links": "^7.6.3",
+    "@storybook/addon-onboarding": "^1.0.9",
+    "@storybook/addon-themes": "^7.6.3",
+    "@storybook/blocks": "^7.6.3",
+    "@storybook/nextjs": "^7.6.3",
+    "@storybook/react": "^7.6.3",
+    "@storybook/test": "^7.6.3",
     "@types/react": "18.2.37",
-    "@types/react-dom": "18.2.15"
+    "@types/react-dom": "18.2.15",
+    "eslint-plugin-storybook": "^0.6.15",
+    "storybook": "^7.6.3",
+    "pixeleye": "workspace:*"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",

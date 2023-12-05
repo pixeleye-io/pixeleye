@@ -19,6 +19,7 @@
       "dependsOn": ["build"],
       "outputs": ["public/robots.txt", "public/sitemap*.xml"]
     },
+    "storybook": {},
     "build:types": {},
     "lint": {},
     "types": {},

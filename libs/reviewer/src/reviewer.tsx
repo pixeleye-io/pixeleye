@@ -9,7 +9,7 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { Panel } from "./panel";
 import { Sidebar } from "./sidebar";
-import { BuildAPI, SnapshotTargetGroup, StoreContext } from "./store";
+import { BuildAPI, SnapshotTargetGroup, StoreContext, store } from "./store";
 import { useContext, useEffect, useMemo, useTransition } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -64,7 +64,7 @@ const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
 
 
 
-export function Reviewer({
+function ReviewerInternal({
   build,
   snapshots,
   optimize = false,
@@ -78,14 +78,14 @@ export function Reviewer({
   const setBuild = useStore(store, (state) => state.setBuild);
   const setSnapshots = useStore(store, (state) => state.setSnapshots);
   const setOptimize = useStore(store, (state) => state.setOptimize);
-  const setCurrentSnapshot = useStore(store, 
+  const setCurrentSnapshot = useStore(store,
     (state) => state.setCurrentSnapshot
   );
   const currentSnapshot = useStore(store, (state) => state.currentSnapshot);
   const panelOpen = useStore(store, (state) => state.panelOpen);
   const setBuildAPI = useStore(store, (state) => state.setBuildAPI);
   const setUserRole = useStore(store, (state) => state.setUserRole);
-  const setIsUpdatingSnapshotStatus = useStore(store, 
+  const setIsUpdatingSnapshotStatus = useStore(store,
     (state) => state.setIsUpdatingStatus
   );
 
@@ -104,7 +104,7 @@ export function Reviewer({
         name: group[0].name,
         variant: group[0].variant,
         viewport: group[0].viewport,
-        snapshots: group,
+        snapshots: group.sort((a, b) => (a.target || "").localeCompare(b.target || "")),
         status: group[0].status
       } as SnapshotTargetGroup)
       )
@@ -128,10 +128,16 @@ export function Reviewer({
 
   useEffect(() => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
-    if (currentSnapshot) params.set("s", currentSnapshot.id);
+    if (currentSnapshot) {
+      if (!snapshots.some((snapshot) => snapshot.id === currentSnapshot.id)) {
+        setCurrentSnapshot(snapshotTargetGroups[0].snapshots[0]);
+        return;
+      }
+      params.set("s", currentSnapshot.id);
+    }
 
     router.replace(pathname + "?" + params.toString());
-  }, [currentSnapshot, pathname, router, searchParams]);
+  }, [currentSnapshot, pathname, router, searchParams, setCurrentSnapshot, snapshotTargetGroups, snapshots]);
 
   const currentSnapshotIndex = useMemo(() => {
     const index = snapshotTargetGroups.findIndex((group) => group.snapshots.some((snapshot) => snapshot.id === currentSnapshot?.id));
@@ -185,12 +191,20 @@ export function Reviewer({
   ]);
 
   return (
-    <StoreContext.Provider value={store}>
-      <div className={cx("w-full flex", className)}>
-        <Sidebar />
-        {panelOpen && <Panel />}
-        <Compare />
-      </div>
-    </StoreContext.Provider>
+    <div className={cx("w-full flex", className)}>
+      <Sidebar />
+      {panelOpen && <Panel />}
+      <Compare />
+    </div>
   );
+}
+
+
+export function Reviewer(props: ReviewerProps) {
+
+  return (
+    <StoreContext.Provider value={store}>
+      <ReviewerInternal {...props} />
+    </StoreContext.Provider>
+  )
 }
