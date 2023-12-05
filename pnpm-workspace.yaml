@@ -7,3 +7,4 @@ packages:
   - 'apps/api-tests'
   - 'apps/puppeteer'
   - 'apps/test-site'
+  - 'apps/storybook'

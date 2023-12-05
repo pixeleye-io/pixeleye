@@ -33,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const id = passedId ?? randId;
 
   return (
-    <div className="grid items-center w-full max-w-sm gap-2">
+    <div className="grid items-center w-full max-w-sm gap-2 text-on-surface">
       <Label htmlFor={id}>{label}</Label>
       <InputBase id={id} {...rest} ref={ref} />
     </div>

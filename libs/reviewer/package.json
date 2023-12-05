@@ -13,6 +13,11 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@types/react": "18.2.37"
   },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18",
+    "next": "^14"
+  },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "@pixeleye/api": "workspace:*",
