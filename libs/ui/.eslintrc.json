@@ -1,4 +1,4 @@
 {
-    "root": true,
-    "extends": ["@pixeleye"]
-  }
+  "root": true,
+  "extends": ["@pixeleye", "plugin:storybook/recommended"]
+}
