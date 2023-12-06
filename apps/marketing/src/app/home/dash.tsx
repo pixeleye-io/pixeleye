@@ -181,11 +181,11 @@ export default function Example({
                             <nav className="flex overflow-x-auto border-b border-outline-variant py-4 bg-surface-container-low/50">
                                 <ul
                                     role="list"
-                                    className="flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-on-surface-variant sm:px-6 lg:px-8"
+                                    className={cx("flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-on-surface-variant sm:px-6 lg:px-8", offset && "odd:mt-1 even:mb-1")}
                                 >
                                     {secondaryNavigation.map((item) => (
-                                        <li key={item.name}>
-                                            <a href={item.href} className={item.current ? 'text-tertiary' : ''}>
+                                        <li className={cx(offset && "even:-mt-1 odd:-mb-1")} key={item.name}>
+                                            <a href={item.href} className={cx(item.current && 'text-tertiary')}>
                                                 {item.name}
                                             </a>
                                         </li>
@@ -208,7 +208,7 @@ export default function Example({
                                     </div>
                                     <p className={cx("mt-2 text-xs leading-6 text-on-surface-variant", offset && "font-semibold")}>Deploys from GitHub via main branch</p>
                                 </div>
-                                <div className="order-first flex-none rounded-full bg-indigo-400/10 px-2 py-1 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-400/30 sm:order-none">
+                                <div className="order-first flex-none rounded-full bg-tertiary/10 px-2 py-1 text-xs font-medium text-tertiary ring-1 ring-inset ring-tertiary sm:order-none">
                                     Production
                                 </div>
                             </div>
