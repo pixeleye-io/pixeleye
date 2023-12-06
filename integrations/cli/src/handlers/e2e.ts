@@ -9,8 +9,9 @@ import ora from "ora";
 import { ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
-import { execSync, exec } from "child_process";
-import { promisify } from "util";
+import { execSync, exec, spawn } from "node:child_process";
+import { promisify } from "node:util";
+import { execOutput } from "../messages/exec";
 
 const execAsync = promisify(exec);
 
@@ -84,7 +85,7 @@ export async function e2e(command: string[], options: Config) {
 
   const promise = () =>
     new Promise((resolve, reject) => {
-      const child = exec(command.join(" "), {
+      const child = spawn(command[0], command.slice(1), {
         cwd: process.cwd(),
       });
 
@@ -100,12 +101,8 @@ export async function e2e(command: string[], options: Config) {
         }
       });
 
-      child.stdout?.on("data", (data) => {
-        console.log(data);
-      });
-
-      child.on("message", (message) => {
-        console.log(message);
+      child.stdout.on("data", (data) => {
+        console.log(execOutput(data.toString()));
       });
     });
 

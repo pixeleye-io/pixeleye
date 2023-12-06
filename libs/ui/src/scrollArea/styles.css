@@ -1,0 +1,8 @@
+.os-scrollbar {
+     /* The background of the scrollbar handle */
+    --os-handle-bg: rgba(var(--color-outline-variant));
+     /* The :hover background of the scrollbar handle */
+    --os-handle-bg-hover: rgba(var(--color-outline)/0.75);
+     /* The :active background of the scrollbar handle */
+    --os-handle-bg-active: rgba(var(--color-outline));
+  }

@@ -6,6 +6,7 @@ import {
   OverlayScrollbarsComponentRef,
 } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
+import './styles.css';
 
 export interface OverlayScrollbarProps
   extends Omit<ComponentProps<'div'>, 'ref'> {}
