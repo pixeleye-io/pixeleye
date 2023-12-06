@@ -2,10 +2,4 @@
 
 Pixeleye CLI is a command line interface for Pixeleye. It makes uploading snapshots to Pixeleye a breeze.
 
-## Quick Start
-
-```sh
-npx pixeleye
-```
-
-## Usage
+See the [documentation](https://pixeleye.io/docs) for more information.
