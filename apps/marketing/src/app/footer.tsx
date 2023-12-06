@@ -1,3 +1,7 @@
+"use client"
+
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@pixeleye/ui";
+import { useTheme } from "next-themes";
 import NextLink from "next/link";
 
 const navigation = {
@@ -37,6 +41,9 @@ const navigation = {
 };
 
 export default function Footer() {
+
+  const { theme, setTheme } = useTheme();
+
   return (
     <footer className="bg-surface-container-low border-t border-outline-variant">
       <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
@@ -56,6 +63,7 @@ export default function Footer() {
           ))}
         </nav>
         <div className="mt-10 flex justify-center space-x-10">
+
           {navigation.social.map((item) => (
             <a
               key={item.name}
@@ -66,6 +74,18 @@ export default function Footer() {
               <item.icon className="h-6 w-6" aria-hidden="true" />
             </a>
           ))}
+            <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
+              <SelectTrigger className="w-24">
+                <SelectValue placeholder="Theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
         </div>
         <p className="mt-10 text-center text-xs leading-5 text-on-surface-variant">
           &copy; {new Date().getUTCFullYear()} Pixeleye LTD, All rights

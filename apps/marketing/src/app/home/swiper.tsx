@@ -8,11 +8,11 @@ import {
 } from "framer-motion";
 import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { useGlobalStore } from "../providers";
-import Image from "next/image";
+import Example from "./dash";
 
-export interface SwiperProps {}
 
-export function Swiper(props: SwiperProps) {
+
+export function Swiper() {
   const container = useRef<HTMLDivElement>(null);
 
   const [windowWidth, setWindowSize] = useState(0);
@@ -65,24 +65,16 @@ export function Swiper(props: SwiperProps) {
         x.set(clientX - left - 32);
       }}
     >
-      <Image
-        src="https://tailwindui.com/img/component-images/project-app-screenshot.png"
-        alt="App screenshot"
-        width={2432}
-        height={1442}
-        className="w-[76rem] z-0 pointer-events-none select-none rounded-md shadow-2xl ring-1 ring-gray-900/10"
-      />
+      <div className="h-[45rem] w-[76rem] relative z-0 rounded-md pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
+        <Example offset />
+      </div>
       <m.div
         className="absolute inset-0 will-change-[clip] z-10"
         style={{ clipPath }}
       >
-        <Image
-          src="https://tailwindui.com/img/component-images/dark-project-app-screenshot.png"
-          alt="App screenshot"
-          width={2432}
-          height={1442}
-          className="w-[76rem] pointer-events-none select-none 0 overflow-hidden rounded-md bg-white/5 shadow-2xl ring-1 ring-white/10"
-        />
+        <div className="h-[45rem] w-[76rem] relative z-0 rounded-md pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
+          <Example />
+        </div>
       </m.div>
       <m.div
         ref={constrainer}
@@ -93,7 +85,7 @@ export function Swiper(props: SwiperProps) {
           dragConstraints={constrainer}
           dragMomentum={false}
           dragElastic={0}
-          animate={{ x: 150 }}
+          animate={{ x: 75 }}
           style={{ x }}
           drag="x"
           className="absolute inset-y-0 flex flex-col items-center justify-center z-20 cursor-grab"
