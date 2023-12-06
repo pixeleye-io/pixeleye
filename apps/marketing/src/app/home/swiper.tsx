@@ -71,22 +71,24 @@ export function Swiper() {
   return (
     <div className="relative z-0">
       <SpotTheDifference />
+      <div className="-m-2 rounded-xl bg-surface-container-highest/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4 mt-24">
+
       <div
-        className="relative z-0 mt-24"
+        className="relative z-0"
         ref={container}
         onClick={({ clientX, currentTarget }) => {
           var { left } = currentTarget.getBoundingClientRect();
           x.set(clientX - left - 32);
         }}
       >
-        <div className="h-[45rem] w-[76rem] relative z-0 rounded-md pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
+        <div className="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
           <Example offset />
         </div>
         <m.div
           className="absolute inset-0 will-change-[clip] z-10"
           style={{ clipPath }}
         >
-          <div className="h-[45rem] w-[76rem] relative z-0 rounded-md pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
+          <div className="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl  pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
             <Example />
           </div>
         </m.div>
@@ -111,6 +113,7 @@ export function Swiper() {
             <span className="mx-4 h-[calc(70%-1.5rem)] w-1 bg-outline" />
           </m.div>
         </m.div>
+      </div>
       </div>
     </div>
   );

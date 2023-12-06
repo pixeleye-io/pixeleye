@@ -15,7 +15,7 @@ function Planet({ children, count, index }: PlanetProps) {
 
   return (
     <li
-      className="absolute rounded-full bg-surface-container-high p-2 group-hover:bg-surface-container-highest group-hover:text-on-tertiary-container transition -translate-x-1/2 -translate-y-1/2"
+      className="absolute rounded-full bg-surface-container-high border-outline-variant border shadow p-2 group-hover:bg-surface-container-highest group-hover:text-on-tertiary-container transition -translate-x-1/2 -translate-y-1/2"
       style={{
         top: `${x}%`,
         left: `${y}%`,
