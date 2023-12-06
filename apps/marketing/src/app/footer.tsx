@@ -75,7 +75,7 @@ export default function Footer() {
             </a>
           ))}
             <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="!w-24">
                 <SelectValue placeholder="Theme" />
               </SelectTrigger>
               <SelectContent>
