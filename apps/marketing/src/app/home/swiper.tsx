@@ -69,9 +69,9 @@ export function Swiper() {
   }, [windowWidth]);
 
   return (
-    <div className="relative z-0">
+    <div className="relative z-0 mt-32">
       <SpotTheDifference />
-      <div className="-m-2 rounded-xl bg-surface-container-highest/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4 mt-24">
+      <div className="-m-2 rounded-xl bg-surface-container-highest/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4 ">
 
       <div
         className="relative z-0"
