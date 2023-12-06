@@ -364,6 +364,7 @@ function NewsLetter() {
               type="email"
               name="email"
               autoComplete="email"
+              placeholder="you@domain.com"
               required
             />
             <Button className="self-end">Subscribe</Button>

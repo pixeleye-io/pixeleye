@@ -15,7 +15,7 @@ function Planet({ children, count, index }: PlanetProps) {
 
   return (
     <li
-      className="absolute rounded-full bg-surface-container-high p-2 -translate-x-1/2 -translate-y-1/2"
+      className="absolute rounded-full bg-surface-container-high p-2 group-hover:bg-surface-container-highest group-hover:text-on-tertiary-container transition -translate-x-1/2 -translate-y-1/2"
       style={{
         top: `${x}%`,
         left: `${y}%`,
@@ -41,11 +41,12 @@ function Ring({ children, className }: RingProps) {
     >
       <ul
         style={{
-          animationDuration: `${Math.random() * 15 + 20}s`,
+          animationDuration: `${Math.random() * 20 + 25}s`,
           animationDelay: `-${Math.random() * 10}s`,
         }}
-        className="w-full h-full animate-spin rounded-full border border-outline-variant hover:border-outline transition relative"
+        className="w-full h-full animate-spin group transition relative"
       >
+        <span className="absolute rounded-full inset-0 group-hover:border-tertiary border-2 transition border-outline" />
         {children}
       </ul>
     </li>
@@ -103,6 +104,6 @@ export default function LogoOrbit() {
           </Planet>
         </Ring>
       </ul>
-    </div>
+    </div >
   );
 }
