@@ -76,7 +76,7 @@ export default function Example({
 
     return (
         <>
-            <div className="h-full border border-outline-variant overflow-hidden relative rounded-md">
+            <div className="h-full border border-outline-variant overflow-hidden relative rounded-md" aria-hidden>
                 {/* Static sidebar for desktop */}
                 <div className="hidden xl:absolute xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
                     {/* Sidebar component, swap this element with another sidebar if you like */}
