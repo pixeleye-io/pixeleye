@@ -47,8 +47,8 @@ export default async function DocsLayout({
           <DocsNavMobile sections={sections} />
         </div>
         <div className="hidden md:relative md:block md:flex-none">
-          <div className="sticky top-16 border-r border-outline-variant md:w-56  lg:w-60 ">
-            <ScrollArea className="h-[calc(100vh-4.75rem)] overflow-x-hidden -mt-2 -ml-0.5 py-16 pl-0.5 ">
+          <div className="sticky top-[4.5rem] border-r border-outline-variant md:w-56 lg:w-60 ">
+            <ScrollArea className="h-[calc(100vh-4.5rem)] overflow-x-hidden -ml-0.5 py-16 pl-0.5 ">
               <DocsNavDesktop sections={sections} />
             </ScrollArea>
           </div>
