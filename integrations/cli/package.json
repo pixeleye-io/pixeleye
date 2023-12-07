@@ -36,8 +36,8 @@
   "dependencies": {
     "@pixeleye/booth": "workspace:^",
     "@pixeleye/js-sdk": "workspace:^",
-    "@pixeleye/storybook": "workspace:^",
     "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
+    "@pixeleye/storybook": "workspace:^",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
     "dedent": "^1.5.1",

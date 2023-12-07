@@ -7,6 +7,6 @@ const meta: Meta = {
     title: "UI/Input",
 };
 
-export const Primary = () => <Input label="Primary" />;
+export const Primary = () => <Input label="Primary" placeholder="primary" />;
 
 export default meta;

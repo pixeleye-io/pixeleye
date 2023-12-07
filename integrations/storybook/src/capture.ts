@@ -1,6 +1,7 @@
 import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
 import { SBWindow } from "./browser";
 import { launch } from "puppeteer";
+import { splitIntoChunks } from "@pixeleye/js-sdk";
 
 async function openBrowser() {
   const browser = await launch({

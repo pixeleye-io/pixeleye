@@ -22,3 +22,7 @@ export function snapshot(opts: Options, data: SnapshotOptions) {
     body: JSON.stringify(data),
   });
 }
+
+export function finished(opts: Options) {
+  return fetch(`${opts.endpoint}/finished`);
+}

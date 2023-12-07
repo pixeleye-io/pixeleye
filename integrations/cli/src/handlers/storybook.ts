@@ -6,10 +6,11 @@ import {
   abortBuild,
 } from "@pixeleye/js-sdk";
 import ora from "ora";
-import { ping, start } from "@pixeleye/booth";
+import { finished, ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
 import { captureStories } from "@pixeleye/storybook";
+import { errMsg, errStr } from "../messages/ui/theme";
 
 interface Config {
   token: string;
@@ -24,12 +25,6 @@ export async function storybook(url: string, options: Config) {
     token: options.token,
   };
 
-  const exitBuild = async (err: any) => {
-    await abortBuild(ctx, build);
-    console.log(err);
-    program.error(err);
-  };
-
   getAPI(ctx);
 
   // set boothPort env variable for booth server
@@ -38,9 +33,9 @@ export async function storybook(url: string, options: Config) {
 
   const buildSpinner = ora("Creating build").start();
 
-  const build = await createBuild(ctx).catch((err) => {
+  const build = await createBuild(ctx).catch(async (err) => {
     buildSpinner.fail("Failed to create build.");
-    console.log(err);
+    console.log(errStr(err));
     program.error(err);
   });
 
@@ -48,7 +43,43 @@ export async function storybook(url: string, options: Config) {
     noParentBuildFound();
   }
 
+  const exitBuild = async (err: any) => {
+    console.log(errStr(err));
+
+    const abortingSpinner = ora({
+      text: "Aborting build...",
+      color: "yellow",
+    }).start();
+
+    await abortBuild(ctx, build)
+      .catch((err) => {
+        abortingSpinner.fail("Failed to abort build.");
+        console.log(errStr(err));
+        program.error(err);
+      })
+      .then(() => {
+        abortingSpinner.succeed("Successfully aborted build.");
+      });
+
+    program.error(err);
+  };
+
   buildSpinner.succeed("Successfully created build.");
+
+  const abortDetected = async () => {
+    console.log(errStr("\nAborting build..."));
+    await exitBuild("Interrupted");
+  };
+
+  process.on("SIGINT", async () => {
+    await abortDetected();
+  }); // CTRL+C
+  process.on("SIGQUIT", async () => {
+    await abortDetected();
+  }); // Keyboard quit signal
+  process.on("SIGTERM", async () => {
+    await abortDetected();
+  }); // `kill` command
 
   const fileSpinner = ora("Starting local snapshot server").start();
 
@@ -57,9 +88,9 @@ export async function storybook(url: string, options: Config) {
     endpoint: options.endpoint,
     token: options.token,
     build,
-  }).catch((err) => {
+  }).catch(async (err) => {
     fileSpinner.fail("Failed to start local snapshot server.");
-    exitBuild(err);
+    await exitBuild(err);
   });
 
   fileSpinner.succeed("Successfully started local snapshot server.");
@@ -68,9 +99,9 @@ export async function storybook(url: string, options: Config) {
 
   await ping({
     endpoint: `http://localhost:${options.port}`,
-  }).catch((err) => {
+  }).catch(async (err) => {
     pingSpinner.fail("Failed to ping booth server.");
-    exitBuild(err);
+    await exitBuild(err);
   });
 
   pingSpinner.succeed("Successfully pinged booth server.");
@@ -82,18 +113,46 @@ export async function storybook(url: string, options: Config) {
     port: options.port,
     storybookURL: url,
     token: options.token,
-  }).catch((err) => {
+  }).catch(async (err) => {
     storybookSpinner.fail("Failed to capture stories.");
-    exitBuild(err);
+    await exitBuild(err);
   });
 
   storybookSpinner.succeed("Successfully captured stories.");
 
+  const processingSpinner = ora(
+    "Waiting for snapshots to finish processing"
+  ).start();
+
+  let processing = true;
+  // We wait just to make sure the booth server has time to ingest the snapshots
+  while (processing) {
+    await new Promise((r) => setTimeout(r, 1000));
+
+    await finished({
+      endpoint: `http://localhost:${options.port}`,
+    })
+      .then((res) => {
+        if (res.status === 200) processing = false;
+      })
+      .catch(async () => {
+        // May have timed out so we should first ping the server to see if it's still alive
+        await ping({
+          endpoint: `http://localhost:${options.port}`,
+        }).catch(async (err) => {
+          processingSpinner.fail("Failed to ping booth server.");
+          await exitBuild(err);
+        });
+      });
+  }
+
+  processingSpinner.succeed("Successfully processed snapshots.");
+
   const completeSpinner = ora("Completing build...").start();
 
-  await completeBuild(ctx, build).catch((err) => {
+  await completeBuild(ctx, build).catch(async (err) => {
     completeSpinner.fail("Failed to complete build.");
-    exitBuild(err);
+    await exitBuild(err);
   });
 
   completeSpinner.succeed("Successfully completed build.");

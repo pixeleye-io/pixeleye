@@ -9,11 +9,8 @@ import ora from "ora";
 import { ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
-import { execSync, exec, spawn } from "node:child_process";
-import { promisify } from "node:util";
+import { exec, spawn } from "node:child_process";
 import { execOutput } from "../messages/exec";
-
-const execAsync = promisify(exec);
 
 interface Config {
   token: string;
@@ -29,8 +26,21 @@ export async function e2e(command: string[], options: Config) {
   };
 
   const exitBuild = async (err: any) => {
-    await abortBuild(ctx, build);
+    const abortingSpinner = ora({
+      text: "Aborting build...",
+      color: "yellow",
+    }).start();
     console.log(err);
+    await abortBuild(ctx, build)
+      .catch((err) => {
+        abortingSpinner.fail("Failed to abort build.");
+        console.log(err);
+        program.error(err);
+      })
+      .then(() => {
+        abortingSpinner.succeed("Successfully aborted build.");
+      });
+
     program.error(err);
   };
 
@@ -85,11 +95,12 @@ export async function e2e(command: string[], options: Config) {
 
   const promise = () =>
     new Promise((resolve, reject) => {
-      const child = spawn(command[0], command.slice(1), {
+      const child = exec(command.join(" "), {
         cwd: process.cwd(),
       });
 
       child.on("error", (err) => {
+        console.log(err);
         reject(err);
       });
 
@@ -101,14 +112,14 @@ export async function e2e(command: string[], options: Config) {
         }
       });
 
-      child.stdout.on("data", (data) => {
+      child.stdout?.on("data", (data) => {
         console.log(execOutput(data.toString()));
       });
     });
 
-  await promise().catch((err) => {
+  await promise().catch(async (err) => {
     e2eSpinner.fail("Failed to run e2e tests.");
-    exitBuild(err);
+    await exitBuild(err);
   });
 
   const completeSpinner = ora("Completing build...").start();
