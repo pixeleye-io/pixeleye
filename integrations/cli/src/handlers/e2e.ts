@@ -6,11 +6,13 @@ import {
   abortBuild,
 } from "@pixeleye/js-sdk";
 import ora from "ora";
-import { ping, start } from "@pixeleye/booth";
+import { finished, ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
 import { exec, spawn } from "node:child_process";
 import { execOutput } from "../messages/exec";
+import { getExitBuild } from "./storybook";
+import { errStr } from "../messages/ui/theme";
 
 interface Config {
   token: string;
@@ -23,25 +25,6 @@ export async function e2e(command: string[], options: Config) {
     env: process.env,
     endpoint: options.endpoint,
     token: options.token,
-  };
-
-  const exitBuild = async (err: any) => {
-    const abortingSpinner = ora({
-      text: "Aborting build...",
-      color: "yellow",
-    }).start();
-    console.log(err);
-    await abortBuild(ctx, build)
-      .catch((err) => {
-        abortingSpinner.fail("Failed to abort build.");
-        console.log(err);
-        program.error(err);
-      })
-      .then(() => {
-        abortingSpinner.succeed("Successfully aborted build.");
-      });
-
-    program.error(err);
   };
 
   getAPI(ctx);
@@ -63,6 +46,23 @@ export async function e2e(command: string[], options: Config) {
   }
 
   buildSpinner.succeed("Successfully created build.");
+
+  const exitBuild = getExitBuild(ctx, build);
+
+  const abortDetected = async () => {
+    console.log(errStr("\nAborting build..."));
+    await exitBuild("Interrupted");
+  };
+
+  process.on("SIGINT", async () => {
+    await abortDetected();
+  }); // CTRL+C
+  process.on("SIGQUIT", async () => {
+    await abortDetected();
+  }); // Keyboard quit signal
+  process.on("SIGTERM", async () => {
+    await abortDetected();
+  }); // `kill` command
 
   const fileSpinner = ora("Starting local snapshot server").start();
 
@@ -121,6 +121,32 @@ export async function e2e(command: string[], options: Config) {
     e2eSpinner.fail("Failed to run e2e tests.");
     await exitBuild(err);
   });
+
+  e2eSpinner.succeed("Successfully ran e2e tests.");
+
+  const processingSpinner = ora("Waiting for booth server to process...").start();
+
+  let processing = true;
+  // We wait just to make sure the booth server has time to ingest the snapshots
+  while (processing) {
+    await new Promise((r) => setTimeout(r, 1000));
+
+    await finished({
+      endpoint: `http://localhost:${options.port}`,
+    })
+      .then((res) => {
+        if (res.status === 200) processing = false;
+      })
+      .catch(async () => {
+        // May have timed out so we should first ping the server to see if it's still alive
+        await ping({
+          endpoint: `http://localhost:${options.port}`,
+        }).catch(async (err) => {
+          processingSpinner.fail("Failed to ping booth server.");
+          await exitBuild(err);
+        });
+      });
+  }
 
   const completeSpinner = ora("Completing build...").start();
 

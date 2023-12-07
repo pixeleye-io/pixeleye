@@ -10,13 +10,34 @@ import { finished, ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
 import { captureStories } from "@pixeleye/storybook";
-import { errMsg, errStr } from "../messages/ui/theme";
+import { errStr } from "../messages/ui/theme";
 
 interface Config {
   token: string;
   endpoint: string;
   port: number;
 }
+
+export const getExitBuild = (ctx: Context, build: any) => async (err: any) => {
+  console.log(errStr(err));
+
+  const abortingSpinner = ora({
+    text: "Aborting build...",
+    color: "yellow",
+  }).start();
+
+  await abortBuild(ctx, build)
+    .catch((err) => {
+      abortingSpinner.fail("Failed to abort build.");
+      console.log(errStr(err));
+      program.error(err);
+    })
+    .then(() => {
+      abortingSpinner.succeed("Successfully aborted build.");
+    });
+
+  program.error(err);
+};
 
 export async function storybook(url: string, options: Config) {
   const ctx: Context = {
@@ -43,28 +64,9 @@ export async function storybook(url: string, options: Config) {
     noParentBuildFound();
   }
 
-  const exitBuild = async (err: any) => {
-    console.log(errStr(err));
-
-    const abortingSpinner = ora({
-      text: "Aborting build...",
-      color: "yellow",
-    }).start();
-
-    await abortBuild(ctx, build)
-      .catch((err) => {
-        abortingSpinner.fail("Failed to abort build.");
-        console.log(errStr(err));
-        program.error(err);
-      })
-      .then(() => {
-        abortingSpinner.succeed("Successfully aborted build.");
-      });
-
-    program.error(err);
-  };
-
   buildSpinner.succeed("Successfully created build.");
+
+  const exitBuild = getExitBuild(ctx, build);
 
   const abortDetected = async () => {
     console.log(errStr("\nAborting build..."));
