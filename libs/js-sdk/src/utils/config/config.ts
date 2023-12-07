@@ -1,33 +1,69 @@
-import requireRelative from "require-relative";
-import { defaults } from "./defaults";
+import { Config, defaults } from "./defaults";
+import jitiFactory from "jiti";
+import { transform } from "sucrase";
+import { join, relative } from "path";
+import { existsSync } from "fs";
 
-export async function loadConfig(path?: string): Promise<typeof defaults> {
-  try {
-    let userConfig = requireRelative(
-      path || defaults.configFile,
-      process.cwd()
-    );
+let jiti: ReturnType<typeof jitiFactory> | null = null;
 
-    if (typeof userConfig === "function") {
-      userConfig = await userConfig();
+function lazyJiti() {
+  return (
+    jiti ??
+    (jiti = jitiFactory(__filename, {
+      interopDefault: true,
+      transform: (opts) => {
+        return transform(opts.source, {
+          transforms: ["typescript", "imports"],
+        });
+      },
+    }))
+  );
+}
+
+function readConfig(path: string): Config | (() => Promise<Config>) {
+  let config = (function () {
+    try {
+      return path ? require(path) : {};
+    } catch {
+      return lazyJiti()(path);
     }
+  })();
 
-    if (typeof userConfig !== "object") {
-      throw new Error(
-        `Config file must export an object or a function that returns an object.`
-      );
-    }
+  return config.default ?? config;
+}
 
-    if (Object.keys(userConfig).length === 0) {
-      console.log("Config is empty.");
-    }
+export async function loadConfig(path?: string): Promise<Config> {
+  if (path == "") {
+    const endings = ["ts", "cjs", "mjs", "js"];
+    path = "pixeleye.config";
 
-    return { ...defaults, ...userConfig };
-  } catch (e: any) {
-    if (e.code === "MODULE_NOT_FOUND") {
-      console.log("No config found.");
+    for (const ending of endings) {
+      if (existsSync(join(process.cwd(), `${path}.${ending}`))) {
+        path = `${path}.${ending}`;
+        break;
+      }
     }
   }
 
-  return defaults;
+  const relativePath = join(process.cwd(), path ?? "");
+
+  let userConfig = readConfig(relativePath);
+
+  if (typeof userConfig === "function") {
+    userConfig = await userConfig().catch((err) => {
+      throw new Error(`Failed to load config file: ${err.message}`);
+    });
+  }
+
+  if (typeof userConfig !== "object") {
+    throw new Error(
+      `Config file must export an object or a function that returns an object.`
+    );
+  }
+
+  if (Object.keys(userConfig).length === 0) {
+    console.log("Config is empty.");
+  }
+
+  return { ...defaults, ...userConfig };
 }

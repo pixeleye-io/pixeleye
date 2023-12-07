@@ -15,7 +15,6 @@ import { defaults, loadConfig } from "@pixeleye/js-sdk";
 
 // type SnapshotFn = typeof snapshot;
 
-
 export interface Options {
   fullPage?: boolean;
   name: string;
@@ -39,7 +38,7 @@ export async function pixeleyeSnapshot(
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
       // eslint-disable-next-line turbo/no-undeclared-env-vars
-      process.env.boothPort || defaults.port
+      process.env.boothPort || defaults.boothPort
     }`,
   };
 
@@ -62,8 +61,8 @@ export async function pixeleyeSnapshot(
 
   const snap: SnapshotOptions = {
     name: options.name,
-    viewports: options.viewports || config.viewports,
-    targets: options.browsers || config.browsers,
+    viewports: options.viewports || config.viewports!,
+    targets: options.browsers || config.targets!,
     dom: domSnapshot,
     fullPage: options.fullPage,
     variant: options.variant,

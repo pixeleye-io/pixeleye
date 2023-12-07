@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { Command } from "commander";
-import { loadAndMergeConfig } from "./config";
+import { loadAndMergeConfig } from "./config-loader";
 import { upload, ping, storybook } from "./handlers";
 import { e2e } from "./handlers/e2e";
 import { defaults } from "@pixeleye/js-sdk";
@@ -15,7 +15,7 @@ program.configureOutput({
 export const optionMap = {
   t: "token",
   e: "endpoint",
-  p: "port",
+  p: "boothPort",
 } as const;
 
 const configOption = (name: string) =>
@@ -47,7 +47,7 @@ apiOptions("ping")
   .action(ping);
 
 apiOptions("e2e")
-  .option("-p, --port <port>", "Port to run local snapshot server")
+  .option("-p, --boothPort <boothPort>", "Port to run local snapshot server")
   .argument("[command...]", "Command to run e2e tests, e.g. cypress run")
   .description("Run e2e tests and upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)

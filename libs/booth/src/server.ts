@@ -11,6 +11,11 @@ import {
   uploadSnapshot,
 } from "@pixeleye/js-sdk";
 import { Build, PartialSnapshot } from "@pixeleye/api";
+import { randomUUID } from "crypto";
+
+// Contains the currently running capturing processes
+// Allows us to check if we're done capturing
+const currentCapturing = new Map<string, boolean>();
 
 interface StartOptions {
   port?: number;
@@ -114,8 +119,28 @@ export async function start({
 
     if (!data) return;
 
-    await snapshotHandler(ctx, browsers, data, build, res).catch((err) => {
+    const id = randomUUID();
+    currentCapturing.set(id, true);
+
+    snapshotHandler(ctx, browsers, data, build, res).catch((err) => {
       res.status(500).json({ message: err.message }).end();
+    }).finally(() => {
+      currentCapturing.delete(id);
+    });
+
+    return res.status(200).end();
+  });
+
+  app.get("/finished", async (_req, res) => {
+    // Long polling to check if we're done capturing
+
+    await new Promise((resolve, _) => {
+      const interval = setInterval(() => {
+        if (currentCapturing.size === 0) {
+          clearInterval(interval);
+          resolve(undefined);
+        }
+      }, 1000);
     });
 
     return res.status(200).end();

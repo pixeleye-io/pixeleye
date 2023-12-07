@@ -707,12 +707,18 @@ importers:
       jimp:
         specifier: ^0.22.10
         version: 0.22.10
+      jiti:
+        specifier: ^1.21.0
+        version: 1.21.0
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
-      require-relative:
-        specifier: ^0.8.7
-        version: 0.8.7
+      sucrase:
+        specifier: ^3.34.0
+        version: 3.34.0
+      vitest:
+        specifier: ^0.34.6
+        version: 0.34.6(jsdom@22.1.0)(playwright@1.39.0)
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -726,9 +732,6 @@ importers:
       '@types/node':
         specifier: 20.9.0
         version: 20.9.0
-      '@types/require-relative':
-        specifier: ^0.8.2
-        version: 0.8.2
       undici:
         specifier: ^5.27.2
         version: 5.27.2
@@ -13641,10 +13644,6 @@ packages:
 
   /require-main-filename@2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
-    dev: false
-
-  /require-relative@0.8.7:
-    resolution: {integrity: sha512-AKGr4qvHiryxRb19m3PsLRGuKVAbJLUD7E6eOaHkfKhwc+vSgVOCY5xNvm9EkolBKTOf0GrQAZKLimOCz81Khg==}
     dev: false
 
   /requireindex@1.2.0:
