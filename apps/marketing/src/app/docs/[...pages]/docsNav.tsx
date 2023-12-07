@@ -38,6 +38,7 @@ export function DocsNavDesktop({ sections, mobile }: DocsNavProps) {
                 <li key={link.href} className="relative">
                   <NextLink
                     href={link.href}
+                    scroll={false}
                     className={cx(
                       "block w-full capitalize pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full",
                       link.href === pathname
