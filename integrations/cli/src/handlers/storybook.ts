@@ -15,7 +15,7 @@ import { errStr } from "../messages/ui/theme";
 interface Config {
   token: string;
   endpoint: string;
-  port: number;
+  boothPort: number;
 }
 
 export const getExitBuild = (ctx: Context, build: any) => async (err: any) => {
@@ -50,7 +50,7 @@ export async function storybook(url: string, options: Config) {
 
   // set boothPort env variable for booth server
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  process.env.boothPort = options.port.toString();
+  process.env.boothPort = options.boothPort.toString();
 
   const buildSpinner = ora("Creating build").start();
 
@@ -86,7 +86,7 @@ export async function storybook(url: string, options: Config) {
   const fileSpinner = ora("Starting local snapshot server").start();
 
   const server = await start({
-    port: options.port,
+    port: options.boothPort,
     endpoint: options.endpoint,
     token: options.token,
     build,
@@ -100,7 +100,7 @@ export async function storybook(url: string, options: Config) {
   const pingSpinner = ora("Pinging booth server").start();
 
   await ping({
-    endpoint: `http://localhost:${options.port}`,
+    endpoint: `http://localhost:${options.boothPort}`,
   }).catch(async (err) => {
     pingSpinner.fail("Failed to ping booth server.");
     await exitBuild(err);
@@ -112,7 +112,7 @@ export async function storybook(url: string, options: Config) {
 
   await captureStories({
     endpoint: options.endpoint,
-    port: options.port,
+    port: options.boothPort,
     storybookURL: url,
     token: options.token,
   }).catch(async (err) => {
@@ -132,7 +132,7 @@ export async function storybook(url: string, options: Config) {
     await new Promise((r) => setTimeout(r, 1000));
 
     await finished({
-      endpoint: `http://localhost:${options.port}`,
+      endpoint: `http://localhost:${options.boothPort}`,
     })
       .then((res) => {
         if (res.status === 200) processing = false;
@@ -140,7 +140,7 @@ export async function storybook(url: string, options: Config) {
       .catch(async () => {
         // May have timed out so we should first ping the server to see if it's still alive
         await ping({
-          endpoint: `http://localhost:${options.port}`,
+          endpoint: `http://localhost:${options.boothPort}`,
         }).catch(async (err) => {
           processingSpinner.fail("Failed to ping booth server.");
           await exitBuild(err);

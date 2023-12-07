@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/js-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -24,7 +24,6 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/node": "20.9.0",
-    "@types/require-relative": "^0.8.2",
     "undici": "^5.27.2"
   },
   "dependencies": {
@@ -33,7 +32,9 @@
     "env-ci": "^10.0.0",
     "execa": "^8.0.1",
     "jimp": "^0.22.10",
+    "jiti": "^1.21.0",
     "node-fetch": "^3.3.2",
-    "require-relative": "^0.8.7"
+    "sucrase": "^3.34.0",
+    "vitest": "^0.34.6"
   }
 }

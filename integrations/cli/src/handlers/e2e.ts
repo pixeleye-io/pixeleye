@@ -9,7 +9,7 @@ import ora from "ora";
 import { finished, ping, start } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
-import { exec, spawn } from "node:child_process";
+import { exec } from "node:child_process";
 import { execOutput } from "../messages/exec";
 import { getExitBuild } from "./storybook";
 import { errStr } from "../messages/ui/theme";
@@ -17,7 +17,7 @@ import { errStr } from "../messages/ui/theme";
 interface Config {
   token: string;
   endpoint: string;
-  port: number;
+  boothPort: number;
 }
 
 export async function e2e(command: string[], options: Config) {
@@ -31,7 +31,7 @@ export async function e2e(command: string[], options: Config) {
 
   // set boothPort env variable for booth server
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  process.env.boothPort = options.port.toString();
+  process.env.boothPort = options.boothPort.toString();
 
   const buildSpinner = ora("Creating build").start();
 
@@ -67,7 +67,7 @@ export async function e2e(command: string[], options: Config) {
   const fileSpinner = ora("Starting local snapshot server").start();
 
   const server = await start({
-    port: options.port,
+    port: options.boothPort,
     endpoint: options.endpoint,
     token: options.token,
     build,
@@ -81,7 +81,7 @@ export async function e2e(command: string[], options: Config) {
   const pingSpinner = ora("Pinging booth server").start();
 
   await ping({
-    endpoint: `http://localhost:${options.port}`,
+    endpoint: `http://localhost:${options.boothPort}`,
   }).catch((err) => {
     pingSpinner.fail("Failed to ping booth server.");
     exitBuild(err);
@@ -124,7 +124,9 @@ export async function e2e(command: string[], options: Config) {
 
   e2eSpinner.succeed("Successfully ran e2e tests.");
 
-  const processingSpinner = ora("Waiting for booth server to process...").start();
+  const processingSpinner = ora(
+    "Waiting for booth server to process..."
+  ).start();
 
   let processing = true;
   // We wait just to make sure the booth server has time to ingest the snapshots
@@ -132,7 +134,7 @@ export async function e2e(command: string[], options: Config) {
     await new Promise((r) => setTimeout(r, 1000));
 
     await finished({
-      endpoint: `http://localhost:${options.port}`,
+      endpoint: `http://localhost:${options.boothPort}`,
     })
       .then((res) => {
         if (res.status === 200) processing = false;
@@ -140,7 +142,7 @@ export async function e2e(command: string[], options: Config) {
       .catch(async () => {
         // May have timed out so we should first ping the server to see if it's still alive
         await ping({
-          endpoint: `http://localhost:${options.port}`,
+          endpoint: `http://localhost:${options.boothPort}`,
         }).catch(async (err) => {
           processingSpinner.fail("Failed to ping booth server.");
           await exitBuild(err);
