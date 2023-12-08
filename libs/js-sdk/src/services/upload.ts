@@ -1,15 +1,13 @@
-import { PresignedURL, SnapImage } from "@pixeleye/api";
 import { Context, getAPI } from "../environment";
-import { generateHash, getDimensions, splitIntoChunks } from "../utils";
+import { generateHash, getDimensions } from "../utils";
 import { Blob } from "buffer";
 import { fetch } from "undici";
 
-export async function uploadSnapshot(
+export async function uploadSnapshots(
   ctx: Context,
   files: {
     file: Buffer;
     format: string;
-    name: string;
   }[]
 ) {
   const api = getAPI(ctx);
@@ -20,11 +18,10 @@ export async function uploadSnapshot(
     format: string;
     hash: string;
     file: Buffer;
-    name: string;
   }[] = [];
 
   await Promise.all(
-    files.map(async ({ file, format, name }) => {
+    files.map(async ({ file, format }) => {
       const hash = generateHash(file);
 
       const { height, width } = await getDimensions(file);
@@ -35,7 +32,6 @@ export async function uploadSnapshot(
         height,
         width,
         file,
-        name,
       });
     })
   );
@@ -74,8 +70,7 @@ export async function uploadSnapshot(
     })
   );
 
-  return snapshots.map(({ name, hash }) => ({
-    name,
+  return snapshots.map(({ hash }) => ({
     id: presignedMap[hash].id,
   }));
 }

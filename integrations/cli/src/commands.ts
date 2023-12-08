@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { loadAndMergeConfig } from "./config-loader";
-import { upload, ping, storybook } from "./handlers";
-import { e2e } from "./handlers/e2e";
+import { ping, storybook } from "./handlers";
+// import { e2e } from "./handlers/e2e";
 import { defaults } from "@pixeleye/js-sdk";
 
 export const program = new Command();
@@ -35,23 +35,23 @@ const apiOptions = (name: string) =>
       "Pixeleye API endpoint (only use if self-hosting)"
     );
 
-apiOptions("upload")
-  .argument("<path>", "Path to screenshots, e.g. ./screenshots")
-  .description("Upload your screenshots to pixeleye")
-  .hook("preAction", loadAndMergeConfig)
-  .action(upload);
+// apiOptions("upload")
+//   .argument("<path>", "Path to screenshots, e.g. ./screenshots")
+//   .description("Upload your screenshots to pixeleye")
+//   .hook("preAction", loadAndMergeConfig)
+//   .action(upload);
 
 apiOptions("ping")
   .description("Test your token and connection to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(ping);
 
-apiOptions("e2e")
-  .option("-p, --boothPort <boothPort>", "Port to run local snapshot server")
-  .argument("[command...]", "Command to run e2e tests, e.g. cypress run")
-  .description("Run e2e tests and upload screenshots to pixeleye")
-  .hook("preAction", loadAndMergeConfig)
-  .action(e2e);
+// apiOptions("e2e")
+//   .option("-p, --boothPort <boothPort>", "Port to run local snapshot server")
+//   .argument("[command...]", "Command to run e2e tests, e.g. cypress run")
+//   .description("Run e2e tests and upload screenshots to pixeleye")
+//   .hook("preAction", loadAndMergeConfig)
+//   .action(e2e);
 
 apiOptions("storybook")
   .argument(

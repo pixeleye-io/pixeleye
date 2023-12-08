@@ -2,7 +2,7 @@ import crypto from "crypto";
 import jimp from "jimp";
 
 export function generateHash(img: string | Buffer) {
-  const hash = crypto.createHash("sha256");
+  const hash = crypto.createHash("sha1");
 
   return hash.update(img).digest("hex");
 }

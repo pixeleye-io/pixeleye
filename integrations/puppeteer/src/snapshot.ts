@@ -3,14 +3,9 @@ import { Page as PageCore } from "puppeteer-core";
 import {
   snapshot as uploadSnapshot,
   Options as ServerOptions,
-  SnapshotOptions,
-  script,
+  SnapshotRequest,
+  devices,
 } from "@pixeleye/booth";
-import {
-  // snapshot,
-  Mirror,
-  serializeNodeWithId,
-} from "@pixeleye/rrweb-snapshot";
 import { defaults, loadConfig } from "@pixeleye/js-sdk";
 
 // type SnapshotFn = typeof snapshot;
@@ -20,7 +15,7 @@ export interface Options {
   name: string;
   variant?: string;
   browsers?: string[];
-  viewports?: string[];
+  viewports?: string[]; // TODO change this to devices
   selector?: string;
 }
 
@@ -57,15 +52,12 @@ export async function pixeleyeSnapshot(
     throw new Error("No DOM snapshot available", domSnapshot);
   }
 
-  const config = await loadConfig();
-
-  const snap: SnapshotOptions = {
+  const snap: SnapshotRequest = {
+    devices: [devices["Desktop Firefox"]],
     name: options.name,
-    viewports: options.viewports || config.viewports!,
-    targets: options.browsers || config.targets!,
-    dom: domSnapshot,
-    fullPage: options.fullPage,
     variant: options.variant,
+    serializedDom: domSnapshot,
+    fullPage: options.fullPage,
     selector: options.selector,
   };
 

@@ -1,7 +1,6 @@
 import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
 import { SBWindow } from "./browser";
 import { launch } from "puppeteer";
-import { splitIntoChunks } from "@pixeleye/js-sdk";
 
 async function openBrowser() {
   const browser = await launch({
@@ -13,14 +12,10 @@ async function openBrowser() {
 
 export async function captureStories({
   storybookURL,
-  port,
-  endpoint,
-  token,
+  variants,
 }: {
   storybookURL: string;
-  port: number;
-  endpoint: string;
-  token: string;
+  variants?: { name: string; params?: string }[];
 }) {
   const { browser, page } = await openBrowser();
 
@@ -58,20 +53,38 @@ export async function captureStories({
     };
   });
 
-  for (const story of result.stories!) {
-    await page.goto(
-      `${storybookURL}/iframe.html?id=${story.id}&viewMode=story`,
+  if (variants === undefined || variants.length === 0) {
+    variants = [
       {
-        waitUntil: "networkidle2",
+        name: "",
+        params: "",
+      },
+    ];
+  }
+
+  for (const story of result.stories!) {
+    for (let variant of variants) {
+      if (variant.params?.startsWith("?")) {
+        variant.params = variant.params.substring(1);
       }
-    );
+      if (!variant.params?.startsWith("&") && variant.params !== "") {
+        variant.params = "&" + variant.params;
+      }
 
-    await page.waitForSelector("#storybook-root");
+      await page.goto(
+        `${storybookURL}/iframe.html?id=${story.id}&viewMode=story${
+          variant.params ? variant.params : ""
+        }`
+      );
 
-    await pixeleyeSnapshot(page, {
-      name: story.id,
-      selector: "#storybook-root > *",
-    });
+      await page.waitForSelector("#storybook-root");
+
+      await pixeleyeSnapshot(page, {
+        name: story.id,
+        variant: variant.name,
+        selector: "#storybook-root > *",
+      });
+    }
   }
 
   await browser.close();

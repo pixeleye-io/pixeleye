@@ -6,17 +6,12 @@ import {
   abortBuild,
 } from "@pixeleye/js-sdk";
 import ora from "ora";
-import { finished, ping, start } from "@pixeleye/booth";
+import { finished, ping, startServer } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
 import { captureStories } from "@pixeleye/storybook";
 import { errStr } from "../messages/ui/theme";
-
-interface Config {
-  token: string;
-  endpoint: string;
-  boothPort: number;
-}
+import { Config } from "@pixeleye/js-sdk";
 
 export const getExitBuild = (ctx: Context, build: any) => async (err: any) => {
   console.log(errStr(err));
@@ -42,7 +37,7 @@ export const getExitBuild = (ctx: Context, build: any) => async (err: any) => {
 export async function storybook(url: string, options: Config) {
   const ctx: Context = {
     env: process.env,
-    endpoint: options.endpoint,
+    endpoint: options.endpoint!,
     token: options.token,
   };
 
@@ -50,7 +45,7 @@ export async function storybook(url: string, options: Config) {
 
   // set boothPort env variable for booth server
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  process.env.boothPort = options.boothPort.toString();
+  process.env.boothPort = options.boothPort;
 
   const buildSpinner = ora("Creating build").start();
 
@@ -85,9 +80,9 @@ export async function storybook(url: string, options: Config) {
 
   const fileSpinner = ora("Starting local snapshot server").start();
 
-  const server = await start({
-    port: options.boothPort,
-    endpoint: options.endpoint,
+  const server = await startServer({
+    port: Number(options.boothPort),
+    endpoint: options.endpoint!,
     token: options.token,
     build,
   }).catch(async (err) => {
@@ -110,11 +105,10 @@ export async function storybook(url: string, options: Config) {
 
   const storybookSpinner = ora(`Capturing stories at ${url}`).start();
 
+  // TODO - run this is another worker thread
   await captureStories({
-    endpoint: options.endpoint,
-    port: options.boothPort,
     storybookURL: url,
-    token: options.token,
+    variants: options.storybookOptions?.variants,
   }).catch(async (err) => {
     storybookSpinner.fail("Failed to capture stories.");
     await exitBuild(err);
@@ -123,7 +117,7 @@ export async function storybook(url: string, options: Config) {
   storybookSpinner.succeed("Successfully captured stories.");
 
   const processingSpinner = ora(
-    "Waiting for snapshots to finish processing"
+    "Waiting for snapshots to finish uploading"
   ).start();
 
   let processing = true;
@@ -148,7 +142,7 @@ export async function storybook(url: string, options: Config) {
       });
   }
 
-  processingSpinner.succeed("Successfully processed snapshots.");
+  processingSpinner.succeed("Successfully uploaded snapshots.");
 
   const completeSpinner = ora("Completing build...").start();
 

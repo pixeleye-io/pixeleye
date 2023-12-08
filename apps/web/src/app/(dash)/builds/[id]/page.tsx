@@ -31,19 +31,20 @@ export default async function ProjectOverviewPage({
         queries.builds.detail(buildID, cookie)._ctx.listSnapshots()
       )
       .catch(() => undefined),
-    queryClient
-      .prefetchQuery(queries.projects.detail(buildID, cookie))
-      .catch(() => undefined),
+
   ]);
 
-  const project = await API.get("/v1/projects/{id}", {
+  const [project] = await Promise.all([API.get("/v1/projects/{id}", {
     params: {
       id: build.projectID,
     },
     headers: {
       cookie,
     },
-  });
+  }), queryClient
+    .prefetchQuery(queries.projects.detail(build.projectID, cookie))
+    .catch(() => undefined),
+  ]);
 
   const dehydratedState = dehydrate(queryClient);
 

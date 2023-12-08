@@ -65,5 +65,12 @@ export async function loadConfig(path?: string): Promise<Config> {
     console.log("Config is empty.");
   }
 
-  return { ...defaults, ...userConfig };
+  return {
+    ...defaults,
+    ...userConfig,
+    storybookOptions: {
+      ...defaults.storybookOptions,
+      ...userConfig.storybookOptions,
+    },
+  };
 }
