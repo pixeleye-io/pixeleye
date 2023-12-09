@@ -12,6 +12,8 @@ export interface SnapshotRequest {
   selector?: string;
   fullPage?: boolean;
   devices: DeviceDescriptor[];
+  maskSelectors?: string[];
+  maskColor?: string;
 }
 
 export const queue = new PQueue({ concurrency: 10 });
@@ -39,6 +41,8 @@ export async function handleQueue({
         serializedDom: body.serializedDom,
         selector: body.selector,
         fullPage: body.fullPage,
+        maskSelectors: body.maskSelectors,
+        maskColor: body.maskColor,
       });
 
       return {

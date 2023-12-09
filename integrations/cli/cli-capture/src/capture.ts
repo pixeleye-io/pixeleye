@@ -6,16 +6,18 @@ import {
 } from "rrweb-snapshot";
 import { getBrowser } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import { DomEnvironment } from "@pixeleye/cli-config";
+import { DomEnvironment, defaultConfig } from "@pixeleye/cli-config";
 import { JSDOM } from "jsdom";
 
 export interface CaptureScreenshotOptions {
   device: DeviceDescriptor;
+  domEnvironment: DomEnvironment;
   url?: string;
   serializedDom?: serializedNodeWithId;
   selector?: string;
   fullPage?: boolean;
-  domEnvironment: DomEnvironment;
+  maskSelectors?: string[];
+  maskColor?: string;
 }
 
 export async function captureScreenshot(
@@ -48,9 +50,15 @@ export async function captureScreenshot(
 
   const locatedPage = options.selector ? page.locator(options.selector) : page;
 
+  const mask = [...(options?.maskSelectors || []), "[data-pixeleye-mask]"].map(
+    (selector) => locatedPage.locator(selector)
+  );
+
   const file = await locatedPage.screenshot({
     fullPage: options.fullPage,
     type: "png",
+    mask,
+    maskColor: options?.maskColor || defaultConfig.maskColor,
   });
 
   await page.close();

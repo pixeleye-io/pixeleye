@@ -8,14 +8,14 @@ import {
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
 
-// type SnapshotFn = typeof snapshot;
-
 export interface Options {
   fullPage?: boolean;
   name: string;
   variant?: string;
   selector?: string;
   devices?: DeviceDescriptor[];
+  maskSelectors?: string[];
+  maskColor?: string;
 }
 
 export async function pixeleyeSnapshot(
@@ -58,6 +58,8 @@ export async function pixeleyeSnapshot(
     serializedDom: domSnapshot,
     fullPage: options.fullPage,
     selector: options.selector,
+    maskSelectors: options.maskSelectors,
+    maskColor: options.maskColor,
   };
 
   const res = await snapshot(opts, snap).catch((err) => {

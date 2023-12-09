@@ -118,11 +118,13 @@ export async function storybook(url: string, options: Config) {
     `Capturing stories at ${url}, Snapshots captured: 0`
   ).start();
 
+  let totalSnaps = 0;
   await captureStories({
     storybookURL: url,
     devices: options.devices!,
     variants: options.storybookOptions?.variants,
     callback({ current }) {
+      totalSnaps = current;
       storybookSpinner.text = `Capturing stories at ${url}, Snapshots captured: ${current}`;
       return Promise.resolve();
     },
@@ -131,7 +133,7 @@ export async function storybook(url: string, options: Config) {
     await exitBuild(err);
   });
 
-  storybookSpinner.succeed("Successfully captured stories.");
+  storybookSpinner.succeed(`Successfully captured stories (${totalSnaps} snaps in total)`);
 
   const processingSpinner = ora(
     "Waiting for snapshots to finish uploading"

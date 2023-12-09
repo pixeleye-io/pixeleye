@@ -47,6 +47,13 @@ export type Config = {
   devices?: DeviceDescriptor[];
 
   /**
+   * The color that you want to use for masking elements.
+   * This can be overridden on a per snapshot basis.
+   * @default "#FF00FF"
+   */
+  maskColor?: string;
+
+  /**
    * Storybook specific options.
    */
   storybookOptions?: {

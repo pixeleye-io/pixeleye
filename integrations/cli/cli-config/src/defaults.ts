@@ -13,4 +13,5 @@ export const defaultConfig: Omit<Config, "token"> = {
   storybookOptions: {
     variants: [],
   },
+  maskColor: "#FF00FF",
 };
