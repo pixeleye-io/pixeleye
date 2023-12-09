@@ -54,6 +54,13 @@ export type Config = {
   maskColor?: string;
 
   /**
+   * The CSS that you want to inject into the page before capturing the screenshot.
+   * This can be overridden on a per snapshot basis. However, css defined per snapshot will be combined with this css but with a higher specificity.
+   * @example "body { background-color: red; }"
+   */
+  css?: string;
+
+  /**
    * Storybook specific options.
    */
   storybookOptions?: {

@@ -18,6 +18,7 @@ export interface CaptureScreenshotOptions {
   fullPage?: boolean;
   maskSelectors?: string[];
   maskColor?: string;
+  css?: string;
 }
 
 export async function captureScreenshot(
@@ -39,6 +40,19 @@ export async function captureScreenshot(
   } else {
     await page.close();
     throw new Error("No url or serializedDom provided");
+  }
+
+  if (options.css) {
+    // insert css at bottom of body
+    await page
+      .locator("body")
+      .first()
+      .evaluate((body, css) => {
+        const style = document.createElement("style");
+        style.innerHTML = css;
+        body.appendChild(style);
+        return true;
+      }, options.css);
   }
 
   await page.waitForLoadState();

@@ -16,6 +16,7 @@ export interface Options {
   devices?: DeviceDescriptor[];
   maskSelectors?: string[];
   maskColor?: string;
+  css?: string;
 }
 
 export async function pixeleyeSnapshot(
@@ -37,6 +38,11 @@ export async function pixeleyeSnapshot(
       process.env.PIXELEYE_BOOTH_PORT
     }`,
   };
+
+  const css =
+    config.css || options.css
+      ? `${config.css ?? ""}\n${options.css ?? ""}`
+      : undefined;
 
   await (page as Page).addScriptTag({
     path: require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js"),
@@ -60,6 +66,7 @@ export async function pixeleyeSnapshot(
     selector: options.selector,
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
+    css,
   };
 
   const res = await snapshot(opts, snap).catch((err) => {

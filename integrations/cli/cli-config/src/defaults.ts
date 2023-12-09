@@ -14,4 +14,5 @@ export const defaultConfig: Omit<Config, "token"> = {
     variants: [],
   },
   maskColor: "#FF00FF",
+  css: undefined,
 };
