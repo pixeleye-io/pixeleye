@@ -27,7 +27,7 @@ export async function createBuild(ctx: Context) {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildID: parentBuild?.id,
+      targetBuildID: parentBuild?.id, // TODO - We should get the target if we are on a PR
       targetParentID: parentBuild?.id,
       parentBuildIDs: parentBuild ? [parentBuild.id] : undefined, // TODO - Actually get the parent build ids
     },
@@ -38,7 +38,7 @@ export async function createBuild(ctx: Context) {
 
 export async function linkSnapshotsToBuild(
   ctx: Context,
-  build: Build,
+  buildID: Build["id"],
   snapshots: PartialSnapshot[]
 ) {
   // TODO - build in a retry mechanism
@@ -49,28 +49,28 @@ export async function linkSnapshotsToBuild(
       snapshots,
     },
     params: {
-      id: build.id,
+      id: buildID,
     },
   });
 }
 
-export async function completeBuild(ctx: Context, build: Build) {
+export async function completeBuild(ctx: Context, buildID: Build["id"]) {
   // TODO - build in a retry mechanism
   const api = getAPI(ctx);
 
   return api.post("/v1/client/builds/{id}/complete", {
     params: {
-      id: build.id,
+      id: buildID,
     },
   });
 }
 
-export async function abortBuild(ctx: Context, build: Build) {
+export async function abortBuild(ctx: Context, buildID: Build["id"]) {
   const api = getAPI(ctx);
 
   return api.post("/v1/client/builds/{id}/abort", {
     params: {
-      id: build.id,
+      id: buildID,
     },
   });
 }

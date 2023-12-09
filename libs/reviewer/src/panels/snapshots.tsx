@@ -25,6 +25,7 @@ function AccordionSnaps({
   }
 
 
+
   return (
     <Accordion.Item value={name}>
       <Accordion.Trigger className="px-2" size="sm">
@@ -194,6 +195,9 @@ export default function SnapshotsPanel() {
   useEffect(() => {
     if (currentSnapshot?.status) setAccordionValue(currentSnapshot?.status);
   }, [currentSnapshot]);
+
+  console.log(groupedSnapshots)
+
 
   return (
     <div className="pl-0.5 pt-4 flex flex-col grow">

@@ -32,10 +32,16 @@ export async function captureScreenshot(
 
     await page.setContent(doc.documentElement.outerHTML);
   } else {
+    await page.close();
     throw new Error("No url or serializedDom provided");
   }
 
   await page.waitForLoadState();
+
+  if (options.selector)
+    await page.waitForSelector(options.selector, {
+      timeout: 60_000,
+    });
 
   const locatedPage = options.selector ? page.locator(options.selector) : page;
 

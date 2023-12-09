@@ -1,7 +1,7 @@
 import { Config } from "pixeleye";
 
 const config: Config = {
-  token: "pxi__bANrScCvvPlKASrB9XzqzEff_dQEVHD4:ffzt_pcw1OFIWg8UnG0A-",
+  token: "pxi__YPZtxOa4y0cWeccM3piETioC6HAYYYg9:675M5_0KKxhHYWKDYU0hA",
   endpoint: "http://localhost:5000",
   storybookOptions: {
     variants: [

@@ -14,7 +14,7 @@
     "puppeteer-core": "^20 || ^21"
   },
   "dependencies": {
-    "@pixeleye/booth": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/puppeteer": "workspace:*",
     "@storybook/addons": "^7.6.3",
@@ -24,7 +24,6 @@
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
-    "@pixeleye/js-sdk": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/node": "20.9.0",
     "rimraf": "^5.0.5",

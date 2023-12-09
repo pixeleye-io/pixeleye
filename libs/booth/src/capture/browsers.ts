@@ -23,7 +23,7 @@ export const devices = Object.keys(playwrightDevices).reduce(
       name: key,
     },
   }),
-  {} as Record<string, DeviceDescriptor>
+  {} as Record<keyof typeof playwrightDevices, DeviceDescriptor>
 );
 
 export type Browsers = "firefox" | "chrome" | "edge" | "webkit";
@@ -36,17 +36,6 @@ const renderEngines = {
   webkit: webkit,
 };
 
-function getBrowserArgs(name: keyof typeof devices): LaunchOptions | undefined {
-  if (name === "Desktop Chrome") {
-    return {
-      channel: "chrome",
-    };
-  } else if (name === "Desktop Firefox") {
-    return {
-      channel: "firefox",
-    };
-  }
-}
 
 export async function getBrowser(
   deviceDescriptor: DeviceDescriptor
@@ -63,11 +52,11 @@ export async function getBrowser(
     throw new Error(`Unknown renderer ${deviceDescriptor.defaultBrowserType}`);
   }
 
-  const browser = await renderer.launch(getBrowserArgs(deviceDescriptor.name));
+  const browser = await renderer.launch();
 
   const context = await browser.newContext(deviceDescriptor);
 
-  deviceCache[deviceDescriptor.name] = context;
+  deviceCache[key] = context;
 
   return context;
 }

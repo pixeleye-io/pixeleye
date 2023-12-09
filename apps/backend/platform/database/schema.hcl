@@ -772,6 +772,11 @@ table "snapshot" {
     type = varchar(255)
     null = false
   }
+  column "target_icon" {
+    type    = varchar(255)
+    null    = false
+    default = ""
+  }
   column "viewport" {
     type = varchar(255)
     null = false

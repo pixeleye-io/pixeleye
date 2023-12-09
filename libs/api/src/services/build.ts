@@ -6,12 +6,6 @@ type GET = Method<{
   "/v1/builds/{id}": {
     res: Build;
   };
-  "/v1/client/builds": {
-    res: Build[];
-    queries?: {
-      branch?: string;
-    };
-  };
   "/v1/builds/{id}/snapshots": {
     res: (Snapshot & {
       snapHash?: string;
@@ -50,7 +44,7 @@ type POST = Method<{
   "/v1/client/builds": {
     res: Build[];
     req?: {
-      shas: string[];
+      shas?: string[];
     };
     queries?: {
       branch?: string;

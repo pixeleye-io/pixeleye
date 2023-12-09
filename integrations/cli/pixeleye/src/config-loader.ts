@@ -1,6 +1,6 @@
 import { Command, program } from "commander";
 import { optionMap } from "./commands";
-import { loadConfig, defaults } from "@pixeleye/js-sdk";
+import { loadConfig, defaultConfig } from "@pixeleye/cli-config";
 
 export async function loadAndMergeConfig(
   hookedCommand: Command,
@@ -16,7 +16,7 @@ export async function loadAndMergeConfig(
     // Map short options to long options
     const mappedKey = optionMap[key as keyof typeof optionMap] || key;
 
-    const defaultValue = defaults[mappedKey as keyof typeof defaults];
+    const defaultValue = defaultConfig[mappedKey as keyof typeof defaultConfig];
 
     // We don't want to override command line options
     const newValue = commands[mappedKey] ?? value ?? defaultValue;

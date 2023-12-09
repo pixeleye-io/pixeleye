@@ -8,7 +8,7 @@ export interface BoothServerOptions {
   port: number;
   endpoint: string;
   token: string;
-  build: Build;
+  buildID: Build["id"];
 }
 
 export function startServer(options: BoothServerOptions) {
@@ -28,7 +28,6 @@ export function startServer(options: BoothServerOptions) {
     app.get("/finished", finishedHandler);
 
     app.listen(options.port, () => {
-      console.log(`> Running on localhost:${options.port}`);
       resolve({
         close: () => app.server?.close(),
       });

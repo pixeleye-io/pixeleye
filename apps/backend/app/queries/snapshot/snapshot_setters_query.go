@@ -118,7 +118,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, bool, error) {
 	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
-	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error)`
+	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, target_icon, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :target_icon, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error)`
 	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
 
 	if len(snapshots) == 0 {

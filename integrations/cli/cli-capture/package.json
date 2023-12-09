@@ -1,0 +1,39 @@
+{
+  "name": "@pixeleye/cli-capture",
+  "version": "0.0.1",
+  "private": false,
+  "license": "AGPL-3.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
+    "build": "rimraf ./bin && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
+  },
+  "publishConfig": {
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@pixeleye/esbuild": "workspace:*",
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
+    "@types/object-hash": "^3.0.6",
+    "@pixeleye/cli-config": "workspace:*",
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "@pixeleye/cli-devices": "workspace:*",
+    "@types/jsdom": "^21.1.5",
+    "happy-dom": "^12.10.3",
+    "jsdom": "^22.1.0",
+    "object-hash": "^3.0.0",
+    "playwright": "^1.40.1",
+    "rrweb-snapshot": "2.0.0-alpha.11"
+  }
+}

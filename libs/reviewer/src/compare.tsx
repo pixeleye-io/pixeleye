@@ -12,7 +12,7 @@ import { FC, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
-import { ChromiumLogo, FirefoxLogo, WebkitLogo } from "./logos";
+import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "./logos";
 import { m } from "framer-motion";
 import { useStore } from "zustand";
 
@@ -115,9 +115,10 @@ function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
 }
 
 const targetIconRepo = {
-  "chromium": ChromiumLogo,
+  "chrome": ChromiumLogo,
   "firefox": FirefoxLogo,
-  "webkit": WebkitLogo
+  "safari": WebkitLogo,
+  "edge": EdgeLogo
 } as const;
 
 export function Compare() {
@@ -262,7 +263,7 @@ function TargetTabs({
       {
         targetGroup.snapshots.sort((a, b) => (a.target || "").localeCompare(b.target || "")).map((snap) => {
 
-          const TargetLogo = targetIconRepo[snap.target as keyof typeof targetIconRepo] as FC<{ className?: string }> | undefined;
+          const TargetLogo = targetIconRepo[snap.targetIcon as keyof typeof targetIconRepo] as FC<{ className?: string }> | undefined;
 
           const isActive = snap.id === snapshot.id;
 

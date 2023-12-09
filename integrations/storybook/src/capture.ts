@@ -1,6 +1,7 @@
 import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
 import { SBWindow } from "./browser";
 import { launch } from "puppeteer";
+import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 async function openBrowser() {
   const browser = await launch({
@@ -13,9 +14,13 @@ async function openBrowser() {
 export async function captureStories({
   storybookURL,
   variants,
+  callback,
+  devices,
 }: {
   storybookURL: string;
+  devices: DeviceDescriptor[];
   variants?: { name: string; params?: string }[];
+  callback?: ({ current }: { current: number }) => Promise<void>;
 }) {
   const { browser, page } = await openBrowser();
 
@@ -62,6 +67,8 @@ export async function captureStories({
     ];
   }
 
+  let current = 0;
+
   for (const story of result.stories!) {
     for (let variant of variants) {
       if (variant.params?.startsWith("?")) {
@@ -77,13 +84,18 @@ export async function captureStories({
         }`
       );
 
-      await page.waitForSelector("#storybook-root");
+      await page.waitForSelector("#storybook-root > *");
 
       await pixeleyeSnapshot(page, {
         name: story.id,
         variant: variant.name,
         selector: "#storybook-root > *",
+        devices,
       });
+
+      current += devices.length;
+
+      callback?.({ current });
     }
   }
 

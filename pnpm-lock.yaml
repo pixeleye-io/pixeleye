@@ -367,6 +367,16 @@ importers:
       esbuild:
         specifier: ^0.19.5
         version: 0.19.5
+    devDependencies:
+      '@chialab/esbuild-plugin-meta-url':
+        specifier: ^0.17.7
+        version: 0.17.7
+      '@chialab/esbuild-plugin-worker':
+        specifier: ^0.17.5
+        version: 0.17.5
+      esbuild-plugin-inline-worker:
+        specifier: ^0.1.1
+        version: 0.1.1
 
   configs/eslint-config:
     dependencies:
@@ -408,7 +418,7 @@ importers:
         version: link:../../integrations/puppeteer
       pixeleye:
         specifier: workspace:^
-        version: link:../../integrations/cli
+        version: link:../../integrations/cli/pixeleye
       puppeteer:
         specifier: ^21.5.2
         version: 21.5.2(typescript@5.2.2)
@@ -423,7 +433,7 @@ importers:
         specifier: ^5
         version: 5.2.2
 
-  integrations/cli:
+  integrations/cli-2:
     dependencies:
       '@pixeleye/booth':
         specifier: workspace:^
@@ -491,38 +501,319 @@ importers:
         version: 0.8.2
       esbuild:
         specifier: ^0.19.5
-        version: 0.19.5
+        version: 0.19.8
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
 
-  integrations/puppeteer:
+  integrations/cli/cli-api:
     dependencies:
-      '@pixeleye/booth':
+      '@pixeleye/api':
         specifier: workspace:*
-        version: link:../../libs/booth
-      '@pixeleye/rrweb-snapshot':
-        specifier: 2.0.0-alpha.11
-        version: 2.0.0-alpha.11
-      puppeteer:
-        specifier: ^21.5.2
-        version: 21.5.2(typescript@5.2.2)
-      puppeteer-core:
-        specifier: ^21.5.2
-        version: 21.5.2
+        version: link:../../../libs/api
+      '@pixeleye/cli-env':
+        specifier: workspace:*
+        version: link:../cli-env
+      '@pixeleye/cli-image':
+        specifier: workspace:*
+        version: link:../cli-image
+      api-typify:
+        specifier: ^0.3.2
+        version: 0.3.2
       undici:
         specifier: ^5.27.2
         version: 5.27.2
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+
+  integrations/cli/cli-booth:
+    dependencies:
+      '@pixeleye/api':
+        specifier: workspace:*
+        version: link:../../../libs/api
+      '@pixeleye/cli-api':
+        specifier: workspace:*
+        version: link:../cli-api
+      '@pixeleye/cli-capture':
+        specifier: workspace:*
+        version: link:../cli-capture
+      '@pixeleye/cli-config':
+        specifier: workspace:*
+        version: link:../cli-config
+      '@types/polka':
+        specifier: ^0.5.7
+        version: 0.5.7
+      body-parser:
+        specifier: ^1.20.2
+        version: 1.20.2
+      p-queue:
+        specifier: ^8.0.0
+        version: 8.0.0
+      polka:
+        specifier: ^0.5.2
+        version: 0.5.2
+      undici:
+        specifier: ^5.27.2
+        version: 5.27.2
+    devDependencies:
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../cli-devices
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/body-parser':
+        specifier: ^1.19.5
+        version: 1.19.5
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
+
+  integrations/cli/cli-capture:
+    dependencies:
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../cli-devices
+      '@types/jsdom':
+        specifier: ^21.1.5
+        version: 21.1.5
+      happy-dom:
+        specifier: ^12.10.3
+        version: 12.10.3
+      jsdom:
+        specifier: ^22.1.0
+        version: 22.1.0
+      object-hash:
+        specifier: ^3.0.0
+        version: 3.0.0
+      playwright:
+        specifier: ^1.40.1
+        version: 1.40.1
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
+    devDependencies:
+      '@pixeleye/cli-config':
+        specifier: workspace:*
+        version: link:../cli-config
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/object-hash':
+        specifier: ^3.0.6
+        version: 3.0.6
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  integrations/cli/cli-config:
+    dependencies:
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../cli-devices
+      jiti:
+        specifier: ^1.21.0
+        version: 1.21.0
+      sucrase:
+        specifier: ^3.34.0
+        version: 3.34.0
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  integrations/cli/cli-devices:
+    dependencies:
+      playwright:
+        specifier: ^1.40.1
+        version: 1.40.1
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  integrations/cli/cli-env:
+    dependencies:
+      env-ci:
+        specifier: ^10.0.0
+        version: 10.0.0
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/node':
+        specifier: 20.9.0
+        version: 20.9.0
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  integrations/cli/cli-image:
+    dependencies:
+      jimp:
+        specifier: ^0.22.10
+        version: 0.22.10
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/node':
+        specifier: 20.9.0
+        version: 20.9.0
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  integrations/cli/pixeleye:
+    dependencies:
+      '@pixeleye/cli-api':
+        specifier: workspace:*
+        version: link:../cli-api
+      '@pixeleye/cli-booth':
+        specifier: workspace:^
+        version: link:../cli-booth
+      '@pixeleye/cli-config':
+        specifier: workspace:*
+        version: link:../cli-config
+      '@pixeleye/storybook':
+        specifier: workspace:*
+        version: link:../../storybook
+      chalk:
+        specifier: ^5.3.0
+        version: 5.3.0
+      commander:
+        specifier: ^11.1.0
+        version: 11.1.0
+      dedent:
+        specifier: ^1.5.1
+        version: 1.5.1
+      graceful-fs:
+        specifier: ^4.2.11
+        version: 4.2.11
+      jimp:
+        specifier: ^0.22.10
+        version: 0.22.10
+      ora:
+        specifier: ^7.0.1
+        version: 7.0.1
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
+    devDependencies:
+      '@pixeleye/api':
+        specifier: workspace:*
+        version: link:../../../libs/api
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/graceful-fs':
+        specifier: ^4.1.9
+        version: 4.1.9
+      '@types/node':
+        specifier: 20.9.0
+        version: 20.9.0
+      '@types/require-relative':
+        specifier: ^0.8.2
+        version: 0.8.2
+      esbuild:
+        specifier: ^0.19.5
+        version: 0.19.8
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
+  integrations/puppeteer:
+    dependencies:
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../cli/cli-devices
+      puppeteer:
+        specifier: ^21.5.2
+        version: 21.5.2(typescript@5.2.2)
+      puppeteer-core:
+        specifier: ^21.5.2
+        version: 21.5.2
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
+      undici:
+        specifier: ^5.27.2
+        version: 5.27.2
+    devDependencies:
+      '@pixeleye/cli-booth':
+        specifier: workspace:*
+        version: link:../cli/cli-booth
+      '@pixeleye/cli-config':
+        specifier: workspace:*
+        version: link:../cli/cli-config
+      '@pixeleye/esbuild':
+        specifier: workspace:*
         version: link:../../configs/esbuild
       '@pixeleye/eslint-config':
         specifier: workspace:*
         version: link:../../configs/eslint-config
-      '@pixeleye/js-sdk':
-        specifier: workspace:*
-        version: link:../../libs/js-sdk
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../configs/tsconfig
@@ -553,9 +844,9 @@ importers:
 
   integrations/storybook:
     dependencies:
-      '@pixeleye/booth':
+      '@pixeleye/cli-devices':
         specifier: workspace:*
-        version: link:../../libs/booth
+        version: link:../cli/cli-devices
       '@pixeleye/puppeteer':
         specifier: workspace:*
         version: link:../puppeteer
@@ -578,9 +869,6 @@ importers:
       '@pixeleye/eslint-config':
         specifier: workspace:*
         version: link:../../configs/eslint-config
-      '@pixeleye/js-sdk':
-        specifier: workspace:*
-        version: link:../../libs/js-sdk
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../configs/tsconfig
@@ -636,6 +924,9 @@ importers:
       object-hash:
         specifier: ^3.0.0
         version: 3.0.0
+      p-queue:
+        specifier: ^8.0.0
+        version: 8.0.0
       playwright:
         specifier: ^1.39.0
         version: 1.39.0
@@ -694,6 +985,18 @@ importers:
       vitest:
         specifier: ^0.34.6
         version: 0.34.6(jsdom@22.1.0)(playwright@1.39.0)
+
+  libs/config:
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../configs/tsconfig
 
   libs/image-gen:
     dependencies:
@@ -934,7 +1237,7 @@ importers:
         version: 0.6.15(eslint@8.53.0)(typescript@5.2.2)
       pixeleye:
         specifier: workspace:*
-        version: link:../../integrations/cli
+        version: link:../../integrations/cli/pixeleye
       storybook:
         specifier: ^7.6.3
         version: 7.6.3
@@ -2505,6 +2808,46 @@ packages:
       prettier: 2.8.8
     dev: false
 
+  /@chialab/esbuild-plugin-meta-url@0.17.7:
+    resolution: {integrity: sha512-f4Eg/+XSrcf9JlYUjI8IEupMOuGR7P3hMlfdbE8aMHM0+PJSIYeFV+udMZyNmSpCYfO3dpVtdulv5QDZfTvzWg==}
+    engines: {node: '>=13'}
+    dependencies:
+      '@chialab/esbuild-rna': 0.17.8
+      '@chialab/estransform': 0.17.5
+      '@chialab/node-resolve': 0.17.1
+      mime-types: 2.1.35
+    dev: true
+
+  /@chialab/esbuild-plugin-worker@0.17.5:
+    resolution: {integrity: sha512-0ewNLMPyu4cr1qxJQKJYlqsK0oZL3x/yfyH9VBKwCAuJn5KDwK9zrEwvINIDiRMpjkvM9emAUe1kmNjuIICKHA==}
+    engines: {node: '>=13'}
+    dependencies:
+      '@chialab/esbuild-plugin-meta-url': 0.17.7
+      '@chialab/esbuild-rna': 0.17.8
+      '@chialab/estransform': 0.17.5
+      '@chialab/node-resolve': 0.17.1
+    dev: true
+
+  /@chialab/esbuild-rna@0.17.8:
+    resolution: {integrity: sha512-hovU4W5zlyMnbJjexdczpQ9mcUfFsJuv9FWUhzpXiQwPprlp5lul+frTed9s8AyVDTDq2yq3Gx2Ac411QsXYGA==}
+    engines: {node: '>=13'}
+    dependencies:
+      '@chialab/estransform': 0.17.5
+      '@chialab/node-resolve': 0.17.1
+    dev: true
+
+  /@chialab/estransform@0.17.5:
+    resolution: {integrity: sha512-maJUFkwk0ie0L4VvDO74NDYyRvaTQAI0qmSmrms8bZxUkZ+zQZd1ByWKDCYTRwtR6AOzTvgEOl2ZvEG+OUKv/A==}
+    engines: {node: '>=13'}
+    dependencies:
+      '@parcel/source-map': 2.1.1
+    dev: true
+
+  /@chialab/node-resolve@0.17.1:
+    resolution: {integrity: sha512-YWaK0MKKeB0FILI6j7qiAlGoSC9MqJZDFXzlAgfOaMCbn8Feqh6njxv7mI3oVkdi7QwV6zPRaTN6hKig/NriMA==}
+    engines: {node: '>=13'}
+    dev: true
+
   /@code-hike/lighter@0.8.1:
     resolution: {integrity: sha512-St4rPmB7C2EWmAK1sAbvD3lZeM7UDInVDMjQDzEDsu4Q3B3AqF25vXedQK51U0UO0MCOASgBBdTiNwvJAfIqMQ==}
     dev: false
@@ -2567,6 +2910,16 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/android-arm64@0.19.8:
+    resolution: {integrity: sha512-B8JbS61bEunhfx8kasogFENgQfr/dIp+ggYXwTqdbMAgGDhRa3AaPpQMuQU0rNxDLECj6FhDzk1cF9WHMVwrtA==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [android]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-arm@0.18.20:
@@ -2583,6 +2936,16 @@ packages:
     cpu: [arm]
     os: [android]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/android-arm@0.19.8:
+    resolution: {integrity: sha512-31E2lxlGM1KEfivQl8Yf5aYU/mflz9g06H6S15ITUFQueMFtFjESRMoDSkvMo8thYvLBax+VKTPlpnx+sPicOA==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [android]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-x64@0.18.20:
@@ -2599,6 +2962,16 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/android-x64@0.19.8:
+    resolution: {integrity: sha512-rdqqYfRIn4jWOp+lzQttYMa2Xar3OK9Yt2fhOhzFXqg0rVWEfSclJvZq5fZslnz6ypHvVf3CT7qyf0A5pM682A==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [android]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/darwin-arm64@0.18.20:
@@ -2615,6 +2988,16 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/darwin-arm64@0.19.8:
+    resolution: {integrity: sha512-RQw9DemMbIq35Bprbboyf8SmOr4UXsRVxJ97LgB55VKKeJOOdvsIPy0nFyF2l8U+h4PtBx/1kRf0BelOYCiQcw==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/darwin-x64@0.18.20:
@@ -2631,6 +3014,16 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/darwin-x64@0.19.8:
+    resolution: {integrity: sha512-3sur80OT9YdeZwIVgERAysAbwncom7b4bCI2XKLjMfPymTud7e/oY4y+ci1XVp5TfQp/bppn7xLw1n/oSQY3/Q==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/freebsd-arm64@0.18.20:
@@ -2647,6 +3040,16 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/freebsd-arm64@0.19.8:
+    resolution: {integrity: sha512-WAnPJSDattvS/XtPCTj1tPoTxERjcTpH6HsMr6ujTT+X6rylVe8ggxk8pVxzf5U1wh5sPODpawNicF5ta/9Tmw==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [freebsd]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/freebsd-x64@0.18.20:
@@ -2663,6 +3066,16 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/freebsd-x64@0.19.8:
+    resolution: {integrity: sha512-ICvZyOplIjmmhjd6mxi+zxSdpPTKFfyPPQMQTK/w+8eNK6WV01AjIztJALDtwNNfFhfZLux0tZLC+U9nSyA5Zg==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [freebsd]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-arm64@0.18.20:
@@ -2679,6 +3092,16 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-arm64@0.19.8:
+    resolution: {integrity: sha512-z1zMZivxDLHWnyGOctT9JP70h0beY54xDDDJt4VpTX+iwA77IFsE1vCXWmprajJGa+ZYSqkSbRQ4eyLCpCmiCQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-arm@0.18.20:
@@ -2695,6 +3118,16 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-arm@0.19.8:
+    resolution: {integrity: sha512-H4vmI5PYqSvosPaTJuEppU9oz1dq2A7Mr2vyg5TF9Ga+3+MGgBdGzcyBP7qK9MrwFQZlvNyJrvz6GuCaj3OukQ==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-ia32@0.18.20:
@@ -2711,6 +3144,16 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-ia32@0.19.8:
+    resolution: {integrity: sha512-1a8suQiFJmZz1khm/rDglOc8lavtzEMRo0v6WhPgxkrjcU0LkHj+TwBrALwoz/OtMExvsqbbMI0ChyelKabSvQ==}
+    engines: {node: '>=12'}
+    cpu: [ia32]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-loong64@0.18.20:
@@ -2727,6 +3170,16 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-loong64@0.19.8:
+    resolution: {integrity: sha512-fHZWS2JJxnXt1uYJsDv9+b60WCc2RlvVAy1F76qOLtXRO+H4mjt3Tr6MJ5l7Q78X8KgCFudnTuiQRBhULUyBKQ==}
+    engines: {node: '>=12'}
+    cpu: [loong64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-mips64el@0.18.20:
@@ -2743,6 +3196,16 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-mips64el@0.19.8:
+    resolution: {integrity: sha512-Wy/z0EL5qZYLX66dVnEg9riiwls5IYnziwuju2oUiuxVc+/edvqXa04qNtbrs0Ukatg5HEzqT94Zs7J207dN5Q==}
+    engines: {node: '>=12'}
+    cpu: [mips64el]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-ppc64@0.18.20:
@@ -2759,6 +3222,16 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-ppc64@0.19.8:
+    resolution: {integrity: sha512-ETaW6245wK23YIEufhMQ3HSeHO7NgsLx8gygBVldRHKhOlD1oNeNy/P67mIh1zPn2Hr2HLieQrt6tWrVwuqrxg==}
+    engines: {node: '>=12'}
+    cpu: [ppc64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-riscv64@0.18.20:
@@ -2775,6 +3248,16 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-riscv64@0.19.8:
+    resolution: {integrity: sha512-T2DRQk55SgoleTP+DtPlMrxi/5r9AeFgkhkZ/B0ap99zmxtxdOixOMI570VjdRCs9pE4Wdkz7JYrsPvsl7eESg==}
+    engines: {node: '>=12'}
+    cpu: [riscv64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-s390x@0.18.20:
@@ -2791,6 +3274,16 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-s390x@0.19.8:
+    resolution: {integrity: sha512-NPxbdmmo3Bk7mbNeHmcCd7R7fptJaczPYBaELk6NcXxy7HLNyWwCyDJ/Xx+/YcNH7Im5dHdx9gZ5xIwyliQCbg==}
+    engines: {node: '>=12'}
+    cpu: [s390x]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-x64@0.18.20:
@@ -2807,6 +3300,16 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/linux-x64@0.19.8:
+    resolution: {integrity: sha512-lytMAVOM3b1gPypL2TRmZ5rnXl7+6IIk8uB3eLsV1JwcizuolblXRrc5ShPrO9ls/b+RTp+E6gbsuLWHWi2zGg==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/netbsd-x64@0.18.20:
@@ -2823,6 +3326,16 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/netbsd-x64@0.19.8:
+    resolution: {integrity: sha512-hvWVo2VsXz/8NVt1UhLzxwAfo5sioj92uo0bCfLibB0xlOmimU/DeAEsQILlBQvkhrGjamP0/el5HU76HAitGw==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [netbsd]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/openbsd-x64@0.18.20:
@@ -2839,6 +3352,16 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/openbsd-x64@0.19.8:
+    resolution: {integrity: sha512-/7Y7u77rdvmGTxR83PgaSvSBJCC2L3Kb1M/+dmSIvRvQPXXCuC97QAwMugBNG0yGcbEGfFBH7ojPzAOxfGNkwQ==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [openbsd]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/sunos-x64@0.18.20:
@@ -2855,6 +3378,16 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/sunos-x64@0.19.8:
+    resolution: {integrity: sha512-9Lc4s7Oi98GqFA4HzA/W2JHIYfnXbUYgekUP/Sm4BG9sfLjyv6GKKHKKVs83SMicBF2JwAX6A1PuOLMqpD001w==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [sunos]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-arm64@0.18.20:
@@ -2871,6 +3404,16 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/win32-arm64@0.19.8:
+    resolution: {integrity: sha512-rq6WzBGjSzihI9deW3fC2Gqiak68+b7qo5/3kmB6Gvbh/NYPA0sJhrnp7wgV4bNwjqM+R2AApXGxMO7ZoGhIJg==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-ia32@0.18.20:
@@ -2887,6 +3430,16 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/win32-ia32@0.19.8:
+    resolution: {integrity: sha512-AIAbverbg5jMvJznYiGhrd3sumfwWs8572mIJL5NQjJa06P8KfCPWZQ0NwZbPQnbQi9OWSZhFVSUWjjIrn4hSw==}
+    engines: {node: '>=12'}
+    cpu: [ia32]
+    os: [win32]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-x64@0.18.20:
@@ -2903,6 +3456,16 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
+    dev: false
+    optional: true
+
+  /@esbuild/win32-x64@0.19.8:
+    resolution: {integrity: sha512-bfZ0cQ1uZs2PqpulNL5j/3w+GDhP36k1K5c38QdQg+Swy51jFZWWeIkteNsufkQxp986wnqRRsb/bHbY1WQ7TA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
     optional: true
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.53.0):
@@ -3798,6 +4361,13 @@ packages:
     transitivePeerDependencies:
       - debug
     dev: false
+
+  /@parcel/source-map@2.1.1:
+    resolution: {integrity: sha512-Ejx1P/mj+kMjQb8/y5XxDUn4reGdr+WyKYloBljpppUy8gs42T+BNoEOuRYqDVdgPc6NxduzIDoJS9pOFfV5Ew==}
+    engines: {node: ^12.18.3 || >=14}
+    dependencies:
+      detect-libc: 1.0.3
+    dev: true
 
   /@pixeleye/rrweb-snapshot@2.0.0-alpha.11:
     resolution: {integrity: sha512-VTVPoAsr9IfkVGUWty7H4k+Lm9OQur4IPUMHIcQ8LFkM/B0x9AtTrCwdKyUYWaOEDul3gNNh8XLEkEb3wXEloQ==}
@@ -6600,7 +7170,6 @@ packages:
       '@types/node': 20.9.0
       '@types/tough-cookie': 4.0.5
       parse5: 7.1.2
-    dev: true
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -6697,7 +7266,6 @@ packages:
       '@types/express-serve-static-core': 4.17.41
       '@types/node': 20.9.0
       '@types/trouter': 3.1.4
-    dev: true
 
   /@types/pretty-hrtime@1.0.3:
     resolution: {integrity: sha512-nj39q0wAIdhwn7DGUyT9irmsKK1tV0bd5WFEhgpqNTMFZ8cE+jieuTphCW0tfdm47S2zVT5mr09B28b1chmQMA==}
@@ -6757,11 +7325,9 @@ packages:
 
   /@types/tough-cookie@4.0.5:
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
-    dev: true
 
   /@types/trouter@3.1.4:
     resolution: {integrity: sha512-4YIL/2AvvZqKBWenjvEpxpblT2KGO6793ipr5QS7/6DpQ3O3SwZGgNGWezxf3pzeYZc24a2pJIrR/+Jxh/wYNQ==}
-    dev: true
 
   /@types/unist@2.0.10:
     resolution: {integrity: sha512-IfYcSBWE3hLpBg8+X2SEa8LVkJdJEkT2Ese2aaLs3ptGdVtABxndrMaxuFlQ1qdFf9Q5rDvDpxI3WwgvKFAsQA==}
@@ -8581,7 +9147,6 @@ packages:
 
   /css.escape@1.5.1:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
-    dev: true
 
   /cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
@@ -8873,6 +9438,12 @@ packages:
   /detect-indent@6.1.0:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
+
+  /detect-libc@1.0.3:
+    resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
+    engines: {node: '>=0.10'}
+    hasBin: true
+    dev: true
 
   /detect-libc@2.0.2:
     resolution: {integrity: sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw==}
@@ -9256,6 +9827,13 @@ packages:
     resolution: {integrity: sha512-jyfL/pwPqaFXyKnj8lP8iLk6Z0m099uXR45aSN8Av1XD4vhvQutxxPzgA2bTcAwQpa1zCXDcWOlhFgyP3GKqhQ==}
     dev: true
 
+  /esbuild-plugin-inline-worker@0.1.1:
+    resolution: {integrity: sha512-VmFqsQKxUlbM51C1y5bRiMeyc1x2yTdMXhKB6S//++g9aCBg8TfGsbKxl5ZDkCGquqLY+RmEk93TBNd0i35dPA==}
+    dependencies:
+      esbuild: 0.19.8
+      find-cache-dir: 3.3.2
+    dev: true
+
   /esbuild-register@3.5.0(esbuild@0.18.20):
     resolution: {integrity: sha512-+4G/XmakeBAsvJuDugJvtyF1x+XJT4FMocynNpxrvEBViirpfUn2PgNpCHedfWhF4WokNsO/OvMKrmJOIJsI5A==}
     peerDependencies:
@@ -9324,6 +9902,37 @@ packages:
       '@esbuild/win32-arm64': 0.19.5
       '@esbuild/win32-ia32': 0.19.5
       '@esbuild/win32-x64': 0.19.5
+    dev: false
+
+  /esbuild@0.19.8:
+    resolution: {integrity: sha512-l7iffQpT2OrZfH2rXIp7/FkmaeZM0vxbxN9KfiCwGYuZqzMg/JdvX26R31Zxn/Pxvsrg3Y9N6XTcnknqDyyv4w==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@esbuild/android-arm': 0.19.8
+      '@esbuild/android-arm64': 0.19.8
+      '@esbuild/android-x64': 0.19.8
+      '@esbuild/darwin-arm64': 0.19.8
+      '@esbuild/darwin-x64': 0.19.8
+      '@esbuild/freebsd-arm64': 0.19.8
+      '@esbuild/freebsd-x64': 0.19.8
+      '@esbuild/linux-arm': 0.19.8
+      '@esbuild/linux-arm64': 0.19.8
+      '@esbuild/linux-ia32': 0.19.8
+      '@esbuild/linux-loong64': 0.19.8
+      '@esbuild/linux-mips64el': 0.19.8
+      '@esbuild/linux-ppc64': 0.19.8
+      '@esbuild/linux-riscv64': 0.19.8
+      '@esbuild/linux-s390x': 0.19.8
+      '@esbuild/linux-x64': 0.19.8
+      '@esbuild/netbsd-x64': 0.19.8
+      '@esbuild/openbsd-x64': 0.19.8
+      '@esbuild/sunos-x64': 0.19.8
+      '@esbuild/win32-arm64': 0.19.8
+      '@esbuild/win32-ia32': 0.19.8
+      '@esbuild/win32-x64': 0.19.8
+    dev: true
 
   /escalade@3.1.1:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
@@ -9687,6 +10296,10 @@ packages:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
     dev: true
+
+  /eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+    dev: false
 
   /events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
@@ -10470,6 +11083,17 @@ packages:
     optionalDependencies:
       uglify-js: 3.17.4
     dev: true
+
+  /happy-dom@12.10.3:
+    resolution: {integrity: sha512-JzUXOh0wdNGY54oKng5hliuBkq/+aT1V3YpTM+lrN/GoLQTANZsMaIvmHiHe612rauHvPJnDZkZ+5GZR++1Abg==}
+    dependencies:
+      css.escape: 1.5.1
+      entities: 4.5.0
+      iconv-lite: 0.6.3
+      webidl-conversions: 7.0.0
+      whatwg-encoding: 2.0.0
+      whatwg-mimetype: 3.0.0
+    dev: false
 
   /har-schema@2.0.0:
     resolution: {integrity: sha512-Oqluz6zhGX8cyRaTQlFMPw80bSJVG2x/cFb8ZPhUILGgHka9SsokCCOQgpveePerqidZOrT14ipqfJb7ILcW5Q==}
@@ -12497,6 +13121,19 @@ packages:
       aggregate-error: 3.1.0
     dev: true
 
+  /p-queue@8.0.0:
+    resolution: {integrity: sha512-7LAaj8F47D5963LiTIAb/4UWR6w6SnDrDlxXg9ev/U0Lg9h35Kg8C8KiBry0c6MUofSicdLsEvS0j25gHAyCuA==}
+    engines: {node: '>=18'}
+    dependencies:
+      eventemitter3: 5.0.1
+      p-timeout: 6.1.2
+    dev: false
+
+  /p-timeout@6.1.2:
+    resolution: {integrity: sha512-UbD77BuZ9Bc9aABo74gfXhNvzC9Tx7SxtHSh1fxvx3jTLLYvmVhiQZZrJzqqU0jKbN32kb5VOKiLEQI/3bIjgQ==}
+    engines: {node: '>=14.16'}
+    dev: false
+
   /p-try@2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
     engines: {node: '>=6'}
@@ -12783,6 +13420,12 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
+  /playwright-core@1.40.1:
+    resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dev: false
+
   /playwright@1.39.0:
     resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
     engines: {node: '>=16'}
@@ -12791,6 +13434,16 @@ packages:
       playwright-core: 1.39.0
     optionalDependencies:
       fsevents: 2.3.2
+
+  /playwright@1.40.1:
+    resolution: {integrity: sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==}
+    engines: {node: '>=16'}
+    hasBin: true
+    dependencies:
+      playwright-core: 1.40.1
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: false
 
   /pngjs@3.4.0:
     resolution: {integrity: sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==}
@@ -13826,6 +14479,9 @@ packages:
 
   /rrweb-cssom@0.6.0:
     resolution: {integrity: sha512-APM0Gt1KoXBz0iIkkdB/kfvGOwC4UuJFeG/c+yV7wSc7q96cG/kJ0HiYCnzivD9SB53cLV1MlHFNfOuPaadYSw==}
+
+  /rrweb-snapshot@2.0.0-alpha.11:
+    resolution: {integrity: sha512-N0dzeJA2VhrlSOadkKwCVmV/DuNOwBH+Lhx89hAf9PQK4lCS8AP4AaylhqUdZOYHqwVjqsYel/uZ4hN79vuLhw==}
 
   /run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}

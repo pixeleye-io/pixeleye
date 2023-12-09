@@ -26,7 +26,7 @@
 
 //   // set boothPort env variable for booth server
 //   // eslint-disable-next-line turbo/no-undeclared-env-vars
-//   process.env.boothPort = options.boothPort;
+//   process.env.PIXELEYE_BOOTH_PORT = options.boothPort;
 
 //   const buildSpinner = ora("Creating build").start();
 

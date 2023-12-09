@@ -33,7 +33,12 @@ function readConfig(path: string): Config | (() => Promise<Config>) {
 }
 
 export async function loadConfig(path?: string): Promise<Config> {
-  if (path == "") {
+  if (!path) {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    path = process.env.PIXELEYE_CONFIG_PATH;
+  }
+
+  if (!path) {
     const endings = ["ts", "cjs", "mjs", "js"];
     path = "pixeleye.config";
 

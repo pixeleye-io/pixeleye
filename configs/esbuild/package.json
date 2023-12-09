@@ -6,5 +6,10 @@
   "main": "index.js",
   "dependencies": {
     "esbuild": "^0.19.5"
+  },
+  "devDependencies": {
+    "@chialab/esbuild-plugin-meta-url": "^0.17.7",
+    "@chialab/esbuild-plugin-worker": "^0.17.5",
+    "esbuild-plugin-inline-worker": "^0.1.1"
   }
 }

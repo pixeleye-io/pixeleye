@@ -6,33 +6,35 @@ import {
   abortBuild,
 } from "@pixeleye/js-sdk";
 import ora from "ora";
-import { finished, ping, startServer } from "@pixeleye/booth";
+import { finished, ping } from "@pixeleye/booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
 import { captureStories } from "@pixeleye/storybook";
 import { errStr } from "../messages/ui/theme";
 import { Config } from "@pixeleye/js-sdk";
+import { execFile } from "child_process";
 
-export const getExitBuild = (ctx: Context, build: any) => async (err: any) => {
-  console.log(errStr(err));
+export const getExitBuild =
+  (ctx: Context, buildID: string) => async (err: any) => {
+    console.log(errStr(err));
 
-  const abortingSpinner = ora({
-    text: "Aborting build...",
-    color: "yellow",
-  }).start();
+    const abortingSpinner = ora({
+      text: "Aborting build...",
+      color: "yellow",
+    }).start();
 
-  await abortBuild(ctx, build)
-    .catch((err) => {
-      abortingSpinner.fail("Failed to abort build.");
-      console.log(errStr(err));
-      program.error(err);
-    })
-    .then(() => {
-      abortingSpinner.succeed("Successfully aborted build.");
-    });
+    await abortBuild(ctx, buildID)
+      .catch((err) => {
+        abortingSpinner.fail("Failed to abort build.");
+        console.log(errStr(err));
+        program.error(err);
+      })
+      .then(() => {
+        abortingSpinner.succeed("Successfully aborted build.");
+      });
 
-  program.error(err);
-};
+    program.error(err);
+  };
 
 export async function storybook(url: string, options: Config) {
   const ctx: Context = {
@@ -45,7 +47,7 @@ export async function storybook(url: string, options: Config) {
 
   // set boothPort env variable for booth server
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  process.env.boothPort = options.boothPort;
+  process.env.PIXELEYE_BOOTH_PORT = options.boothPort;
 
   const buildSpinner = ora("Creating build").start();
 
@@ -61,7 +63,7 @@ export async function storybook(url: string, options: Config) {
 
   buildSpinner.succeed("Successfully created build.");
 
-  const exitBuild = getExitBuild(ctx, build);
+  const exitBuild = getExitBuild(ctx, build.id);
 
   const abortDetected = async () => {
     console.log(errStr("\nAborting build..."));
@@ -80,15 +82,26 @@ export async function storybook(url: string, options: Config) {
 
   const fileSpinner = ora("Starting local snapshot server").start();
 
-  const server = await startServer({
-    port: Number(options.boothPort),
-    endpoint: options.endpoint!,
-    token: options.token,
-    build,
-  }).catch(async (err) => {
-    fileSpinner.fail("Failed to start local snapshot server.");
-    await exitBuild(err);
-  });
+  const child = execFile(
+    "node",
+    [
+      "booth.js",
+      "start",
+      `"${build.id}"`,
+      `"${options.token}"`,
+      options.endpoint ? `-e ${options.endpoint}` : "",
+      options.boothPort ? `-p ${options.boothPort}` : "",
+    ],
+    {
+      cwd: __dirname,
+    },
+    (error, stdout, _) => {
+      if (error) {
+        throw error;
+      }
+      console.log(stdout);
+    }
+  );
 
   fileSpinner.succeed("Successfully started local snapshot server.");
 
@@ -146,14 +159,14 @@ export async function storybook(url: string, options: Config) {
 
   const completeSpinner = ora("Completing build...").start();
 
-  await completeBuild(ctx, build).catch(async (err) => {
+  await completeBuild(ctx, build.id).catch(async (err) => {
     completeSpinner.fail("Failed to complete build.");
     await exitBuild(err);
   });
 
   completeSpinner.succeed("Successfully completed build.");
 
-  server?.close();
+  child.kill();
 
   process.exit(0);
 }
