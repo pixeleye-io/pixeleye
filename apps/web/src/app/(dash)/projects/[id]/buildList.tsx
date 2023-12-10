@@ -128,7 +128,7 @@ function BuildRow({ build }: { build: Build }) {
         "processing",
         "queued-processing",
       ].includes(build.status) ? (
-        <Table.Cell className="w-0">
+        <Table.Cell className="w-20">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -143,7 +143,7 @@ function BuildRow({ build }: { build: Build }) {
           </DropdownMenu>
         </Table.Cell>
       ) : (
-        <Table.Cell className="w-0" />)}
+        <Table.Cell className="w-20" />)}
     </Table.Row>
   );
 }

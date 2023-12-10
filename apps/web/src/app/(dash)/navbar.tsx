@@ -10,6 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  Label,
   Logo,
   Select,
   SelectContent,
@@ -34,7 +35,7 @@ import { Team, User } from "@pixeleye/api";
 import { useTheme } from "next-themes";
 import React, { useCallback } from "react";
 import { API } from "@/libs";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { queries } from "@/queries";
@@ -207,7 +208,7 @@ export function Navbar() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
+        <DropdownMenuContent className="w-56 space-y-2" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none text-on-surface">
@@ -227,26 +228,37 @@ export function Navbar() {
           <DropdownMenuSeparator />
 
           <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Theme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </DropdownMenuItem>
+            <div className="flex justify-between items-center w-full">
+              <Label className="px-2 text-on-surface">Theme</Label>
+              <DropdownMenuItem asChild>
+                <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
+                  <SelectTrigger size="sm" className="w-[6rem]">
+                    <SelectValue placeholder="Theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="system">System</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuGroup>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <a href="/logout">Log out</a>
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <a href="https://pixeleye.io/docs" target="_blank">Docs <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-auto" /></a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <a href="https://pixeleye.io/home" target="_blank">Pixeleye homepage <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-auto" /></a>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/logout">Log out</Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </nav>
