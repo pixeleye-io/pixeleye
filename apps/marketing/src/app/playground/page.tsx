@@ -43,6 +43,7 @@ const dummySnapshots: ExtendedSnapshotPair[] = [
     baselineHash: "12",
     snapHash: "1",
     diffHash: "123",
+    targetIcon: "chrome",
     baselineHeight: 1181,
     baselineWidth: 1265,
     snapHeight: 1181,
@@ -58,24 +59,25 @@ const dummySnapshots: ExtendedSnapshotPair[] = [
     id: "2",
     buildID: "2",
     createdAt: new Date().toUTCString(),
-    name: "Button",
+    name: "Home 2",
     updatedAt: new Date().toUTCString(),
     status: "unreviewed",
     snapID: "2",
-    baselineURL: ukWiki,
-    snapURL: ukWiki,
-    diffURL: ukWiki,
-    baselineHash: "3",
-    snapHash: "32",
-    diffHash: "321",
-    baselineHeight: 32668,
-    baselineWidth: 1574,
-    snapHeight: 32668,
-    baselineID: "2",
-    snapWidth: 1574,
-    variant: "default",
-    diffHeight: 32668,
-    diffWidth: 1574,
+    baselineURL: HomeBase,
+    snapURL: HomeChanged,
+    diffURL: HomeDiff,
+    baselineHash: "122",
+    snapHash: "2",
+    diffHash: "1233",
+    targetIcon: "chrome",
+    baselineHeight: 1181,
+    baselineWidth: 1265,
+    snapHeight: 1181,
+    baselineID: "1",
+    snapWidth: 1265,
+    variant: "dark",
+    diffHeight: 1181,
+    diffWidth: 1265,
     target: "chrome",
     viewport: "1024x768",
   },
@@ -85,7 +87,7 @@ export default function PlaygroundPage() {
   return (
     <Suspense>
       <Reviewer
-        className="h-[calc(100vh-4.5rem-1px)]"
+        className="sm:h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
         build={dummyBuild}
         snapshots={dummySnapshots}
         optimize

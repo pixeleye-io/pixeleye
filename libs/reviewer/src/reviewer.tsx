@@ -7,7 +7,7 @@ import {
   UserOnProjectRole,
 } from "@pixeleye/api";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Panel } from "./panel";
+import { PanelMobile, PanelDesktop } from "./panel";
 import { Sidebar } from "./sidebar";
 import { BuildAPI, SnapshotTargetGroup, StoreContext, store } from "./store";
 import { useContext, useEffect, useMemo, useTransition } from "react";
@@ -82,7 +82,6 @@ function ReviewerInternal({
     (state) => state.setCurrentSnapshot
   );
   const currentSnapshot = useStore(store, (state) => state.currentSnapshot);
-  const panelOpen = useStore(store, (state) => state.panelOpen);
   const setBuildAPI = useStore(store, (state) => state.setBuildAPI);
   const setUserRole = useStore(store, (state) => state.setUserRole);
   const setIsUpdatingSnapshotStatus = useStore(store,
@@ -193,7 +192,8 @@ function ReviewerInternal({
   return (
     <div className={cx("w-full flex", className)}>
       <Sidebar />
-      {panelOpen && <Panel />}
+      <PanelMobile />
+      <PanelDesktop />
       <Compare />
     </div>
   );

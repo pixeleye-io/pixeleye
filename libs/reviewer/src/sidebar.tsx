@@ -141,7 +141,14 @@ function BatchApprove() {
   );
 }
 
-export function Sidebar() {
+
+
+
+export function Sidebar({
+  className
+}: {
+  className?: string;
+}) {
   const store = useContext(StoreContext)
 
   const setPanel = useStore(store, (state) => state.setPanel);
@@ -152,8 +159,8 @@ export function Sidebar() {
   const optimize = useStore(store, (state) => state.optimize);
 
   return (
-    <div className={cx("w-16 border-r  border-outline-variant flex-col flex items-center pt-2 shrink-0", optimize ? "bg-surface" : "bg-surface-container-lowest")}>
-      <nav>
+    <div className={cx("w-16 border-r border-outline-variant  grow items-center pt-2 shrink-0", optimize ? "bg-surface" : "bg-surface-container-lowest", className)}>
+      <nav className="h-full">
         <ul role="list" className="space-y-2">
           {SidebarNav.map((item) => (
             <li key={item.id}>

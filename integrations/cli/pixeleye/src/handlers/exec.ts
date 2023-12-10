@@ -2,10 +2,9 @@ import ora from "ora";
 import { finished, ping } from "@pixeleye/cli-booth";
 import { program } from "commander";
 import { noParentBuildFound } from "../messages/builds";
-import { captureStories } from "@pixeleye/storybook";
 import { errStr } from "../messages/ui/theme";
-import { execFile } from "child_process";
-import { API, APIType, createBuild } from "@pixeleye/cli-api";
+import { exec, execFile } from "child_process";
+import { API, createBuild } from "@pixeleye/cli-api";
 import { Config } from "@pixeleye/cli-config";
 import {
   getExitBuild,
@@ -13,8 +12,9 @@ import {
   waitForProcessing,
   watchExit,
 } from "./utils";
+import { execOutput } from "../messages/exec";
 
-export async function storybook(url: string, options: Config) {
+export async function execHandler(command: string[], options: Config) {
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -65,30 +65,38 @@ export async function storybook(url: string, options: Config) {
     await exitBuild(err);
   });
 
-  pingSpinner.succeed("Successfully pinged booth server.");
+  ora(`Running command (${command.join(" ")}) ...`).info();
 
-  const storybookSpinner = ora(
-    `Capturing stories at ${url}, Snapshots captured: 0`
-  ).start();
+  const promise = () =>
+    new Promise((resolve, reject) => {
+      const child = exec(command.join(" "), {
+        cwd: process.cwd(),
+      });
 
-  let totalSnaps = 0;
-  await captureStories({
-    storybookURL: url,
-    devices: options.devices!,
-    variants: options.storybookOptions?.variants,
-    callback({ current }) {
-      totalSnaps = current;
-      storybookSpinner.text = `Capturing stories at ${url}, Snapshots captured: ${current}`;
-      return Promise.resolve();
-    },
-  }).catch(async (err) => {
-    storybookSpinner.fail("Failed to capture stories.");
+      child.on("error", (err) => {
+        console.log(err);
+        reject(err);
+      });
+
+      child.on("exit", (code) => {
+        if (code === 0) {
+          resolve(undefined);
+        } else {
+          reject();
+        }
+      });
+
+      child.stdout?.on("data", (data) => {
+        console.log(execOutput(data.toString()));
+      });
+    });
+
+  await promise().catch(async (err) => {
+    ora().fail("Failed to run command.");
     await exitBuild(err);
   });
 
-  storybookSpinner.succeed(
-    `Successfully captured stories (${totalSnaps} snaps in total)`
-  );
+  ora().succeed("Successfully ran command.");
 
   const processingSpinner = ora(
     "Waiting for device capturing and uploads to finish"

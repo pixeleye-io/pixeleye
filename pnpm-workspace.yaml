@@ -7,4 +7,3 @@ packages:
   - "apps/web"
   - "apps/marketing"
   - "apps/api-tests"
-  - "apps/test-site"

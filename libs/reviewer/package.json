@@ -14,14 +14,15 @@
     "@types/react": "18.2.37"
   },
   "peerDependencies": {
+    "next": "^14",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "^14"
+    "react-dom": "^18"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "@pixeleye/api": "workspace:*",
     "@pixeleye/ui": "workspace:*",
+    "@radix-ui/react-dialog": "^1.0.5",
     "@types/react-dom": "18.2.15",
     "@use-gesture/react": "^10.3.0",
     "class-variance-authority": "^0.7.0",

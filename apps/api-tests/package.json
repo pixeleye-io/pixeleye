@@ -26,8 +26,6 @@
     "@ory/client": "^1.4.0",
     "@ory/kratos-client": "^1.0.0",
     "@pixeleye/api": "workspace:*",
-    "@pixeleye/image-gen": "workspace:*",
-    "@pixeleye/js-sdk": "workspace:*",
     "eventsource": "^2.0.2",
     "nanoid": "^5.0.3",
     "pactum-matchers": "^1.1.6",

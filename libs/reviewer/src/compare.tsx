@@ -215,9 +215,9 @@ export function Compare() {
 
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap">
 
-              <div className="mt-4 flex space-x-4">
+              <div className="mt-4 flex space-x-4 ">
                 <TabSwitcher />
                 <DisplayOptions resetAlignment={resetAlignment} />
               </div>
@@ -259,7 +259,7 @@ function TargetTabs({
   }
 
   return (
-    <ul className="flex items-center">
+    <ul className="flex justify-center mt-4">
       {
         targetGroup.snapshots.sort((a, b) => (a.target || "").localeCompare(b.target || "")).map((snap) => {
 

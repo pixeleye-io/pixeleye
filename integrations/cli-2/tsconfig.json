@@ -1,9 +1,0 @@
-{
-  "extends": "@pixeleye/tsconfig/node.json",
-  "include": ["."],
-  "exclude": ["dist", "build", "node_modules"],
-
-  "compilerOptions": {
-    "maxNodeModuleJsDepth": 5
-  }
-}

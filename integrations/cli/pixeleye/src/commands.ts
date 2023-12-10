@@ -47,4 +47,10 @@ apiOptions("storybook")
   .hook("preAction", loadAndMergeConfig)
   .action(storybook);
 
+apiOptions("exec")
+  .argument("[command...]", "Command to execute")
+  .description("Start your e2e tests with pixeleye running in the background")
+  .hook("preAction", loadAndMergeConfig)
+  .action(storybook);
+
 export default program.parse(process.argv);
