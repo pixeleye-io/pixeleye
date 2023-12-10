@@ -123,6 +123,7 @@ export async function uploadHandler(dir: string, options: Config) {
                 variant: decode(name).variant,
                 format,
                 snapID: uploaded[i].id,
+                target: "unknown device",
               }) as PartialSnapshot
           ),
         },
