@@ -65,7 +65,7 @@ const TabsList = forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cx(
-      "inline-flex h-10 items-center justify-center rounded-md bg-surface-container p-1 text-on-surface-variant",
+      "inline-flex h-10 items-center justify-center rounded-md bg-surface-container-highest dark:bg-surface-container p-1 text-on-surface-variant",
       className
     )}
     asChild
@@ -96,7 +96,7 @@ const TabsTrigger = forwardRef<
       {selected === props.value && (
         <m.span
           layoutId={layoutId}
-          className="bg-surface shadow-sm absolute -z-10 inset-0 rounded-sm"
+          className="bg-surface-container-lowest shadow-sm absolute -z-10 inset-0 rounded-sm"
         />
       )}
     </div>

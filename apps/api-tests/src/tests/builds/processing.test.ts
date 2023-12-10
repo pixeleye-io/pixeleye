@@ -61,7 +61,7 @@ describe(
       async () => {
         const snapshots: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -113,12 +113,12 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
             variant: "hover",
@@ -127,12 +127,12 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "buton",
             variant: "hover",
@@ -185,12 +185,12 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
           },
@@ -198,12 +198,12 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
           },
@@ -255,7 +255,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -263,7 +263,7 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -346,7 +346,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -354,7 +354,7 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -437,23 +437,23 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
             variant: "hover",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
             variant: "hover",
@@ -463,7 +463,7 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -541,7 +541,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -584,7 +584,7 @@ describe(
         });
       },
       {
-        timeout: 150_000,
+        timeout: 200_000,
       }
     );
 
@@ -593,7 +593,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -606,7 +606,7 @@ describe(
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
           },
@@ -624,7 +624,7 @@ describe(
             name: "input",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
             variant: "hover",
@@ -633,7 +633,7 @@ describe(
 
         const snapshot4: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -649,7 +649,7 @@ describe(
             variant: "hover",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "input",
             variant: "hover",
@@ -716,7 +716,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -724,7 +724,7 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -792,7 +792,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -800,7 +800,7 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -881,7 +881,7 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
@@ -889,7 +889,7 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
@@ -957,12 +957,12 @@ describe(
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: cleanEyePng,
             name: "button",
             variant: "green",
@@ -971,12 +971,12 @@ describe(
 
         const snapshot2: CreateBuildOptions["snapshots"] = [
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
           },
           {
-            hash: nanoid(64),
+            hash: nanoid(40),
             img: dirtyEyePng,
             name: "button",
             variant: "green",

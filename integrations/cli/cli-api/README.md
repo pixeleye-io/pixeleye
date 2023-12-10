@@ -1,0 +1,1 @@
+# @pixeleye/cli-booth

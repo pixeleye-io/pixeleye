@@ -23,10 +23,11 @@ type Snapshot struct {
 
 	BuildID string `db:"build_id" json:"buildID" validate:"required,nanoid"`
 
-	Name     string `db:"name" json:"name" validate:"required"`
-	Variant  string `db:"variant" json:"variant,omitempty"`
-	Target   string `db:"target" json:"target,omitempty"`
-	Viewport string `db:"viewport" json:"viewport,omitempty" validate:"omitempty,viewport"`
+	Name       string `db:"name" json:"name" validate:"required"`
+	Variant    string `db:"variant" json:"variant,omitempty"`
+	Target     string `db:"target" json:"target,omitempty"`
+	Viewport   string `db:"viewport" json:"viewport,omitempty" validate:"omitempty,viewport"`
+	TargetIcon string `db:"target_icon" json:"targetIcon,omitempty"`
 
 	SnapID string  `db:"snap_image_id" json:"snapID" validate:"required"`
 	DiffID *string `db:"diff_image_id" json:"diffID,omitempty"`

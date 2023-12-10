@@ -23,7 +23,7 @@ type UploadSnapReturn struct {
 }
 
 type SnapshotUpload struct {
-	Hash   string `json:"hash" validate:"required,len=64"`
+	Hash   string `json:"hash" validate:"required,len=40"`
 	Height int    `json:"height" validate:"required"`
 	Width  int    `json:"width" validate:"required"`
 	Format string `json:"format" validate:"required"`

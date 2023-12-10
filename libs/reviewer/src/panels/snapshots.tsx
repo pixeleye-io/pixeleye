@@ -25,6 +25,7 @@ function AccordionSnaps({
   }
 
 
+
   return (
     <Accordion.Item value={name}>
       <Accordion.Trigger className="px-2" size="sm">
@@ -106,7 +107,7 @@ function SnapButton({
       onClick={() => setIndex(index)}
       className={cx(
         "p-2 rounded transition flex w-full justify-center items-center border border-outline-variant/50 hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
-        active && "bg-surface-container-low"
+        active && "lg:bg-surface-container-low bg-surface-container !border-outline"
       )}
     >
       <Image
@@ -126,7 +127,7 @@ function SnapButton({
 function ShortcutHint() {
   return (
     <div className="sticky inset-x-4 bottom-4 z-10 pointer-events-none">
-      <div className="flex justify-center px-2 py-1 mx-4 rounded-lg shadow bg-surface-container-low">
+      <div className="flex justify-center px-2 py-1 mx-4 rounded-lg shadow lg:bg-surface-container-low bg-surface-container-high">
         <p className="space-x-4 text-on-surface-variant">
           <kbd>
             <kbd>Ctrl</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
@@ -194,6 +195,7 @@ export default function SnapshotsPanel() {
   useEffect(() => {
     if (currentSnapshot?.status) setAccordionValue(currentSnapshot?.status);
   }, [currentSnapshot]);
+
 
   return (
     <div className="pl-0.5 pt-4 flex flex-col grow">

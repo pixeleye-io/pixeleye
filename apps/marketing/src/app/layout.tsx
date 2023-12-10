@@ -41,7 +41,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
-          <div className="pt-[4.5rem]">{children}</div>
+          <div className="lg:pt-[4.5rem] pt-16">{children}</div>
           <Footer />
         </Providers>
       </body>

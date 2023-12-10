@@ -165,7 +165,7 @@ describe("Creating a build", () => {
 
   // TODO - test bulk uploads
   it("Should be able to upload a snapshot", async () => {
-    const hash = nanoid(64);
+    const hash = nanoid(40);
 
     await snapshotTokenAPI
       .uploadSnapshot(hash, 100, 100, jekyllsToken)
@@ -189,7 +189,7 @@ describe("Creating a build", () => {
   });
 
   it("should let me link a snapshot to a build", async () => {
-    const hash = nanoid(64);
+    const hash = nanoid(40);
 
     let snap: PartialSnapshot | undefined;
 

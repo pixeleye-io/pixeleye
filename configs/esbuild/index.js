@@ -1,6 +1,8 @@
 import * as esbuild from "esbuild";
 
 
+
+
 export function build(entryPoints, outfile, external = [], banner = {}) {
   esbuild.build({
     entryPoints,
@@ -11,5 +13,6 @@ export function build(entryPoints, outfile, external = [], banner = {}) {
     target: "node18",
     outfile,
     external,
+
   });
 }

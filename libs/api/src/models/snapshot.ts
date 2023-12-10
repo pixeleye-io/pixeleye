@@ -11,6 +11,7 @@ export const SnapshotZod = z.object({
   name: z.string(),
   variant: z.string().optional(),
   target: z.string().optional(),
+  targetIcon: z.string().optional(),
   viewport: z.string().optional(),
 
   error: z.string().optional(),
@@ -37,9 +38,8 @@ export type Snapshot = z.infer<typeof SnapshotZod>;
 
 export type PartialSnapshot = Pick<
   Snapshot,
-  "snapID" | "name" | "variant" | "target" | "viewport"
+  "snapID" | "name" | "variant" | "target" | "viewport" | "targetIcon"
 >;
-
 
 export const SnapshotPairZod = SnapshotZod.extend({
   snapHash: z.string().optional(),

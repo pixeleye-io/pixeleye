@@ -1,0 +1,126 @@
+import ora from "ora";
+import { finished, ping } from "@pixeleye/cli-booth";
+import { program } from "commander";
+import { noParentBuildFound } from "../messages/builds";
+import { captureStories } from "@pixeleye/storybook";
+import { errStr } from "../messages/ui/theme";
+import { execFile } from "child_process";
+import { API, APIType, createBuild } from "@pixeleye/cli-api";
+import { Config } from "@pixeleye/cli-config";
+import {
+  getExitBuild,
+  startBooth,
+  waitForProcessing,
+  watchExit,
+} from "./utils";
+
+export async function storybook(url: string, options: Config) {
+  const api = API({
+    endpoint: options.endpoint!,
+    token: options.token,
+  });
+
+  // set boothPort env variable for booth server
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  process.env.PIXELEYE_BOOTH_PORT = options.boothPort;
+
+  const buildSpinner = ora("Creating build").start();
+
+  const build = await createBuild(api).catch(async (err) => {
+    buildSpinner.fail("Failed to create build.");
+    console.log(errStr(err));
+    program.error(err);
+  });
+
+  if (!build.parentBuildIDs) {
+    noParentBuildFound();
+  }
+
+  buildSpinner.succeed("Successfully created build.");
+
+  const exitBuild = getExitBuild(api, build.id);
+
+  watchExit(async () => {
+    console.log(errStr("\nAborting build..."));
+    await exitBuild("Interrupted");
+  });
+
+  const fileSpinner = ora("Starting local snapshot server").start();
+
+  const child = startBooth({
+    buildID: build.id,
+    token: options.token,
+    endpoint: options.endpoint,
+    boothPort: options.boothPort,
+  });
+
+  fileSpinner.succeed("Successfully started local snapshot server.");
+
+  const pingSpinner = ora("Pinging booth server").start();
+
+  await ping({
+    endpoint: `http://localhost:${options.boothPort}`,
+  }).catch(async (err) => {
+    pingSpinner.fail("Failed to ping booth server.");
+    await exitBuild(err);
+  });
+
+  pingSpinner.succeed("Successfully pinged booth server.");
+
+  const storybookSpinner = ora(
+    `Capturing stories at ${url}, Snapshots captured: 0`
+  ).start();
+
+  let totalSnaps = 0;
+  await captureStories({
+    storybookURL: url,
+    devices: options.devices!,
+    variants: options.storybookOptions?.variants,
+    callback({ current }) {
+      totalSnaps = current;
+      storybookSpinner.text = `Capturing stories at ${url}, Snapshots captured: ${current}`;
+      return Promise.resolve();
+    },
+  }).catch(async (err) => {
+    storybookSpinner.fail("Failed to capture stories.");
+    await exitBuild(err);
+  });
+
+  storybookSpinner.succeed(
+    `Successfully captured stories (${totalSnaps} snaps in total)`
+  );
+
+  const processingSpinner = ora(
+    "Waiting for device capturing and uploads to finish"
+  ).start();
+
+  await waitForProcessing({
+    boothPort: options.boothPort!,
+  }).catch(async (err) => {
+    processingSpinner.fail("Device capturing and uploads failed.");
+    await exitBuild(err);
+  });
+
+  processingSpinner.succeed(
+    "Successfully processed device capturing and uploads."
+  );
+
+  const completeSpinner = ora("Completing build...").start();
+
+  await api
+    .post("/v1/client/builds/{id}/complete", {
+      params: {
+        id: build.id,
+      },
+    })
+    .catch(async (err) => {
+      completeSpinner.fail("Failed to complete build.");
+      await exitBuild(err);
+    });
+
+  completeSpinner.succeed("Successfully completed build.");
+
+  child.kill();
+
+  process.exit(0);
+}

@@ -1,9 +1,9 @@
 packages:
-  - 'configs/*'
-  - 'libs/*'
-  - 'examples/*'
-  - 'integrations/*'
-  - 'apps/web'
-  - 'apps/marketing'
-  - 'apps/api-tests'
-  - 'apps/test-site'
+  - "configs/*"
+  - "libs/*"
+  - "integrations/cli/*"
+  - "examples/*"
+  - "integrations/*"
+  - "apps/web"
+  - "apps/marketing"
+  - "apps/api-tests"

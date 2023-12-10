@@ -1,0 +1,34 @@
+{
+  "name": "@pixeleye/cli-api",
+  "version": "0.0.1",
+  "private": false,
+  "license": "AGPL-3.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
+    "build": "node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
+  },
+  "publishConfig": {
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@pixeleye/esbuild": "workspace:*",
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@pixeleye/api": "workspace:*",
+    "@pixeleye/cli-image": "workspace:*",
+    "@pixeleye/cli-env": "workspace:*",
+    "api-typify": "^0.3.2",
+    "undici": "^5.27.2"
+  }
+}

@@ -13,8 +13,8 @@
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
-    "@pixeleye/tsconfig": "workspace:*",
     "@pixeleye/tailwind": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
     "@storybook/addon-essentials": "^7.6.3",
     "@storybook/addon-interactions": "^7.6.3",
     "@storybook/addon-links": "^7.6.3",
@@ -27,8 +27,8 @@
     "@types/react": "18.2.37",
     "@types/react-dom": "18.2.15",
     "eslint-plugin-storybook": "^0.6.15",
-    "storybook": "^7.6.3",
-    "pixeleye": "workspace:*"
+    "pixeleye": "workspace:*",
+    "storybook": "^7.6.3"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
