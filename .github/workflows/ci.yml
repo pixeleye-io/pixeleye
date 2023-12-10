@@ -51,10 +51,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      # - name: Install Playwright Browsers
-      #   working-directory: ./libs/booth
-      #   run: pnpx playwright install --with-deps
-
       - name: Lint
         run: pnpm turbo lint
 
