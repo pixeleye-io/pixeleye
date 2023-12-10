@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "test:e2e": "pixeleye e2e -- vitest run"
+    "test:e2e": "pixeleye exec -- vitest run"
   },
   "dependencies": {
-    "pixeleye": "workspace:^",
-    "@pixeleye/puppeteer": "workspace:^",
+    "@pixeleye/puppeteer": "workspace:*",
+    "pixeleye": "workspace:*",
+    "playwright": "^1.40.1",
     "puppeteer": "^21.5.2",
     "puppeteer-core": "^21.5.2",
     "vitest": "^0.34.6"

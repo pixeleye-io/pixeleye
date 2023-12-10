@@ -16,13 +16,19 @@ export async function getParentBuild(api: APIType) {
   const shas = await getParentShas(128);
   const branch = env.branch;
 
-  const builds = await api.post("/v1/client/builds", {
-    body: {
-      shas,
-    },
-  });
+  const builds = await api
+    .post("/v1/client/builds", {
+      body: {
+        shas,
+      },
+    })
+    .catch((err) => {
+      if (err.status === 401) {
+        throw new Error("Unauthorized, please check your token");
+      }
+    });
 
-  const build = builds.find((build) => shas.some((sha) => sha === build.sha));
+  const build = builds!.find((build) => shas.some((sha) => sha === build.sha));
 
   if (build) {
     return {

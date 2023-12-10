@@ -58,9 +58,27 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 }
 
 func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
-	query := `UPDATE build SET status = $1 WHERE id = $2`
 
-	if _, err := q.DB.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
+	query := `UPDATE build SET status = $1 WHERE id = $2`
+	updateChildrenQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2`
+
+	txx, err := q.DB.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	// nolint:errcheck
+	defer txx.Rollback()
+
+	if _, err := txx.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
+		return err
+	}
+
+	if _, err := txx.ExecContext(ctx, updateChildrenQuery, build.TargetBuildID, build.ID); err != nil {
+		return err
+	}
+
+	if err := txx.Commit(); err != nil {
 		return err
 	}
 
@@ -75,7 +93,20 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	return q.CheckAndProcessQueuedBuilds(ctx, build)
+	if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
+		return err
+	}
+
+	if build.TargetBuildID == "" {
+		return nil
+	}
+
+	targetBuild, err := q.GetBuild(ctx, build.TargetBuildID)
+	if err != nil {
+		return err
+	}
+
+	return q.CheckAndProcessQueuedBuilds(ctx, targetBuild)
 }
 
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {

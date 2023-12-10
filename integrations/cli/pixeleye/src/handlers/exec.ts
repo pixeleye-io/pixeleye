@@ -65,6 +65,8 @@ export async function execHandler(command: string[], options: Config) {
     await exitBuild(err);
   });
 
+  pingSpinner.succeed("Successfully pinged booth server.");
+
   ora(`Running command (${command.join(" ")}) ...`).info();
 
   const promise = () =>
