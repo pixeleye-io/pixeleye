@@ -15,3 +15,8 @@ export const getParentShas = async (n: number) => {
 export const getCommit = async () => {
   return (await $`git rev-parse HEAD`).stdout;
 };
+
+// Get merge base of current branch and target branch
+export const getMergeBase = async (prBranch: string) => {
+  return (await $`git merge-base HEAD ${prBranch}`).stdout;
+};

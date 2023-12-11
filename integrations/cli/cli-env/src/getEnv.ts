@@ -12,7 +12,7 @@ export interface Environment {
 
 export async function getEnvironment(): Promise<Environment> {
   // TODO Add my own handlers for common services
-  const { name, commit, isPr, branch, isCi } = envCi({
+  const { name, commit, isPr, branch, isCi, prBranch } = envCi({
     env: process.env,
     root: process.cwd(),
   });
