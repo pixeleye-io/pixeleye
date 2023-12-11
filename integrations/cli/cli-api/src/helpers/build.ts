@@ -70,7 +70,6 @@ export async function createBuild(api: APIType) {
       sha: env.commit,
       targetBuildID: targetParent?.id, // TODO - We should get the target if we are on a PR
       targetParentID: targetParent?.id,
-      parentBuildIDs: parents?.map((build) => build.id),
     },
   });
 

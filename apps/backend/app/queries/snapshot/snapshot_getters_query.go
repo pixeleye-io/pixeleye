@@ -43,7 +43,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		WHERE 
 		  snap.id = $1
 		UNION ALL 
-		  -- Recursive query: Join with build_history to get the next snapshot in the build history
+		  -- Recursive query: Join with build table to get the parent build, then join with snapshot table to get the parent snapshot
 		SELECT 
 		  s.id, 
 		  s.build_id, 

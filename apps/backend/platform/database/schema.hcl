@@ -600,32 +600,6 @@ table "build" {
   }
 }
 
-table "build_history" {
-  schema = schema.public
-  column "child_id" {
-    type = varchar(21)
-    null = false
-  }
-  foreign_key "child_id" {
-    columns     = [column.child_id]
-    ref_columns = [table.build.column.id]
-    on_delete   = CASCADE
-  }
-  column "parent_id" {
-    type = varchar(21)
-    null = false
-  }
-  foreign_key "parent_id" {
-    columns     = [column.parent_id]
-    ref_columns = [table.build.column.id]
-    on_delete   = CASCADE
-  }
-
-  index "idx_build_history-parent_id" {
-    columns = [column.parent_id]
-  }
-}
-
 table "snap_image" {
   schema = schema.public
   column "id" {

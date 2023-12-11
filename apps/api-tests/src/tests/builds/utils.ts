@@ -12,7 +12,6 @@ export interface CreateBuildOptions {
   sha: string;
   targetParentID?: string;
   targetBuildID?: string;
-  parentBuildIDs?: string[];
   expectedBuildStatus: Build["status"][];
   snapshots: {
     hash: string;
@@ -78,7 +77,6 @@ export async function createBuildWithSnapshots({
   branch,
   sha,
   targetParentID,
-  parentBuildIDs,
   expectedBuildStatus,
   targetBuildID,
   snapshots,
@@ -89,7 +87,6 @@ export async function createBuildWithSnapshots({
         branch,
         sha,
         targetParentID,
-        parentBuildIDs,
         targetBuildID,
       })
       .returns(({ res }: any) => {

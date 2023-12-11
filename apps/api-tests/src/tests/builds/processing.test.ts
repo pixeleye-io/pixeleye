@@ -83,7 +83,6 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
           targetParentID: build1.id,
           snapshots,
         }).catch((err) => {
@@ -96,7 +95,6 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
           targetParentID: build2.id,
           snapshots,
         }).catch((err) => {
@@ -155,7 +153,6 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -168,7 +165,6 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build2.id],
           targetParentID: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -225,7 +221,7 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -238,7 +234,7 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot1,
         }).catch((err) => {
@@ -285,7 +281,7 @@ describe(
             branch: "dev",
             sha: "1234",
             targetBuildID: rawBuild1!.id,
-            parentBuildIDs: [rawBuild1!.id],
+
             targetParentID: rawBuild1!.id,
           })
           .returns(({ res }: any) => {
@@ -300,7 +296,7 @@ describe(
             sha: "1234",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
             targetBuildID: rawBuild1!.id,
-            parentBuildIDs: [rawBuild1!.id],
+
             targetParentID: rawBuild1!.id,
             snapshots: snapshot2,
           }).catch((err) => {
@@ -312,7 +308,7 @@ describe(
             sha: "12345",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
             targetBuildID: rawBuild2!.id,
-            parentBuildIDs: [rawBuild2!.id],
+
             targetParentID: rawBuild2!.id,
             snapshots: snapshot2,
           }).catch((err) => {
@@ -376,7 +372,7 @@ describe(
             branch: "dev",
             sha: "1234",
             targetBuildID: rawBuild1!.id,
-            parentBuildIDs: [rawBuild1!.id],
+
             targetParentID: rawBuild1!.id,
           })
           .returns(({ res }: any) => {
@@ -391,7 +387,7 @@ describe(
             sha: "1234",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
             targetBuildID: rawBuild1!.id,
-            parentBuildIDs: [rawBuild1!.id],
+
             targetParentID: rawBuild1!.id,
             snapshots: snapshot2,
           }).catch((err) => {
@@ -403,7 +399,7 @@ describe(
             sha: "12345",
             expectedBuildStatus: ["queued-processing", "unchanged"],
             targetBuildID: rawBuild2!.id,
-            parentBuildIDs: [rawBuild2!.id],
+
             targetParentID: rawBuild2!.id,
             snapshots: snapshot1,
           }).catch((err) => {
@@ -511,7 +507,7 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -524,7 +520,7 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot3,
         }).catch((err) => {
@@ -563,7 +559,7 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: [],
         }).catch((err) => {
@@ -576,7 +572,7 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: [],
         }).catch((err) => {
@@ -673,7 +669,7 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -686,7 +682,7 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot3,
         }).catch((err) => {
@@ -699,7 +695,7 @@ describe(
           sha: "123456",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build3.id,
-          parentBuildIDs: [build3.id],
+
           targetParentID: build3.id,
           snapshots: snapshot4,
         }).catch((err) => {
@@ -746,14 +742,12 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
         });
-
-        const { parentBuildIDs, ...build2WithoutParentBuildIDs } = build2;
 
         await buildTokenAPI
           .approveAllSnapshots(build2.id, IDs.jekyll)
@@ -764,7 +758,7 @@ describe(
         await buildTokenAPI
           .getBuild(build2.id, jekyllsToken)
           .expectJsonMatchStrict({
-            ...build2WithoutParentBuildIDs,
+            ...build2,
             status: "approved",
             updatedAt: like("2023-08-08T16:30:52.207Z"),
           });
@@ -775,7 +769,7 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -822,14 +816,12 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
         });
-
-        const { parentBuildIDs, ...build2WithoutParentBuildIDs } = build2;
 
         await buildTokenAPI
           .rejectAllSnapshots(build2.id, IDs.jekyll)
@@ -840,7 +832,7 @@ describe(
         await buildTokenAPI
           .getBuild(build2.id, jekyllsToken)
           .expectJsonMatchStrict({
-            ...build2WithoutParentBuildIDs,
+            ...build2,
             status: "rejected",
             updatedAt: like("2023-08-08T16:30:52.207Z"),
           });
@@ -851,7 +843,7 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["rejected"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -864,7 +856,7 @@ describe(
           sha: "123456",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build3.id,
-          parentBuildIDs: [build3.id],
+
           targetParentID: build3.id,
           snapshots: snapshot1,
         }).catch((err) => {
@@ -911,7 +903,7 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot1,
         }).catch((err) => {
@@ -924,14 +916,12 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
         });
-
-        const { parentBuildIDs, ...build3WithoutParentBuildIDs } = build3;
 
         await buildTokenAPI
           .approveAllSnapshots(build3.id, IDs.jekyll)
@@ -942,7 +932,7 @@ describe(
         await buildTokenAPI
           .getBuild(build3.id, jekyllsToken)
           .expectJsonMatchStrict({
-            ...build3WithoutParentBuildIDs,
+            ...build3,
             status: "approved",
             updatedAt: like("2023-08-08T16:30:52.207Z"),
           });
@@ -999,7 +989,7 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build1.id,
-          parentBuildIDs: [build1.id],
+
           targetParentID: build1.id,
           snapshots: snapshot1,
         }).catch((err) => {
@@ -1012,14 +1002,12 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build2.id,
-          parentBuildIDs: [build2.id],
+
           targetParentID: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
         });
-
-        const { parentBuildIDs, ...build3WithoutParentBuildIDs } = build3;
 
         const buildSnapshots: SnapshotPair[] = await buildTokenAPI
           .getSnapshots(build3.id, IDs.jekyll)
@@ -1036,7 +1024,7 @@ describe(
         await buildTokenAPI
           .getBuild(build3.id, jekyllsToken)
           .expectJsonMatchStrict({
-            ...build3WithoutParentBuildIDs,
+            ...build3,
             status: "unreviewed",
             updatedAt: like("2023-08-08T16:30:52.207Z"),
           });
@@ -1047,7 +1035,7 @@ describe(
           sha: "123456",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build3.id,
-          parentBuildIDs: [build3.id],
+
           targetParentID: build3.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -1073,12 +1061,10 @@ describe(
 
         await buildTokenAPI.abortBuild(build.id, IDs.jekyll);
 
-        const { parentBuildIDs, ...buildWithoutParentBuildIDs } = build;
-
         await buildTokenAPI
           .getBuild(build.id, jekyllsToken)
           .expectJsonMatchStrict({
-            ...buildWithoutParentBuildIDs,
+            ...build,
             status: "aborted",
             updatedAt: like("2023-08-08T16:30:52.207Z"),
           });

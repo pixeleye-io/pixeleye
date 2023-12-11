@@ -32,10 +32,6 @@ export async function storybook(url: string, options: Config) {
     program.error(err);
   });
 
-  if (!build.parentBuildIDs) {
-    noParentBuildFound();
-  }
-
   buildSpinner.succeed("Successfully created build.");
 
   const exitBuild = getExitBuild(api, build.id);
