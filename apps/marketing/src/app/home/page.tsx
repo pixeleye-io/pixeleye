@@ -142,7 +142,7 @@ const browserLogos = [
 ];
 
 
-export function BrowsersCloud() {
+function BrowsersCloud() {
 
   return (
     <div className="bg-surface-container py-24 sm:py-32">
