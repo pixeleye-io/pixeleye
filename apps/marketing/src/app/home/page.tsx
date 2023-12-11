@@ -154,9 +154,9 @@ function BrowsersCloud() {
           {
             browserLogos.map(({ name, logo: Logo }) => (
               <div key={name} className="flex justify-center">
-                <div className="flex flex-col lg:flex-row lg:space-x-4 lg:space-y-0 space-y-4 justify-center items-center w-56">
-                  <Logo className="h-12 w-auto text-on-surface-variant" />
-                  <h4 className="font-bold text-lg text-on-surface-variant">
+                <div className="flex flex-col text-on-surface-variant transition lg:flex-row hover:text-on-surface lg:space-x-4 lg:space-y-0 space-y-4 justify-center items-center w-56">
+                  <Logo className="h-12 w-auto" />
+                  <h4 className="font-bold text-lg">
                     {name}
                   </h4>
                 </div>
