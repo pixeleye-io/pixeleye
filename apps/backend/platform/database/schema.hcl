@@ -590,6 +590,14 @@ table "build" {
     columns = [column.project_id, column.build_number]
     unique  = true
   }
+
+  index "idx_target_parent_id" {
+    columns = [column.target_parent_id]
+  }
+
+  index "idx_target_build_id" {
+    columns = [column.target_build_id]
+  }
 }
 
 table "build_history" {
