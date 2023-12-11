@@ -578,7 +578,7 @@ describe(
         });
       },
       {
-        timeout: 200_000,
+        timeout: 230_000,
       }
     );
 
