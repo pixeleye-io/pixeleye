@@ -141,7 +141,7 @@ func (q *BuildQueries) CompleteBuild(ctx context.Context, id string) (models.Bui
 }
 
 func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
-	selectQuery := `SELECT * FROM build WHERE (status IN ('uploading', 'queued-uploading') AND updated_at < NOW() - INTERVAL '120 minute') OR (status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute') ORDER BY updated_at ASC FOR UPDATE`
+	selectQuery := `SELECT * FROM build WHERE (status IN ('uploading', 'queued-uploading') AND updated_at < NOW() - INTERVAL '120 minute') OR (status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute') ORDER BY created_at ASC FOR UPDATE`
 
 	tx, err := NewBuildTx(q.DB, ctx)
 
