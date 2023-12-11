@@ -221,7 +221,6 @@ describe(
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
           targetBuildID: build1.id,
-
           targetParentID: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
@@ -234,7 +233,6 @@ describe(
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
           targetBuildID: build2.id,
-
           targetParentID: build2.id,
           snapshots: snapshot1,
         }).catch((err) => {
