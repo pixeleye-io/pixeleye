@@ -32,10 +32,6 @@ export async function execHandler(command: string[], options: Config) {
     program.error(err);
   });
 
-  if (!build.parentBuildIDs) {
-    noParentBuildFound();
-  }
-
   buildSpinner.succeed("Successfully created build.");
 
   const exitBuild = getExitBuild(api, build.id);
@@ -64,6 +60,8 @@ export async function execHandler(command: string[], options: Config) {
     pingSpinner.fail("Failed to ping booth server.");
     await exitBuild(err);
   });
+
+  pingSpinner.succeed("Successfully pinged booth server.");
 
   ora(`Running command (${command.join(" ")}) ...`).info();
 

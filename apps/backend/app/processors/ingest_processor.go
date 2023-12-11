@@ -414,7 +414,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 		return fmt.Errorf("no snapshots found for snapshot IDs: %s", strings.Join(snapshotIDs, ", "))
 	}
 
-	build, err := db.GetBuild(snapshots[0].BuildID)
+	build, err := db.GetBuild(ctx, snapshots[0].BuildID)
 	if err != nil {
 		return err
 	}
@@ -442,7 +442,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 	} else {
 
 		fmt.Printf("Build parent ID: %s\n", build.TargetBuildID)
-		parentBuild, err := db.GetBuild(build.TargetBuildID)
+		parentBuild, err := db.GetBuild(ctx, build.TargetBuildID)
 		if err != nil {
 			return err
 		}

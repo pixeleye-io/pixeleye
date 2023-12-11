@@ -38,7 +38,7 @@ func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 
-		build, err := db.GetBuild(buildID)
+		build, err := db.GetBuild(c.Request().Context(), buildID)
 
 		if err != nil {
 			log.Error().Err(err).Msg("error getting build")

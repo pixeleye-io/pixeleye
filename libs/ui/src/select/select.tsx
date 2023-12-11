@@ -13,12 +13,16 @@ const SelectValue = SelectPrimitive.Value;
 
 const SelectTrigger = forwardRef<
   ElementRef<typeof SelectPrimitive.Trigger>,
-  ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+  ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
+    size?: "sm" | "md"
+  }
+>(({ className, children, size, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
     className={cx(
-      "flex h-9 w-full items-center text-on-surface justify-between rounded-md border border-outline bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-surface placeholder:text-on-surface focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+      "flex  w-full items-center text-on-surface justify-between rounded-md border border-outline bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-surface placeholder:text-on-surface focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+      size === "sm" && "h-8",
+      size === "md" && "h-9",
       className
     )}
     {...props}
@@ -41,7 +45,7 @@ const SelectContent = forwardRef<
       className={cx(
         "relative z-50 min-w-[8rem] overflow-hidden rounded-md border border-outline-variant bg-surface-container text-on-surface shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         position === "popper" &&
-          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+        "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
       )}
       position={position}
@@ -51,7 +55,7 @@ const SelectContent = forwardRef<
         className={cx(
           "p-1",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
         {children}

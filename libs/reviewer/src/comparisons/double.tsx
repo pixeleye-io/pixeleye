@@ -34,22 +34,6 @@ export function Double({ draggableImageRef }: DoubleProps) {
   return (
     <div className="overflow-hidden w-full h-full">
       <div className="flex flex-col sm:flex-row h-full w-full space-y-4 sm:space-x-4 sm:space-y-0 overflow-hidden">
-        {validBaseline && (
-          <DraggableImage
-            baseline
-            branch={build.branch}
-            ref={draggableImageRef}
-            base={{
-              src: snapshot.baselineURL!,
-              width: snapshot.baselineWidth!,
-              height: snapshot.baselineHeight!,
-              alt: "Baseline snapshot",
-            }}
-            x={x}
-            y={y}
-            scale={scale}
-          />
-        )}
         {validSnapshot && (
           <DraggableImage
             ref={draggableImageRef}
@@ -64,13 +48,29 @@ export function Double({ draggableImageRef }: DoubleProps) {
             overlay={
               validDiff
                 ? {
-                    src: snapshot.diffURL!,
-                    width: snapshot.diffWidth!,
-                    height: snapshot.diffHeight!,
-                    alt: "Highlighted difference between snapshots",
-                  }
+                  src: snapshot.diffURL!,
+                  width: snapshot.diffWidth!,
+                  height: snapshot.diffHeight!,
+                  alt: "Highlighted difference between snapshots",
+                }
                 : undefined
             }
+            x={x}
+            y={y}
+            scale={scale}
+          />
+        )}
+        {validBaseline && (
+          <DraggableImage
+            baseline
+            branch={build.branch}
+            ref={draggableImageRef}
+            base={{
+              src: snapshot.baselineURL!,
+              width: snapshot.baselineWidth!,
+              height: snapshot.baselineHeight!,
+              alt: "Baseline snapshot",
+            }}
             x={x}
             y={y}
             scale={scale}

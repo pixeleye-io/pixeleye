@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
+    "@pixeleye/device-logos": "workspace:*",
     "@pixeleye/api": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.5",

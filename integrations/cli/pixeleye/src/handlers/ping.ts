@@ -6,7 +6,7 @@ interface Config {
   url: string;
 }
 
-export async function ping(path: string, options: Config) {
+export async function ping(_: unknown, options: Config) {
   const api = API({
     endpoint: options.url,
     token: options.token,

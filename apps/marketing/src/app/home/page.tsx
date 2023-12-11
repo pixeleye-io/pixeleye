@@ -1,5 +1,6 @@
 import {
   ChevronRightIcon,
+  LockClosedIcon,
   ServerIcon,
   WindowIcon,
 } from "@heroicons/react/20/solid";
@@ -10,6 +11,7 @@ import { Metadata } from "next";
 import LogoOrbit from "./logoOrbit";
 import SendGrid from "@sendgrid/client";
 import z from "zod";
+import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "@pixeleye/device-logos";
 
 import {
   ArrowsPointingOutIcon,
@@ -20,6 +22,7 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/solid";
 import { Widget } from "./turnstile";
+import { HighlightedDiff } from "./highlightedDiff";
 
 export const metadata: Metadata = {
   title: "Home | Pixeleye",
@@ -119,6 +122,61 @@ function Hero() {
   );
 }
 
+const browserLogos = [
+  {
+    name: "Chrome",
+    logo: ChromiumLogo,
+  },
+  {
+    name: "Firefox",
+    logo: FirefoxLogo,
+  },
+  {
+    name: "Safari",
+    logo: WebkitLogo,
+  },
+  {
+    name: "Edge",
+    logo: EdgeLogo,
+  },
+];
+
+
+function BrowsersCloud() {
+
+  return (
+    <div className="bg-surface-container py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <h3 className="text-2xl font-semibold text-center mb-12">
+          Capture screenshots across multiple browsers and devices
+        </h3>
+        <div className="mx-auto grid max-w-lg grid-cols-2 sm:grid-cols-4 items-center gap-x-8 gap-y-12 sm:max-w-xl sm:gap-x-10 sm:gap-y-14 lg:mx-0 lg:max-w-none">
+          {
+            browserLogos.map(({ name, logo: Logo }) => (
+              <div key={name} className="flex justify-center">
+                <div className="flex flex-col lg:flex-row lg:space-x-4 lg:space-y-0 space-y-4 justify-center items-center w-56">
+                  <Logo className="h-12 w-auto text-on-surface-variant" />
+                  <h4 className="font-bold text-lg text-on-surface-variant">
+                    {name}
+                  </h4>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div className="mt-16 flex justify-center">
+          <p className="relative rounded-full bg-tertiary-container text-sm leading-6 py-1.5 text-on-surface ring-1 ring-inset ring-tertiary/50">
+            <NextLink href="/playground" className="text-on-tertiary-container space-x-1 py-4  px-4">
+              Give it a go with our <span className="font-bold">Playground</span>
+              <span aria-hidden="true">&rarr;</span>
+            </NextLink>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const features = [
   {
     name: "Cross-browser testing.",
@@ -160,7 +218,7 @@ const features = [
 
 function Features() {
   return (
-    <div className="py-10">
+    <div className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:mx-0">
           <h2 className="text-base font-semibold leading-7 text-tertiary">
@@ -386,6 +444,8 @@ export default function HomePage() {
     <>
       <main>
         <Hero />
+        <BrowsersCloud />
+        <HighlightedDiff />
         <Features />
         <Integrations />
         <CTA />

@@ -590,31 +590,13 @@ table "build" {
     columns = [column.project_id, column.build_number]
     unique  = true
   }
-}
 
-table "build_history" {
-  schema = schema.public
-  column "child_id" {
-    type = varchar(21)
-    null = false
-  }
-  foreign_key "child_id" {
-    columns     = [column.child_id]
-    ref_columns = [table.build.column.id]
-    on_delete   = CASCADE
-  }
-  column "parent_id" {
-    type = varchar(21)
-    null = false
-  }
-  foreign_key "parent_id" {
-    columns     = [column.parent_id]
-    ref_columns = [table.build.column.id]
-    on_delete   = CASCADE
+  index "idx_target_parent_id" {
+    columns = [column.target_parent_id]
   }
 
-  index "idx_build_history-parent_id" {
-    columns = [column.parent_id]
+  index "idx_target_build_id" {
+    columns = [column.target_build_id]
   }
 }
 

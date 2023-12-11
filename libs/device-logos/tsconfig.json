@@ -1,0 +1,5 @@
+{
+  "extends": "@pixeleye/tsconfig/react.json",
+  "include": [".", "../../apps/web/src/components/submitButton"],
+  "exclude": ["dist", "build", "node_modules"]
+}

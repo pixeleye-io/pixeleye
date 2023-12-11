@@ -37,13 +37,14 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  snap.viewport, 
 		  snap.status, 
 		  snap.snap_image_id,
+		  snap.created_at,
 		  0 AS depth 
 		FROM 
 		  snapshot snap 
 		WHERE 
 		  snap.id = $1
 		UNION ALL 
-		  -- Recursive query: Join with build_history to get the next snapshot in the build history
+		  -- Recursive query: Join with build table to get the parent build, then join with snapshot table to get the parent snapshot
 		SELECT 
 		  s.id, 
 		  s.build_id, 
@@ -53,11 +54,14 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.viewport, 
 		  s.status, 
 		  s.snap_image_id,
+		  s.created_at,
 		  f.depth + 1 
 		FROM 
 		  snapshot s 
-		  INNER JOIN build_history bh ON bh.parent_id = s.build_id 
-		  INNER JOIN find_approved_snapshot f ON f.build_id = bh.child_id 
+		  INNER JOIN build snapsBuild on snapsBuild.id = s.build_id
+		  INNER JOIN build parentBuild on parentBuild.target_parent_id = snapsBuild.id
+
+		  INNER JOIN find_approved_snapshot f ON f.build_id = parentBuild.id 
 		WHERE 
 		  s.name = f.name 
 		  AND s.variant = f.variant 

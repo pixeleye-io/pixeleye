@@ -43,8 +43,8 @@ export default function BuildInfoPanel() {
           <InfoLine label="Message">{build.message ?? "No message"}</InfoLine>
           <InfoLine label="Snap count">{snapshotCount}</InfoLine>
           <InfoLine label="Snaps changed">{snapshotsChangedCount}</InfoLine>
-          <InfoLine label="Parent builds">
-            {build.parentBuildIDs?.join(", ") ?? "None"}
+          <InfoLine label="Parent build">
+            {build.targetParentID ?? "None"}
           </InfoLine>
           <InfoLine label="Target">
             {build.targetBuildID ?? "None"}

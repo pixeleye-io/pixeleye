@@ -34,7 +34,6 @@ func (tx *BuildQueriesTx) UpdateBuild(ctx context.Context, build *models.Build) 
 func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) error {
 	selectProjectQuery := `SELECT * FROM project WHERE id = $1 FOR UPDATE`
 	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id, :build_number) RETURNING *`
-	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
 	updateBuildNumber := `UPDATE project SET build_count = $1 WHERE id = $2`
 
 	tx, err := NewBuildTx(q.DB, ctx)
@@ -92,19 +91,6 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 		return err
 	}
 
-	buildHistoryEntries := []models.BuildHistory{}
-
-	for _, parentID := range build.ParentBuildIDs {
-		buildHistoryEntries = append(buildHistoryEntries, models.BuildHistory{ParentID: parentID, ChildID: build.ID})
-	}
-
-	if len(buildHistoryEntries) > 0 {
-		if _, err := tx.NamedExecContext(ctx, buildHistoryQuery, buildHistoryEntries); err != nil {
-			log.Err(err).Msg("Failed to create build history entries")
-			return err
-		}
-	}
-
 	if err := tx.Commit(); err != nil {
 		return err
 	}
@@ -155,7 +141,7 @@ func (q *BuildQueries) CompleteBuild(ctx context.Context, id string) (models.Bui
 }
 
 func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
-	selectQuery := `SELECT * FROM build WHERE (status = 'uploading' AND updated_at < NOW() - INTERVAL '120 minute') OR (status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute') FOR UPDATE`
+	selectQuery := `SELECT * FROM build WHERE (status IN ('uploading', 'queued-uploading') AND updated_at < NOW() - INTERVAL '120 minute') OR (status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute') ORDER BY created_at ASC FOR UPDATE`
 
 	tx, err := NewBuildTx(q.DB, ctx)
 
