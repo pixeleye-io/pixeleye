@@ -12,7 +12,7 @@ import { FC, useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
-import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "./logos";
+import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "@pixeleye/device-logos";
 import { m } from "framer-motion";
 import { useStore } from "zustand";
 

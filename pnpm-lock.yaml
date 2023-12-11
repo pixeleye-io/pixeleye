@@ -103,6 +103,9 @@ importers:
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../../libs/api
+      '@pixeleye/device-logos':
+        specifier: workspace:*
+        version: link:../../libs/device-logos
       '@pixeleye/reviewer':
         specifier: workspace:*
         version: link:../../libs/reviewer
@@ -782,6 +785,25 @@ importers:
         specifier: workspace:*
         version: link:../../configs/tsconfig
 
+  libs/device-logos:
+    dependencies:
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+    devDependencies:
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../configs/eslint-config
+      '@pixeleye/tailwind':
+        specifier: workspace:*
+        version: link:../../configs/tailwind
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../configs/tsconfig
+      '@types/react':
+        specifier: 18.2.37
+        version: 18.2.37
+
   libs/reviewer:
     dependencies:
       '@heroicons/react':
@@ -790,6 +812,9 @@ importers:
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../api
+      '@pixeleye/device-logos':
+        specifier: workspace:*
+        version: link:../device-logos
       '@pixeleye/ui':
         specifier: workspace:*
         version: link:../ui
