@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname === "/") {
       // Users not logged in who are trying to access the homepage are redirected to the actual homepage.
       url.pathname = env.NEXT_PUBLIC_PIXELEYE_HOSTING ? "/home" : "/login";
-      return NextResponse.redirect(url);
+      return NextResponse.rewrite(url);
     }
 
     url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
