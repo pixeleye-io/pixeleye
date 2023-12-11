@@ -24,7 +24,7 @@ export function HighlightedDiff() {
                     </p>
                 </div>
             </div>
-            <div className=" flex  items-center justify-center space-x-4 mt-12">
+            <div className=" flex  max-w-7xl  items-center justify-end mx-auto space-x-4 px-6 lg:px-8 mt-12">
                 <Label>
                     Difference overlay
                 </Label>
