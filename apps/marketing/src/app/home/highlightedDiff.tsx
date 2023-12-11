@@ -38,13 +38,16 @@ export function HighlightedDiff() {
                         <Image
                             src={LightScreenshot}
                             alt="Light screenshot"
-                            className="z-0 absolute inset-0 brightness-75" />
+                            className="z-0 absolute inset-0" />
                         {
                             showDiff && (
-                                <Image
-                                    src={LightDiff}
-                                    alt="Light difference overlay"
-                                    className="absolute inset-0 z-10" />
+                                <>
+                                    <Image
+                                        src={LightDiff}
+                                        alt="Light difference overlay"
+                                        className="absolute inset-0 z-20" />
+                                    <span className="absolute inset-0 z-10 bg-black/5 rounded ml-0.5" />
+                                </>
                             )
                         }
                     </div>
@@ -54,13 +57,16 @@ export function HighlightedDiff() {
                         <Image
                             src={DarkScreenshot}
                             alt="Dark screenshot"
-                            className="z-0 absolute inset-0 brightness-75" />
+                            className="z-0 absolute inset-0" />
                         {
                             showDiff && (
-                                <Image
-                                    src={DarkDiff}
-                                    alt="Dark difference overlay"
-                                    className="absolute inset-0 z-10" />
+                                <>
+                                    <Image
+                                        src={DarkDiff}
+                                        alt="Dark difference overlay"
+                                        className="absolute inset-0 z-20" />
+                                    <span className="absolute inset-0 z-10 bg-black/20 rounded ml-0.5" />
+                                </>
                             )
                         }
                     </div>
