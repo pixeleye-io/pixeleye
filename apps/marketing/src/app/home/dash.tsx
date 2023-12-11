@@ -155,7 +155,9 @@ export default function Example({
 
                         <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
                             <form className="flex flex-1" action="#" method="GET">
-                                <label htmlFor="search-field" className="sr-only">
+                                <label htmlFor={
+                                    offset ? "search-field" : "search-field2"
+                                } className="sr-only">
                                     Search
                                 </label>
                                 <div className="relative w-full">
@@ -164,7 +166,7 @@ export default function Example({
                                         aria-hidden="true"
                                     />
                                     <input
-                                        id="search-field"
+                                        id={offset ? "search-field" : "search-field2"}
                                         className="block h-full w-full border-0 bg-transparent py-0 pl-8 pr-0 text-on-surface focus:ring-0 sm:text-sm placeholder-on-surface-variant"
                                         placeholder="Search..."
                                         type="search"
