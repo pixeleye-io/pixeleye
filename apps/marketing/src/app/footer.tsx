@@ -62,7 +62,7 @@ export default function Footer() {
             </div>
           ))}
         </nav>
-        <div className="mt-10 flex justify-center space-x-10">
+        <div className="mt-10 flex justify-center items-center space-x-10">
 
           {navigation.social.map((item) => (
             <a

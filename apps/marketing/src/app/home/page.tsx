@@ -145,7 +145,7 @@ const browserLogos = [
 function BrowsersCloud() {
 
   return (
-    <div className="bg-surface-container py-24 sm:py-32">
+    <div className="bg-surface-container py-24 sm:py-32 border-y border-outline/20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <h3 className="text-2xl font-semibold text-center mb-12">
           Capture screenshots across multiple browsers and devices
@@ -256,19 +256,19 @@ const integrations = [
   {
     name: "VCS integration.",
     description:
-      "Pixeleye integrates with your VCS, allowing you to sync your roles, see updates on PRs and much more.",
+      "Pixeleye integrates with any git VCS! We also offer extra functionality like permission syncing or PR comments for supported VCSs (Currently only Github).",
     icon: CloudArrowUpIcon,
   },
   {
     name: "CI integration.",
     description:
-      "We've built our tools to support your CI. Pixeleye integrates with your CI, allowing you to run tests on every PR.",
+      "We've built our tools to support your CI. We want you're experience to be as seamless as possible.",
     icon: ServerIcon,
   },
   {
     name: "Framework integration.",
     description:
-      "We have multiple options for taking our screenshots. We're confident we have an option that works for you.",
+      "We have many options for taking our screenshots (Storybook, Cypress, Puppeteer, ...etc). And if we don't have an official integration, our CLI tool more than likely has you covered.",
     icon: CameraIcon,
   },
 ];
@@ -318,7 +318,7 @@ function Integrations() {
 
 function CTA() {
   return (
-    <div className="bg-surface-container-low">
+    <div className="bg-surface-container border-y border-outline/20">
       <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
@@ -439,6 +439,76 @@ function NewsLetter() {
   );
 }
 
+
+const faqs = [
+  {
+    id: 1,
+    question: "What's a snapshot?",
+    answer:
+      "A snapshot is a picture. You can take snapshots of individual components or even of your entire application. We use these snapshots to compare changes in your ui.",
+  },
+  {
+    id: 2,
+    question: "Do you integrate with GitHub, GitLab or Bitbucket?",
+    answer:
+      "Pixeleye will work with any VCS! We currently offer extra functionality for Github (permission syncing, pr comments, ...etc), but have plans to support GitLab and Bitbucket in the future.",
+  },
+  {
+    id: 3,
+    question: "Is there any vendor lock-in?",
+    answer:
+      "No, Pixeleye is open-source and self-hostable. Whilst we're confident you'll love our cloud solution, you can always run Pixeleye yourself.",
+  },
+  {
+    id: 4,
+    question: "What devices can I test on?",
+    answer:
+      "We currently support the Chromium, Firefox and Webkit rendering engines. We offer a range of preset settings for desktop, tablet and mobile devices as well as the ability to create your own.",
+  },
+  {
+    id: 5,
+    question: "Why should I use visual testing?",
+    answer:
+      "Browsers render your UI differently, CSS can have unintended side effects and your UI is constantly changing. Visual testing allows you to catch these issues before they reach production.",
+  },
+  {
+    id: 6,
+    question: "Why should I use your cloud solution?",
+    answer: "Convenience and support. We handle the hosting, maintenance, scaling as well as ensuring you're on the latest version. Plus you'd be supporting Open Source!",
+  },
+];
+
+function FAQ() {
+  return (
+    <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 border-t border-outline-variant">
+      <h2 className="text-2xl font-bold leading-10 tracking-tight text-on-surface">
+        Frequently asked questions
+      </h2>
+      <p className="mt-6 max-w-2xl text-base leading-7 text-on-surface-variant">
+        Have a different question and can’t find the answer you’re looking
+        for? Reach out to our support team by{" "}
+        <Link href="mailto:support@pixeleye.io">sending us an email</Link> and we’ll get back to you as
+        soon as we can.
+      </p>
+      <div className="mt-20">
+        <dl className="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10">
+          {faqs.map((faq) => (
+            <div key={faq.id}>
+              <dt className="text-base font-semibold leading-7 text-on-surface">
+                {faq.question}
+              </dt>
+              <dd className="mt-2 text-base leading-7 text-on-surface-variant">
+                {faq.answer}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+
 export default function HomePage() {
   return (
     <>
@@ -450,6 +520,7 @@ export default function HomePage() {
         <Integrations />
         <CTA />
         <NewsLetter />
+        <FAQ />
       </main>
     </>
   );
