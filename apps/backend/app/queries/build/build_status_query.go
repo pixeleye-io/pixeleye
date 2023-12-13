@@ -60,7 +60,8 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
 
 	query := `UPDATE build SET status = $1 WHERE id = $2`
-	updateChildrenQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2`
+	updateChildrenBuildTargetsQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2 RETURNING id, target_build_id, status`
+	updateChildrenParentTargetsQuery := `UPDATE build SET target_parent_id = $1 WHERE target_parent_id = $2 RETURNING id, target_build_id, status`
 
 	txx, err := q.DB.BeginTxx(ctx, nil)
 	if err != nil {
@@ -74,8 +75,45 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		return err
 	}
 
-	if _, err := txx.ExecContext(ctx, updateChildrenQuery, build.TargetBuildID, build.ID); err != nil {
+	childBuilds := []models.Build{}
+
+	// Since this build is aborted, we want to pass the target build id to the children
+	rows, err := txx.QueryContext(ctx, updateChildrenBuildTargetsQuery, build.TargetBuildID, build.ID)
+	if err != nil {
 		return err
+	}
+
+	for rows.Next() {
+		var childBuild models.Build
+		if err := rows.Scan(&childBuild.ID, &childBuild.TargetBuildID, &childBuild.Status); err != nil {
+			return err
+		}
+		childBuilds = append(childBuilds, childBuild)
+	}
+
+	// Since this build is aborted, we want to pass the target parent id to the children
+	rows, err = txx.QueryContext(ctx, updateChildrenParentTargetsQuery, build.TargetParentID, build.ID)
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var childBuild models.Build
+		if err := rows.Scan(&childBuild.ID, &childBuild.TargetParentID, &childBuild.Status); err != nil {
+			return err
+		}
+
+		found := false
+		for _, b := range childBuilds {
+			if b.ID == childBuild.ID {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			childBuilds = append(childBuilds, childBuild)
+		}
 	}
 
 	if err := txx.Commit(); err != nil {
@@ -93,20 +131,13 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
-		return err
+	for _, childBuild := range childBuilds {
+		if err := q.CheckAndProcessQueuedBuild(ctx, childBuild); err != nil {
+			log.Error().Err(err).Msgf("Failed to check and process queued builds for build %s", childBuild.ID)
+		}
 	}
 
-	if build.TargetBuildID == "" {
-		return nil
-	}
-
-	targetBuild, err := q.GetBuild(ctx, build.TargetBuildID)
-	if err != nil {
-		return err
-	}
-
-	return q.CheckAndProcessQueuedBuilds(ctx, targetBuild)
+	return nil
 }
 
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {

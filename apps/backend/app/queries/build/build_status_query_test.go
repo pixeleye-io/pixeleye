@@ -292,3 +292,118 @@ func TestCalculateBuildStatus(t *testing.T) {
 		})
 	}
 }
+
+func TestAbortBuild(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		build             models.Build
+		childTargetBuilds []models.Build
+		childParentBuilds []models.Build
+		want              string
+	}{
+		{
+			name: "Abort build",
+			build: models.Build{
+				Status:        "processing",
+				TargetBuildID: "",
+			},
+			childTargetBuilds: []models.Build{},
+			want:              "aborted",
+		},
+		{
+			name: "Abort build with target build",
+			build: models.Build{
+				Status:        "processing",
+				TargetBuildID: "targetBuildID",
+			},
+			childTargetBuilds: []models.Build{},
+			want:              "aborted",
+		},
+		{
+			name: "Abort build with target build and child target builds",
+			build: models.Build{
+				Status: "processing",
+				ID:     "targetBuildID",
+			},
+			childTargetBuilds: []models.Build{
+				{
+					ID:             "childTargetBuildID",
+					TargetBuildID:  "targetBuildID",
+					TargetParentID: "",
+					Status:         "processing",
+				},
+			},
+		},
+		{
+			name: "Abort build with target build and child parent builds",
+			build: models.Build{
+				Status: "processing",
+				ID:     "targetBuildID",
+			},
+			childParentBuilds: []models.Build{
+				{
+					ID:             "childParentBuildID",
+					TargetBuildID:  "",
+					TargetParentID: "targetBuildID",
+					Status:         "processing",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+
+		mockDB, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+		defer mockDB.Close()
+		sqlxDB := sqlx.NewDb(mockDB, "sqlmock")
+
+		t.Run(tt.name, func(t *testing.T) {
+
+			mock.ExpectBegin()
+			mock.ExpectExec("UPDATE build SET status = $1 WHERE id = $2").WithArgs(models.BUILD_STATUS_ABORTED, tt.build.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+
+			targetRows := sqlmock.NewRows([]string{"id", "target_build_id", "status"})
+			for _, childTargetBuild := range tt.childTargetBuilds {
+				targetRows.AddRow(childTargetBuild.ID, childTargetBuild.TargetBuildID, childTargetBuild.Status)
+			}
+			mock.ExpectQuery("UPDATE build SET target_build_id = $1 WHERE target_build_id = $2 RETURNING id, target_build_id, status").WithArgs(tt.build.TargetBuildID, tt.build.ID).WillReturnRows(targetRows)
+
+			parentRows := sqlmock.NewRows([]string{"id", "target_build_id", "status"})
+			for _, childParentBuild := range tt.childParentBuilds {
+				parentRows.AddRow(childParentBuild.ID, childParentBuild.TargetBuildID, childParentBuild.Status)
+			}
+			mock.ExpectQuery("UPDATE build SET target_parent_id = $1 WHERE target_parent_id = $2 RETURNING id, target_build_id, status").WithArgs(tt.build.TargetParentID, tt.build.ID).WillReturnRows(parentRows)
+
+			mock.ExpectCommit()
+
+			if tt.build.TargetBuildID != "" {
+
+				rows := sqlmock.NewRows([]string{"id", "status", "target_parent_id"})
+
+				for _, childTargetBuild := range tt.childTargetBuilds {
+					rows.AddRow(childTargetBuild.ID, childTargetBuild.Status, childTargetBuild.TargetParentID)
+				}
+
+				mock.ExpectQuery("SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1").
+					WithArgs(tt.build.TargetBuildID).WillReturnRows(rows)
+			}
+
+			ctx := context.Background()
+
+			db := BuildQueries{sqlxDB}
+
+			if err != nil {
+				t.Errorf("AbortBuild() = %v, want %v", err, tt.want)
+			}
+
+			if err := db.AbortBuild(ctx, tt.build); err != nil {
+				t.Errorf("AbortBuild() = %v, want %v", err, tt.want)
+			}
+
+		})
+	}
+}

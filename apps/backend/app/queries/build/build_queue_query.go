@@ -2,6 +2,7 @@ package build_queries
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/pixeleye-io/pixeleye/app/events"
@@ -36,6 +37,112 @@ func (tx *BuildQueriesTx) GetQueuedSnapshots(ctx context.Context, build *models.
 
 }
 
+func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build models.Build) error {
+	parentBuild, err := q.GetBuild(ctx, build.TargetParentID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if !models.IsBuildPostProcessing(parentBuild.Status) {
+		return nil
+	}
+
+	targetBuild, err := q.GetBuild(ctx, build.TargetBuildID)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if !models.IsBuildPostProcessing(targetBuild.Status) {
+		return nil
+	}
+
+	updateBuild := false
+
+	if parentBuild.Status == models.BUILD_STATUS_FAILED || parentBuild.Status == models.BUILD_STATUS_ABORTED {
+		build.TargetParentID = parentBuild.TargetParentID
+		updateBuild = true
+	}
+
+	if targetBuild.Status == models.BUILD_STATUS_FAILED || targetBuild.Status == models.BUILD_STATUS_ABORTED {
+		build.TargetBuildID = targetBuild.TargetBuildID
+		updateBuild = true
+	}
+
+	tx, err := NewBuildTx(q.DB, ctx)
+	if err != nil {
+		return err
+	}
+
+	if models.IsBuildPreProcessing(build.Status) {
+		log.Debug().Msgf("Build %s is still pre-processing", build.ID)
+
+		build.Status = models.BUILD_STATUS_UPLOADING
+		if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
+			log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
+		}
+
+		return tx.Commit()
+	}
+
+	snaps, err := tx.GetQueuedSnapshots(ctx, &build)
+	if err != nil {
+		if updateBuild {
+			if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
+				return err
+			}
+			return tx.Commit()
+		}
+		return err
+	}
+
+	build.Status = models.BUILD_STATUS_PROCESSING
+	if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
+		log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
+	}
+
+	snapIDs := make([]string, len(snaps))
+	for i, snap := range snaps {
+		snap.Status = models.SNAPSHOT_STATUS_PROCESSING
+		snapIDs[i] = snap.ID
+	}
+
+	stx := snapshot_queries.SnapshotQueriesTx{
+		Tx: tx.Tx,
+	}
+
+	if err := stx.BatchUpdateSnapshotStatus(ctx, snapIDs, models.SNAPSHOT_STATUS_PROCESSING); err != nil {
+		log.Error().Err(err).Msgf("Failed to update snapshots for build %s", build.ID)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	b, err := broker.GetBroker()
+	if err != nil {
+		return err
+	}
+
+	go func(b *broker.Queues, build models.Build, snaps []models.Snapshot) {
+		notifier, err := events.GetNotifier(b)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+
+		notifier.BuildStatusChange(build)
+
+		// We need to queue the snapshots to be ingested
+		if len(snaps) > 0 {
+			if err := b.QueueSnapshotsIngest(snaps); err != nil {
+				log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
+			}
+		}
+	}(b, build, snaps)
+
+	return nil
+}
+
 func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBuild models.Build) error {
 
 	if !models.IsBuildPostProcessing(parentBuild.Status) {
@@ -55,90 +162,12 @@ func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBu
 		return err
 	}
 
-	log.Debug().Msgf("Found %v queued builds for parent: %s", builds, parentBuild.ID)
-
-	snapshots := [][]models.Snapshot{}
-
-	var postUploadingBuilds []models.Build
-
 	for _, build := range builds {
-
-		if parentBuild.Status == models.BUILD_STATUS_FAILED || parentBuild.Status == models.BUILD_STATUS_ABORTED {
-			build.TargetBuildID = parentBuild.TargetBuildID
-		}
-
-		if models.IsBuildPreProcessing(build.Status) {
-			log.Debug().Msgf("Build %s is still pre-processing", build.ID)
-
-			build.Status = models.BUILD_STATUS_UPLOADING
-			if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
-				log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
-			}
-			continue
-		}
-
-		snaps, err := tx.GetQueuedSnapshots(ctx, &build)
+		err = q.CheckAndProcessQueuedBuild(ctx, build)
 		if err != nil {
-			if parentBuild.Status == models.BUILD_STATUS_FAILED || parentBuild.Status == models.BUILD_STATUS_ABORTED {
-				if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
-					log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
-				}
-			}
-			log.Error().Err(err).Msgf("Failed to get queued snapshots for build %s", build.ID)
-		} else {
-
-			build.Status = models.BUILD_STATUS_PROCESSING
-			if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
-				log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
-			}
-
-			snapIDs := make([]string, len(snaps))
-			for i, snap := range snaps {
-				snap.Status = models.SNAPSHOT_STATUS_PROCESSING
-				snapIDs[i] = snap.ID
-			}
-
-			stx := snapshot_queries.SnapshotQueriesTx{
-				Tx: tx.Tx,
-			}
-
-			if err := stx.BatchUpdateSnapshotStatus(ctx, snapIDs, models.SNAPSHOT_STATUS_PROCESSING); err != nil {
-				log.Error().Err(err).Msgf("Failed to update snapshots for build %s", build.ID)
-			}
-
-			snapshots = append(snapshots, snaps)
-			postUploadingBuilds = append(postUploadingBuilds, build)
+			log.Error().Err(err).Msgf("Failed to process queued build %s", build.ID)
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	b, err := broker.GetBroker()
-
-	if err != nil {
-		return err
-	}
-
-	for i, build := range postUploadingBuilds {
-		go func(b *broker.Queues, build models.Build, snaps []models.Snapshot) {
-			notifier, err := events.GetNotifier(b)
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to get notifier")
-				return
-			}
-
-			notifier.BuildStatusChange(build)
-
-			// We need to queue the snapshots to be ingested
-			if len(snaps) > 0 {
-				if err := b.QueueSnapshotsIngest(snaps); err != nil {
-					log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
-				}
-			}
-		}(b, build, snapshots[i])
-	}
-
-	return nil
+	return err
 }
