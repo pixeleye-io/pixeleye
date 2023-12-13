@@ -103,12 +103,14 @@ function Hero() {
           </p>
           <div className="mt-10 flex items-center gap-x-6">
             <Button>Sign up for free</Button>
-            <Link
+            <Link 
+              aschild         
               size="sm"
-              href="/docs/getting-started/introduction"
               className="flex items-center justify-center group"
             >
-              Read our docs
+              <NextLink href="/docs/getting-started/introduction">
+                Read our docs
+              </NextLink>
             </Link>
           </div>
         </div>
