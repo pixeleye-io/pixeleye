@@ -336,10 +336,11 @@ function CTA() {
             <Button>Get started for free</Button>
             <Link
               size="sm"
-              href="/playground"
               className="flex items-center justify-center group"
             >
-              Try our playground
+              <NextLink href="/playground">
+                Try our playground
+              </NextLink>
             </Link>
           </div>
         </div>
