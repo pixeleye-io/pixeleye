@@ -71,7 +71,7 @@ func GetConnection() (*amqp.Connection, error) {
 		var err error
 		globalConnection, err = ConnectAMPQ(url)
 		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to connect to RabbitMQ")
+			log.Error().Err(err).Msg("Failed to connect to RabbitMQ")
 			return nil, err
 		}
 	}
