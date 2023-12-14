@@ -73,6 +73,10 @@ func (q *SnapshotQueries) SetSnapshotsStatus(ctx context.Context, ids []string, 
 
 func (tx *SnapshotQueriesTx) BatchUpdateSnapshotStatus(ctx context.Context, snapshotIDs []string, status string) error {
 
+	if len(snapshotIDs) == 0 {
+		return nil
+	}
+
 	query, args, err := sqlx.In(`UPDATE snapshot SET status = ?, updated_at = ? WHERE id IN (?)`, status, utils.CurrentTime(), snapshotIDs)
 
 	if err != nil {

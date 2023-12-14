@@ -60,8 +60,8 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
 
 	query := `UPDATE build SET status = $1 WHERE id = $2`
-	updateChildrenBuildTargetsQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2 RETURNING id, target_build_id, status`
-	updateChildrenParentTargetsQuery := `UPDATE build SET target_parent_id = $1 WHERE target_parent_id = $2 RETURNING id, target_build_id, status`
+	updateChildrenBuildTargetsQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2 RETURNING id, target_build_id, target_parent_id, status`
+	updateChildrenParentTargetsQuery := `UPDATE build SET target_parent_id = $1 WHERE target_parent_id = $2 RETURNING id, target_build_id, target_parent_id, status`
 
 	txx, err := q.DB.BeginTxx(ctx, nil)
 	if err != nil {
@@ -85,7 +85,7 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 
 	for rows.Next() {
 		var childBuild models.Build
-		if err := rows.Scan(&childBuild.ID, &childBuild.TargetBuildID, &childBuild.Status); err != nil {
+		if err := rows.Scan(&childBuild.ID, &childBuild.TargetBuildID, &childBuild.TargetParentID, &childBuild.Status); err != nil {
 			return err
 		}
 		childBuilds = append(childBuilds, childBuild)
@@ -99,7 +99,7 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 
 	for rows.Next() {
 		var childBuild models.Build
-		if err := rows.Scan(&childBuild.ID, &childBuild.TargetParentID, &childBuild.Status); err != nil {
+		if err := rows.Scan(&childBuild.ID, &childBuild.TargetParentID, &childBuild.TargetBuildID, &childBuild.Status); err != nil {
 			return err
 		}
 

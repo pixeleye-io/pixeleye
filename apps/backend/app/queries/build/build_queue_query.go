@@ -76,6 +76,8 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 	if models.IsBuildPreProcessing(build.Status) {
 		log.Debug().Msgf("Build %s is still pre-processing", build.ID)
 
+		// TODO - we should still queue the snapshots for ingestion
+
 		build.Status = models.BUILD_STATUS_UPLOADING
 		if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
 			log.Error().Err(err).Msgf("Failed to update build %s", build.ID)
@@ -86,6 +88,7 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 
 	snaps, err := tx.GetQueuedSnapshots(ctx, &build)
 	if err != nil {
+		log.Err(err).Msgf("Failed to get queued snapshots for build %s", build.ID)
 		if updateBuild {
 			if err := tx.UpdateBuildStatusAndParent(ctx, &build); err != nil {
 				return err
