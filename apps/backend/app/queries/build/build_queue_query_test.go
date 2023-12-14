@@ -100,7 +100,7 @@ func TestCheckAndProcessQueuedBuild(t *testing.T) {
 			mock.ExpectQuery("SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1").WithArgs(build.TargetBuildID).WillReturnRows(sqlmock.NewRows([]string{"id", "status"}).AddRow(build.TargetBuildID, models.BUILD_STATUS_REJECTED))
 
 			mock.ExpectBegin()
-			mock.ExpectExec("UPDATE build SET status = ?, target_build_id = ?, target_parent_id = ?, updated_at = ? WHERE id = ?").WithArgs(models.BUILD_STATUS_PROCESSING, build.TargetBuildID, "new_parent_build_id", sqlmock.AnyArg(), build.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+			mock.ExpectExec("UPDATE build SET status = ?, target_build_id = ?, target_parent_id = ?, updated_at = ? WHERE id = ?").WithArgs(models.BUILD_STATUS_UPLOADING, build.TargetBuildID, "new_parent_build_id", sqlmock.AnyArg(), build.ID).WillReturnResult(sqlmock.NewResult(1, 1))
 			mock.ExpectCommit()
 
 			err := q.CheckAndProcessQueuedBuild(ctx, build)
