@@ -17,6 +17,12 @@ export const getCommit = async () => {
 };
 
 // Get merge base of current branch and target branch
-export const getMergeBase = async (prBranch: string) => {
+export const getMergeBase = async (prBranch?: string) => {
+
+
+  // TODO - Some Ci environments may provide this information as an env var
+
+  if (!prBranch) return undefined;
+
   return (await $`git merge-base HEAD ${prBranch}`).stdout;
 };

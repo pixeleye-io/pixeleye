@@ -10,7 +10,6 @@ import { APIType } from "../api";
  * 3. No match found, user needs to intervene and create a patch build
  */
 export async function getParentBuild(api: APIType) {
-  // TODO - this should return an array of builds
   const env = await getEnvironment();
 
   const shas = await getParentShas(128);
@@ -53,6 +52,43 @@ export async function getParentBuild(api: APIType) {
   return null;
 }
 
+async function getTargetBuild(api: APIType) {
+  const env = await getEnvironment();
+
+  if (!env.targetBranch) {
+    throw new Error("No target branch found");
+  } else if (!env.targetCommit) {
+    throw new Error("No target commit found");
+  }
+
+  const builds = await api
+    .post("/v1/client/builds", {
+      body: {
+        shas: [env.targetCommit],
+      },
+    })
+    .catch((err) => {
+      if (err.status === 401) {
+        throw new Error("Unauthorized, please check your token");
+      }
+    });
+
+  const build = builds?.[0];
+
+  if (build) {
+    return build;
+  }
+
+  // TODO - we should add a limit search query to this API
+  const branchBuild = await api.post("/v1/client/builds", {
+    queries: {
+      branch: env.targetBranch,
+    },
+  });
+
+  return branchBuild[0];
+}
+
 export async function createBuild(api: APIType) {
   const env = await getEnvironment();
 
@@ -62,13 +98,20 @@ export async function createBuild(api: APIType) {
     throw new Error("No commit found");
   }
 
-  const { targetParent, parents } = (await getParentBuild(api)) || {};
+  const { targetParent } = (await getParentBuild(api)) || {};
+  
+
+  let targetBuildID = targetParent?.id;
+  if (env.isPR) {
+    const targetBuild = await getTargetBuild(api);
+    targetBuildID = targetBuild.id;
+  }
 
   const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildID: targetParent?.id, // TODO - We should get the target if we are on a PR
+      targetBuildID,
       targetParentID: targetParent?.id,
     },
   });
