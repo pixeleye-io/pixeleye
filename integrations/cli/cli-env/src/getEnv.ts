@@ -35,7 +35,8 @@ export async function getEnvironment(): Promise<Environment> {
     isPR: isPr,
     targetBranch: process.env.PIXELEYE_TARGET_BRANCH || prBranch,
     targetCommit:
-      process.env.PIXELEYE_TARGET_COMMIT ||
-      (await getMergeBase(prBranch).catch(() => undefined)),
+      process.env.PIXELEYE_TARGET_COMMIT || isPr
+        ? await getMergeBase(prBranch).catch(() => undefined)
+        : undefined,
   };
 }

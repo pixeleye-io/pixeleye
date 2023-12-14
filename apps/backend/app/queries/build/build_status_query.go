@@ -59,7 +59,7 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 
 func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
 
-	query := `UPDATE build SET status = $1 WHERE id = $2`
+	query := `UPDATE build SET status = $1, target_parent_id = '', target_build_id = '' WHERE id = $2`
 	updateChildrenBuildTargetsQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2 RETURNING id, target_build_id, target_parent_id, status`
 	updateChildrenParentTargetsQuery := `UPDATE build SET target_parent_id = $1 WHERE target_parent_id = $2 RETURNING id, target_build_id, target_parent_id, status`
 
