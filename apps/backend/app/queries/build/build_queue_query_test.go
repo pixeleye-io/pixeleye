@@ -89,7 +89,7 @@ func TestCheckAndProcessQueuedBuild(t *testing.T) {
 
 		build := models.Build{
 			ID:             "buildID",
-			Status:         models.BUILD_STATUS_PROCESSING,
+			Status:         models.BUILD_STATUS_QUEUED_UPLOADING,
 			TargetParentID: "parentBuildID",
 			TargetBuildID:  "targetBuildID",
 		}
