@@ -121,12 +121,14 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 		return err
 	}
 
-	b, err := broker.GetBroker()
-	if err != nil {
-		return err
-	}
+	go func(build models.Build, snaps []models.Snapshot) {
 
-	go func(b *broker.Queues, build models.Build, snaps []models.Snapshot) {
+		b, err := broker.GetBroker()
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get broker")
+			return
+		}
+
 		notifier, err := events.GetNotifier(b)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to get notifier")
@@ -141,7 +143,7 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 				log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
 			}
 		}
-	}(b, build, snaps)
+	}(build, snaps)
 
 	return nil
 }
