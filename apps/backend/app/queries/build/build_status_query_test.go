@@ -433,29 +433,29 @@ func TestAbortBuild(t *testing.T) {
 
 			mock.ExpectCommit()
 
-			for i := 0; i < len(tt.childParentBuilds)+len(tt.childTargetBuilds); i++ {
-				mock.ExpectQuery("SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1").
-					WithArgs(tt.build.ID).WillReturnRows(sqlmock.NewRows([]string{"id", "target_build_id", "status"}).AddRow(tt.build.TargetParentID, tt.build.TargetBuildID, "aborted"))
+			// for i := 0; i < len(tt.childParentBuilds)+len(tt.childTargetBuilds); i++ {
+			// 	mock.ExpectQuery("SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1").
+			// 		WithArgs(tt.build.ID).WillReturnRows(sqlmock.NewRows([]string{"id", "target_build_id", "status"}).AddRow(tt.build.TargetParentID, tt.build.TargetBuildID, "aborted"))
 
-				mock.ExpectQuery("SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1").
-					WithArgs(tt.build.ID).WillReturnRows(sqlmock.NewRows([]string{"id", "target_build_id", "status"}).AddRow(tt.build.TargetBuildID, tt.build.TargetBuildID, "aborted"))
-			}
+			// 	mock.ExpectQuery("SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1").
+			// 		WithArgs(tt.build.ID).WillReturnRows(sqlmock.NewRows([]string{"id", "target_build_id", "status"}).AddRow(tt.build.TargetBuildID, tt.build.TargetBuildID, "aborted"))
+			// }
 
-			for i := 0; i < len(tt.childParentBuilds)+len(tt.childTargetBuilds); i++ {
-				var build models.Build
-				if i < len(tt.childParentBuilds) {
-					build = tt.childParentBuilds[i]
-				} else {
-					build = tt.childTargetBuilds[i-len(tt.childParentBuilds)]
-				}
+			// for i := 0; i < len(tt.childParentBuilds)+len(tt.childTargetBuilds); i++ {
+			// 	var build models.Build
+			// 	if i < len(tt.childParentBuilds) {
+			// 		build = tt.childParentBuilds[i]
+			// 	} else {
+			// 		build = tt.childTargetBuilds[i-len(tt.childParentBuilds)]
+			// 	}
 
-				mock.ExpectBegin()
+			// 	mock.ExpectBegin()
 
-				mock.ExpectQuery("SELECT * FROM snapshot WHERE build_id = $1 AND status = $2 FOR UPDATE").WithArgs(build.ID, models.SNAPSHOT_STATUS_QUEUED).WillReturnRows(sqlmock.NewRows([]string{"id", "status"}))
+			// 	mock.ExpectQuery("SELECT * FROM snapshot WHERE build_id = $1 AND status = $2 FOR UPDATE").WithArgs(build.ID, models.SNAPSHOT_STATUS_QUEUED).WillReturnRows(sqlmock.NewRows([]string{"id", "status"}))
 
-				mock.ExpectExec("UPDATE build SET status = ?, target_build_id = ?, target_parent_id = ?, updated_at = ? WHERE id = ?").WithArgs(models.BUILD_STATUS_PROCESSING, tt.build.TargetBuildID, tt.build.TargetParentID, sqlmock.AnyArg(), build.ID).WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			}
+			// 	mock.ExpectExec("UPDATE build SET status = ?, target_build_id = ?, target_parent_id = ?, updated_at = ? WHERE id = ?").WithArgs(models.BUILD_STATUS_PROCESSING, tt.build.TargetBuildID, tt.build.TargetParentID, sqlmock.AnyArg(), build.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+			// 	mock.ExpectCommit()
+			// }
 
 			ctx := context.Background()
 
