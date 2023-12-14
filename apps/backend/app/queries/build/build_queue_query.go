@@ -39,7 +39,7 @@ func (tx *BuildQueriesTx) GetQueuedSnapshots(ctx context.Context, build *models.
 
 func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build models.Build) error {
 
-	if build.Status != models.BUILD_STATUS_QUEUED_PROCESSING && build.Status != models.BUILD_STATUS_QUEUED_UPLOADING {
+	if models.IsBuildPostProcessing(build.Status) {
 		return nil
 	}
 
