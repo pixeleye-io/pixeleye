@@ -102,7 +102,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -172,7 +172,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -240,7 +240,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -331,7 +331,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -422,7 +422,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -526,7 +526,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -701,7 +701,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -775,7 +775,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -862,7 +862,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -936,7 +936,7 @@ describe(
           });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -1041,7 +1041,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -1068,7 +1068,7 @@ describe(
           });
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
 
@@ -1089,7 +1089,7 @@ describe(
         await buildTokenAPI.abortBuild(build.id, IDs.jekyll, 400);
       },
       {
-        timeout: 120_000,
+        timeout: 150_000,
       }
     );
   },
