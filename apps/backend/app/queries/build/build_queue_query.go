@@ -38,6 +38,11 @@ func (tx *BuildQueriesTx) GetQueuedSnapshots(ctx context.Context, build *models.
 }
 
 func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build models.Build) error {
+
+	if build.Status != models.BUILD_STATUS_QUEUED_PROCESSING && build.Status != models.BUILD_STATUS_QUEUED_UPLOADING {
+		return nil
+	}
+
 	parentBuild, err := q.GetBuild(ctx, build.TargetParentID)
 	if err != nil && err != sql.ErrNoRows {
 		return err
