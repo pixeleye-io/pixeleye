@@ -76,6 +76,7 @@ export async function createBuildWithSnapshots({
   token,
   branch,
   sha,
+  targetParentID,
   expectedBuildStatus,
   targetBuildID,
   snapshots,
@@ -85,6 +86,7 @@ export async function createBuildWithSnapshots({
       .createBuild(token, {
         branch,
         sha,
+        targetParentID,
         targetBuildID,
       })
       .returns(({ res }: any) => {
