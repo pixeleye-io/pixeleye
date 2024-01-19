@@ -104,11 +104,14 @@ function Hero() {
           <div className="mt-10 flex items-center gap-x-6">
             <Button>Sign up for free</Button>
             <Link
+              asChild
               size="sm"
-              href="/docs/getting-started/introduction"
-              className="flex items-center justify-center group"
             >
-              Read our docs
+              <NextLink
+                href="/docs/getting-started/introduction"
+                className="flex items-center justify-center group"
+                Read our docs
+              ></NextLink>
             </Link>
           </div>
         </div>
@@ -333,11 +336,15 @@ function CTA() {
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Button>Get started for free</Button>
             <Link
+              asChild
               size="sm"
-              href="/playground"
-              className="flex items-center justify-center group"
+
             >
-              Try our playground
+              <NextLink
+                href="/playground"
+                className="flex items-center justify-center group">
+                Try our playground
+              </NextLink>
             </Link>
           </div>
         </div>
