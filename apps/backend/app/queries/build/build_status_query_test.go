@@ -138,8 +138,7 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"missing_baseline",
 			},
 			build: models.Build{
-				Status:         "processing",
-				TargetParentID: "targetParentID",
+				Status: "processing",
 			},
 			want: "unchanged",
 		},
@@ -167,8 +166,7 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"rejected",
 			},
 			build: models.Build{
-				Status:         "processing",
-				TargetParentID: "targetParentID",
+				Status: "processing",
 			},
 			want: "rejected",
 		},
@@ -234,9 +232,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"unreviewed",
 			},
 			build: models.Build{
-				Status:         "processing",
-				TargetBuildID:  "targetBuildID",
-				TargetParentID: "targetParentID",
+				Status:        "processing",
+				TargetBuildID: "targetBuildID",
 			},
 			want: "unreviewed",
 		},
@@ -246,9 +243,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"unreviewed",
 			},
 			build: models.Build{
-				Status:         "failed",
-				TargetBuildID:  "targetBuildID",
-				TargetParentID: "targetParentID",
+				Status:        "failed",
+				TargetBuildID: "targetBuildID",
 			},
 			want: "failed",
 		},

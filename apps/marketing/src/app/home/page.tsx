@@ -109,9 +109,9 @@ function Hero() {
             >
               <NextLink
                 href="/docs/getting-started/introduction"
-                className="flex items-center justify-center group"
+                className="flex items-center justify-center group">
                 Read our docs
-              ></NextLink>
+              </NextLink>
             </Link>
           </div>
         </div>

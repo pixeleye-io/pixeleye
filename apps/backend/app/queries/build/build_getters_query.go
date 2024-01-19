@@ -49,7 +49,7 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 func (q *BuildQueries) GetBuild(ctx context.Context, id string) (models.Build, error) {
 	build := models.Build{}
 
-	query := `SELECT build.*, NOT EXISTS(SELECT build.id FROM build WHERE target_parent_id = $1) AS is_latest FROM build WHERE id = $1`
+	query := `SELECT build.*, NOT EXISTS(SELECT * FROM build_history WHERE parent_id = $1) AS is_latest FROM build WHERE id = $1`
 
 	err := q.GetContext(ctx, &build, query, id)
 
@@ -74,4 +74,14 @@ func (q *BuildQueries) CountBuildSnapshots(ctx context.Context, buildID string) 
 	err := q.GetContext(ctx, &count, query, buildID)
 
 	return count, err
+}
+
+func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string) ([]models.Build, error) {
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1`
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
 }

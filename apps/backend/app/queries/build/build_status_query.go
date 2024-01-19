@@ -122,7 +122,7 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return "", err
 	}
 
-	if build.TargetBuildID == "" && build.TargetParentID == "" {
+	if build.TargetBuildID == "" && len(build.ParentIDs) == 0 {
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
