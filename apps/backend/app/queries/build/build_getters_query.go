@@ -76,10 +76,23 @@ func (q *BuildQueries) CountBuildSnapshots(ctx context.Context, buildID string) 
 	return count, err
 }
 
-func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string) ([]models.Build, error) {
+type GetBuildParentsOpts struct {
+	IncludeAborted bool
+	IncludeFailed  bool
+}
+
+func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts *GetBuildParentsOpts) ([]models.Build, error) {
 	builds := []models.Build{}
 
 	query := `SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1`
+
+	if !opts.IncludeAborted {
+		query += ` AND build.status != 'aborted'`
+	}
+
+	if !opts.IncludeFailed {
+		query += ` AND build.status != 'failed'`
+	}
 
 	err := q.SelectContext(ctx, &builds, query, buildID)
 

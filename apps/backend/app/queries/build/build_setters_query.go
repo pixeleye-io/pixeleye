@@ -53,7 +53,7 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 	}
 
 	// We need to check if the ancestors of this build have completed, otherwise we need to queue this build
-	if parents, err := q.GetBuildParents(ctx, build.ID); err != sql.ErrNoRows && err != nil {
+	if parents, err := q.GetBuildParents(ctx, build.ID, nil); err != sql.ErrNoRows && err != nil {
 		return err
 	} else {
 		isFinished := true

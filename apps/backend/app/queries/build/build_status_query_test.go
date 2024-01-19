@@ -138,7 +138,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"missing_baseline",
 			},
 			build: models.Build{
-				Status: "processing",
+				Status:    "processing",
+				ParentIDs: []string{"parentID"},
 			},
 			want: "unchanged",
 		},
@@ -166,7 +167,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"rejected",
 			},
 			build: models.Build{
-				Status: "processing",
+				Status:    "processing",
+				ParentIDs: []string{"parentID"},
 			},
 			want: "rejected",
 		},
