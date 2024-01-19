@@ -326,6 +326,48 @@ func RejectAllSnapshots(c echo.Context) error {
 	return setAllSnapshotsStatus(c, models.SNAPSHOT_STATUS_REJECTED)
 }
 
+func GetParentBuilds(c echo.Context) error {
+	project := middleware.GetProject(c)
+
+	type Body struct {
+		Shas   []string `json:"shas"`
+		Branch string   `json:"branch"`
+	}
+
+	body := Body{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if len(body.Shas) > 128 {
+		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	builds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, body.Shas)
+	if err != nil {
+		return err
+	}
+
+	if len(builds) > 0 {
+		return c.JSON(http.StatusOK, builds)
+	}
+
+	build, err := db.GetBuildFromBranch(project.ID, body.Branch)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	builds = append(builds, build)
+
+	return c.JSON(http.StatusOK, builds)
+}
+
 // Search Builds method for searching builds.
 // @Description Search builds.
 // @Summary search builds

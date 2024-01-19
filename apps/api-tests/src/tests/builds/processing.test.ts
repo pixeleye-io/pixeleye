@@ -279,8 +279,6 @@ describe(
             branch: "dev",
             sha: "1234",
             targetBuildID: rawBuild1!.id,
-
-            targetParentID: rawBuild1!.id,
           })
           .returns(({ res }: any) => {
             rawBuild2 = res.json;
@@ -370,8 +368,6 @@ describe(
             branch: "dev",
             sha: "1234",
             targetBuildID: rawBuild1!.id,
-
-            targetParentID: rawBuild1!.id,
           })
           .returns(({ res }: any) => {
             rawBuild2 = res.json;

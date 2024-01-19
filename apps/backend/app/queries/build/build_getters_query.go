@@ -46,6 +46,25 @@ func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (mod
 	return build, err
 }
 
+func (q *BuildQueries) GetBuildsFromCommits(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
+
+	builds := []models.Build{}
+
+	// TODO - This query can definitely be improved. The difficulty is getting a list of builds which could all be children to our new build
+	query, args, err := sqlx.In(`SELECT * FROM build WHERE project_id = ? AND status NOT IN ('aborted', 'failed') AND sha IN (?) ORDER BY build_number`, projectID, shas, shas)
+	if err != nil {
+		return builds, err
+	}
+
+	query = q.Rebind(query)
+
+	if err := q.SelectContext(ctx, &builds, query, args...); err != nil {
+		return builds, err
+	}
+
+	return builds, nil
+}
+
 func (q *BuildQueries) GetBuild(ctx context.Context, id string) (models.Build, error) {
 	build := models.Build{}
 

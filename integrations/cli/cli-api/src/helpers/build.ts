@@ -9,7 +9,7 @@ import { APIType } from "../api";
  * 2. If not found, we send off a list of previous commits to the API in the hopes we can find a match
  * 3. No match found, user needs to intervene and create a patch build
  */
-export async function getParentBuild(api: APIType) {
+export async function getParentBuilds(api: APIType) {
   // TODO - this should return an array of builds
   const env = await getEnvironment();
 
@@ -17,9 +17,10 @@ export async function getParentBuild(api: APIType) {
   const branch = env.branch;
 
   const builds = await api
-    .post("/v1/client/builds", {
+    .post("/v1/client/builds/parents", {
       body: {
         shas,
+        branch,
       },
     })
     .catch((err) => {
@@ -28,29 +29,7 @@ export async function getParentBuild(api: APIType) {
       }
     });
 
-  const build = builds!.find((build) => shas.some((sha) => sha === build.sha));
-
-  if (build) {
-    return {
-      targetParent: build,
-      parents: builds,
-    };
-  }
-
-  const branchBuild = await api.post("/v1/client/builds", {
-    queries: {
-      branch,
-    },
-  });
-
-  if (branchBuild.length > 0) {
-    return {
-      targetParent: branchBuild[0],
-      parents: builds,
-    };
-  }
-
-  return null;
+  return builds;
 }
 
 export async function createBuild(api: APIType) {
@@ -62,14 +41,18 @@ export async function createBuild(api: APIType) {
     throw new Error("No commit found");
   }
 
-  const { targetParent, parents } = (await getParentBuild(api)) || {};
+  const parents = await getParentBuilds(api) || [];
+
+  const sameBranchParent = parents?.find(
+    (build) => build.branch === env.branch
+  );
 
   const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildID: targetParent?.id, // TODO - We should get the target if we are on a PR
-      targetParentID: targetParent?.id,
+      targetBuildID: (sameBranchParent || parents[0]).id, // TODO - We should get the target if we are on a PR
+      parentIDs: parents?.map((build) => build.id),
     },
   });
 
