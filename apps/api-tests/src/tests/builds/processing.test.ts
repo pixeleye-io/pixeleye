@@ -198,11 +198,7 @@ describe(
             img: dirtyEyePng,
             name: "button",
           },
-          {
-            hash: nanoid(40),
-            img: cleanEyePng,
-            name: "input",
-          },
+          snapshot1[1],
         ];
 
         const build1 = await createBuildWithSnapshots({
