@@ -48,6 +48,7 @@ type POST = Method<{
     };
     queries?: {
       branch?: string;
+      limit?: number;
     };
   };
   "/v1/client/builds/parents": {

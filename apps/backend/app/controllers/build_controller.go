@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -326,48 +327,6 @@ func RejectAllSnapshots(c echo.Context) error {
 	return setAllSnapshotsStatus(c, models.SNAPSHOT_STATUS_REJECTED)
 }
 
-func GetParentBuilds(c echo.Context) error {
-	project := middleware.GetProject(c)
-
-	type Body struct {
-		Shas   []string `json:"shas"`
-		Branch string   `json:"branch"`
-	}
-
-	body := Body{}
-
-	if err := c.Bind(&body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	if len(body.Shas) > 128 {
-		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
-	}
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	builds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, body.Shas)
-	if err != nil {
-		return err
-	}
-
-	if len(builds) > 0 {
-		return c.JSON(http.StatusOK, builds)
-	}
-
-	build, err := db.GetBuildFromBranch(project.ID, body.Branch)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	builds = append(builds, build)
-
-	return c.JSON(http.StatusOK, builds)
-}
-
 // Search Builds method for searching builds.
 // @Description Search builds.
 // @Summary search builds
@@ -381,6 +340,7 @@ func GetParentBuilds(c echo.Context) error {
 // @Success 200 {object} []models.Build
 // @Router /v1/builds [post]
 func SearchBuilds(c echo.Context) error {
+
 	project := middleware.GetProject(c)
 
 	builds := []models.Build{}
@@ -392,6 +352,7 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	branch := c.QueryParam("branch")
+	limit := c.QueryParam("limit") // TODO - we should parse this to the sql query to limit there too
 
 	if branch != "" {
 		build, err := db.GetBuildFromBranch(project.ID, branch)
@@ -404,7 +365,8 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	type Body struct {
-		Shas []string `json:"shas"`
+		Shas              []string `json:"shas"`
+		ExcludeDependents bool     `json:"excludeDependents"`
 	}
 
 	body := Body{}
@@ -426,6 +388,17 @@ func SearchBuilds(c echo.Context) error {
 				return err
 			}
 			builds = append(builds, build)
+		}
+	}
+
+	if limit != "" {
+		limitInt, err := strconv.Atoi(limit)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		if limitInt < len(builds) {
+			builds = builds[:limitInt]
 		}
 	}
 

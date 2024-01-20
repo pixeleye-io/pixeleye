@@ -23,7 +23,6 @@ func ProjectTokenRoutes(e *echo.Echo) {
 	buildIDV1.GET("/events", controllers.SubscribeToBuild)
 	v1.POST("/snapshots/upload", controllers.CreateUploadURL)
 	v1.POST("/builds", controllers.SearchBuilds)
-	v1.POST("/builds/parents", controllers.GetParentBuilds)
 
 	buildIDV1.GET("", controllers.GetBuild)
 	v1.GET("/snapshots/:hash", controllers.GetSnapURL) //TODO move this out of project token routes

@@ -1,5 +1,32 @@
-import { getEnvironment, getParentShas } from "@pixeleye/cli-env";
+import { getEnvironment, getParentShas, isAncestor } from "@pixeleye/cli-env";
 import { APIType } from "../api";
+import { Build } from "@pixeleye/api";
+
+export const filterDependantBuilds = async (builds: Build[]) => {
+  let filteredBuilds: Build[] = [builds[0]];
+  for (const build of builds.slice(1)) {
+    const buildsToRemove: Build[] = [];
+    for (const filteredBuild of filteredBuilds) {
+      if (build.sha === filteredBuild.sha) {
+        if (build.buildNumber > filteredBuild.buildNumber) {
+          buildsToRemove.push(filteredBuild);
+          filteredBuilds.push(build);
+        }
+      } else if (await isAncestor(filteredBuild.sha, build.sha)) {
+        filteredBuilds.push(build);
+        buildsToRemove.push(filteredBuild);
+      } else if (!(await isAncestor(build.sha, filteredBuild.sha))) {
+        filteredBuilds.push(build);
+      }
+    }
+
+    filteredBuilds = filteredBuilds.filter((build) => {
+      return !buildsToRemove.includes(build);
+    });
+  }
+
+  return filteredBuilds;
+};
 
 /**
  * Get the parent builds of the current build
@@ -17,10 +44,9 @@ export async function getParentBuilds(api: APIType) {
   const branch = env.branch;
 
   const builds = await api
-    .post("/v1/client/builds/parents", {
+    .post("/v1/client/builds", {
       body: {
         shas,
-        branch,
       },
     })
     .catch((err) => {
@@ -29,7 +55,21 @@ export async function getParentBuilds(api: APIType) {
       }
     });
 
-  return builds;
+  if (builds) {
+    return builds;
+  }
+
+  const branchBuild = await api.post("/v1/client/builds", {
+    queries: {
+      branch,
+    },
+  });
+
+  if (branchBuild.length > 0) {
+    return builds;
+  }
+
+  return [];
 }
 
 export async function createBuild(api: APIType) {
@@ -41,18 +81,22 @@ export async function createBuild(api: APIType) {
     throw new Error("No commit found");
   }
 
-  const parents = await getParentBuilds(api) || [];
+  const parentBuilds = (await getParentBuilds(api)) || [];
 
-  const sameBranchParent = parents?.find(
+  const filteredParentBuilds = await filterDependantBuilds(parentBuilds);
+
+  const branchParent = filteredParentBuilds.find(
     (build) => build.branch === env.branch
   );
+
+  console.log({ parentBuilds, filteredParentBuilds, branchParent });
 
   const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildID: (sameBranchParent || parents[0]).id, // TODO - We should get the target if we are on a PR
-      parentIDs: parents?.map((build) => build.id),
+      targetBuildID: (branchParent || filteredParentBuilds[0])?.id, // TODO - We should get the target if we are on a PR
+      parentIDs: filteredParentBuilds?.map((build) => build.id),
     },
   });
 
