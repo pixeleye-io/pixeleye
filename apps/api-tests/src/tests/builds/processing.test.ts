@@ -281,7 +281,7 @@ describe(
             branch: "dev asap",
             sha: "1234",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
-            parentBuildIds: rawBuild1!.id,
+            parentBuildIds: [rawBuild1!.id],
             snapshots: snapshot2,
           }).catch((err) => {
             throw err;
@@ -291,7 +291,7 @@ describe(
             branch: "dev asap",
             sha: "12345",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
-            parentBuildIds: rawBuild2!.id,
+            parentBuildIds: [rawBuild2!.id],
             snapshots: snapshot2,
           }).catch((err) => {
             throw err;
@@ -353,7 +353,7 @@ describe(
           .createBuild(jekyllsToken, {
             branch: "dev",
             sha: "1234",
-            targetBuildID: rawBuild1!.id,
+            parentIDs: [rawBuild1!.id],
           })
           .returns(({ res }: any) => {
             rawBuild2 = res.json;
@@ -366,7 +366,7 @@ describe(
             branch: "dev asap",
             sha: "1234",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
-            parentBuildIds: rawBuild1!.id,
+            parentBuildIds: [rawBuild1!.id],
             snapshots: snapshot2,
           }).catch((err) => {
             throw err;
