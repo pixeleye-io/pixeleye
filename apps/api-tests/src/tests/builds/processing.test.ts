@@ -268,7 +268,7 @@ describe(
           .createBuild(jekyllsToken, {
             branch: "dev",
             sha: "1234",
-            targetBuildID: rawBuild1!.id,
+            parentIDs: [rawBuild1!.id],
           })
           .returns(({ res }: any) => {
             rawBuild2 = res.json;
