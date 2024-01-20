@@ -272,6 +272,13 @@ func TestCalculateBuildStatus(t *testing.T) {
 			mock.ExpectBegin()
 			mock.ExpectQuery("SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE").WillReturnRows(rows)
 
+			parentRows := sqlmock.NewRows([]string{"id"})
+			for _, parentID := range tt.build.ParentIDs {
+				parentRows.AddRow(parentID)
+			}
+
+			mock.ExpectQuery("SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status != 'aborted' AND build.status != 'failed'").WillReturnRows(parentRows)
+
 			ctx := context.Background()
 
 			tx, err := NewBuildTx(sqlxDB, ctx)
