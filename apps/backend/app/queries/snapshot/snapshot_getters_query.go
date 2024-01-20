@@ -57,14 +57,14 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.created_at,
 		  f.depth + 1 
 		FROM 
-		  snapshot s 
+		  snapshot s
 		  INNER JOIN build_history bh ON bh.child_id = s.build_id
-		  Inner JOIN build b ON b.id = bh.parent_id
+		  INNER JOIN build b ON b.id = bh.parent_id
 		  INNER JOIN find_approved_snapshot f ON f.build_id = b.id
 
 		WHERE 
 
-		  NOT b.status in ('aborted', 'failed')
+		  b.status NOT in ('aborted', 'failed')
 
 		  s.name = f.name 
 		  AND s.variant = f.variant 
