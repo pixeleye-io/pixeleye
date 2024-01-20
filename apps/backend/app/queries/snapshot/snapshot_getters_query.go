@@ -66,7 +66,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 
 		  b.status NOT in ('aborted', 'failed')
 
-		  s.name = f.name 
+		  AND s.name = f.name 
 		  AND s.variant = f.variant 
 		  AND s.viewport = f.viewport 
 		  AND s.target = f.target
