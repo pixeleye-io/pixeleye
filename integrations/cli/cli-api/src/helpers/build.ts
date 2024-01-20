@@ -3,6 +3,10 @@ import { APIType } from "../api";
 import { Build } from "@pixeleye/api";
 
 export const filterDependantBuilds = async (builds: Build[]) => {
+  if (builds.length === 0) {
+    return [];
+  }
+  
   let filteredBuilds: Build[] = [builds[0]];
   for (const build of builds.slice(1)) {
     const buildsToRemove: Build[] = [];
