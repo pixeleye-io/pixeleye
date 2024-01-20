@@ -151,5 +151,7 @@ export async function createBuildWithSnapshots({
     })(),
   ]);
 
-  return build!;
+  const {parentIDs, ...buildWithoutParents} = build!
+
+  return buildWithoutParents!;
 }
