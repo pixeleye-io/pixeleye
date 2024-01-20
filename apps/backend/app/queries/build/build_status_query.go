@@ -122,14 +122,7 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return "", err
 	}
 
-	buildDB := BuildQueries{DB: tx.DB}
-
-	buildParents, err := buildDB.GetBuildParents(ctx, build.ID, nil)
-	if err != nil {
-		return "", err
-	}
-
-	if build.TargetBuildID == "" && len(buildParents) == 0 {
+	if build.TargetBuildID == "" {
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
