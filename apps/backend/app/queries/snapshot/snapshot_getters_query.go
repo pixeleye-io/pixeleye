@@ -58,8 +58,8 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  f.depth + 1 
 		FROM 
 		  snapshot s
-		  INNER JOIN build_history bh ON bh.child_id = s.build_id
-		  INNER JOIN build b ON b.id = bh.parent_id
+		  INNER JOIN build_history bh ON bh.parent_id = s.build_id
+		  INNER JOIN build b ON b.id = bh.child_id
 		  INNER JOIN find_approved_snapshot f ON f.build_id = b.id
 
 		WHERE 
