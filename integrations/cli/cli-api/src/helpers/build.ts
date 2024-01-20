@@ -6,7 +6,7 @@ export const filterDependantBuilds = async (builds: Build[]) => {
   if (builds.length === 0) {
     return [];
   }
-  
+
   let filteredBuilds: Build[] = [builds[0]];
   for (const build of builds.slice(1)) {
     const buildsToRemove: Build[] = [];
@@ -92,8 +92,6 @@ export async function createBuild(api: APIType) {
   const branchParent = filteredParentBuilds.find(
     (build) => build.branch === env.branch
   );
-
-  console.log({ parentBuilds, filteredParentBuilds, branchParent });
 
   const build = api.post("/v1/client/builds/create", {
     body: {
