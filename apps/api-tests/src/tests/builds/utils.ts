@@ -10,8 +10,7 @@ export interface CreateBuildOptions {
   token: string;
   branch: string;
   sha: string;
-  targetParentID?: string;
-  targetBuildID?: string;
+  parentBuildIds?: string[] | string;
   expectedBuildStatus: Build["status"][];
   snapshots: {
     hash: string;
@@ -77,7 +76,7 @@ export async function createBuildWithSnapshots({
   branch,
   sha,
   expectedBuildStatus,
-  targetBuildID,
+  parentBuildIds,
   snapshots,
 }: CreateBuildOptions) {
   if (build === undefined) {
@@ -85,7 +84,7 @@ export async function createBuildWithSnapshots({
       .createBuild(token, {
         branch,
         sha,
-        targetBuildID,
+        parentIDs: typeof parentBuildIds === "string" ? [parentBuildIds] : parentBuildIds,
       })
       .returns(({ res }: any) => {
         build = res.json;

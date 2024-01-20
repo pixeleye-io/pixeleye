@@ -82,8 +82,7 @@ describe(
           branch: "main",
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build1.id,
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots,
         }).catch((err) => {
           throw err;
@@ -94,8 +93,7 @@ describe(
           branch: "main",
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build2.id,
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots,
         }).catch((err) => {
           throw err;
@@ -152,8 +150,7 @@ describe(
           branch: "dev",
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build1.id,
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -164,8 +161,7 @@ describe(
           branch: "dev",
           sha: "12345",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build1.id,
-          targetParentID: build2.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -216,8 +212,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build1.id,
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -228,8 +223,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build2.id,
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot1,
         }).catch((err) => {
           throw err;
@@ -287,9 +281,7 @@ describe(
             branch: "dev asap",
             sha: "1234",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
-            targetBuildID: rawBuild1!.id,
-
-            targetParentID: rawBuild1!.id,
+            parentBuildIds: rawBuild1!.id,
             snapshots: snapshot2,
           }).catch((err) => {
             throw err;
@@ -299,9 +291,7 @@ describe(
             branch: "dev asap",
             sha: "12345",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
-            targetBuildID: rawBuild2!.id,
-
-            targetParentID: rawBuild2!.id,
+            parentBuildIds: rawBuild2!.id,
             snapshots: snapshot2,
           }).catch((err) => {
             throw err;
@@ -376,9 +366,7 @@ describe(
             branch: "dev asap",
             sha: "1234",
             expectedBuildStatus: ["queued-processing", "unreviewed"],
-            targetBuildID: rawBuild1!.id,
-
-            targetParentID: rawBuild1!.id,
+            parentBuildIds: rawBuild1!.id,
             snapshots: snapshot2,
           }).catch((err) => {
             throw err;
@@ -388,9 +376,7 @@ describe(
             branch: "dev asap",
             sha: "12345",
             expectedBuildStatus: ["queued-processing", "unchanged"],
-            targetBuildID: rawBuild2!.id,
-
-            targetParentID: rawBuild2!.id,
+            parentBuildIds: rawBuild2!.id,
             snapshots: snapshot1,
           }).catch((err) => {
             throw err;
@@ -496,9 +482,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -509,9 +493,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot3,
         }).catch((err) => {
           throw err;
@@ -548,9 +530,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: [],
         }).catch((err) => {
           throw err;
@@ -561,9 +541,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: [],
         }).catch((err) => {
           throw err;
@@ -658,9 +636,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -671,9 +647,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot3,
         }).catch((err) => {
           throw err;
@@ -684,9 +658,7 @@ describe(
           branch: "test",
           sha: "123456",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build3.id,
-
-          targetParentID: build3.id,
+          parentBuildIds: build3.id,
           snapshots: snapshot4,
         }).catch((err) => {
           throw err;
@@ -731,9 +703,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -758,9 +728,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -805,9 +773,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -832,9 +798,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["rejected"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -845,9 +809,7 @@ describe(
           branch: "test",
           sha: "123456",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build3.id,
-
-          targetParentID: build3.id,
+          parentBuildIds: build3.id,
           snapshots: snapshot1,
         }).catch((err) => {
           throw err;
@@ -892,9 +854,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot1,
         }).catch((err) => {
           throw err;
@@ -905,9 +865,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -978,9 +936,7 @@ describe(
           branch: "test",
           sha: "1234",
           expectedBuildStatus: ["unchanged"],
-          targetBuildID: build1.id,
-
-          targetParentID: build1.id,
+          parentBuildIds: build1.id,
           snapshots: snapshot1,
         }).catch((err) => {
           throw err;
@@ -991,9 +947,7 @@ describe(
           branch: "test",
           sha: "12345",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build2.id,
-
-          targetParentID: build2.id,
+          parentBuildIds: build2.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
@@ -1024,9 +978,7 @@ describe(
           branch: "test",
           sha: "123456",
           expectedBuildStatus: ["unreviewed"],
-          targetBuildID: build3.id,
-
-          targetParentID: build3.id,
+          parentBuildIds: build3.id,
           snapshots: snapshot2,
         }).catch((err) => {
           throw err;
