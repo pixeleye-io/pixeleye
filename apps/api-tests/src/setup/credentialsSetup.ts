@@ -22,7 +22,7 @@ function getOryAuthAPI(): FrontendApi {
     new Configuration({
       accessToken: `bearer ${env.ORY_API_KEY}`,
     }),
-    env.KRATOS_ADMIN_URL
+    env.ORY_ENDPOINT
   );
   return oryAuthAPI;
 }
@@ -30,7 +30,7 @@ function getOryAuthAPI(): FrontendApi {
 // Requires an ory api key
 async function createOryIdentity(id: IDs = IDs.jekyll) {
   const identity = await fetch(
-    (env.KRATOS_ADMIN_URL) + "/admin/identities",
+    (env.ORY_ENDPOINT) + "/admin/identities",
     {
       method: "POST",
       headers: {

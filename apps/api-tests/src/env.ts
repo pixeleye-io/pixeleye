@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    KRATOS_ADMIN_URL: z.string().url(),
+    ORY_ENDPOINT: z.string().url(),
     ORY_API_KEY: z.string().min(1),
     SERVER_ENDPOINT: z.string().url(),
   },
