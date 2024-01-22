@@ -1,7 +1,7 @@
 import { Build, PartialSnapshot } from "@pixeleye/api";
 import { buildTokenAPI } from "../../routes/build";
 import { snapshotTokenAPI } from "../../routes/snapshots";
-import { fetch, request } from "undici";
+import { fetch } from "undici";
 import EventSource from "eventsource";
 import { env } from "../../env";
 
@@ -29,7 +29,7 @@ async function waitForBuildStatus(
   return new Promise<void>((resolve, reject) => {
     let didProcess = false;
     const es = new EventSource(
-      `${env.BACKEND_URL}/v1/client/builds/${build?.id}/events`,
+      `${env.SERVER_ENDPOINT}/v1/client/builds/${build?.id}/events`,
       {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
