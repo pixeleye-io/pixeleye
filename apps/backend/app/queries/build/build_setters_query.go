@@ -2,7 +2,6 @@ package build_queries
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -52,22 +51,15 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 		return err
 	}
 
-	// We need to check if the ancestors of this build have completed, otherwise we need to queue this build
-	if parents, err := q.GetBuildParents(ctx, build.ID, nil); err != sql.ErrNoRows && err != nil {
-		return err
-	} else {
-		isFinished := true
-		for _, parent := range parents {
-			if !models.IsBuildPostProcessing(parent.Status) {
-				isFinished = false
-				break
-			}
-		}
+	build.Status = models.BUILD_STATUS_UPLOADING
 
-		if isFinished {
-			build.Status = models.BUILD_STATUS_UPLOADING
-		} else {
+	// We need to check if the ancestors of this build have completed, otherwise we need to queue this build
+	for _, parentID := range parentIds {
+		if parentBuild, err := tx.GetBuildForUpdate(ctx, parentID); err != nil {
+			return err
+		} else if !models.IsBuildPostProcessing(parentBuild.Status) {
 			build.Status = models.BUILD_STATUS_QUEUED_UPLOADING
+			break
 		}
 	}
 

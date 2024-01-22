@@ -84,7 +84,10 @@ export async function createBuildWithSnapshots({
       .createBuild(token, {
         branch,
         sha,
-        parentIDs: typeof parentBuildIds === "string" ? [parentBuildIds] : parentBuildIds,
+        parentIDs:
+          typeof parentBuildIds === "string"
+            ? [parentBuildIds]
+            : parentBuildIds,
       })
       .returns(({ res }: any) => {
         build = res.json;
@@ -151,7 +154,7 @@ export async function createBuildWithSnapshots({
     })(),
   ]);
 
-  const {parentIDs, ...buildWithoutParents} = build!
+  const { parentIDs, ...buildWithoutParents } = build!;
 
   return buildWithoutParents!;
 }
