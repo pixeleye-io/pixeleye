@@ -3,7 +3,7 @@ import { env } from "../env";
 import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
 
-const teamEndpoint = env.BACKEND_URL + "/v1/teams/";
+const teamEndpoint = env.SERVER_ENDPOINT + "/v1/teams/";
 
 export type ProjectBody = Pick<Project, "name" | "url" | "source">;
 

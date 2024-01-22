@@ -1,7 +1,7 @@
 import { env } from "../env";
 import { specWithBuildToken } from "../specs";
 
-const snapshotEndpoint = env.BACKEND_URL + "/v1/client/snapshots";
+const snapshotEndpoint = env.SERVER_ENDPOINT + "/v1/client/snapshots";
 
 export const snapshotTokenAPI = {
   uploadSnapshot: (

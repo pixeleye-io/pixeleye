@@ -3,9 +3,9 @@ import { env } from "../env";
 import { specAsUser, specWithBuildToken } from "../specs";
 import { IDs } from "../setup/credentialsSetup";
 
-const buildClientEndpoint = env.BACKEND_URL + "/v1/client/builds";
+const buildClientEndpoint = env.SERVER_ENDPOINT + "/v1/client/builds";
 
-const buildEndpoint = env.BACKEND_URL + "/v1/builds";
+const buildEndpoint = env.SERVER_ENDPOINT + "/v1/builds";
 
 export const buildTokenAPI = {
   createBuild: (
