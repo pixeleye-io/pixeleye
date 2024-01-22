@@ -36,7 +36,6 @@ jobs:
       GITHUB_APP_NAME: "pixeleye-io"
       ORY_URL: ${{ secrets.ORY_ENDPOINT }}
       NEXT_PUBLIC_BACKEND_URL: "http://localhost:5000"
-      
 
     steps:
       - uses: actions/checkout@v3
