@@ -2,8 +2,8 @@ import { env } from "../env";
 import { IDs } from "../setup/credentialsSetup";
 import { specAsUser } from "../specs";
 
-const projectEndpoint = env.SERVER_ENDPOINT + "/v1/projects";
-const inviteEndpoint = env.SERVER_ENDPOINT + "/v1/invites/";
+const projectEndpoint = env.BACKEND_URL + "/v1/projects";
+const inviteEndpoint = env.BACKEND_URL + "/v1/invites/";
 
 export const projectAPI = {
   acceptInvite: (inviteID: string, user?: IDs, expectedStatus = 201) =>
