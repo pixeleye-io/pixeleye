@@ -30,8 +30,8 @@ type Build struct {
 
 	BuildNumber int `db:"build_number" json:"buildNumber"`
 
-	TargetParentID string `db:"target_parent_id" json:"targetParentID,omitempty" validate:"omitempty,nanoid"`
-	TargetBuildID  string `db:"target_build_id" json:"targetBuildID,omitempty" validate:"omitempty,nanoid"`
+	ParentIDs     []string `json:"parentIDs,omitempty" validate:"omitempty,dive,nanoid"`
+	TargetBuildID string   `db:"target_build_id" json:"targetBuildID,omitempty" validate:"omitempty,nanoid"`
 
 	IsLatest bool `db:"is_latest" json:"isLatest"`
 

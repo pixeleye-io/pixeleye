@@ -1,7 +1,7 @@
 import { Build, PartialSnapshot } from "@pixeleye/api";
 import { buildTokenAPI } from "../../routes/build";
 import { snapshotTokenAPI } from "../../routes/snapshots";
-import { fetch, request } from "undici";
+import { fetch } from "undici";
 import EventSource from "eventsource";
 import { env } from "../../env";
 
@@ -10,8 +10,7 @@ export interface CreateBuildOptions {
   token: string;
   branch: string;
   sha: string;
-  targetParentID?: string;
-  targetBuildID?: string;
+  parentBuildIds?: string[] | string;
   expectedBuildStatus: Build["status"][];
   snapshots: {
     hash: string;
@@ -76,9 +75,8 @@ export async function createBuildWithSnapshots({
   token,
   branch,
   sha,
-  targetParentID,
   expectedBuildStatus,
-  targetBuildID,
+  parentBuildIds,
   snapshots,
 }: CreateBuildOptions) {
   if (build === undefined) {
@@ -86,8 +84,10 @@ export async function createBuildWithSnapshots({
       .createBuild(token, {
         branch,
         sha,
-        targetParentID,
-        targetBuildID,
+        parentIDs:
+          typeof parentBuildIds === "string"
+            ? [parentBuildIds]
+            : parentBuildIds,
       })
       .returns(({ res }: any) => {
         build = res.json;
@@ -154,5 +154,7 @@ export async function createBuildWithSnapshots({
     })(),
   ]);
 
-  return build!;
+  const { parentIDs, ...buildWithoutParents } = build!;
+
+  return buildWithoutParents!;
 }

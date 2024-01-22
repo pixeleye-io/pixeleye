@@ -12,6 +12,7 @@ type BuildQueries struct {
 
 type BuildQueriesTx struct {
 	*sqlx.Tx
+	DB *sqlx.DB
 }
 
 func NewBuildTx(db *sqlx.DB, ctx context.Context) (*BuildQueriesTx, error) {
@@ -21,5 +22,8 @@ func NewBuildTx(db *sqlx.DB, ctx context.Context) (*BuildQueriesTx, error) {
 		return nil, err
 	}
 
-	return &BuildQueriesTx{tx}, nil
+	return &BuildQueriesTx{
+		Tx: tx,
+		DB: db,
+	}, nil
 }

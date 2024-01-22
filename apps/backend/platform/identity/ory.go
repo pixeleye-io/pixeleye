@@ -15,7 +15,7 @@ func getOryAdminClient() *client.APIClient {
 	}
 	cfg := client.NewConfiguration()
 	cfg.Servers = client.ServerConfigurations{
-		{URL: os.Getenv("ORY_ADMIN_URL")},
+		{URL: os.Getenv("ORY_URL")},
 	}
 
 	_oryClient = client.NewAPIClient(cfg)

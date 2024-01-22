@@ -48,6 +48,14 @@ type POST = Method<{
     };
     queries?: {
       branch?: string;
+      limit?: number;
+    };
+  };
+  "/v1/client/builds/parents": {
+    res: Build[];
+    req?: {
+      shas?: string[];
+      branch?: string;
     };
   };
   "/v1/client/builds/{id}/abort": {

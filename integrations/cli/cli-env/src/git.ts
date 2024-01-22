@@ -20,3 +20,8 @@ export const getCommit = async () => {
 export const getMergeBase = async (prBranch: string) => {
   return (await $`git merge-base HEAD ${prBranch}`).stdout;
 };
+
+export const isAncestor = async (sha1: string, sha2: string) => {
+  return (await $`git merge-base --is-ancestor ${sha1} ${sha2}`).exitCode === 0;
+};
+

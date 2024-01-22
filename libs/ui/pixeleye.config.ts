@@ -1,5 +1,5 @@
 const config = {
-  token: "pxi__Mzws__WU7QTNYW9HOJuickOmIl2ttV6V:nHOoQbYdoUyKz10xqvwf",
+  token: "pxi__2pAuYnMmmvo_fVjbhJZS47tMSbulEUi2:lnx_k9R-9lVDdqMZYjZkj",
   endpoint: "http://localhost:5000",
   storybookOptions: {
     variants: [
@@ -12,7 +12,6 @@ const config = {
         params: "globals=theme:light",
       },
     ],
-  },
-};
+  }};
 
 export default config;

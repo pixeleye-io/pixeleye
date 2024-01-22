@@ -2,7 +2,6 @@ package build_queries
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -33,11 +32,13 @@ func (tx *BuildQueriesTx) UpdateBuild(ctx context.Context, build *models.Build) 
 // Creates a new build and updates the build history table accordingly
 func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) error {
 	selectProjectQuery := `SELECT * FROM project WHERE id = $1 FOR UPDATE`
-	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_parent_id, target_build_id, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_parent_id, :target_build_id, :build_number) RETURNING *`
+	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, target_build_id, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :target_build_id, :build_number) RETURNING *`
 	updateBuildNumber := `UPDATE project SET build_count = $1 WHERE id = $2`
+	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
+
+	parentIds := build.ParentIDs
 
 	tx, err := NewBuildTx(q.DB, ctx)
-
 	if err != nil {
 		return err
 	}
@@ -50,18 +51,16 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 		return err
 	}
 
-	parent, err := tx.GetBuildForUpdate(ctx, build.TargetParentID)
+	build.Status = models.BUILD_STATUS_UPLOADING
 
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
-
-	if err != sql.ErrNoRows && !models.IsBuildPostProcessing(parent.Status) {
-		// We can't start processing this build until the parent build has finished processing
-		log.Debug().Msgf("Parent build %s is still processing", parent.ID)
-		build.Status = models.BUILD_STATUS_QUEUED_UPLOADING
-	} else {
-		build.Status = models.BUILD_STATUS_UPLOADING
+	// We need to check if the ancestors of this build have completed, otherwise we need to queue this build
+	for _, parentID := range parentIds {
+		if parentBuild, err := tx.GetBuildForUpdate(ctx, parentID); err != nil {
+			return err
+		} else if !models.IsBuildPostProcessing(parentBuild.Status) {
+			build.Status = models.BUILD_STATUS_QUEUED_UPLOADING
+			break
+		}
 	}
 
 	time := utils.CurrentTime()
@@ -71,8 +70,8 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 
 	build.BuildNumber = project.BuildCount + 1
 
+	// TODO - I think I can just remove this returned build stuff
 	returnedBuild, err := tx.NamedQuery(insertBuildQuery, build)
-
 	if err != nil {
 		return err
 	}
@@ -89,6 +88,19 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 
 	if _, err := tx.ExecContext(ctx, updateBuildNumber, build.BuildNumber, build.ProjectID); err != nil {
 		return err
+	}
+
+	buildHistoryEntries := []models.BuildHistory{}
+
+	for _, parentID := range parentIds {
+		buildHistoryEntries = append(buildHistoryEntries, models.BuildHistory{ParentID: parentID, ChildID: build.ID})
+	}
+
+	if len(buildHistoryEntries) > 0 {
+		if _, err := tx.NamedExecContext(ctx, buildHistoryQuery, buildHistoryEntries); err != nil {
+			log.Err(err).Msg("Failed to create build history entries")
+			return err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {

@@ -36,7 +36,6 @@ jobs:
       GITHUB_APP_NAME: "pixeleye-io"
       ORY_URL: ${{ secrets.ORY_ENDPOINT }}
       NEXT_PUBLIC_BACKEND_URL: "http://localhost:5000"
-      
 
     steps:
       - uses: actions/checkout@v3
@@ -202,7 +201,6 @@ jobs:
           S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
 
           ORY_URL: ${{ secrets.ORY_ENDPOINT }}
-          ORY_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
           ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
 
         run: go run main.go & pnpm turbo test:api
