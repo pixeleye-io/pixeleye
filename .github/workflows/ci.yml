@@ -202,7 +202,6 @@ jobs:
           S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
 
           KRATOS_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
-          ORY_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
           ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
 
         run: go run main.go & pnpm turbo test:api
