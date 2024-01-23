@@ -50,6 +50,11 @@ type BuildHistory struct {
 	ChildID  string `db:"child_id" json:"childID" validate:"required,nanoid"`
 }
 
+type BuildTarget struct {
+	BuildID  string `db:"build_id" json:"buildID" validate:"required,nanoid"`
+	TargetID string `db:"target_id" json:"targetID" validate:"required,nanoid"`
+}
+
 func IsBuildPreProcessing(status string) bool {
 	return status == BUILD_STATUS_UPLOADING || status == BUILD_STATUS_QUEUED_UPLOADING
 }
