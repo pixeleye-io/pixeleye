@@ -203,3 +203,13 @@ func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
 
 	return nil
 }
+
+func (q *BuildQueries) FailSnapshotsBuild(ctx context.Context, snapshotID string) error {
+	query := `UPDATE build SET status = 'failed' WHERE id = (SELECT build_id FROM snapshot WHERE id = $1)`
+
+	if _, err := q.ExecContext(ctx, query, snapshotID); err != nil {
+		return err
+	}
+
+	return nil
+}
