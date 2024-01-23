@@ -131,7 +131,6 @@ func GetBuild(c echo.Context) error {
 	}
 
 	build, err := db.GetBuildWithDependencies(c.Request().Context(), middlewareBuild.ID)
-
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
