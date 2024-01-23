@@ -120,7 +120,17 @@ func CreateBuild(c echo.Context) error {
 
 func GetBuild(c echo.Context) error {
 
-	build, err := middleware.GetBuild(c)
+	middlewareBuild, err := middleware.GetBuild(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	build, err := db.GetBuildWithDependencies(c.Request().Context(), middlewareBuild.ID)
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())

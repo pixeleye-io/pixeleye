@@ -56,6 +56,34 @@ func (q *BuildQueries) GetBuild(ctx context.Context, id string) (models.Build, e
 	return build, err
 }
 
+func (q *BuildQueries) GetBuildWithDependencies(ctx context.Context, id string) (models.Build, error) {
+
+	build, err := q.GetBuild(ctx, id)
+	if err != nil {
+		return build, err
+	}
+
+	parents, err := q.GetBuildParents(ctx, id, nil)
+	if err != nil {
+		return build, err
+	}
+
+	targets, err := q.GetBuildTargets(ctx, id, nil)
+	if err != nil {
+		return build, err
+	}
+
+	for _, parent := range parents {
+		build.ParentIDs = append(build.ParentIDs, parent.ID)
+	}
+
+	for _, target := range targets {
+		build.TargetBuildIDs = append(build.TargetBuildIDs, target.ID)
+	}
+
+	return build, nil
+}
+
 func (tx *BuildQueriesTx) GetBuildForUpdate(ctx context.Context, id string) (models.Build, error) {
 	build := models.Build{}
 
@@ -117,7 +145,7 @@ func (q *BuildQueries) GetBuildChildren(ctx context.Context, buildID string) ([]
 // This assumes that all dependencies of the build have been processed
 // This will add any builds failed/aborted parents to our parent list. We will also be leaving the failed/aborted parents in the list
 func (q *BuildQueries) SquashFailedOrAbortedParents(ctx context.Context, buildID string) error {
-	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, build_history.child_id  FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, build_history.child_id FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
 
 	_, err := q.ExecContext(ctx, query, buildID)
 
