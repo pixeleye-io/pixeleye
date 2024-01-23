@@ -253,7 +253,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 	}
 
 	if models.IsBuildPostProcessing(build.Status) {
-		if err := q.CheckAndProcessQueuedBuild(ctx, build); err != nil {
+		if err := q.ProcessBuildDependents(ctx, build); err != nil {
 			return &build, err
 		}
 	}

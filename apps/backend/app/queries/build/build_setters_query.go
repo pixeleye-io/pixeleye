@@ -196,7 +196,7 @@ func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
 	}
 
 	for _, build := range builds {
-		if err := q.CheckAndProcessQueuedBuild(ctx, build); err != nil {
+		if err := q.ProcessBuildDependents(ctx, build); err != nil {
 			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
 		}
 	}
