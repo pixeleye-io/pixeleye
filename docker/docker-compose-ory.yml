@@ -10,11 +10,6 @@ services:
       - PGPORT=5431
     ports:
       - "5431:5431"
-    # volumes:
-    #   - type: volume
-    #     source: postgres-data
-    #     target: /var/lib/postgresql/data
-    #     read_only: false
     networks:
       - intranet
   kratos-migrate:
@@ -22,10 +17,6 @@ services:
     environment:
       - DSN=postgres://kratos:secret@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
-      # - type: volume
-      #   source: kratos-sqlite
-      #   target: /var/lib/sqlite
-      #   read_only: false
       - type: bind
         source: ./kratos
         target: /etc/config/kratos
@@ -46,10 +37,6 @@ services:
       - LOG_LEVEL=trace
     command: serve -c /etc/config/kratos/kratos.yml --watch-courier
     volumes:
-    #   - type: volume
-    #     source: kratos-sqlite
-    #     target: /var/lib/sqlite
-    #     read_only: false
       - type: bind
         source: ./kratos
         target: /etc/config/kratos
@@ -66,5 +53,4 @@ networks:
   intranet:
 
 volumes:
-  # kratos-sqlite:
   postgres-data:
