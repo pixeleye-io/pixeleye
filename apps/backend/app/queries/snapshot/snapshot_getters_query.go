@@ -116,6 +116,23 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(ctx context.Context, buildID strin
 	return snapshots, err
 }
 
+func (q *SnapshotQueries) GetLatestSnapshots(ctx context.Context, buildIDs []string) ([]models.Snapshot, error) {
+	snapshots := []models.Snapshot{}
+
+	query := `SELECT DISTINCT ON (name, variant, target, viewport) * FROM snapshot WHERE build_id IN (?) ORDER BY created_at DESC`
+
+	query, args, err := sqlx.In(query, buildIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	query = q.Rebind(query)
+
+	err = q.SelectContext(ctx, &snapshots, query, args...)
+
+	return snapshots, err
+}
+
 func (q *SnapshotQueries) GetUnreviewedSnapshotsByBuild(ctx context.Context, buildID string) ([]models.Snapshot, error) {
 	snapshots := []models.Snapshot{}
 

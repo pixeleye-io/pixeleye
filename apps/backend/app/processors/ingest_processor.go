@@ -426,7 +426,12 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
 
-	if len(build.TargetBuildIDs) == 0 {
+	targetBuilds, err := db.GetBuildTargets(ctx, build.ID, nil)
+	if err != nil {
+		return err
+	}
+
+	if len(targetBuilds) == 0 {
 		log.Info().Str("BuildID", build.ID).Msg("Build has no target builds, marking all snapshots as orphaned")
 
 		if err = db.SetSnapshotsStatus(ctx, snapshotIDs, models.SNAPSHOT_STATUS_ORPHANED); err != nil {
@@ -441,17 +446,17 @@ func IngestSnapshots(snapshotIDs []string) error {
 		}
 	} else {
 
-		parentBuild, err := db.GetBuild(ctx, build.TargetBuildID)
+		targetIDs := []string{}
+		for _, target := range targetBuilds {
+			targetIDs = append(targetIDs, target.ID)
+		}
+
+		targetSnapshots, err := db.GetLatestSnapshots(ctx, targetIDs)
 		if err != nil {
 			return err
 		}
 
-		parentBuildSnapshots, err := db.GetSnapshotsByBuild(ctx, parentBuild.ID)
-		if err != nil {
-			return err
-		}
-
-		if err := compareBuilds(ctx, project, snapshots, parentBuildSnapshots, build); err != nil {
+		if err := compareBuilds(ctx, project, snapshots, targetSnapshots, build); err != nil {
 			return err
 		}
 	}

@@ -9,7 +9,7 @@ export const BuildZod = z.object({
   buildNumber: z.number().int(),
 
   parentIDs: z.array(z.string().length(21)).optional(),
-  targetBuildID: z.string().length(21).optional(),
+  targetBuildIDs: z.array(z.string().length(21)).optional(),
 
   isLatest: z.boolean().optional(),
 

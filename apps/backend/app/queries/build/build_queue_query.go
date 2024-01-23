@@ -41,16 +41,20 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 		return nil
 	}
 
+	// Make sure we have correct parents and targets. If they have failed/aborted we should use their parents/targets
+	if err := q.SquashDependencies(ctx, build.ID); err != nil {
+		return err
+	}
+
+	if models.IsBuildFailedOrAborted(build.Status) {
+		return nil
+	}
+
 	// Lets check if all the builds dependencies are done
 	if fin, err := q.AreBuildDependenciesPostProcessing(ctx, build); err != nil {
 		return err
 	} else if !fin {
 		return nil
-	}
-
-	// Make sure we have correct parents and targets. If they have failed/aborted we should use their parents/targets
-	if err := q.SquashDependencies(ctx, build.ID); err != nil {
-		return err
 	}
 
 	b, err := broker.GetBroker()

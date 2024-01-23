@@ -89,15 +89,11 @@ export async function createBuild(api: APIType) {
 
   const filteredParentBuilds = await filterDependantBuilds(parentBuilds);
 
-  const branchParent = filteredParentBuilds.find(
-    (build) => build.branch === env.branch
-  );
-
   const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildID: (branchParent || filteredParentBuilds[0])?.id, // TODO - We should get the target if we are on a PR
+      targetBuildIDs: filteredParentBuilds?.map((build) => build.id), // TODO - We should get the target if we are on a PR
       parentIDs: filteredParentBuilds?.map((build) => build.id),
     },
   });

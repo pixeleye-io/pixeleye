@@ -59,26 +59,11 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 
 func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
 
+	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
+
 	query := `UPDATE build SET status = $1 WHERE id = $2`
-	updateChildrenQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2`
 
-	txx, err := q.DB.BeginTxx(ctx, nil)
-	if err != nil {
-		return err
-	}
-
-	// nolint:errcheck
-	defer txx.Rollback()
-
-	if _, err := txx.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
-		return err
-	}
-
-	if _, err := txx.ExecContext(ctx, updateChildrenQuery, build.TargetBuildID, build.ID); err != nil {
-		return err
-	}
-
-	if err := txx.Commit(); err != nil {
+	if _, err := q.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
 		return err
 	}
 
@@ -93,20 +78,18 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	if err := q.CheckAndProcessQueuedBuild(ctx, build); err != nil {
-		return err
-	}
-
-	if build.TargetBuildID == "" {
-		return nil
-	}
-
-	targetBuild, err := q.GetBuild(ctx, build.TargetBuildID)
+	dependents, err := q.GetBuildDependencies(ctx, build)
 	if err != nil {
 		return err
 	}
 
-	return q.CheckAndProcessQueuedBuild(ctx, targetBuild)
+	for _, dependent := range dependents {
+		if err := q.CheckAndProcessQueuedBuild(ctx, dependent); err != nil {
+			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", dependent.ID)
+		}
+	}
+
+	return nil
 }
 
 func (q *BuildQueries) GetBuildDependencies(ctx context.Context, build models.Build) ([]models.Build, error) {
@@ -153,7 +136,14 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return "", err
 	}
 
-	if build.TargetBuildID == "" {
+	db := BuildQueries{tx.DB}
+
+	targetBuilds, err := db.GetBuildTargets(ctx, build.ID, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if len(targetBuilds) == 0 {
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
