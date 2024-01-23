@@ -111,14 +111,16 @@ describe(
             status: "aborted",
           });
 
-          await sleep(5000);
+        await sleep(5000);
 
         await buildTokenAPI
           .getBuild(rawBuild2!.id, jekyllsToken)
           .expectJsonMatch({
             id: rawBuild2!.id,
             status: "uploading",
-            parentIDs: undefined,
+          })
+          .returns(({ res }: any) => {
+            expect(res.json.parentIDs).toBeUndefined();
           });
       }
     );
