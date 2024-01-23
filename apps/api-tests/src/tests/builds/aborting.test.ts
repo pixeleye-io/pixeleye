@@ -7,6 +7,7 @@ import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { like } from "pactum-matchers";
+import { sleep } from "pactum";
 
 // TODO - I should add checks to ensure each snapshot has the correct status, not just the build
 
@@ -114,6 +115,8 @@ describe(
             id: rawBuild1!.id,
             status: "aborted",
           });
+
+          await sleep(5000);
 
         await buildTokenAPI
           .getBuild(rawBuild2!.id, jekyllsToken)
