@@ -184,3 +184,13 @@ func (q *BuildQueries) GetBuildTargeters(ctx context.Context, buildID string) ([
 
 	return builds, err
 }
+
+func (q *BuildQueries) GetSnapshotsBuild(ctx context.Context, snapshotID string) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT build.* FROM build JOIN snapshot ON snapshot.build_id = build.id WHERE snapshot.id = $1`
+
+	err := q.GetContext(ctx, &build, query, snapshotID)
+
+	return build, err
+}

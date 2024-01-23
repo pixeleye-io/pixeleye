@@ -72,8 +72,14 @@ func startIngestServer(quit chan bool) {
 					return nil
 				}
 
+				build, err := db.GetSnapshotsBuild(context.Background(), snapshotIDs[0])
+				if err != nil {
+					log.Fatal().Err(err).Msg("Error while getting build")
+					return nil
+				}
+
 				// TODO - we should include a reason for the failure
-				if err := db.FailSnapshotsBuild(context.TODO(), snapshotIDs[0]); err != nil {
+				if err := db.FailBuild(context.Background(), build); err != nil {
 					log.Fatal().Err(err).Msg("Error while failing build")
 					return nil
 				}

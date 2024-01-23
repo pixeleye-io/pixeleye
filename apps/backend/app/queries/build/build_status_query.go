@@ -57,6 +57,22 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	}
 }
 
+func (q *BuildQueries) ProcessBuildDependents(ctx context.Context, build models.Build) error {
+
+	dependents, err := q.GetBuildDependents(ctx, build)
+	if err != nil {
+		return err
+	}
+
+	for _, dependent := range dependents {
+		if err := q.CheckAndProcessQueuedBuild(ctx, dependent); err != nil {
+			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", dependent.ID)
+		}
+	}
+
+	return nil
+}
+
 func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
 
 	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
@@ -78,18 +94,31 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	dependents, err := q.GetBuildDependents(ctx, build)
-	if err != nil {
+	return q.ProcessBuildDependents(ctx, build)
+}
+
+func (q *BuildQueries) FailBuild(ctx context.Context, build models.Build) error {
+
+	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
+
+	query := `UPDATE build SET status = $1 WHERE id = $2`
+
+	if _, err := q.ExecContext(ctx, query, models.BUILD_STATUS_FAILED, build.ID); err != nil {
 		return err
 	}
 
-	for _, dependent := range dependents {
-		if err := q.CheckAndProcessQueuedBuild(ctx, dependent); err != nil {
-			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", dependent.ID)
-		}
-	}
+	build.Status = models.BUILD_STATUS_FAILED
 
-	return nil
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(build)
+
+	return q.ProcessBuildDependents(ctx, build)
 }
 
 func (q *BuildQueries) GetBuildDependents(ctx context.Context, build models.Build) ([]models.Build, error) {
