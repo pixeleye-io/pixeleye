@@ -78,7 +78,7 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	dependents, err := q.GetBuildDependencies(ctx, build)
+	dependents, err := q.GetBuildDependents(ctx, build)
 	if err != nil {
 		return err
 	}
@@ -90,6 +90,21 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 	}
 
 	return nil
+}
+
+func (q *BuildQueries) GetBuildDependents(ctx context.Context, build models.Build) ([]models.Build, error) {
+
+	childrenBuilds, err := q.GetBuildChildren(ctx, build.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	targeterBuilds, err := q.GetBuildTargeters(ctx, build.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(childrenBuilds, targeterBuilds...), nil
 }
 
 func (q *BuildQueries) GetBuildDependencies(ctx context.Context, build models.Build) ([]models.Build, error) {

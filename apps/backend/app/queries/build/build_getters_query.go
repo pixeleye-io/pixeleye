@@ -104,6 +104,16 @@ func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts
 	return builds, err
 }
 
+func (q *BuildQueries) GetBuildChildren(ctx context.Context, buildID string) ([]models.Build, error) {
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_history ON build_history.child_id = build.id WHERE build_history.parent_id = $1`
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
+}
+
 // This assumes that all dependencies of the build have been processed
 // This will add any builds failed/aborted parents to our parent list. We will also be leaving the failed/aborted parents in the list
 func (q *BuildQueries) SquashFailedOrAbortedParents(ctx context.Context, buildID string) error {
@@ -159,6 +169,16 @@ func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts
 	if !opts.IncludeFailed {
 		query += ` AND build.status != 'failed'`
 	}
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
+}
+
+func (q *BuildQueries) GetBuildTargeters(ctx context.Context, buildID string) ([]models.Build, error) {
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_targets ON build_targets.build_id = build.id WHERE build_targets.target_id = $1`
 
 	err := q.SelectContext(ctx, &builds, query, buildID)
 

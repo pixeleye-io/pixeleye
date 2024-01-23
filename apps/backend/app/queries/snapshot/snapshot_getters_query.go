@@ -119,7 +119,7 @@ func (q *SnapshotQueries) GetSnapshotsByBuild(ctx context.Context, buildID strin
 func (q *SnapshotQueries) GetLatestSnapshots(ctx context.Context, buildIDs []string) ([]models.Snapshot, error) {
 	snapshots := []models.Snapshot{}
 
-	query := `SELECT DISTINCT ON (name, variant, target, viewport) * FROM snapshot WHERE build_id IN (?) ORDER BY created_at DESC`
+	query := `SELECT DISTINCT ON (name, variant, target, viewport) * FROM snapshot WHERE build_id IN (?) ORDER BY created_at DESC, name, variant, target, viewport`
 
 	query, args, err := sqlx.In(query, buildIDs)
 	if err != nil {
