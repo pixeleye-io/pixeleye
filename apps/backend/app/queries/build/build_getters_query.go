@@ -117,7 +117,7 @@ func (q *BuildQueries) GetBuildChildren(ctx context.Context, buildID string) ([]
 // This assumes that all dependencies of the build have been processed
 // This will add any builds failed/aborted parents to our parent list. We will also be leaving the failed/aborted parents in the list
 func (q *BuildQueries) SquashFailedOrAbortedParents(ctx context.Context, buildID string) error {
-	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, $1 FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, build_history.child_id  FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
 
 	_, err := q.ExecContext(ctx, query, buildID)
 
@@ -127,7 +127,7 @@ func (q *BuildQueries) SquashFailedOrAbortedParents(ctx context.Context, buildID
 // This assumes that all dependencies of the build have been processed
 // This will add any builds failed/aborted targets parents to our target list. We will also be leaving the failed/aborted targets in the list
 func (q *BuildQueries) SquashFailedOrAbortedTargets(ctx context.Context, buildID string) error {
-	query := `INSERT INTO build_targets (build_id, target_id) SELECT bh.parent_id, $1 FROM build_targets AS bt JOIN build ON bt.target_id = build.id JOIN build_history AS bh ON bh.child_id = build.id WHERE bt.build_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+	query := `INSERT INTO build_targets (build_id, target_id) SELECT bh.parent_id, bt.build_id FROM build_targets AS bt JOIN build ON bt.target_id = build.id JOIN build_history AS bh ON bh.child_id = build.id WHERE bt.build_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
 
 	_, err := q.ExecContext(ctx, query, buildID)
 
