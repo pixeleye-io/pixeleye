@@ -36,7 +36,7 @@ func (tx *BuildQueriesTx) GetQueuedSnapshots(ctx context.Context, build *models.
 
 }
 
-func (q *BuildQueries) CheckAndProcessQueuedBuilds(ctx context.Context, parentBuild models.Build) error {
+func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, parentBuild models.Build) error {
 
 	if !models.IsBuildPostProcessing(parentBuild.Status) {
 		return fmt.Errorf("parent build %s is not in post processing", parentBuild.ID)

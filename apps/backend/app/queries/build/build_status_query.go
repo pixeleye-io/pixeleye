@@ -93,7 +93,7 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
+	if err := q.CheckAndProcessQueuedBuild(ctx, build); err != nil {
 		return err
 	}
 
@@ -106,7 +106,7 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		return err
 	}
 
-	return q.CheckAndProcessQueuedBuilds(ctx, targetBuild)
+	return q.CheckAndProcessQueuedBuild(ctx, targetBuild)
 }
 
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {
@@ -188,7 +188,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 	}
 
 	if models.IsBuildPostProcessing(build.Status) {
-		if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
+		if err := q.CheckAndProcessQueuedBuild(ctx, build); err != nil {
 			return &build, err
 		}
 	}

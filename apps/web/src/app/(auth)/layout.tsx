@@ -1,4 +1,5 @@
 import { LogoWatching } from "@pixeleye/ui";
+import NextLink from "next/link";
 
 export default function AuthLayout({
   children,
@@ -12,10 +13,10 @@ export default function AuthLayout({
       </div>
       <div className="relative z-0 items-center flex-1 hidden w-0 lg:flex">
         <span className="absolute inset-y-0 border-l border-outline-variant left-10" />
-        <div className="z-10 flex py-4 bg-surface text-on-surface">
+        <NextLink href="https://pixeleye.io/home" className="z-10 flex py-4 bg-surface text-on-surface hover:text-tertiary">
           <LogoWatching className="w-16" />
           <h3 className="pt-1 text-4xl font-bold">ixeleye</h3>
-        </div>
+        </NextLink>
       </div>
     </div>
   );
