@@ -13,7 +13,7 @@ import (
 func (tx *BuildQueriesTx) GetDependantQueuedBuildsForUpdate(ctx context.Context, build_id string) ([]models.Build, error) {
 	builds := []models.Build{}
 
-	query := `SELECT * FROM build WHERE (target_build_id = $1) AND (status = $2 OR status = $3) FOR UPDATE`
+	query := `SELECT * FROM build JOIN build_targets ON build.id = build_targets.build_id JOIN build_history ON build.id = build_history.child_id WHERE (build_targets.target_id = $1 OR build_history.parent_id = $1) AND (build.status = $2 OR build.status = $3) FOR UPDATE`
 
 	if err := tx.SelectContext(ctx, &builds, query, build_id, models.BUILD_STATUS_QUEUED_PROCESSING, models.BUILD_STATUS_QUEUED_UPLOADING); err != nil {
 		return builds, err
