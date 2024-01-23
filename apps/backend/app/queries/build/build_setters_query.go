@@ -9,8 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (tx *BuildQueriesTx) UpdateBuildStatusAndParent(ctx context.Context, build *models.Build) error {
-	query := `UPDATE build SET status = :status, target_build_id = :target_build_id, updated_at = :updated_at WHERE id = :id`
+func (tx *BuildQueriesTx) UpdateBuildStatus(ctx context.Context, build *models.Build) error {
+	query := `UPDATE build SET status = :status, updated_at = :updated_at WHERE id = :id`
 
 	build.UpdatedAt = utils.CurrentTime()
 

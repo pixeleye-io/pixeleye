@@ -30,8 +30,8 @@ type Build struct {
 
 	BuildNumber int `db:"build_number" json:"buildNumber"`
 
-	ParentIDs     []string `json:"parentIDs,omitempty" validate:"omitempty,dive,nanoid"`
-	TargetBuildID string   `db:"target_build_id" json:"targetBuildID,omitempty" validate:"omitempty,nanoid"`
+	ParentIDs      []string `json:"parentIDs,omitempty" validate:"omitempty,dive,nanoid"`
+	TargetBuildIDs []string `json:"targetBuildIDs,omitempty" validate:"omitempty,dive,nanoid"`
 
 	IsLatest bool `db:"is_latest" json:"isLatest"`
 
@@ -60,4 +60,8 @@ func IsBuildProcessing(status string) bool {
 
 func IsBuildPostProcessing(status string) bool {
 	return !IsBuildPreProcessing(status) && !IsBuildProcessing(status)
+}
+
+func IsBuildFailedOrAborted(status string) bool {
+	return status == BUILD_STATUS_FAILED || status == BUILD_STATUS_ABORTED
 }

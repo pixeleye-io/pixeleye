@@ -103,3 +103,64 @@ func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts
 
 	return builds, err
 }
+
+// This assumes that all dependencies of the build have been processed
+// This will add any builds failed/aborted parents to our parent list. We will also be leaving the failed/aborted parents in the list
+func (q *BuildQueries) SquashFailedOrAbortedParents(ctx context.Context, buildID string) error {
+	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, $1 FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+
+	_, err := q.ExecContext(ctx, query, buildID)
+
+	return err
+}
+
+// This assumes that all dependencies of the build have been processed
+// This will add any builds failed/aborted targets parents to our target list. We will also be leaving the failed/aborted targets in the list
+func (q *BuildQueries) SquashFailedOrAbortedTargets(ctx context.Context, buildID string) error {
+	query := `INSERT INTO build_targets (build_id, target_id) SELECT bh.parent_id, $1 FROM build_targets AS bt JOIN build ON bt.target_id = build.id JOIN build_history AS bh ON bh.child_id = build.id WHERE bt.build_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+
+	_, err := q.ExecContext(ctx, query, buildID)
+
+	return err
+}
+
+// This assumes that all dependencies of the build have been processed
+func (q *BuildQueries) SquashDependencies(ctx context.Context, buildID string) error {
+	if err := q.SquashFailedOrAbortedParents(ctx, buildID); err != nil {
+		return err
+	}
+
+	if err := q.SquashFailedOrAbortedTargets(ctx, buildID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type GetBuildChildrenOpts struct {
+	IncludeAborted bool
+	IncludeFailed  bool
+}
+
+func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts *GetBuildChildrenOpts) ([]models.Build, error) {
+
+	if opts == nil {
+		opts = &GetBuildChildrenOpts{}
+	}
+
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_targets ON build_targets.target_id = build.id WHERE build_targets.build_id = $1`
+
+	if !opts.IncludeAborted {
+		query += ` AND build.status != 'aborted'`
+	}
+
+	if !opts.IncludeFailed {
+		query += ` AND build.status != 'failed'`
+	}
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
+}

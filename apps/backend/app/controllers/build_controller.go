@@ -91,9 +91,9 @@ func CreateBuild(c echo.Context) error {
 	build.ProjectID = project.ID
 	build.Status = models.BUILD_STATUS_UPLOADING
 
-	if build.TargetBuildID == "" && len(build.ParentIDs) > 0 {
-		// If we don't have a target but have a parent, we'll default to using that
-		build.TargetBuildID = build.ParentIDs[0]
+	if len(build.TargetBuildIDs) == 0 && len(build.ParentIDs) > 0 {
+		// If we don't have a target but have a parent, we'll default to using those
+		build.TargetBuildIDs = build.ParentIDs
 	}
 
 	if err := validate.Struct(build); err != nil {

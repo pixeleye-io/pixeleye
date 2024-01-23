@@ -109,6 +109,37 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 	return q.CheckAndProcessQueuedBuild(ctx, targetBuild)
 }
 
+func (q *BuildQueries) GetBuildDependencies(ctx context.Context, build models.Build) ([]models.Build, error) {
+
+	parentBuilds, err := q.GetBuildParents(ctx, build.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	targetBuilds, err := q.GetBuildTargets(ctx, build.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(parentBuilds, targetBuilds...), nil
+}
+
+func (q *BuildQueries) AreBuildDependenciesPostProcessing(ctx context.Context, build models.Build) (bool, error) {
+
+	builds, err := q.GetBuildDependencies(ctx, build)
+	if err != nil {
+		return false, err
+	}
+
+	for _, build := range builds {
+		if !models.IsBuildPostProcessing(build.Status) {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
 

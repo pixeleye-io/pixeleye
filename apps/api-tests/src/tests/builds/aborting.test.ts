@@ -6,7 +6,6 @@ import { nanoid } from "nanoid";
 import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
-import { sleep } from "pactum";
 import { like } from "pactum-matchers";
 
 // TODO - I should add checks to ensure each snapshot has the correct status, not just the build
@@ -59,14 +58,6 @@ describe(
     it.concurrent(
       "should be able to abort a build",
       async () => {
-        const snapshots: CreateBuildOptions["snapshots"] = [
-          {
-            hash: nanoid(40),
-            img: cleanEyePng,
-            name: "button",
-          },
-        ];
-
         let rawBuild1: Build | undefined;
         await buildTokenAPI
           .createBuild(jekyllsToken, {
@@ -81,21 +72,122 @@ describe(
 
         await buildTokenAPI
           .getBuild(rawBuild1!.id, jekyllsToken)
-          .expectJsonLike(
-            like({
-              id: rawBuild1!.id,
-              status: "aborted",
-            })
-          );
+          .expectJsonMatch({
+            id: rawBuild1!.id,
+            status: "aborted",
+          });
       },
       {
         timeout: 120_000,
       }
     );
 
+    it.concurrent(
+      "aborted build with dependent builds should have dependent builds target aborted builds target with orphan",
+      async () => {
+        let rawBuild1: Build | undefined;
+        await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "dev asap",
+            sha: "123",
+          })
+          .returns(({ res }: any) => {
+            rawBuild1 = res.json;
+          });
+
+        let rawBuild2: Build | undefined;
+        await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "dev asap",
+            sha: "123",
+            parentIDs: [rawBuild1!.id],
+          })
+          .returns(({ res }: any) => {
+            rawBuild2 = res.json;
+          });
+
+        await buildTokenAPI.abortBuild(rawBuild1!.id);
+
+        await buildTokenAPI
+          .getBuild(rawBuild1!.id, jekyllsToken)
+          .expectJsonMatch({
+            id: rawBuild1!.id,
+            status: "aborted",
+          });
+
+        await buildTokenAPI
+          .getBuild(rawBuild2!.id, jekyllsToken)
+          .expectJsonMatch({
+            id: rawBuild2!.id,
+            status: "uploading",
+            parentIDs: [],
+          });
+      }
+    );
+
+    it.concurrent(
+      "aborted build with dependent builds should have dependent builds target aborted builds target",
+      async () => {
+        const snapshots: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(40),
+            img: cleanEyePng,
+            name: "button",
+          },
+        ];
+
+        const build1 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "main",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots,
+        }).catch((err) => {
+          throw err;
+        });
+
+        let rawBuild2: Build | undefined;
+        await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "dev asap",
+            sha: "123",
+            parentIDs: [build1.id],
+          })
+          .returns(({ res }: any) => {
+            rawBuild2 = res.json;
+          });
+
+        let rawBuild3: Build | undefined;
+        await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "dev asap",
+            sha: "123",
+            parentIDs: [rawBuild2!.id],
+          })
+          .returns(({ res }: any) => {
+            rawBuild3 = res.json;
+          });
+
+        await buildTokenAPI.abortBuild(rawBuild2!.id);
+
+        await buildTokenAPI
+          .getBuild(rawBuild2!.id, jekyllsToken)
+          .expectJsonMatch({
+            id: rawBuild2!.id,
+            status: "aborted",
+          });
+
+        await buildTokenAPI
+          .getBuild(rawBuild3!.id, jekyllsToken)
+          .expectJsonMatch({
+            id: rawBuild3!.id,
+            status: "uploading",
+            parentIDs: [build1.id],
+          });
+      }
+    );
 
     // TODO - add tests for updating an aborted builds targets
-
   },
   {
     retry: 2,
