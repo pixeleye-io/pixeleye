@@ -106,7 +106,7 @@ export async function createBuild(api: APIType) {
   console.log({
     parentBuilds,
     filteredParentBuilds,
-  })
+  });
 
   const build = api.post("/v1/client/builds/create", {
     body: {
