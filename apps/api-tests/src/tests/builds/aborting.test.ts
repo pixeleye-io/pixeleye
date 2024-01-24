@@ -180,8 +180,14 @@ describe(
           .expectJsonMatch({
             id: rawBuild3!.id,
             status: "uploading",
-            parentIDs: [build1.id, rawBuild2!.id],
-            targetBuildIDs: [build1.id, rawBuild2!.id],
+          })
+          .returns(({ res }: any) => {
+            expect(res.json.targetBuildIDs.sort()).toEqual(
+              [build1.id, rawBuild2!.id].sort()
+            );
+            expect(res.json.parentIDs.sort()).toEqual(
+              [build1.id, rawBuild2!.id].sort()
+            );
           });
       }
     );
