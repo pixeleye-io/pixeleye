@@ -19,7 +19,7 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	return build, err
 }
 
-func (q *BuildQueries) GetBuildsFromCommits(projectID string, shas []string) ([]models.Build, error) {
+func (q *BuildQueries) GetBuildsFromCommits(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
 	builds := []models.Build{}
 
 	arg := map[string]interface{}{
@@ -37,7 +37,7 @@ func (q *BuildQueries) GetBuildsFromCommits(projectID string, shas []string) ([]
 	}
 	query = q.Rebind(query)
 
-	err = q.Get(&builds, query, args...)
+	err = q.SelectContext(ctx, &builds, query, args...)
 
 	return builds, err
 }

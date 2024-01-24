@@ -391,12 +391,12 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	if len(shas) > 0 {
-		build, err := db.GetBuildFromCommits(project.ID, shas)
+		commitBuilds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, shas)
 		if err != sql.ErrNoRows {
 			if err != nil {
 				return err
 			}
-			builds = append(builds, build)
+			builds = append(builds, commitBuilds...)
 		}
 	}
 
