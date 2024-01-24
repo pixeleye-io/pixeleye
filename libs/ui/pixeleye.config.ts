@@ -12,6 +12,7 @@ const config = {
         params: "globals=theme:light",
       },
     ],
-  }};
+  },
+};
 
 export default config;
