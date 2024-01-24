@@ -118,9 +118,7 @@ describe(
           .expectJsonMatch({
             id: rawBuild2!.id,
             status: "uploading",
-          })
-          .returns(({ res }: any) => {
-            expect(res.json.parentIDs).toBeUndefined();
+            parentIDs: [rawBuild1!.id],
           });
       }
     );
@@ -183,7 +181,7 @@ describe(
             id: rawBuild3!.id,
             status: "uploading",
             parentIDs: [build1.id, rawBuild2!.id],
-            targetIDs: [build1.id, rawBuild2!.id],
+            targetBuildIDs: [build1.id, rawBuild2!.id],
           });
       }
     );
