@@ -1097,7 +1097,7 @@ describe(
       }
     );
 
-    it.only(
+    it.concurrent(
       "should be able to figure out latest build with a mix of orphans and unchanged",
       async () => {
         const snapshot1: CreateBuildOptions["snapshots"] = [
@@ -1146,7 +1146,7 @@ describe(
               [build1.id, build3.id].sort()
             );
           });
-          
+
 
         await buildTokenAPI
           .getLatestBuilds(["123", "1234"], jekyllsToken)
