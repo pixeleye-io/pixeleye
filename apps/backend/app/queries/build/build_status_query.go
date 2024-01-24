@@ -57,28 +57,29 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	}
 }
 
-func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
+func (q *BuildQueries) ProcessBuildDependents(ctx context.Context, build models.Build) error {
 
-	query := `UPDATE build SET status = $1 WHERE id = $2`
-	updateChildrenQuery := `UPDATE build SET target_build_id = $1 WHERE target_build_id = $2`
-
-	txx, err := q.DB.BeginTxx(ctx, nil)
+	dependents, err := q.GetBuildDependents(ctx, build)
 	if err != nil {
 		return err
 	}
 
-	// nolint:errcheck
-	defer txx.Rollback()
-
-	if _, err := txx.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
-		return err
+	for _, dependent := range dependents {
+		if err := q.CheckAndProcessQueuedBuild(ctx, dependent); err != nil {
+			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", dependent.ID)
+		}
 	}
 
-	if _, err := txx.ExecContext(ctx, updateChildrenQuery, build.TargetBuildID, build.ID); err != nil {
-		return err
-	}
+	return nil
+}
 
-	if err := txx.Commit(); err != nil {
+func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
+
+	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
+
+	query := `UPDATE build SET status = $1 WHERE id = $2`
+
+	if _, err := q.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
 		return err
 	}
 
@@ -93,20 +94,77 @@ func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error
 		notifier.BuildStatusChange(build)
 	}(build)
 
-	if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
+	return q.ProcessBuildDependents(ctx, build)
+}
+
+func (q *BuildQueries) FailBuild(ctx context.Context, build models.Build) error {
+
+	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
+
+	query := `UPDATE build SET status = $1 WHERE id = $2`
+
+	if _, err := q.ExecContext(ctx, query, models.BUILD_STATUS_FAILED, build.ID); err != nil {
 		return err
 	}
 
-	if build.TargetBuildID == "" {
-		return nil
-	}
+	build.Status = models.BUILD_STATUS_FAILED
 
-	targetBuild, err := q.GetBuild(ctx, build.TargetBuildID)
+	go func(build models.Build) {
+		notifier, err := events.GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(build)
+
+	return q.ProcessBuildDependents(ctx, build)
+}
+
+func (q *BuildQueries) GetBuildDependents(ctx context.Context, build models.Build) ([]models.Build, error) {
+
+	childrenBuilds, err := q.GetBuildChildren(ctx, build.ID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return q.CheckAndProcessQueuedBuilds(ctx, targetBuild)
+	targeterBuilds, err := q.GetBuildTargeters(ctx, build.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(childrenBuilds, targeterBuilds...), nil
+}
+
+func (q *BuildQueries) GetBuildDependencies(ctx context.Context, build models.Build) ([]models.Build, error) {
+
+	parentBuilds, err := q.GetBuildParents(ctx, build.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	targetBuilds, err := q.GetBuildTargets(ctx, build.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(parentBuilds, targetBuilds...), nil
+}
+
+func (q *BuildQueries) AreBuildDependenciesPostProcessing(ctx context.Context, build models.Build) (bool, error) {
+
+	builds, err := q.GetBuildDependencies(ctx, build)
+	if err != nil {
+		return false, err
+	}
+
+	for _, build := range builds {
+		if !models.IsBuildPostProcessing(build.Status) {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }
 
 func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {
@@ -122,7 +180,14 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return "", err
 	}
 
-	if build.TargetBuildID == "" {
+	db := BuildQueries{tx.DB}
+
+	targetBuilds, err := db.GetBuildTargets(ctx, build.ID, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if len(targetBuilds) == 0 {
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
@@ -188,7 +253,7 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 	}
 
 	if models.IsBuildPostProcessing(build.Status) {
-		if err := q.CheckAndProcessQueuedBuilds(ctx, build); err != nil {
+		if err := q.ProcessBuildDependents(ctx, build); err != nil {
 			return &build, err
 		}
 	}

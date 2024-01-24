@@ -91,9 +91,9 @@ func CreateBuild(c echo.Context) error {
 	build.ProjectID = project.ID
 	build.Status = models.BUILD_STATUS_UPLOADING
 
-	if build.TargetBuildID == "" && len(build.ParentIDs) > 0 {
-		// If we don't have a target but have a parent, we'll default to using that
-		build.TargetBuildID = build.ParentIDs[0]
+	if len(build.TargetBuildIDs) == 0 && len(build.ParentIDs) > 0 {
+		// If we don't have a target but have a parent, we'll default to using those
+		build.TargetBuildIDs = build.ParentIDs
 	}
 
 	if err := validate.Struct(build); err != nil {
@@ -120,8 +120,17 @@ func CreateBuild(c echo.Context) error {
 
 func GetBuild(c echo.Context) error {
 
-	build, err := middleware.GetBuild(c)
+	middlewareBuild, err := middleware.GetBuild(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
 
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	build, err := db.GetBuildWithDependencies(c.Request().Context(), middlewareBuild.ID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}

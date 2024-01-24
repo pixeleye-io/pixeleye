@@ -549,11 +549,6 @@ table "build" {
     default = "uploading"
   }
 
-  column "target_build_id" {
-    type = varchar(21)
-    null = false
-  }
-
   column "sha" {
     type = varchar(255)
     null = false
@@ -585,10 +580,6 @@ table "build" {
     columns = [column.project_id, column.build_number]
     unique  = true
   }
-
-  index "idx_target_build_id" {
-    columns = [column.target_build_id]
-  }
 }
 
 table "build_history" {
@@ -614,6 +605,33 @@ table "build_history" {
 
   primary_key {
     columns = [column.child_id, column.parent_id]
+  }
+}
+
+table "build_targets" {
+  schema = schema.public
+  column "build_id" {
+    type = varchar(21)
+    null = false
+  }
+  foreign_key "build_id" {
+    columns     = [column.build_id]
+    ref_columns = [table.build.column.id]
+    on_delete   = CASCADE
+  }
+  column "target_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  foreign_key "target_id" {
+    columns     = [column.target_id]
+    ref_columns = [table.build.column.id]
+    on_delete   = CASCADE
+  }
+
+  primary_key {
+    columns = [column.build_id, column.target_id]
   }
 }
 

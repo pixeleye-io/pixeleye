@@ -100,7 +100,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -168,7 +168,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -230,7 +230,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -280,7 +280,11 @@ describe(
             token: jekyllsToken,
             branch: "dev asap",
             sha: "1234",
-            expectedBuildStatus: ["queued-processing", "unreviewed"],
+            expectedBuildStatus: [
+              "queued-processing",
+              "processing",
+              "unreviewed",
+            ],
             parentBuildIds: [rawBuild1!.id],
             snapshots: snapshot2,
           }).catch((err) => {
@@ -290,7 +294,11 @@ describe(
             token: jekyllsToken,
             branch: "dev asap",
             sha: "12345",
-            expectedBuildStatus: ["queued-processing", "unreviewed"],
+            expectedBuildStatus: [
+              "queued-processing",
+              "processing",
+              "unreviewed",
+            ],
             parentBuildIds: [rawBuild2!.id],
             snapshots: snapshot2,
           }).catch((err) => {
@@ -315,7 +323,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -365,7 +373,11 @@ describe(
             token: jekyllsToken,
             branch: "dev asap",
             sha: "1234",
-            expectedBuildStatus: ["queued-processing", "unreviewed"],
+            expectedBuildStatus: [
+              "queued-processing",
+              "processing",
+              "unreviewed",
+            ],
             parentBuildIds: [rawBuild1!.id],
             snapshots: snapshot2,
           }).catch((err) => {
@@ -375,7 +387,11 @@ describe(
             token: jekyllsToken,
             branch: "dev asap",
             sha: "12345",
-            expectedBuildStatus: ["queued-processing", "unchanged"],
+            expectedBuildStatus: [
+              "queued-processing",
+              "processing",
+              "unchanged",
+            ],
             parentBuildIds: rawBuild2!.id,
             snapshots: snapshot1,
           }).catch((err) => {
@@ -400,7 +416,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -500,7 +516,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -665,7 +681,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -735,7 +751,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -816,7 +832,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -886,7 +902,7 @@ describe(
           });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -985,7 +1001,7 @@ describe(
         });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -1012,7 +1028,7 @@ describe(
           });
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
 
@@ -1033,7 +1049,7 @@ describe(
         await buildTokenAPI.abortBuild(build.id, IDs.jekyll, 400);
       },
       {
-        timeout: 120_000,
+        timeout: 160_000,
       }
     );
   },

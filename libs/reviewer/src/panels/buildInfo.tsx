@@ -46,8 +46,8 @@ export default function BuildInfoPanel() {
           <InfoLine label="Parent builds">
             {build.parentIDs ?? "None"}
           </InfoLine>
-          <InfoLine label="Target">
-            {build.targetBuildID ?? "None"}
+          <InfoLine label="Comparison builds">
+            {build.targetBuildIDs ?? "None"}
           </InfoLine>
         </dl>
       </div>

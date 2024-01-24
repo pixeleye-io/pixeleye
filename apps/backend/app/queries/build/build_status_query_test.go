@@ -138,8 +138,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"missing_baseline",
 			},
 			build: models.Build{
-				Status:        "processing",
-				TargetBuildID: "targetBuildID",
+				Status:         "processing",
+				TargetBuildIDs: []string{"targetBuildID"},
 			},
 			want: "unchanged",
 		},
@@ -167,8 +167,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"rejected",
 			},
 			build: models.Build{
-				Status:        "processing",
-				TargetBuildID: "targetBuildID",
+				Status:         "processing",
+				TargetBuildIDs: []string{"targetBuildID"},
 			},
 			want: "rejected",
 		},
@@ -212,8 +212,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 			name:     "Empty statuses and build with target",
 			statuses: []string{},
 			build: models.Build{
-				Status:        "processing",
-				TargetBuildID: "targetBuildID",
+				Status:         "processing",
+				TargetBuildIDs: []string{"targetBuildID"},
 			},
 			want: "unchanged",
 		},
@@ -223,8 +223,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"unreviewed",
 			},
 			build: models.Build{
-				Status:        "processing",
-				TargetBuildID: "targetBuildID",
+				Status:         "processing",
+				TargetBuildIDs: []string{"targetBuildID"},
 			},
 			want: "unreviewed",
 		},
@@ -234,8 +234,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"unreviewed",
 			},
 			build: models.Build{
-				Status:        "processing",
-				TargetBuildID: "targetBuildID",
+				Status:         "processing",
+				TargetBuildIDs: []string{"targetBuildID"},
 			},
 			want: "unreviewed",
 		},
@@ -245,8 +245,8 @@ func TestCalculateBuildStatus(t *testing.T) {
 				"unreviewed",
 			},
 			build: models.Build{
-				Status:        "failed",
-				TargetBuildID: "targetBuildID",
+				Status:         "failed",
+				TargetBuildIDs: []string{"targetBuildID"},
 			},
 			want: "failed",
 		},
@@ -263,14 +263,20 @@ func TestCalculateBuildStatus(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 
-			rows := sqlmock.NewRows([]string{"status"})
+			statusRows := sqlmock.NewRows([]string{"status"})
 
 			for _, status := range tt.statuses {
-				rows.AddRow(status)
+				statusRows.AddRow(status)
+			}
+
+			targetRows := sqlmock.NewRows([]string{"id"})
+			for _, targetBuildID := range tt.build.TargetBuildIDs {
+				targetRows.AddRow(targetBuildID)
 			}
 
 			mock.ExpectBegin()
-			mock.ExpectQuery("SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE").WillReturnRows(rows)
+			mock.ExpectQuery("SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE").WillReturnRows(statusRows)
+			mock.ExpectQuery("SELECT build.* FROM build JOIN build_targets ON build_targets.target_id = build.id WHERE build_targets.build_id = $1 AND build.status != 'aborted' AND build.status != 'failed'").WillReturnRows(targetRows)
 
 			ctx := context.Background()
 

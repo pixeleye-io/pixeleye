@@ -56,6 +56,40 @@ func (q *BuildQueries) GetBuild(ctx context.Context, id string) (models.Build, e
 	return build, err
 }
 
+func (q *BuildQueries) GetBuildWithDependencies(ctx context.Context, id string) (models.Build, error) {
+
+	build, err := q.GetBuild(ctx, id)
+	if err != nil {
+		return build, err
+	}
+
+	parents, err := q.GetBuildParents(ctx, id, &GetBuildParentsOpts{
+		IncludeAborted: true,
+		IncludeFailed:  true,
+	})
+	if err != nil {
+		return build, err
+	}
+
+	targets, err := q.GetBuildTargets(ctx, id, &GetBuildTargetsOpts{
+		IncludeAborted: true,
+		IncludeFailed:  true,
+	})
+	if err != nil {
+		return build, err
+	}
+
+	for _, parent := range parents {
+		build.ParentIDs = append(build.ParentIDs, parent.ID)
+	}
+
+	for _, target := range targets {
+		build.TargetBuildIDs = append(build.TargetBuildIDs, target.ID)
+	}
+
+	return build, nil
+}
+
 func (tx *BuildQueriesTx) GetBuildForUpdate(ctx context.Context, id string) (models.Build, error) {
 	build := models.Build{}
 
@@ -102,4 +136,95 @@ func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts
 	err := q.SelectContext(ctx, &builds, query, buildID)
 
 	return builds, err
+}
+
+func (q *BuildQueries) GetBuildChildren(ctx context.Context, buildID string) ([]models.Build, error) {
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_history ON build_history.child_id = build.id WHERE build_history.parent_id = $1`
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
+}
+
+// This assumes that all dependencies of the build have been processed
+// This will add any builds failed/aborted parents to our parent list. We will also be leaving the failed/aborted parents in the list
+func (q *BuildQueries) SquashFailedOrAbortedParents(ctx context.Context, buildID string) error {
+	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, build_history.child_id FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+
+	_, err := q.ExecContext(ctx, query, buildID)
+
+	return err
+}
+
+// This assumes that all dependencies of the build have been processed
+// This will add any builds failed/aborted targets parents to our target list. We will also be leaving the failed/aborted targets in the list
+func (q *BuildQueries) SquashFailedOrAbortedTargets(ctx context.Context, buildID string) error {
+	query := `INSERT INTO build_targets (build_id, target_id) SELECT bt.build_id, bh.parent_id FROM build_targets AS bt JOIN build ON bt.target_id = build.id JOIN build_history AS bh ON bh.child_id = bt.target_id WHERE bt.build_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
+
+	_, err := q.ExecContext(ctx, query, buildID)
+
+	return err
+}
+
+// This assumes that all dependencies of the build have been processed
+func (q *BuildQueries) SquashDependencies(ctx context.Context, buildID string) error {
+	if err := q.SquashFailedOrAbortedParents(ctx, buildID); err != nil {
+		return err
+	}
+
+	if err := q.SquashFailedOrAbortedTargets(ctx, buildID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type GetBuildTargetsOpts struct {
+	IncludeAborted bool
+	IncludeFailed  bool
+}
+
+func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts *GetBuildTargetsOpts) ([]models.Build, error) {
+
+	if opts == nil {
+		opts = &GetBuildTargetsOpts{}
+	}
+
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_targets ON build_targets.target_id = build.id WHERE build_targets.build_id = $1`
+
+	if !opts.IncludeAborted {
+		query += ` AND build.status != 'aborted'`
+	}
+
+	if !opts.IncludeFailed {
+		query += ` AND build.status != 'failed'`
+	}
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
+}
+
+func (q *BuildQueries) GetBuildTargeters(ctx context.Context, buildID string) ([]models.Build, error) {
+	builds := []models.Build{}
+
+	query := `SELECT build.* FROM build JOIN build_targets ON build_targets.build_id = build.id WHERE build_targets.target_id = $1`
+
+	err := q.SelectContext(ctx, &builds, query, buildID)
+
+	return builds, err
+}
+
+func (q *BuildQueries) GetSnapshotsBuild(ctx context.Context, snapshotID string) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT build.* FROM build JOIN snapshot ON snapshot.build_id = build.id WHERE snapshot.id = $1`
+
+	err := q.GetContext(ctx, &build, query, snapshotID)
+
+	return build, err
 }

@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"os/signal"
@@ -8,6 +9,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/processors"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
+	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
 
@@ -61,6 +63,27 @@ func startIngestServer(quit chan bool) {
 
 			if err := processors.IngestSnapshots(snapshotIDs); err != nil {
 				log.Error().Err(err).Msg("Error while ingesting snapshots")
+
+				// we want to blanket fail the build
+
+				db, err := database.OpenDBConnection()
+				if err != nil {
+					log.Fatal().Err(err).Msg("Error while opening db connection")
+					return nil
+				}
+
+				build, err := db.GetSnapshotsBuild(context.Background(), snapshotIDs[0])
+				if err != nil {
+					log.Fatal().Err(err).Msg("Error while getting build")
+					return nil
+				}
+
+				// TODO - we should include a reason for the failure
+				if err := db.FailBuild(context.Background(), build); err != nil {
+					log.Fatal().Err(err).Msg("Error while failing build")
+					return nil
+				}
+
 			}
 
 			return nil
