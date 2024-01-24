@@ -63,12 +63,18 @@ func (q *BuildQueries) GetBuildWithDependencies(ctx context.Context, id string) 
 		return build, err
 	}
 
-	parents, err := q.GetBuildParents(ctx, id, nil)
+	parents, err := q.GetBuildParents(ctx, id, &GetBuildParentsOpts{
+		IncludeAborted: true,
+		IncludeFailed:  true,
+	})
 	if err != nil {
 		return build, err
 	}
 
-	targets, err := q.GetBuildTargets(ctx, id, nil)
+	targets, err := q.GetBuildTargets(ctx, id, &GetBuildTargetsOpts{
+		IncludeAborted: true,
+		IncludeFailed:  true,
+	})
 	if err != nil {
 		return build, err
 	}
@@ -175,15 +181,15 @@ func (q *BuildQueries) SquashDependencies(ctx context.Context, buildID string) e
 	return nil
 }
 
-type GetBuildChildrenOpts struct {
+type GetBuildTargetsOpts struct {
 	IncludeAborted bool
 	IncludeFailed  bool
 }
 
-func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts *GetBuildChildrenOpts) ([]models.Build, error) {
+func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts *GetBuildTargetsOpts) ([]models.Build, error) {
 
 	if opts == nil {
-		opts = &GetBuildChildrenOpts{}
+		opts = &GetBuildTargetsOpts{}
 	}
 
 	builds := []models.Build{}
