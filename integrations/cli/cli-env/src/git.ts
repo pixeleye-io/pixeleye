@@ -25,7 +25,7 @@ export const isAncestor = async (sha1: string, sha2: string) => {
   return (
     (
       await $`git merge-base --is-ancestor ${sha1} ${sha2}`.catch((err) => ({
-        exitCode: err.exitCode,
+        exitCode: 1,
       }))
     )?.exitCode === 0
   );

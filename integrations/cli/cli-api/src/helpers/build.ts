@@ -9,24 +9,38 @@ export const filterDependantBuilds = async (builds: Build[]) => {
 
   let filteredBuilds: Build[] = [builds[0]];
   for (const build of builds.slice(1)) {
-    const buildsToRemove: Build[] = [];
-    for (const filteredBuild of filteredBuilds) {
+    filteredBuilds = filteredBuilds.filter(async (filteredBuild) => {
       if (build.sha === filteredBuild.sha) {
         if (build.buildNumber > filteredBuild.buildNumber) {
-          buildsToRemove.push(filteredBuild);
-          filteredBuilds.push(build);
+          return false;
         }
       } else if (await isAncestor(filteredBuild.sha, build.sha)) {
-        filteredBuilds.push(build);
-        buildsToRemove.push(filteredBuild);
-      } else if (!(await isAncestor(build.sha, filteredBuild.sha))) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (
+      filteredBuilds.every((filteredBuild) => build.sha !== filteredBuild.sha)
+    ) {
+      if (
+        filteredBuilds.every(
+          (filteredBuild) => !isAncestor(build.sha, filteredBuild.sha)
+        )
+      ) {
         filteredBuilds.push(build);
       }
+    } else if (
+      filteredBuilds.every(
+        (filteredBuild) =>
+          build.sha !== filteredBuild.sha ||
+          (build.sha === filteredBuild.sha &&
+            build.buildNumber > filteredBuild.buildNumber)
+      )
+    ) {
+      filteredBuilds.push(build);
     }
-
-    filteredBuilds = filteredBuilds.filter((build) => {
-      return !buildsToRemove.includes(build);
-    });
   }
 
   return filteredBuilds;
@@ -46,8 +60,6 @@ export async function getParentBuilds(api: APIType) {
 
   const shas = await getParentShas(128);
   const branch = env.branch;
-
-  console.log({ shas });
 
   const builds = await api
     .post("/v1/client/builds", {
@@ -91,7 +103,10 @@ export async function createBuild(api: APIType) {
 
   const filteredParentBuilds = await filterDependantBuilds(parentBuilds);
 
-  console.log({ parentBuilds, filteredParentBuilds });
+  console.log({
+    parentBuilds,
+    filteredParentBuilds,
+  })
 
   const build = api.post("/v1/client/builds/create", {
     body: {
