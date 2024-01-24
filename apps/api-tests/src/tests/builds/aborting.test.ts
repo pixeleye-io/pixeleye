@@ -186,6 +186,79 @@ describe(
       }
     );
 
+    it.concurrent(
+      "aborted build with multiple dependencies should pass them all to the dependent build",
+      async () => {
+        const snapshots: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(40),
+            img: cleanEyePng,
+            name: "button",
+          },
+        ];
+
+        const build1 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "main",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots,
+        }).catch((err) => {
+          throw err;
+        });
+
+        const build2 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "dev",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots,
+        }).catch((err) => {
+          throw err;
+        });
+
+        let rawBuild3: Build | undefined;
+        await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "dev asap",
+            sha: "123",
+            parentIDs: [build1.id, build2.id],
+          })
+          .returns(({ res }: any) => {
+            rawBuild3 = res.json;
+          });
+
+        let rawBuild4: Build | undefined;
+        await buildTokenAPI
+          .createBuild(jekyllsToken, {
+            branch: "dev asap",
+            sha: "1233",
+            parentIDs: [rawBuild3!.id],
+          })
+          .returns(({ res }: any) => {
+            rawBuild4 = res.json;
+          });
+
+        await buildTokenAPI.abortBuild(rawBuild3!.id);
+
+        await buildTokenAPI
+          .getBuild(rawBuild3!.id, jekyllsToken)
+          .expectJsonMatch({
+            id: rawBuild3!.id,
+            status: "aborted",
+          });
+
+        await buildTokenAPI
+          .getBuild(rawBuild4!.id, jekyllsToken)
+          .expectJsonMatch({
+            id: rawBuild4!.id,
+            status: "uploading",
+            parentIDs: [build1.id, build2.id, rawBuild3!.id],
+            targetBuildIDs: [build1.id, build2.id, rawBuild3!.id],
+          });
+      }
+    );
+
     // TODO - add tests for updating an aborted builds targets
   },
   {
