@@ -27,7 +27,7 @@ const dirtyEyePng = Buffer.from(
   "base64"
 );
 
-describe.skip(
+describe(
   "Creating a build",
   () => {
     let jekyllTeams: Team[];
