@@ -27,11 +27,6 @@ export const isAncestor = async (sha1: string, sha2: string) => {
       exitCode: 1,
     }))
   )?.exitCode === 0
-    ? (
-        await $`git rev-list --no-walk ${sha1} ${sha2}`.then((res) => {
-          console.log(res.stdout.startsWith(sha1));
-          return res;
-        })
-      ).stdout.startsWith(sha1)
+    ? (await $`git rev-list --no-walk ${sha1} ${sha2}`).stdout.startsWith(sha1)
     : false;
 };
