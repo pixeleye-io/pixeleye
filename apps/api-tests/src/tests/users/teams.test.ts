@@ -35,3 +35,4 @@ describe("User teams", () => {
       .expect("userTeam");
   });
 });
+
