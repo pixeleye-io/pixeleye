@@ -183,6 +183,7 @@ describe(
             id: rawBuild3!.id,
             status: "uploading",
             parentIDs: [build1.id, rawBuild2!.id],
+            targetIDs: [build1.id, rawBuild2!.id],
           });
       }
     );
