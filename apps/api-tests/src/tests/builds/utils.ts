@@ -153,6 +153,7 @@ export async function createBuildWithSnapshots({
       await buildTokenAPI.completeBuild(build!.id, token);
     })(),
   ]);
+  
 
   return build!;
 }
