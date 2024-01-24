@@ -1,36 +1,16 @@
 import { getEnvironment, getParentShas, isAncestor } from "@pixeleye/cli-env";
 import { APIType } from "../api";
+
 import { Build } from "@pixeleye/api";
 
-export const filterDependantBuilds = async (builds: Build[]) => {
-  if (builds.length === 0) {
-    return [];
-  }
-
-  let filteredBuilds: Build[] = [builds[0]];
-  for (const build of builds.slice(1)) {
-    const buildsToRemove: Build[] = [];
-    for (const filteredBuild of filteredBuilds) {
-      if (build.sha === filteredBuild.sha) {
-        if (build.buildNumber > filteredBuild.buildNumber) {
-          buildsToRemove.push(filteredBuild);
-          filteredBuilds.push(build);
-        }
-      } else if (await isAncestor(filteredBuild.sha, build.sha)) {
-        filteredBuilds.push(build);
-        buildsToRemove.push(filteredBuild);
-      } else if (!(await isAncestor(build.sha, filteredBuild.sha))) {
-        filteredBuilds.push(build);
-      }
+async function noAncestors(build: Build, builds: Build[]) {
+  for (const ancestor of builds) {
+    if (await isAncestor(build.sha, ancestor.sha)) {
+      return false;
     }
-
-    filteredBuilds = filteredBuilds.filter((build) => {
-      return !buildsToRemove.includes(build);
-    });
   }
-
-  return filteredBuilds;
-};
+  return true;
+}
 
 /**
  * Get the parent builds of the current build
@@ -48,7 +28,7 @@ export async function getParentBuilds(api: APIType) {
   const branch = env.branch;
 
   const builds = await api
-    .post("/v1/client/builds", {
+    .post("/v1/client/latestBuilds", {
       body: {
         shas,
       },
@@ -70,7 +50,7 @@ export async function getParentBuilds(api: APIType) {
   });
 
   if (branchBuild.length > 0) {
-    return builds;
+    return [branchBuild[0]];
   }
 
   return [];
@@ -87,14 +67,13 @@ export async function createBuild(api: APIType) {
 
   const parentBuilds = (await getParentBuilds(api)) || [];
 
-  const filteredParentBuilds = await filterDependantBuilds(parentBuilds);
 
   const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildIDs: filteredParentBuilds?.map((build) => build.id), // TODO - We should get the target if we are on a PR
-      parentIDs: filteredParentBuilds?.map((build) => build.id),
+      targetBuildIDs: parentBuilds?.map((build) => build.id), // TODO - We should get the target if we are on a PR
+      parentIDs: parentBuilds?.map((build) => build.id),
     },
   });
 

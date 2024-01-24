@@ -19,31 +19,27 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	return build, err
 }
 
-func (q *BuildQueries) GetBuildFromCommits(projectID string, shas []string) (models.Build, error) {
-	build := models.Build{}
+func (q *BuildQueries) GetBuildsFromCommits(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
+	builds := []models.Build{}
 
 	arg := map[string]interface{}{
 		"project_id": projectID,
 		"shas":       shas,
 	}
 
-	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND status != 'aborted' AND status != 'failed' AND sha IN (:shas) ORDER BY build_number DESC LIMIT 1`, arg)
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND status != 'aborted' AND status != 'failed' AND sha IN (:shas) ORDER BY build_number DESC`, arg)
 	if err != nil {
-		return build, err
+		return builds, err
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return build, err
+		return builds, err
 	}
 	query = q.Rebind(query)
 
-	if err != nil {
-		return build, err
-	}
+	err = q.SelectContext(ctx, &builds, query, args...)
 
-	err = q.Get(&build, query, args...)
-
-	return build, err
+	return builds, err
 }
 
 func (q *BuildQueries) GetBuild(ctx context.Context, id string) (models.Build, error) {
@@ -227,4 +223,35 @@ func (q *BuildQueries) GetSnapshotsBuild(ctx context.Context, snapshotID string)
 	err := q.GetContext(ctx, &build, query, snapshotID)
 
 	return build, err
+}
+
+func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
+	builds := []models.Build{}
+	// recursive query that selects all builds with a sha in the list of shas and that aren't parents of any other build in the list
+	query := `
+	WITH RECURSIVE find_latest_builds AS (
+		SELECT build.*, 0 as depth, build.sha as base_sha FROM build WHERE project_id = ? AND status NOT IN ('failed', 'aborted') AND sha in (?)
+		
+		UNION ALL
+		
+		SELECT b.*, latest.depth + 1, latest.base_sha FROM build b
+		INNER JOIN build_history bh on bh.child_id = b.id
+		INNER JOIN find_latest_builds latest ON bh.parent_id = latest.id
+		WHERE b.status NOT IN ('failed', 'aborted')
+		
+		
+	)
+	SELECT DISTINCT ON (sha) id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM (SELECT DISTINCT ON (base_sha) * from find_latest_builds WHERE sha in (?) ORDER BY base_sha, build_number DESC) as data
+			
+	`
+
+	query, args, err := sqlx.In(query, projectID, shas, shas)
+	if err != nil {
+		return builds, err
+	}
+	query = q.Rebind(query)
+
+	err = q.SelectContext(ctx, &builds, query, args...)
+
+	return builds, err
 }
