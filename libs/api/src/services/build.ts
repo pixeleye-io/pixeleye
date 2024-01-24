@@ -51,6 +51,12 @@ type POST = Method<{
       limit?: number;
     };
   };
+  "/v1/client/latestBuilds": {
+    res: Build[];
+    req: {
+      shas: string[];
+    };
+  };
   "/v1/client/builds/parents": {
     res: Build[];
     req?: {

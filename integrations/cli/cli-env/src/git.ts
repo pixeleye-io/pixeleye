@@ -23,10 +23,15 @@ export const getMergeBase = async (prBranch: string) => {
 
 export const isAncestor = async (sha1: string, sha2: string) => {
   return (
-    (
-      await $`git merge-base --is-ancestor ${sha1} ${sha2}`.catch((err) => ({
-        exitCode: 1,
-      }))
-    )?.exitCode === 0
-  );
+    await $`git merge-base --is-ancestor ${sha1} ${sha2}`.catch((err) => ({
+      exitCode: 1,
+    }))
+  )?.exitCode === 0
+    ? (
+        await $`git rev-list --no-walk ${sha1} ${sha2}`.then((res) => {
+          console.log(res.stdout.startsWith(sha1));
+          return res;
+        })
+      ).stdout.startsWith(sha1)
+    : false;
 };
