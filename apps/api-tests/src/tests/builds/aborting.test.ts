@@ -271,7 +271,8 @@ describe(
               [build1.id, build2.id, rawBuild3!.id].sort()
             );
           });
-      }, {
+      },
+      {
         timeout: 120_000,
       }
     );
