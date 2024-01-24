@@ -373,7 +373,11 @@ describe(
             token: jekyllsToken,
             branch: "dev asap",
             sha: "1234",
-            expectedBuildStatus: ["queued-processing", "unreviewed"],
+            expectedBuildStatus: [
+              "queued-processing",
+              "processing",
+              "unreviewed",
+            ],
             parentBuildIds: [rawBuild1!.id],
             snapshots: snapshot2,
           }).catch((err) => {
@@ -383,7 +387,11 @@ describe(
             token: jekyllsToken,
             branch: "dev asap",
             sha: "12345",
-            expectedBuildStatus: ["queued-processing", "unchanged"],
+            expectedBuildStatus: [
+              "queued-processing",
+              "processing",
+              "unchanged",
+            ],
             parentBuildIds: rawBuild2!.id,
             snapshots: snapshot1,
           }).catch((err) => {
