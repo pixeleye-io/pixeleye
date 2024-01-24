@@ -5,6 +5,8 @@ import { IDs } from "../setup/credentialsSetup";
 
 const buildClientEndpoint = env.BACKEND_URL + "/v1/client/builds";
 
+const latestBuildsEndpoint = env.BACKEND_URL + "/v1/client/latestBuilds";
+
 const buildEndpoint = env.BACKEND_URL + "/v1/builds";
 
 export const buildTokenAPI = {
@@ -52,6 +54,13 @@ export const buildTokenAPI = {
   completeBuild: (buildID: string, token: string, expectedStatus = 202) =>
     specWithBuildToken(token)
       .post(buildClientEndpoint + "/" + buildID + "/complete")
+      .expectStatus(expectedStatus),
+  getLatestBuilds: (shas: string[], token: string, expectedStatus = 200) =>
+    specWithBuildToken(token)
+      .withBody({
+        shas,
+      })
+      .post(latestBuildsEndpoint)
       .expectStatus(expectedStatus),
   getBuild: (buildID: string, token: string, expectedStatus = 200) =>
     specWithBuildToken(token)
