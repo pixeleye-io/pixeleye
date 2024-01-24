@@ -15,7 +15,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import { cx } from "class-variance-authority";
 import { Team, User } from "@pixeleye/api";
-import Link from "next/link";
+import NextLink from "next/link";
+import { Link } from "../link";
 
 type PopoverTriggerProps = ComponentPropsWithoutRef<typeof PopoverTrigger>;
 
@@ -58,7 +59,7 @@ export default function TeamSwitcher({
         outerClassName="flex-1 overflow-hidden"
         asChild
       >
-        <Link
+        <NextLink
           className="max-w-[12rem] overflow-hidden"
           href={`/dashboard${selectedTeam.type === "user" ? "" : "?team=" + selectedTeam.id}`}>
           <Avatar className="mr-4 h-6 w-6">
@@ -71,7 +72,7 @@ export default function TeamSwitcher({
           <span className="truncate min-w-0 max-w-full">
             {selectedTeam.name}
           </span>
-        </Link>
+        </NextLink>
       </Button>
       <PopoverTrigger asChild>
         <Button
@@ -98,6 +99,17 @@ export default function TeamSwitcher({
                     : group.label
                 }
               >
+                {
+                  group.teams.length === 0 && (<div className=" px-4 py-2">
+                    <p
+                      className="text-xs text-on-surface-variant"
+                    >
+                      No teams found, <Link className="text-xs" href="/dashboard/teams">more info</Link>
+
+                    </p>
+                  </div>
+                  )
+                }
                 {group.teams.map((team) => (
                   <CommandItem
                     key={team.id}
