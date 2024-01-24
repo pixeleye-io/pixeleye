@@ -226,6 +226,9 @@ describe(
           })
           .returns(({ res }: any) => {
             rawBuild3 = res.json;
+            expect(res.json.parentIDs.sort()).toEqual(
+              [build1.id, build2.id].sort()
+            );
           });
 
         let rawBuild4: Build | undefined;
@@ -253,8 +256,14 @@ describe(
           .expectJsonMatch({
             id: rawBuild4!.id,
             status: "uploading",
-            parentIDs: [build1.id, build2.id, rawBuild3!.id],
-            targetBuildIDs: [build1.id, build2.id, rawBuild3!.id],
+          })
+          .returns(({ res }: any) => {
+            expect(res.json.parentIDs.sort()).toEqual(
+              [build1.id, build2.id, rawBuild3!.id].sort()
+            );
+            expect(res.json.targetBuildIDs.sort()).toEqual(
+              [build1.id, build2.id, rawBuild3!.id].sort()
+            );
           });
       }
     );
