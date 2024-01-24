@@ -15,4 +15,3 @@ export const getDimensions = (img: Buffer) =>
 
 export const convertImage = (img: Buffer) =>
   read(img).then((image) => image.getBufferAsync(MIME_PNG));
-
