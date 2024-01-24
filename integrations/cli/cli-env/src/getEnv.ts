@@ -8,6 +8,7 @@ export interface Environment {
   branch?: string;
   isCI?: boolean;
   isPR?: boolean;
+  prBranch?: string;
 }
 
 export async function getEnvironment(): Promise<Environment> {
@@ -26,6 +27,7 @@ export async function getEnvironment(): Promise<Environment> {
     name: name,
     commit: process.env.PIXELEYE_COMMIT || commit || gitBranch,
     branch: process.env.PIXELEYE_BRANCH || branch || gitCommit,
+    prBranch: process.env.PIXELEYE_PR_BRANCH || prBranch,
     isCI: isCi,
     isPR: isPr,
   };

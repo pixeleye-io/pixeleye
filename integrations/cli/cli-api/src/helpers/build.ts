@@ -47,6 +47,8 @@ export async function getParentBuilds(api: APIType) {
   const shas = await getParentShas(128);
   const branch = env.branch;
 
+  console.log({ shas });
+
   const builds = await api
     .post("/v1/client/builds", {
       body: {
@@ -88,6 +90,8 @@ export async function createBuild(api: APIType) {
   const parentBuilds = (await getParentBuilds(api)) || [];
 
   const filteredParentBuilds = await filterDependantBuilds(parentBuilds);
+
+  console.log({ parentBuilds, filteredParentBuilds });
 
   const build = api.post("/v1/client/builds/create", {
     body: {
