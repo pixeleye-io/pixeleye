@@ -391,7 +391,7 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	if len(shas) > 0 {
-		commitBuilds, err := db.GetBuildsFromCommits(project.ID, shas)
+		commitBuilds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, shas)
 		if err != sql.ErrNoRows {
 			if err != nil {
 				return err
