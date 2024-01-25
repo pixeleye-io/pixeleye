@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/rs/zerolog/log"
 
 	nanoid "github.com/matoous/go-nanoid/v2"
 )
@@ -394,18 +395,44 @@ func (q *ProjectQueries) UpdateUserRoleOnProject(ctx context.Context, projectID 
 	return true, nil
 }
 
-func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, branch string) ([]models.Build, error) {
-	query := `SELECT * FROM build WHERE project_id = $1 ORDER BY created_at DESC`
-	queryBranches := `SELECT * FROM build WHERE project_id = $1 AND branch = $2`
+type GetProjectBuildsOptions struct {
+	Branch string
+	Limit  int
+	Offset int
+}
+
+func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string, opts *GetProjectBuildsOptions) ([]models.Build, error) {
+
+	if opts == nil {
+		opts = &GetProjectBuildsOptions{}
+	}
+
+	query := `SELECT * FROM build WHERE project_id = $1`
 
 	builds := []models.Build{}
 
-	var err error
-	if branch == "" {
-		err = q.Select(&builds, query, projectID)
-	} else {
-		err = q.Select(&builds, queryBranches, projectID, branch)
+	args := []interface{}{projectID}
+
+	if opts.Branch != "" {
+		args = append(args, opts.Branch)
+		query += " AND branch = $" + fmt.Sprintf("%d", len(args))
 	}
+
+	query += " ORDER BY created_at DESC"
+
+	if opts.Limit > 0 {
+		args = append(args, opts.Limit)
+		query += " LIMIT $" + fmt.Sprintf("%d", len(args))
+	}
+
+	if opts.Offset > 0 {
+		args = append(args, opts.Offset)
+		query += " OFFSET $" + fmt.Sprintf("%d", len(args))
+	}
+
+	log.Debug().Msgf("Query: %v", query)
+
+	err := q.SelectContext(ctx, &builds, query, args...)
 
 	return builds, err
 }

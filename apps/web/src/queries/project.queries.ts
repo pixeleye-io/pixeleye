@@ -11,12 +11,17 @@ export const projectKeys = createQueryKeys("projects", {
         params: { id: projectID },
       }),
     contextQueries: {
-      listBuilds: () => ({
+      listBuilds: (options?: {
+        branch?: string | undefined;
+        limit?: number | undefined;
+        offset?: number | undefined;
+      }) => ({
         queryKey: ["builds"],
         queryFn: () =>
           API.get("/v1/projects/{id}/builds", {
             headers: { cookie },
             params: { id: projectID },
+            queries: options,
           }),
       }),
       listMembers: () => ({

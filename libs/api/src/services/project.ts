@@ -16,6 +16,8 @@ type GET = Method<{
     res: Build[];
     queries?: {
       branch?: string;
+      limit?: number;
+      offset?: number;
     };
   };
 }>;
