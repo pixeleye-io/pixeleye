@@ -1,11 +1,9 @@
 import ora from "ora";
-import { finished, ping } from "@pixeleye/cli-booth";
+import { ping } from "@pixeleye/cli-booth";
 import { program } from "commander";
-import { noParentBuildFound } from "../messages/builds";
 import { captureStories } from "@pixeleye/storybook";
 import { errStr } from "../messages/ui/theme";
-import { execFile } from "child_process";
-import { API, APIType, createBuild } from "@pixeleye/cli-api";
+import { API, createBuild } from "@pixeleye/cli-api";
 import { Config } from "@pixeleye/cli-config";
 import {
   getExitBuild,

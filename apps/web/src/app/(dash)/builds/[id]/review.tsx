@@ -2,7 +2,7 @@
 
 import { API } from "@/libs";
 import { queries } from "@/queries";
-import { Project, Build } from "@pixeleye/api";
+import { Project } from "@pixeleye/api";
 import { BuildAPI, ExtendedSnapshotPair, Reviewer } from "@pixeleye/reviewer";
 import {
   UseMutationOptions,

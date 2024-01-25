@@ -20,6 +20,8 @@ func BuildRoutes(e *echo.Echo) {
 	baseRoutes.GET("", controllers.GetBuild)
 	baseRoutes.GET("/snapshots", controllers.GetBuildSnapshots)
 
+	baseRoutes.Any("/events", controllers.SubscribeToBuild)
+
 	reviewRoleMiddleware := middleware.NewProjectPermissionsRequired([]string{"admin", "reviewer"}, []string{"admin", "owner"})
 	reviewRoutes := common.Group("/review")
 	reviewRoutes.Use(middleware.LoadBuild)

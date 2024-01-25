@@ -16,8 +16,9 @@ const (
 )
 
 type BuildStatusBody struct {
-	BuildID string `json:"buildID"`
-	Status  string `json:"status"`
+	BuildID   string `json:"buildID"`
+	Status    string `json:"status"`
+	ProjectID string `json:"projectID"`
 }
 
 func (b *ProjectEvent) BuildStatusChange(build models.Build) {
@@ -25,8 +26,9 @@ func (b *ProjectEvent) BuildStatusChange(build models.Build) {
 	event := EventPayload{
 		Type: ProjectEvent_BuildStatus,
 		Data: BuildStatusBody{
-			BuildID: build.ID,
-			Status:  build.Status,
+			BuildID:   build.ID,
+			Status:    build.Status,
+			ProjectID: build.ProjectID,
 		},
 	}
 

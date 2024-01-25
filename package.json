@@ -3,13 +3,13 @@
   "scripts": {},
   "license": "AGPL-3.0",
   "devDependencies": {
-    "eslint": "^8.53.0",
-    "prettier": "^3.1.0",
-    "turbo": "^1.10.16",
-    "typescript": "^5.2.2"
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "turbo": "^1.11.3",
+    "typescript": "^5.3.3"
   },
-  "packageManager": "pnpm@8.10.5",
+  "packageManager": "pnpm@8.14.3",
   "dependencies": {
-    "@changesets/cli": "^2.26.2"
+    "@changesets/cli": "^2.27.1"
   }
 }

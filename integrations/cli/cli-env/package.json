@@ -23,11 +23,11 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.9.0",
+    "@types/node": "20.11.6",
     "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "env-ci": "^10.0.0",
+    "env-ci": "^11.0.0",
     "execa": "^8.0.1"
   }
 }
