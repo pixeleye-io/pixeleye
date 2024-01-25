@@ -28,8 +28,8 @@ importers:
   apps/api-tests:
     dependencies:
       '@ory/client':
-        specifier: ^1.4.0
-        version: 1.5.1
+        specifier: 1.4.0
+        version: 1.4.0
       '@ory/kratos-client':
         specifier: ^1.0.0
         version: 1.0.0
@@ -3877,6 +3877,14 @@ packages:
     resolution: {integrity: sha512-FLWs/AvZllw/AGVs+nJ+ELCDZZJk+kY0zMen118xhL2zD0s1etIUHm1odgjP7epxYU1ln7SZxEUWYop5bhsdgQ==}
     dependencies:
       '@octokit/openapi-types': 19.1.0
+    dev: false
+
+  /@ory/client@1.4.0:
+    resolution: {integrity: sha512-OjALTBIClSbUX82151+CM8xZ3p4BHGCYGOJdowwfBGWNx/Jr29ZLeSDtnVKeGA9Yxh/FqUoM1Kt0NhwTHh75Fw==}
+    dependencies:
+      axios: 0.27.2
+    transitivePeerDependencies:
+      - debug
     dev: false
 
   /@ory/client@1.5.1:
