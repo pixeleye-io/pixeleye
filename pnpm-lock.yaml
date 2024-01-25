@@ -402,8 +402,8 @@ importers:
         specifier: ^0.3.2
         version: 0.3.2
       undici:
-        specifier: ^6.4.0
-        version: 6.4.0
+        specifier: 5.27.2
+        version: 5.27.2
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -15285,7 +15285,6 @@ packages:
     engines: {node: '>=14.0'}
     dependencies:
       '@fastify/busboy': 2.1.0
-    dev: true
 
   /undici@6.4.0:
     resolution: {integrity: sha512-wYaKgftNqf6Je7JQ51YzkEkEevzOgM7at5JytKO7BjaURQpERW8edQSMrr2xb+Yv4U8Yg47J24+lc9+NbeXMFA==}
