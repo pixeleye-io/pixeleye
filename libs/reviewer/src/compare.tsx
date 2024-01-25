@@ -15,6 +15,8 @@ import { ExtendedSnapshotPair } from "./reviewer";
 import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "@pixeleye/device-logos";
 import { m } from "framer-motion";
 import { useStore } from "zustand";
+import { Snapshot } from "@pixeleye/api";
+import { cx } from "class-variance-authority";
 
 function TabSwitcher() {
   return (
@@ -57,6 +59,31 @@ function TabSwitcher() {
   );
 }
 
+const snapStatusColors: Record<Snapshot["status"], string> = {
+  "approved": "bg-green-500/25 border-green-700 dark:text-green-200 text-green-700",
+  "rejected": "bg-orange-500/25 border-orange-700 dark:text-orange-200 text-orange-700",
+  "unreviewed": "bg-yellow-500/25 border-yellow-700 dark:text-yellow-200 text-yellow-700",
+  "orphaned": "dark:bg-white/25 dark:border-white dark:text-white text-black/75 border-black dark:border-black",
+  aborted: "bg-red-500/25 border-red-700 dark:text-red-200 text-red-700",
+  failed: "bg-red-500/25 border-red-700 dark:text-red-200 text-red-700",
+  missing_baseline: "bg-red-500/25 border-red-700 dark:text-red-200 text-red-700",
+  processing: "bg-blue-500/25 border-blue-700 dark:text-blue-200 text-blue-700",
+  unchanged: "bg-teal-500/25 border-teal-700 dark:text-teal-200 light:text-teal-700",
+}
+
+function SnapStatus({ status }: {
+  status: Snapshot["status"]
+}) {
+
+  return (
+    <span className="flex items-center justify-center">
+      <span className={cx("first-letter:uppercase border text-sm p-1 rounded block", snapStatusColors[status])}>
+        {status}
+      </span>
+    </span>
+  )
+}
+
 interface DisplayOptionsProps {
   resetAlignment: (type?: "single" | "double") => void;
 }
@@ -84,8 +111,8 @@ function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
 }
 
 function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
-  return (
-    <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold py-1">
+  return (<div className="flex space-x-2 py-1 items-center">
+    <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold">
       {snapshot.name}
 
       {snapshot.variant && (
@@ -111,6 +138,7 @@ function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
         </>
       )}
     </h2>
+  </div>
   );
 }
 
@@ -220,6 +248,7 @@ export function Compare() {
               <div className="mt-4 flex space-x-4 ">
                 <TabSwitcher />
                 <DisplayOptions resetAlignment={resetAlignment} />
+                <SnapStatus status={snapshot.status} />
               </div>
               <TargetTabs snapshot={snapshot} />
             </div>
