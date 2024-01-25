@@ -57,6 +57,16 @@ export default async function ProjectOverviewPage({
     );
   }
 
+  if (["aborted"].includes(build.status)) {
+    return (
+      <HydrationBoundary state={dehydratedState}>
+        <h1 className="flex flex-col items-center justify-center text-lg my-8">
+          Build was aborted
+        </h1>
+      </HydrationBoundary>
+    );
+  }
+
   return (
     <HydrationBoundary state={dehydratedState}>
       <Review buildID={build.id} project={project} />

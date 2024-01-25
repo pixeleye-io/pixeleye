@@ -57,6 +57,7 @@ export default async function Layout({
           {
             name: `#${build.buildNumber}`,
             value: `/builds/${buildID}`,
+            status: build.status,
           },
         ]}
       />

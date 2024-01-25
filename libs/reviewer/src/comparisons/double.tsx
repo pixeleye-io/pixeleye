@@ -62,7 +62,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
         )}
         {
           !validBaseline && (
-            <div className="flex flex-col items-center justify-center w-full h-full">
+            <div className="flex flex-col items-center justify-center w-full h-full bg-surface-container">
               <p className="text-center text-gray-400">No baseline snapshot</p>
             </div>
           )
