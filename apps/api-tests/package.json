@@ -16,9 +16,9 @@
     "@types/node": "20.11.6",
     "@types/wait-on": "^5.3.4",
     "env-cmd": "^10.1.0",
-    "pactum": "^3.6.0",
+    "pactum": "3.5.1",
     "typescript": "^5.3.3",
-    "undici": "^6.4.0",
+    "undici": "5.27.2",
     "vitest": "^1.2.1",
     "zod": "^3.22.4"
   },
