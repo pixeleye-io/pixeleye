@@ -26,9 +26,9 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/graceful-fs": "^4.1.9",
-    "@types/node": "20.9.0",
+    "@types/node": "20.11.6",
     "@types/require-relative": "^0.8.2",
-    "esbuild": "^0.19.5",
+    "esbuild": "^0.19.12",
     "rimraf": "^5.0.5"
   },
   "dependencies": {
@@ -41,7 +41,7 @@
     "dedent": "^1.5.1",
     "graceful-fs": "^4.2.11",
     "jimp": "^0.22.10",
-    "ora": "^7.0.1",
+    "ora": "^8.0.1",
     "rrweb-snapshot": "2.0.0-alpha.11"
   }
 }

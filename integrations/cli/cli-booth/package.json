@@ -25,8 +25,8 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/body-parser": "^1.19.5",
-    "rrweb-snapshot": "2.0.0-alpha.11",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "rrweb-snapshot": "2.0.0-alpha.11"
   },
   "dependencies": {
     "@pixeleye/api": "workspace:*",
@@ -35,8 +35,8 @@
     "@pixeleye/cli-config": "workspace:*",
     "@types/polka": "^0.5.7",
     "body-parser": "^1.20.2",
-    "p-queue": "^8.0.0",
+    "p-queue": "^8.0.1",
     "polka": "^0.5.2",
-    "undici": "^5.27.2"
+    "undici": "^6.4.0"
   }
 }
