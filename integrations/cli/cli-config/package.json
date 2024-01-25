@@ -28,6 +28,6 @@
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "jiti": "^1.21.0",
-    "sucrase": "^3.34.0"
+    "sucrase": "^3.35.0"
   }
 }

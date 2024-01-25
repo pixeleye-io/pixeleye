@@ -25,25 +25,25 @@
     "puppeteer-core": "^20 || ^21"
   },
   "dependencies": {
-    "rrweb-snapshot": "2.0.0-alpha.11",
     "@pixeleye/cli-devices": "workspace:*",
-    "puppeteer": "^21.5.2",
-    "puppeteer-core": "^21.5.2",
-    "undici": "^5.27.2"
+    "puppeteer": "^21.9.0",
+    "puppeteer-core": "^21.9.0",
+    "rrweb-snapshot": "2.0.0-alpha.11",
+    "undici": "^6.4.0"
   },
   "devDependencies": {
+    "@pixeleye/cli-booth": "workspace:*",
+    "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
-    "@pixeleye/cli-config": "workspace:*",
-    "@pixeleye/cli-booth": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@swc-node/register": "^1.6.8",
-    "@types/node": "20.9.0",
+    "@types/node": "20.11.6",
     "execa": "^8.0.1",
     "get-port": "^7.0.0",
     "pptr-testing-library": "^0.7.0",
     "rimraf": "^5.0.5",
-    "typescript": "5.2.2",
-    "vitest": "^0.34.6"
+    "typescript": "5.3.3",
+    "vitest": "^1.2.1"
   }
 }
