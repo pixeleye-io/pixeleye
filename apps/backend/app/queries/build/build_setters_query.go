@@ -34,8 +34,8 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 	selectProjectQuery := `SELECT * FROM project WHERE id = $1 FOR UPDATE`
 	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :build_number) RETURNING *`
 	updateBuildNumber := `UPDATE project SET build_count = $1 WHERE id = $2`
-	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id)`
-	targetBuildQuery := `INSERT INTO build_targets (build_id, target_id) VALUES (:build_id, :target_id)`
+	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id) ON CONFLICT DO NOTHING`
+	targetBuildQuery := `INSERT INTO build_targets (build_id, target_id) VALUES (:build_id, :target_id) ON CONFLICT DO NOTHING`
 
 	parentIds := build.ParentIDs
 

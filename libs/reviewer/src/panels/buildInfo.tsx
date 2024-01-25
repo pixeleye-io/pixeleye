@@ -44,7 +44,7 @@ export default function BuildInfoPanel() {
           <InfoLine label="Snap count">{snapshotCount}</InfoLine>
           <InfoLine label="Snaps changed">{snapshotsChangedCount}</InfoLine>
           <InfoLine label="Parent builds">
-            {build.parentIDs ?? "None"}
+            {build.parentIDs?.toString() ?? "None"}
           </InfoLine>
           <InfoLine label="Comparison builds">
             {build.targetBuildIDs ?? "None"}

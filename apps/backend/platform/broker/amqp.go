@@ -107,9 +107,9 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 
 	return queue
 }
-func CreateExchange(channelRabbitMQ *amqp.Channel, queueType brokerTypes.QueueType) error {
+func CreateExchange(channelRabbitMQ *amqp.Channel, queueType brokerTypes.QueueType, queueName string) error {
 	// Get queue name.
-	exchangeName, err := getExchangeName(queueType)
+	exchangeName, err := getExchangeName(queueType, queueName)
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to get queue name")
@@ -147,13 +147,14 @@ func getDeliveryMode(queueType brokerTypes.QueueType) uint8 {
 	return amqp.Transient
 }
 
-func getExchangeName(queueType brokerTypes.QueueType) (string, error) {
+func getExchangeName(queueType brokerTypes.QueueType, queueName string) (string, error) {
 
 	switch queueType {
 	case brokerTypes.BuildProcess:
 		return "", nil
 	case brokerTypes.ProjectUpdate:
-		return queueType.String()
+		str, err := queueType.String()
+		return str + ":" + queueName, err
 	default:
 		return "", fmt.Errorf("queue type '%v' is not supported", queueType)
 	}
@@ -162,12 +163,11 @@ func getExchangeName(queueType brokerTypes.QueueType) (string, error) {
 func SendToQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.QueueType, body []byte) error {
 
 	// Create exchange.
-	if err := CreateExchange(channelRabbitMQ, queueType); err != nil {
+	if err := CreateExchange(channelRabbitMQ, queueType, name); err != nil {
 		return err
 	}
 
-	exchangeName, err := getExchangeName(queueType)
-
+	exchangeName, err := getExchangeName(queueType, name)
 	if err != nil {
 		return err
 	}
@@ -211,11 +211,11 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
-	if err := CreateExchange(channel, queueType); err != nil {
+	if err := CreateExchange(channel, queueType, name); err != nil {
 		return err
 	}
 
-	exchangeName, err := getExchangeName(queueType)
+	exchangeName, err := getExchangeName(queueType, name)
 
 	if err != nil {
 		return err

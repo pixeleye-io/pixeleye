@@ -391,12 +391,12 @@ func SearchBuilds(c echo.Context) error {
 	}
 
 	if len(shas) > 0 {
-		build, err := db.GetBuildFromCommits(project.ID, shas)
+		commitBuilds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, shas)
 		if err != sql.ErrNoRows {
 			if err != nil {
 				return err
 			}
-			builds = append(builds, build)
+			builds = append(builds, commitBuilds...)
 		}
 	}
 
@@ -574,4 +574,38 @@ func UploadComplete(c echo.Context) error {
 	}(db, uploadedBuild.ID)
 
 	return c.JSON(http.StatusAccepted, uploadedBuild)
+}
+
+// Filters out a list of build id's returning the latest for any given chain
+func GetLatestBuildsFromShas(c echo.Context) error {
+
+	type Body struct {
+		Shas []string `json:"shas"`
+	}
+
+	body := Body{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if len(body.Shas) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "no shas provided")
+	} else if len(body.Shas) > 128 {
+		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
+	}
+
+	project := middleware.GetProject(c)
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	builds, err := db.GetLatestBuildsFromShas(c.Request().Context(), project.ID, body.Shas)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, builds)
 }

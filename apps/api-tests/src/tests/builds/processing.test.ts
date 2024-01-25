@@ -1052,6 +1052,114 @@ describe(
         timeout: 160_000,
       }
     );
+
+    it.concurrent(
+      "should be able to figure out latest build coming from two orphans",
+      async () => {
+        const snapshot1: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(40),
+            img: cleanEyePng,
+            name: "button",
+          },
+        ];
+
+        const build1 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        });
+
+        const build2 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test2",
+          sha: "1234",
+          expectedBuildStatus: ["orphaned"],
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        });
+
+        await buildTokenAPI
+          .getLatestBuilds(["123", "1234"], jekyllsToken)
+          .returns(({ res }: any) => {
+            expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
+              [build1.id, build2.id].sort()
+            );
+          });
+      },
+      {
+        timeout: 160_000,
+      }
+    );
+
+    it.concurrent(
+      "should be able to figure out latest build with a mix of orphans and unchanged",
+      async () => {
+        const snapshot1: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(40),
+            img: cleanEyePng,
+            name: "button",
+          },
+        ];
+
+        const build1 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        });
+
+        const build2 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test2",
+          sha: "1234",
+          expectedBuildStatus: ["orphaned"],
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        });
+
+        const build3 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test2",
+          sha: "12344",
+          expectedBuildStatus: ["unchanged"],
+          snapshots: snapshot1,
+          parentBuildIds: build2.id,
+        }).catch((err) => {
+          throw err;
+        });
+
+        await buildTokenAPI
+          .getLatestBuilds(["123", "1234", "12344"], jekyllsToken)
+          .returns(({ res }: any) => {
+            expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
+              [build1.id, build3.id].sort()
+            );
+          });
+
+
+        await buildTokenAPI
+          .getLatestBuilds(["123", "1234"], jekyllsToken)
+          .returns(({ res }: any) => {
+            expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
+              [build1.id, build2.id].sort()
+            );
+          });
+      },
+      {
+        timeout: 160_000,
+      }
+    );
   },
   {
     retry: 2,

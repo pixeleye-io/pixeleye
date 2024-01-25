@@ -17,7 +17,7 @@ export interface SnapshotRequest {
   css?: string;
 }
 
-export const queue = new PQueue({ concurrency: 10 });
+export const queue = new PQueue({ concurrency: 6 });
 
 export async function handleQueue({
   endpoint,
