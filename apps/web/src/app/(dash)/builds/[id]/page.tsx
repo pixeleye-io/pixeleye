@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { Review } from "./review";
 import { getQueryClient, queries } from "@/queries";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { WaitingPage } from "./waiting";
 
 export default async function ProjectOverviewPage({
   params,
@@ -47,6 +48,24 @@ export default async function ProjectOverviewPage({
   ]);
 
   const dehydratedState = dehydrate(queryClient);
+
+  if (["uploading", "queued-uploading", "processing", "queued-processing"].includes(build.status)) {
+    return (
+      <HydrationBoundary state={dehydratedState}>
+        <WaitingPage buildID={build.id} />
+      </HydrationBoundary>
+    );
+  }
+
+  if (["aborted"].includes(build.status)) {
+    return (
+      <HydrationBoundary state={dehydratedState}>
+        <h1 className="flex flex-col items-center justify-center text-lg my-8">
+          Build was aborted
+        </h1>
+      </HydrationBoundary>
+    );
+  }
 
   return (
     <HydrationBoundary state={dehydratedState}>
