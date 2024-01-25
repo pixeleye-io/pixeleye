@@ -23,7 +23,7 @@
     "zod": "^3.22.4"
   },
   "dependencies": {
-    "@ory/client": "^1.5.1",
+    "@ory/client": "1.4.0",
     "@ory/kratos-client": "^1.0.0",
     "@pixeleye/api": "workspace:*",
     "eventsource": "^2.0.2",

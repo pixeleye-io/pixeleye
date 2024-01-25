@@ -28,7 +28,7 @@ importers:
   apps/api-tests:
     dependencies:
       '@ory/client':
-        specifier: ^1.5.1
+        specifier: ^1.4.0
         version: 1.5.1
       '@ory/kratos-client':
         specifier: ^1.0.0
