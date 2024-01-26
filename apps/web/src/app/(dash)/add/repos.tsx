@@ -75,10 +75,10 @@ function RepoItem({ repo, handleRepoSelect, isLoading, isDisabled }: RepoItemPro
         <div className="flex-shrink-0 ml-5">
           {
             isLoading ? (
-            <ArrowPathIcon
-              className="w-5 h-5 text-on-surface-variant animate-spin"
-              aria-hidden="true"
-            />
+              <ArrowPathIcon
+                className="w-5 h-5 text-on-surface-variant animate-spin"
+                aria-hidden="true"
+              />
             ) : (
               <ChevronRightIcon
                 className="w-5 h-5 text-on-surface-variant"
@@ -141,6 +141,7 @@ export function RepoList({ repos, team, source }: RepoListProps) {
           sourceID: repo.id,
           url: repo.url,
           snapshotBlur: true,
+          autoApprove: repo.defaultBranch ? `^${repo.defaultBranch}$` : undefined,
         },
         params: {
           teamID: team?.id ?? "",

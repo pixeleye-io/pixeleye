@@ -316,12 +316,13 @@ func GetRepos(c echo.Context) error {
 
 			for i, repo := range repos.Repositories {
 				formattedRepos[i] = models.GitRepo{
-					ID:          strconv.FormatInt(repo.GetID(), 10),
-					Name:        repo.Name,
-					Private:     repo.Private,
-					URL:         repo.HTMLURL,
-					LastUpdated: repo.GetPushedAt().Time,
-					Description: repo.Description,
+					ID:            strconv.FormatInt(repo.GetID(), 10),
+					Name:          repo.Name,
+					Private:       repo.Private,
+					URL:           repo.HTMLURL,
+					LastUpdated:   repo.GetPushedAt().Time,
+					Description:   repo.Description,
+					DefaultBranch: repo.DefaultBranch,
 				}
 			}
 

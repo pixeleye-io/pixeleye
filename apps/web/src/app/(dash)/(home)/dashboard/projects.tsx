@@ -132,15 +132,18 @@ export function DashboardProjects({ team }: { team: Team }) {
                       : "No activity"}
                   </Table.Cell>
                   <Table.Cell className="text-right z-10">
-                    <Button variant={"link"} size={"sm"} asChild>
-                      <a
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        href={project.url}
-                      >
-                        View repo
-                      </a>
-                    </Button>
+                    {
+                      project.url && (
+                        <Button variant={"link"} size={"sm"} asChild>
+                          <a
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            href={project.url}
+                          >
+                            View repo
+                          </a>
+                        </Button>)
+                    }
                   </Table.Cell>
                 </Table.Row>
               ))}
@@ -154,8 +157,10 @@ export function DashboardProjects({ team }: { team: Team }) {
                 key={project.id}
                 className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition border rounded-lg group/card hover:shadow-md hover:border-primary border-outline"
               >
-                <h3 className="text-lg">{project.name}</h3>
-                <p className="text-sm text-on-surface">{/* {project.url} */}</p>
+                <h3 className="text-lg font-semibold">{project.name}</h3>
+                <p className="text-sm text-on-surface-variant">{project.lastActivity
+                  ? dayjs(project.lastActivity).fromNow()
+                  : "No activity"}</p>
                 <NextLink
                   href={`/projects/${project.id}`}
                   className="absolute inset-0"

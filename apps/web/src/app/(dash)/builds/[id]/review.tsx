@@ -2,7 +2,7 @@
 
 import { API } from "@/libs";
 import { queries } from "@/queries";
-import { Project } from "@pixeleye/api";
+import { Build, Project } from "@pixeleye/api";
 import { BuildAPI, ExtendedSnapshotPair, Reviewer } from "@pixeleye/reviewer";
 import {
   UseMutationOptions,
@@ -25,6 +25,56 @@ export function Review({ buildID, project }: ReviewProps) {
 
   const queryClient = useQueryClient();
 
+  const calculateBuildStatus = async (snapshots: ExtendedSnapshotPair[]) => {
+
+    await queryClient.cancelQueries(
+      queries.builds.detail(buildID)
+    );
+
+    const prevBuild = queryClient.getQueryData<
+      Build | undefined
+    >(queries.builds.detail(buildID).queryKey);
+
+
+    if (!prevBuild || ["failed", "aborted", "processing", "uploading", "queued-uploading", "queued-processing"].includes(prevBuild.status)) {
+      return
+    }
+
+
+    if (snapshots.some((snapshot) => snapshot.status === "unreviewed")) {
+      queryClient.setQueryData<Build>(
+        queries.builds.detail(buildID).queryKey,
+        (old) => ({
+          ...old!,
+          Status: "unreviewed",
+        })
+      );
+      return
+    }
+
+
+    if (snapshots.some((snapshot) => snapshot.status === "rejected")) {
+      queryClient.setQueryData<Build>(
+        queries.builds.detail(buildID).queryKey,
+        (old) => ({
+          ...old!,
+          Status: "failed",
+        })
+      );
+      return
+    }
+
+    if (snapshots.every((snapshot) => [""].includes(snapshot.status))) {
+      queryClient.setQueryData<Build>(
+        queries.builds.detail(buildID).queryKey,
+        (old) => ({
+          ...old!,
+          Status: "approved",
+        })
+      );
+    }
+  }
+
   const reviewSingleOptimisticUpdate = (
     status: ExtendedSnapshotPair["status"]
   ) =>
@@ -38,21 +88,24 @@ export function Review({ buildID, project }: ReviewProps) {
           ExtendedSnapshotPair[]
         >(queries.builds.detail(buildID)._ctx.listSnapshots().queryKey);
 
+        const newSnapshots = previousSnapshots?.map((snapshot) => {
+          if (ids.includes(snapshot.id)) {
+            return {
+              ...snapshot,
+              status,
+            };
+          }
+
+          return snapshot;
+        })
+
         queryClient.setQueryData<ExtendedSnapshotPair[]>(
           queries.builds.detail(buildID)._ctx.listSnapshots().queryKey,
-          (old) => {
-            return old?.map((snapshot) => {
-              if (ids.includes(snapshot.id)) {
-                return {
-                  ...snapshot,
-                  status,
-                };
-              }
-
-              return snapshot;
-            });
-          }
+          newSnapshots
         );
+
+        if (newSnapshots)
+          await calculateBuildStatus(newSnapshots);
 
         return { previousSnapshots };
       },
@@ -68,6 +121,9 @@ export function Review({ buildID, project }: ReviewProps) {
       onSettled: () => {
         queryClient.invalidateQueries(
           queries.builds.detail(buildID)._ctx.listSnapshots()
+        );
+        queryClient.invalidateQueries(
+          queries.builds.detail(buildID)
         );
       },
     }) as Pick<
@@ -96,21 +152,24 @@ export function Review({ buildID, project }: ReviewProps) {
           ExtendedSnapshotPair[]
         >(queries.builds.detail(buildID)._ctx.listSnapshots().queryKey);
 
+        const newSnapshots = previousSnapshots?.map((snapshot) => {
+          if (matching.includes(snapshot.status)) {
+            return {
+              ...snapshot,
+              status,
+            };
+          }
+
+          return snapshot;
+        })
+
         queryClient.setQueryData<ExtendedSnapshotPair[]>(
           queries.builds.detail(buildID)._ctx.listSnapshots().queryKey,
-          (old) => {
-            return old?.map((snapshot) => {
-              if (matching.includes(snapshot.status)) {
-                return {
-                  ...snapshot,
-                  status,
-                };
-              }
-
-              return snapshot;
-            });
-          }
+          newSnapshots
         );
+
+        if (newSnapshots)
+          await calculateBuildStatus(newSnapshots);
 
         return { previousSnapshots };
       },
@@ -126,6 +185,10 @@ export function Review({ buildID, project }: ReviewProps) {
       onSettled: () => {
         queryClient.invalidateQueries(
           queries.builds.detail(buildID)._ctx.listSnapshots()
+        );
+
+        queryClient.invalidateQueries(
+          queries.builds.detail(buildID)
         );
       },
     }) as Pick<

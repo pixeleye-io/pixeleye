@@ -1,10 +1,10 @@
-import { Container, Divider } from "@pixeleye/ui";
-import { RegisterSegment } from "../../breadcrumbStore";
+import { Divider } from "@pixeleye/ui";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { API } from "@/libs/api";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { queries, getQueryClient } from "@/queries";
+import { BuildSegments } from "./segments";
 
 export default async function Layout({
   children,
@@ -46,21 +46,7 @@ export default async function Layout({
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <RegisterSegment
-        order={1}
-        reference="builds"
-        segment={[
-          {
-            name: project.name,
-            value: `/projects/${build.projectID}`,
-          },
-          {
-            name: `#${build.buildNumber}`,
-            value: `/builds/${buildID}`,
-            status: build.status,
-          },
-        ]}
-      />
+      <BuildSegments buildID={build.id} projectID={project.id} />
       <Divider />
       {children}
     </HydrationBoundary>

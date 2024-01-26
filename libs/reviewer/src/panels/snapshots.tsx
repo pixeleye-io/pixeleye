@@ -4,14 +4,27 @@ import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
-import { Accordion } from "@pixeleye/ui";
+import { Accordion, Status } from "@pixeleye/ui";
 import { useStore } from "zustand";
+import { Snapshot } from "@pixeleye/api";
 
 interface AccordionSnapsProps {
   groupedSnapshots: ExtendedSnapshotPair[][];
-  name: string;
+  name: Snapshot["status"];
   currentSnapshot: ExtendedSnapshotPair | undefined;
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
+}
+
+export const snapshotStatusText: Record<Snapshot["status"], string> = {
+  unreviewed: "Unreviewed",
+  approved: "Approved",
+  rejected: "Rejected",
+  unchanged: "Unchanged",
+  missing_baseline: "Missing Baseline",
+  orphaned: "Orphaned",
+  failed: "Failed",
+  aborted: "Aborted",
+  processing: "Processing",
 }
 
 function AccordionSnaps({
@@ -24,12 +37,13 @@ function AccordionSnaps({
     return null;
   }
 
-
-
   return (
     <Accordion.Item value={name}>
       <Accordion.Trigger className="px-2" size="sm">
-        <span className="first-letter:capitalize">{name}</span>
+        <div className="flex space-x-2">
+          <Status snapshotStatus status={name} />
+          <span>{snapshotStatusText[name]}</span>
+        </div>
       </Accordion.Trigger>
       <Accordion.Content>
         <ul className="flex flex-col space-y-4 overflow-y-auto grow">

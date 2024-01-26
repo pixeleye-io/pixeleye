@@ -1,4 +1,9 @@
-import { getEnvironment, getParentShas, isAncestor } from "@pixeleye/cli-env";
+import {
+  getEnvironment,
+  getMergeBase,
+  getParentShas,
+  isAncestor,
+} from "@pixeleye/cli-env";
 import { APIType } from "../api";
 
 import { Build } from "@pixeleye/api";
@@ -67,12 +72,59 @@ export async function createBuild(api: APIType) {
 
   const parentBuilds = (await getParentBuilds(api)) || [];
 
+  let targetBuildIDs = [];
+
+  if (env.isPR) {
+    if (!env.prBranch) {
+      throw new Error(
+        "No PR branch name not found, please set the environment variable PIXELEYE_PR_BRANCH"
+      );
+    }
+
+    const mergeBase = await getMergeBase(env.prBranch).catch(() => undefined);
+
+    if (mergeBase === undefined) {
+      console.warn(
+        `No merge base found for ${env.prBranch}, we will attempt to use the latest build in that branch. This could mean we aren't accurately testing the changes in this PR.`
+      );
+    }
+
+    // We Try to find a build that matches the merge base commit, and failing that just default to the latest build in that branch
+    let mergeBaseBuild = await api.post("/v1/client/builds", {
+      body: {
+        shas: mergeBase ? [mergeBase] : undefined,
+      },
+      queries: {
+        branch: mergeBase ? undefined : env.prBranch,
+        limit: 1,
+      },
+    });
+
+    if (mergeBaseBuild.length === 0 && mergeBase) {
+      mergeBaseBuild = await api.post("/v1/client/builds", {
+        queries: {
+          branch: env.prBranch,
+          limit: 1,
+        },
+      });
+    }
+
+    if (mergeBaseBuild.length === 0) {
+      throw new Error(
+        `No build found for ${env.prBranch}, please run pixeleye on that branch first`
+      );
+    }
+
+    targetBuildIDs = mergeBaseBuild.map((build) => build.id);
+  } else {
+    targetBuildIDs = parentBuilds?.map((build) => build.id);
+  }
 
   const build = api.post("/v1/client/builds/create", {
     body: {
       branch: env.branch,
       sha: env.commit,
-      targetBuildIDs: parentBuilds?.map((build) => build.id), // TODO - We should get the target if we are on a PR
+      targetBuildIDs,
       parentIDs: parentBuilds?.map((build) => build.id),
     },
   });

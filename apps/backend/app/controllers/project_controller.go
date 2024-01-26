@@ -93,7 +93,7 @@ func CreateProject(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
 	}
 
-	if err := db.CreateProject(&project, user.ID); err != nil {
+	if err := db.CreateProject(c.Request().Context(), &project, user.ID); err != nil {
 		return err
 	}
 
@@ -167,6 +167,7 @@ type updateProjectRequest struct {
 	Name         string   `json:"name"`
 	Threshold    *float64 `json:"threshold" validate:"omitempty,min=0,max=1"`
 	SnapshotBlur *bool    `json:"snapshotBlur"`
+	AutoApprove  string   `json:"autoApprove" validate:"omitempty"`
 }
 
 func UpdateProject(c echo.Context) error {
@@ -197,12 +198,16 @@ func UpdateProject(c echo.Context) error {
 		project.SnapshotBlur = *body.SnapshotBlur
 	}
 
+	if body.AutoApprove != "" {
+		project.AutoApprove = body.AutoApprove
+	}
+
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
 	}
 
-	if err := db.UpdateProject(project); err != nil {
+	if err := db.UpdateProject(c.Request().Context(), project); err != nil {
 		return err
 	}
 
@@ -233,7 +238,7 @@ func RegenerateToken(c echo.Context) error {
 		return err
 	}
 
-	if err := db.UpdateProject(project); err != nil {
+	if err := db.UpdateProject(c.Request().Context(), project); err != nil {
 		return err
 	}
 

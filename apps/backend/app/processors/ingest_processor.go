@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"image"
@@ -103,7 +104,7 @@ func generateBytesHash(imgBytes []byte) (string, error) {
 // 1) Check in build history for an approved snapshot, get first
 // 2) If the approved snapshot is the same as the baseline, then we can approve this snapshot
 // 3) If the approved snapshot is different, then we need to generate a diff and set the status to unreviewed
-func processSnapshot(ctx context.Context, project models.Project, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
+func processSnapshot(ctx context.Context, project models.Project, build models.Build, snapshot models.Snapshot, baselineSnapshot models.Snapshot, db *database.Queries) error {
 
 	snapshot.BaselineID = &baselineSnapshot.ID
 
@@ -251,6 +252,14 @@ func processSnapshot(ctx context.Context, project models.Project, snapshot model
 	snapshot.DiffID = &diffImg.ID
 	snapshot.Status = models.SNAPSHOT_STATUS_UNREVIEWED
 
+	// If we're on a branch that is set to auto approve, then we can go ahead and approve the snapshot
+	if project.AutoApprove != "" {
+		match, _ := regexp.MatchString(project.AutoApprove, build.Branch)
+		if match {
+			snapshot.Status = models.SNAPSHOT_STATUS_APPROVED
+		}
+	}
+
 	return db.UpdateSnapshot(snapshot)
 }
 
@@ -345,7 +354,7 @@ func compareBuilds(ctx context.Context, project models.Project, snapshots []mode
 	}
 
 	for _, snap := range changedSnapshots {
-		err := processSnapshot(ctx, project, snap[0], snap[1], db)
+		err := processSnapshot(ctx, project, build, snap[0], snap[1], db)
 
 		if err != nil {
 			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
