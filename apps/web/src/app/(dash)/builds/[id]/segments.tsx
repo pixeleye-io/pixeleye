@@ -20,7 +20,7 @@ export function BuildSegments({ buildID, projectID }: { buildID: string, project
                     value: `/projects/${build?.projectID}`,
                 },
                 {
-                    name: `#${build?.buildNumber}`,
+                    name: `#${build?.buildNumber || ""}`,
                     value: `/builds/${buildID}`,
                     status: build?.status,
                 },
