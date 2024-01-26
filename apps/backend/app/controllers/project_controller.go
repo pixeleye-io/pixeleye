@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/git"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/app/queries"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -115,10 +117,35 @@ func GetProjectBuilds(c echo.Context) error {
 		return err
 	}
 
-	branch := c.QueryParam("branch")
+	branchStr := c.QueryParam("branch")
+	limitStr := c.QueryParam("limit")
+	offsetStr := c.QueryParam("offset")
 
-	builds, err := db.GetProjectBuilds(c.Request().Context(), project.ID, branch)
+	if limitStr == "" {
+		limitStr = "25"
+	}
 
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "limit must be an integer")
+	}
+
+	if offsetStr == "" {
+		offsetStr = "0"
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "offset must be an integer")
+	}
+
+	if limit > 128 {
+		return echo.NewHTTPError(http.StatusBadRequest, "limit cannot be greater than 128")
+	}
+
+	builds, err := db.GetProjectBuilds(c.Request().Context(), project.ID, &queries.GetProjectBuildsOptions{
+		Branch: branchStr, Limit: limit, Offset: offset,
+	})
 	if err != nil {
 		return err
 	}

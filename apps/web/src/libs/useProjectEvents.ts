@@ -2,7 +2,11 @@
 
 import { queries } from "@/queries";
 import { Build } from "@pixeleye/api";
-import { QueryClient, useQueryClient } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  QueryClient,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect } from "react";
 import { env } from "../env";
 
@@ -33,6 +37,12 @@ function updateBuildStatus(
   const cachedBuilds = queryClient.getQueryData<Build[]>(
     queries.projects.detail(projectID)._ctx.listBuilds().queryKey
   );
+
+  const cachedInfiniteBuilds = queryClient.getQueryData([
+    ...queries.projects.detail(projectID)._ctx.listBuilds().queryKey,
+    "infinite",
+  ]) as InfiniteData<Build[]> | undefined;
+
   if (cachedBuilds) {
     const buildIndex = cachedBuilds.findIndex(
       (build: any) => build.id === data.data.buildID
@@ -56,6 +66,50 @@ function updateBuildStatus(
     }
   }
 
+  if (cachedInfiniteBuilds) {
+    const pageIndex = cachedInfiniteBuilds.pages.findIndex((page) =>
+      page.find((build) => build.id === data.data.buildID)
+    );
+
+    if (pageIndex === -1) {
+      queryClient.invalidateQueries(
+        queries.projects.detail(projectID)._ctx.listBuilds()
+      );
+    } else {
+      const buildIndex = cachedInfiniteBuilds.pages[pageIndex].findIndex(
+        (build) => build.id === data.data.buildID
+      );
+
+      if (buildIndex === -1) {
+        queryClient.invalidateQueries(
+          queries.projects.detail(projectID)._ctx.listBuilds()
+        );
+      } else {
+        queryClient.setQueryData<InfiniteData<Build[]>>(
+          [
+            ...queries.projects.detail(projectID)._ctx.listBuilds().queryKey,
+            "infinite",
+          ],
+          (prev) => ({
+            pages: [
+              ...cachedInfiniteBuilds.pages.slice(0, pageIndex),
+              [
+                ...cachedInfiniteBuilds.pages[pageIndex].slice(0, buildIndex),
+                {
+                  ...cachedInfiniteBuilds.pages[pageIndex][buildIndex],
+                  status: data.data.status,
+                },
+                ...cachedInfiniteBuilds.pages[pageIndex].slice(buildIndex + 1),
+              ],
+              ...cachedInfiniteBuilds.pages.slice(pageIndex + 1),
+            ],
+            pageParams: prev?.pageParams || [],
+          })
+        );
+      }
+    }
+  }
+
   const cachedBuild = queryClient.getQueryData<Build>(
     queries.builds.detail(data.data.buildID).queryKey
   );
@@ -67,9 +121,7 @@ function updateBuildStatus(
         status: data.data.status,
       }
     );
-    queryClient.invalidateQueries(
-      queries.builds.detail(data.data.buildID)
-    );
+    queryClient.invalidateQueries(queries.builds.detail(data.data.buildID));
   }
 }
 
@@ -83,10 +135,29 @@ function newBuild(
       queries.projects.detail(projectID)._ctx.listBuilds().queryKey
     ) || [];
 
+  const cachedInfiniteBuilds = queryClient.getQueryData([
+    ...queries.projects.detail(projectID)._ctx.listBuilds().queryKey,
+    "infinite",
+  ]) as InfiniteData<Build[]> | undefined;
+
   queryClient.setQueryData(
     queries.projects.detail(projectID)._ctx.listBuilds().queryKey,
     [data.data, ...cachedBuilds]
   );
+  queryClient.setQueryData<InfiniteData<Build[]>>(
+    [
+      ...queries.projects.detail(projectID)._ctx.listBuilds().queryKey,
+      "infinite",
+    ],
+    (prev) => ({
+      pages: [
+        [data.data, ...(cachedInfiniteBuilds?.pages[0] || [])],
+        ...(cachedInfiniteBuilds?.pages.slice(1) || []),
+      ],
+      pageParams: prev?.pageParams || [],
+    })
+  );
+
   queryClient.setQueryData(
     queries.builds.detail(data.data.id).queryKey,
     data.data
