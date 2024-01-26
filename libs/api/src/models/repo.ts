@@ -7,6 +7,7 @@ export const RepoZod = z.object({
   url: z.string().url().optional(),
   description: z.string().optional(),
   lastUpdated: z.string().datetime().optional(),
+  defaultBranch: z.string().optional(),
 });
 
 export type Repo = z.infer<typeof RepoZod>;

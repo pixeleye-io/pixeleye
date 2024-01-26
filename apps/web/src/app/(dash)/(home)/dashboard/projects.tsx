@@ -157,8 +157,8 @@ export function DashboardProjects({ team }: { team: Team }) {
                 key={project.id}
                 className="relative flex flex-col items-center justify-center w-full h-48 p-6 text-center transition border rounded-lg group/card hover:shadow-md hover:border-primary border-outline"
               >
-                <h3 className="text-lg">{project.name}</h3>
-                <p className="text-sm text-on-surface">{project.lastActivity
+                <h3 className="text-lg font-semibold">{project.name}</h3>
+                <p className="text-sm text-on-surface-variant">{project.lastActivity
                   ? dayjs(project.lastActivity).fromNow()
                   : "No activity"}</p>
                 <NextLink
