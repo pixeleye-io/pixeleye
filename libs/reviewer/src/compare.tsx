@@ -1,15 +1,19 @@
 import {
   Button,
-  Header,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuTrigger,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
   Toggle,
 } from "@pixeleye/ui";
-import { CompareTab, StoreContext, store } from "./store";
+import { CompareTab, SnapshotTargetGroup, StoreContext, store } from "./store";
 import { FC, useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import { ArrowsPointingInIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { ArrowsPointingInIcon, ChevronDownIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
 import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "@pixeleye/device-logos";
@@ -18,6 +22,64 @@ import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
 import { snapshotStatusText } from "./panels/snapshots";
+
+const buttonColors: Record<Snapshot["status"], string> = {
+  approved: "dark:bg-green-300 dark:text-green-900 bg-green-500 text-green-50",
+  rejected: "dark:bg-orange-300 dark:text-orange-900 bg-orange-500 text-orange-50",
+  unreviewed: "dark:bg-yellow-300 dark:text-yellow-900 bg-yellow-500 text-yellow-50",
+  orphaned: "dark:bg-white dark:text-black bg-black text-white",
+  aborted: "dark:bg-red-300 dark:text-red-900 bg-red-500 text-red-50",
+  failed: "dark:bg-red-300 dark:text-red-900 bg-red-500 text-red-50",
+  missing_baseline: "dark:bg-red-300 dark:text-red-900 bg-red-500 text-red-50",
+  processing: "dark:bg-blue-300 dark:text-blue-900 bg-blue-500 text-blue-50",
+  unchanged: "dark:bg-teal-300 dark:text-teal-900 bg-teal-500 text-teal-50",
+}
+
+const buttonHoverColors: Record<Snapshot["status"], string> = {
+  approved: "hover:dark:bg-green-300/90 hover:bg-green-500/90",
+  rejected: "hover:dark:bg-orange-300/90 hover:bg-orange-500/90",
+  unreviewed: "hover:dark:bg-yellow-300/90 hover:bg-yellow-500/90",
+  orphaned: "hover:dark:bg-white/90 hover:bg-black/20",
+  aborted: "hover:dark:bg-red-300/90 hover:bg-red-500/90",
+  failed: "hover:dark:bg-red-300/90 hover:bg-red-500/90",
+  missing_baseline: "hover:dark:bg-red-300/90 hover:bg-red-500/90",
+  processing: "hover:dark:bg-blue-300/90 hover:bg-blue-500/90",
+  unchanged: "hover:dark:bg-teal-300/90 hover:bg-teal-500/90",
+}
+
+
+function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: SnapshotTargetGroup; canReview: boolean; onReview: (status: Snapshot["status"]) => void }) {
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger disabled={(!["rejected", "unreviewed", "approved"].includes(snapshots.status)) && !canReview} className={cx("rounded px-2 py-1 font-semibold flex divide-outline border border-[currentColor] items-center justify-center", canReview && buttonHoverColors[snapshots.status], buttonColors[snapshots.status])}>
+        {snapshotStatusText[snapshots.status]}
+        {
+          ["rejected", "unreviewed", "approved"].includes(snapshots.status) && canReview && (
+            <div className="border-l border-[currentColor] ml-2 pl-2">
+              <ChevronDownIcon className="h-4 w-4" />
+            </div>)
+        }
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuContent>
+          {
+            ["rejected", "unreviewed"].includes(snapshots.status) && (<DropdownMenuItem onClick={() => onReview("approved")}>
+              Approve
+            </DropdownMenuItem>)
+          }
+
+          {
+            ["approved", "unreviewed"].includes(snapshots.status) && (<DropdownMenuItem onClick={() => onReview("rejected")}>
+              Reject
+            </DropdownMenuItem>)
+          }
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenu>
+  )
+
+}
 
 function TabSwitcher() {
   return (
@@ -203,44 +265,22 @@ export function Compare() {
             <div className="flex justify-between items-center">
               <Title snapshot={snapshot} />
 
-              {userRole !== "viewer" &&
-                ["unreviewed", "approved", "rejected"].includes(
-                  snapshot.status
-                ) &&
-                build.isLatest && (
-                  <div className="space-x-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="text-error"
-                      onClick={() => {
-                        buildAPI.rejectSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
+              <div className="space-x-2">
+                <ReviewDropdown snapshots={currentSnapshotGroup} canReview={Boolean(build.isLatest) && userRole !== "viewer"} onReview={(status) => {
+                  if (status === "approved") buildAPI.approveSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
+                  else buildAPI.rejectSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
 
-                        setCurrentSnapshot(
-                          snapshotTargetGroups[currentSnapshotIndex + 1]?.snapshots[0] ||
-                          snapshotTargetGroups[currentSnapshotIndex]?.snapshots[0]
-                        )
-                      }}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="affirmative"
-                      onClick={() => {
-                        buildAPI.approveSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
 
-                        setCurrentSnapshot(
-                          snapshotTargetGroups[currentSnapshotIndex + 1]?.snapshots[0] ||
-                          snapshotTargetGroups[currentSnapshotIndex]?.snapshots[0]
-                        )
 
-                      }}
-                    >
-                      Approve
-                    </Button>
-                  </div>
-                )}
+                  setCurrentSnapshot(
+                    snapshotTargetGroups[currentSnapshotIndex + 1]?.snapshots[0] ||
+                    snapshotTargetGroups[currentSnapshotIndex]?.snapshots[0]
+                  )
+
+
+                }} />
+
+              </div>
 
             </div>
 
@@ -250,10 +290,10 @@ export function Compare() {
                 <TabSwitcher />
                 <DisplayOptions resetAlignment={resetAlignment} />
               </div>
-              <div className="flex space-x-4 items-center justify-center">
-                <SnapStatus status={snapshot.status} />
-                <TargetTabs snapshot={snapshot} />
-              </div>
+              {/* <div className="flex space-x-4 items-center justify-center"> */}
+              {/* <SnapStatus status={snapshot.status} /> */}
+              <TargetTabs snapshot={snapshot} />
+              {/* </div> */}
             </div>
           </div>
         </header>
