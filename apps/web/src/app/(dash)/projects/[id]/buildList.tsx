@@ -257,7 +257,7 @@ export function BuildList({ projectID }: { projectID: string }) {
         >
           {hasNextPage
             ? 'Load More'
-            : 'Nothing more to load'}
+            : 'No more builds'}
         </Button>
       </div>
     </div>
