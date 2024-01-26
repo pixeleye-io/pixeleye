@@ -407,10 +407,12 @@ export function UpdateProjectSection({ project }: { project: Project }) {
   const { register, handleSubmit } = useForm<{
     name: string;
     snapshotThreshold: number;
+    autoApprove: string;
   }>({
     defaultValues: {
       name: project.name,
       snapshotThreshold: project.snapshotThreshold || 0.2,
+      autoApprove: project.autoApprove || "",
     },
   });
 
@@ -472,6 +474,16 @@ export function UpdateProjectSection({ project }: { project: Project }) {
         required
         {...register("name", { required: true })}
       />
+      <div>
+        <Input
+          label="Auto approve branches"
+          placeholder="Enter regex"
+          {...register("autoApprove", { required: false })}
+        />
+        <p className="text-on-surface-variant text-sm pt-2">
+          Regex expression of branches where snapshots are automatically approved. It&apos;s generally a good idea to auto approve your main branch
+        </p>
+      </div>
       <div className="flex flex-col">
         <label className="pb-2">
           Snapshot threshold: {threshold[0]}

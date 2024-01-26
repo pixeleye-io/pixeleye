@@ -434,6 +434,12 @@ table "project" {
     null = false
   }
 
+  column "auto_approve" {
+    type    = varchar(255)
+    default = ""
+    null    = false
+  }
+
   column "snapshot_threshold" {
     type    = float
     null    = false

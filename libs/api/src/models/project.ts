@@ -21,6 +21,8 @@ export const ProjectZod = z.object({
 
   lastActivity: z.string().datetime().optional(),
 
+  autoApprove: z.string().optional(),
+
   role: z.enum(["admin", "reviewer", "viewer"]).optional(),
   teamRole: z.enum(["admin", "member", "accountant", "owner"]).optional(),
 });

@@ -184,8 +184,8 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 	return project, err
 }
 
-func (q *ProjectQueries) CreateProject(project *models.Project, userID string) error {
-	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url, snapshot_threshold, snapshot_blur) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url, :snapshot_threshold, :snapshot_blur)`
+func (q *ProjectQueries) CreateProject(ctx context.Context, project *models.Project, userID string) error {
+	query := `INSERT INTO project (id, team_id, name, source, source_id, token, created_at, updated_at, url, snapshot_threshold, snapshot_blur, auto_approve) VALUES (:id, :team_id, :name, :source, :source_id, :token, :created_at, :updated_at, :url, :snapshot_threshold, :snapshot_blur, :auto_approve)`
 	setUsersQuery := `INSERT INTO project_users (project_id, user_id, role, type) VALUES (:project_id, :user_id, :role, :type)`
 
 	time := utils.CurrentTime()
@@ -204,7 +204,6 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 		userOnProject.Type = "invited"
 	}
 
-	ctx := context.Background()
 	tx, err := q.BeginTxx(ctx, nil)
 	if err != nil {
 		return err
@@ -224,12 +223,12 @@ func (q *ProjectQueries) CreateProject(project *models.Project, userID string) e
 	return tx.Commit()
 }
 
-func (q *ProjectQueries) UpdateProject(project *models.Project) error {
-	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token, updated_at = :updated_at, url = :url, snapshot_threshold = :snapshot_threshold, snapshot_blur = :snapshot_blur WHERE id = :id`
+func (q *ProjectQueries) UpdateProject(ctx context.Context, project *models.Project) error {
+	query := `UPDATE project SET name = :name, source = :source, source_id = :source_id, token = :token, updated_at = :updated_at, url = :url, snapshot_threshold = :snapshot_threshold, snapshot_blur = :snapshot_blur, auto_approve = :auto_approve WHERE id = :id`
 
 	project.UpdatedAt = time.Now()
 
-	_, err := q.NamedExec(query, project)
+	_, err := q.NamedExecContext(ctx, query, project)
 
 	return err
 }

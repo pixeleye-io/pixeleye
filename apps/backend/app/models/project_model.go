@@ -33,6 +33,8 @@ type Project struct {
 	RawToken     string     `json:"token,omitempty" db:"-"` // This is used for sending the token to the client. It should only be populated when a project is first created
 	LastActivity *time.Time `db:"last_activity" json:"lastActivity"`
 
+	AutoApprove string `db:"auto_approve" json:"autoApprove" validate:"omitempty"`
+
 	Role     string `db:"role" json:"role,omitempty" validate:"omitempty,oneof=admin reviewer viewer"`                  // only for user scoped queries
 	TeamRole string `db:"team_role" json:"teamRole,omitempty" validate:"omitempty,oneof=owner admin accountant member"` // only for user scoped queries
 }
