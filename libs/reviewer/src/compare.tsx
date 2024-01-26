@@ -22,6 +22,7 @@ import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
 import { snapshotStatusText } from "./panels/snapshots";
+import { HandThumbDownIcon, HandThumbUpIcon } from "@heroicons/react/24/solid";
 
 const buttonColors: Record<Snapshot["status"], string> = {
   approved: "dark:bg-green-300 dark:text-green-900 bg-green-500 text-green-50",
@@ -39,12 +40,12 @@ const buttonHoverColors: Record<Snapshot["status"], string> = {
   approved: "hover:dark:bg-green-300/90 hover:bg-green-500/90",
   rejected: "hover:dark:bg-orange-300/90 hover:bg-orange-500/90",
   unreviewed: "hover:dark:bg-yellow-300/90 hover:bg-yellow-500/90",
-  orphaned: "hover:dark:bg-white/90 hover:bg-black/20",
-  aborted: "hover:dark:bg-red-300/90 hover:bg-red-500/90",
-  failed: "hover:dark:bg-red-300/90 hover:bg-red-500/90",
-  missing_baseline: "hover:dark:bg-red-300/90 hover:bg-red-500/90",
-  processing: "hover:dark:bg-blue-300/90 hover:bg-blue-500/90",
-  unchanged: "hover:dark:bg-teal-300/90 hover:bg-teal-500/90",
+  orphaned: "",
+  aborted: "",
+  failed: "",
+  missing_baseline: "",
+  processing: "",
+  unchanged: "",
 }
 
 
@@ -52,7 +53,7 @@ function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: Snapsho
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger disabled={(!["rejected", "unreviewed", "approved"].includes(snapshots.status)) && !canReview} className={cx("rounded px-2 py-1 font-semibold flex divide-outline border border-[currentColor] items-center justify-center", canReview && buttonHoverColors[snapshots.status], buttonColors[snapshots.status])}>
+      <DropdownMenuTrigger disabled={(!["rejected", "unreviewed", "approved"].includes(snapshots.status)) || !canReview} className={cx("rounded px-2 py-1 font-semibold flex divide-outline border border-[currentColor] items-center justify-center", canReview && buttonHoverColors[snapshots.status], buttonColors[snapshots.status])}>
         {snapshotStatusText[snapshots.status]}
         {
           ["rejected", "unreviewed", "approved"].includes(snapshots.status) && canReview && (
@@ -65,12 +66,14 @@ function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: Snapsho
         <DropdownMenuContent>
           {
             ["rejected", "unreviewed"].includes(snapshots.status) && (<DropdownMenuItem onClick={() => onReview("approved")}>
+              <HandThumbUpIcon className="w-4 h-4 mr-2" />
               Approve
             </DropdownMenuItem>)
           }
 
           {
             ["approved", "unreviewed"].includes(snapshots.status) && (<DropdownMenuItem onClick={() => onReview("rejected")}>
+              <HandThumbDownIcon className="w-4 h-4 mr-2" />
               Reject
             </DropdownMenuItem>)
           }
