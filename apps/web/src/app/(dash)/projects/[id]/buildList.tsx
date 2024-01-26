@@ -137,7 +137,6 @@ function BuildRow({ build }: { build: Build }) {
   return (
     <li className="">
       <div className="relative flex items-center space-x-4 py-4 rounded px-2 z-0 [&:hover:not(:has(button:hover))]:bg-surface-container">
-
         <div className="min-w-0 flex-[2_2_0%]">
           <div className="flex items-center gap-x-3">
             <Status status={build.status} />
@@ -202,26 +201,38 @@ export function BuildList({ projectID }: { projectID: string }) {
 
 
   const { data: buildsData, status, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery(
-    { queryKey: [queries.projects.detail(projectID)._ctx.listBuilds().queryKey], queryFn: ({ pageParam }: { pageParam: number }) => API.get("/v1/projects/{id}/builds", {
-      params: {
-        id: projectID,
-      },
-      queries: {
-        limit: 25,
-        offset: pageParam,
-      }
-    }), getNextPageParam: (_, pages) => pages.length, initialPageParam: 0 }
+    {
+      queryKey: [
+        ...queries.projects.detail(projectID)._ctx.listBuilds().queryKey,
+        "infinite",
+      ], queryFn: ({ pageParam }: { pageParam: number }) => API.get("/v1/projects/{id}/builds", {
+        params: {
+          id: projectID,
+        },
+        queries: {
+          limit: 25,
+          offset: pageParam,
+        }
+      }), getNextPageParam: (_, pages, lastPageParam) => {
+        const count = pages.reduce((prev, curr) => prev + curr.length, 0);
+
+        return count === lastPageParam ? undefined : count;
+      }, initialPageParam: 0,
+
+    }
   );
 
   if (status === "pending") return undefined;
 
-  if (!buildsData?.pages?.length) {
+  if (!buildsData?.pages.reduce((prev, curr) => prev + curr.length, 0)) {
     return <EmptyState id={projectID} />;
   }
 
 
   return (
-    <>
+    <div>
+      <div>
+      </div>
       <ul role="list" className="divide-y divide-outline-variant">
         {buildsData.pages.map((group, i) => (
 
@@ -241,15 +252,14 @@ export function BuildList({ projectID }: { projectID: string }) {
           variant="outline"
           className="my-8"
           onClick={() => fetchNextPage()}
+          loading={isFetchingNextPage}
           disabled={!hasNextPage || isFetchingNextPage}
         >
-          {isFetchingNextPage
-            ? 'Loading more...'
-            : hasNextPage
-              ? 'Load More'
-              : 'Nothing more to load'}
+          {hasNextPage
+            ? 'Load More'
+            : 'Nothing more to load'}
         </Button>
       </div>
-    </>
+    </div>
   );
 }
