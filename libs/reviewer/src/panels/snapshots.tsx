@@ -15,7 +15,7 @@ interface AccordionSnapsProps {
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
 }
 
-const snapshotStatusText: Record<Snapshot["status"], string> = {
+export const snapshotStatusText: Record<Snapshot["status"], string> = {
   unreviewed: "Unreviewed",
   approved: "Approved",
   rejected: "Rejected",

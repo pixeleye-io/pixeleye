@@ -17,6 +17,7 @@ import { m } from "framer-motion";
 import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
+import { snapshotStatusText } from "./panels/snapshots";
 
 function TabSwitcher() {
   return (
@@ -76,11 +77,11 @@ function SnapStatus({ status }: {
 }) {
 
   return (
-    <span className="flex items-center justify-center">
-      <span className={cx("first-letter:uppercase border text-sm p-1 rounded block", snapStatusColors[status])}>
-        {status}
-      </span>
-    </span>
+    <div className="flex items-center justify-center mt-4">
+      <p className={cx("border text-sm p-1 rounded block", snapStatusColors[status])}>
+        {snapshotStatusText[status]}
+      </p>
+    </div>
   )
 }
 
@@ -248,9 +249,11 @@ export function Compare() {
               <div className="mt-4 flex space-x-4 ">
                 <TabSwitcher />
                 <DisplayOptions resetAlignment={resetAlignment} />
-                <SnapStatus status={snapshot.status} />
               </div>
-              <TargetTabs snapshot={snapshot} />
+              <div className="flex space-x-4 items-center justify-center">
+                <SnapStatus status={snapshot.status} />
+                <TargetTabs snapshot={snapshot} />
+              </div>
             </div>
           </div>
         </header>
