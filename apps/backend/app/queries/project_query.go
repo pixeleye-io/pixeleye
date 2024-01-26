@@ -430,8 +430,6 @@ func (q *ProjectQueries) GetProjectBuilds(ctx context.Context, projectID string,
 		query += " OFFSET $" + fmt.Sprintf("%d", len(args))
 	}
 
-	log.Debug().Msgf("Query: %v", query)
-
 	err := q.SelectContext(ctx, &builds, query, args...)
 
 	return builds, err
