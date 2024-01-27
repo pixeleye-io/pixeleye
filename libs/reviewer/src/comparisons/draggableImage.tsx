@@ -180,7 +180,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
         <ReactFlow proOptions={{
           hideAttribution: true
-        }} onPaneClick={onClick} onWheelCapture={(e) => {
+        }} onPaneClick={onClick} minZoom={0.1} onWheelCapture={(e) => {
           if (e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
