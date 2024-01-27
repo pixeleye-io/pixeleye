@@ -1,26 +1,16 @@
-import NextImage, { StaticImageData } from "next/image";
-import { StoreContext } from "../store";
-import { MotionValue, m, useMotionValueEvent } from "framer-motion";
+import 'reactflow/dist/style.css';
+
+import { StaticImageData } from "next/image";
 import {
-  useEffect,
-  useRef,
-  useCallback,
-  forwardRef,
-  useImperativeHandle,
-  useContext,
-  useMemo,
-  useState,
+  forwardRef, useCallback, useContext, useEffect, useId, useImperativeHandle, useMemo, useState,
 } from "react";
-import { DottedBackground, Popover, PopoverContent, PopoverTrigger } from "@pixeleye/ui";
+import ReactFlow, { NodeProps, OnNodesChange, applyNodeChanges, Node, useReactFlow, OnMove, Viewport } from 'reactflow';
+import NextImage from "next/image";
 import { cx } from "class-variance-authority";
-import {
-  createUseGesture,
-  dragAction,
-  pinchAction,
-  wheelAction,
-} from "@use-gesture/react";
+import { StoreContext, store } from "../store";
 import { useStore } from "zustand";
-import { ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/solid";
+import Background from "./background";
+
 
 interface ImageProps {
   base: {
@@ -41,378 +31,162 @@ interface ImageProps {
     width: number;
     height: number;
   };
-  baseline?: boolean;
-  branch: string;
-  showSecondBase?: boolean;
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-  scale: MotionValue<number>;
-  onTap?: () => void;
-  className?: string;
-  chatBubbles?: ChatBubble[];
+  viewport?: Viewport;
+  onMove?: OnMove;
 }
 
 export type DraggableImageRef = {
   center: () => void;
-  getDefaults: () => {
-    x: number;
-    y: number;
-    scale: number;
-  };
 };
 
-export interface ChatBubble {
-  id: string;
-  content: string;
-  top: number;
-  left: number;
+interface ImageNodeData {
+  base: {
+    src: string | StaticImageData;
+    alt: string;
+    width: number;
+    height: number;
+  };
+  overlay?: {
+    src: string | StaticImageData;
+    alt: string;
+    width: number;
+    height: number;
+  };
+  secondBase?: {
+    src: string | StaticImageData;
+    alt: string;
+    width: number;
+    height: number;
+  };
 }
 
-interface GroupedChatBubble {
-  count: number;
-  bubbleIds: string[];
-  top: number;
-  left: number;
-  id: string;
-}
+function ImageNode({ data: {
+  base,
+  overlay,
+  secondBase
+} }: NodeProps<ImageNodeData>) {
 
+  const store = useContext(StoreContext)
 
+  const optimize = useStore(store, (state) => state.optimize);
+  const showOverlay = useStore(store, (state) => state.showDiff);
+  const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
 
-function ChatBubbles({
-  scale,
-  bubbles
-}: {
-  scale: MotionValue<number>;
-  bubbles: ChatBubble[];
-}) {
-
-  const [counterScale, setCounterScale] = useState(1 / scale.get())
-
-
-  useMotionValueEvent(scale, "change", (latest) => {
-    setCounterScale(1 / latest)
-  });
-
-  const groupedBubbles = useMemo(() => {
-
-    const areNear = (a: ChatBubble, b: GroupedChatBubble) => {
-      const distance = Math.sqrt(Math.pow(a.top - b.top, 2) + Math.pow(a.left - b.left, 2))
-      return distance < 100 * counterScale
-    }
-
-    const groupedBubbles: GroupedChatBubble[] = []
-
-    bubbles.forEach((bubble) => {
-      const index = groupedBubbles.findIndex((b) => areNear(bubble, b))
-
-      if (index !== -1) {
-        const group = groupedBubbles[index]
-        group.count++
-
-        group.left = ((group.count * group.left) + bubble.left) / (group.count + 1)
-        group.top = ((group.count * group.top) + bubble.top) / (group.count + 1)
-
-        group.bubbleIds.push(bubble.id)
-
-        group.id = group.bubbleIds.join("-")
-
-      } else {
-        groupedBubbles.push({
-          bubbleIds: [bubble.id],
-          id: bubble.id,
-          top: bubble.top,
-          left: bubble.left,
-          count: 1
-        })
-      }
-    })
-
-    return groupedBubbles
-  }, [bubbles, counterScale])
 
   return (
-    <>
-      {groupedBubbles.map((bubble) => (
-        <div className={cx("absolute z-10 h-0 w-0 ", bubble.count === 1 ? "-translate-y-[1.75rem] -translate-x-[0.3rem] " : "-translate-y-8 -translate-x-2")} key={bubble.id} style={{
-          top: `${bubble.top}px`, left: `${bubble.left}`, scale: counterScale
-        }}>
-          <Popover>
-            <PopoverTrigger className="p-0 m-0">
-              {
-                bubble.count === 1 ? (
-                  <ChatBubbleOvalLeftEllipsisIcon className="text-tertiary h-8 w-8 z-40 !cursor-pointer" />
-                ) : (
-                  <span className="bg-tertiary h-10 w-10 z-40 rounded-full absolute !cursor-pointer">
-                    <span className="text-on-tertiary text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">{bubble.count}</span>
-                  </span>
-                )
-              }
-            </PopoverTrigger>
+    <div>
+      <NextImage
+        key={`base - ${base.src.toString()}`}
+        quality={100}
+        priority
+        className={cx(
+          "pointer-events-none select-none",
+          singleSnapshot !== "head" && "hidden",
+          showOverlay && overlay && "brightness-[50%]"
+        )}
+        draggable={false}
+        alt={base.alt}
+        src={base.src}
+        unoptimized={!optimize}
+        placeholder={optimize ? "blur" : "empty"}
+      />
+      {secondBase && (
+        <NextImage
+          key={`second - base - ${secondBase.src.toString()}`}
+          quality={100}
+          priority
+          className={cx(
+            "pointer-events-none select-none",
+            singleSnapshot === "head" && "hidden",
+          )}
+          draggable={false}
+          alt={secondBase.alt}
+          src={secondBase.src}
+          placeholder={optimize ? "blur" : "empty"}
+          unoptimized={!optimize}
+        />
+      )}
+      {overlay && (
+        <NextImage
+          key={`overlay - ${overlay.src.toString()}`}
+          priority
+          quality={100}
+          className={cx(
+            (!showOverlay || singleSnapshot !== "head") && "opacity-0",
+            "pointer-events-none select-none absolute inset-0",
+          )}
+          draggable={false}
+          alt={overlay.alt}
+          src={overlay.src}
+          placeholder={optimize ? "blur" : "empty"}
+          unoptimized={!optimize}
+        />
+      )}
+    </div>
 
-            <PopoverContent align="end" side="right">
-              test
-            </PopoverContent>
-
-          </Popover>
-        </div>
-
-      ))}
-    </>
   )
-
 }
+
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
     {
       base,
       overlay,
-      x,
-      y,
-      scale,
-      onTap,
-      className,
       secondBase,
-      showSecondBase = false,
-      baseline,
-      branch,
-      chatBubbles = []
+      viewport,
+      onMove
     },
     ref
   ) {
-    const parentRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const draggableRef = useRef<HTMLDivElement>(null);
 
-    const store = useContext(StoreContext)
+    const initialNodes = [
+      { id: '1', position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }];
 
+    const [nodes, setNodes] = useState<Node[]>(initialNodes);
+    const nodeTypes = useMemo(() => ({ image: ImageNode }), []);
 
-    const optimize = useStore(store, (state) => state.optimize);
-    const showOverlay = useStore(store, (state) => state.showDiff);
+    const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
+    const setSingleSnapshot = useStore(store,
+      (state) => state.setSingleSnapshot
+    );
 
-    const cancelTap = useRef(false);
+    const onNodesChange = useCallback<OnNodesChange>(
+      (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+      [setNodes]
+    );
 
-    const getDefaults = useCallback(() => {
-      if (!parentRef.current)
-        return {
-          x: 0,
-          y: 8,
-          scale: 1,
-        };
-
-      const { width, height } = parentRef.current.getBoundingClientRect();
-
-      const { width: baseWidth, height: baseHeight } = base;
-
-      const aspect = width / baseWidth;
-
-      const adjustedHeight = baseHeight * aspect;
-      const adjustedWidth = baseWidth * aspect;
-
-      const scale = Math.max(
-        Math.min(
-          (width - 16) / adjustedWidth,
-          (height - 16) / adjustedHeight,
-          10
-        ),
-        0.25
-      );
-
-      return {
-        x: 0,
-        y: 8,
-        scale,
-      };
-    }, [base]);
+    const { fitView, setViewport } = useReactFlow();
 
     const center = useCallback(() => {
-      const { scale: s, x: dX, y: dY } = getDefaults();
+      fitView();
 
-      scale.set(s);
-      x.set(dX);
-      y.set(dY);
-    }, [getDefaults, scale, x, y]);
+    }, [fitView]);
+
 
     useImperativeHandle(ref, () => ({
-      center,
-      getDefaults,
-    }));
-
-    const zoom = useCallback(
-      (
-        event: {
-          clientX: number;
-          clientY: number;
-        },
-        delta: number
-      ) => {
-        const prevS = scale.get();
-        const s = Math.max(0.1, prevS - delta);
-
-        const {
-          left: containerLeft,
-          top: containerTop,
-          width,
-        } = draggableRef.current!.getBoundingClientRect();
-
-        const dx = event.clientX - containerLeft - width / 2;
-        const dy = event.clientY - containerTop;
-
-        const newX = x.get() - dx * (s / prevS - 1);
-        const newY = y.get() - dy * (s / prevS - 1);
-
-        scale.set(s);
-        x.set(newX);
-        y.set(newY);
-      },
-      [scale, x, y]
-    );
-
-    const useGesture = createUseGesture([dragAction, wheelAction, pinchAction]);
-
-    useGesture(
-      {
-        onDrag: ({ delta: [dx, dy], pinching, tap }) => {
-          if (pinching) return;
-
-          if (tap && onTap && !cancelTap.current) {
-            return onTap();
-          }
-
-          x.set(dx + x.get());
-          y.set(dy + y.get());
-        },
-        onDragEnd: () => (cancelTap.current = false),
-        onWheel: ({
-          event,
-          delta: [dX, dY],
-          pinching,
-          ctrlKey,
-          altKey,
-          shiftKey,
-        }) => {
-          if (pinching) return;
-
-          event.preventDefault();
-          cancelTap.current = true;
-
-          if (altKey || shiftKey || ctrlKey) {
-            x.set(x.get() - dX);
-            y.set(y.get() - dY);
-            return;
-          }
-
-          zoom(event, dY / 1000);
-        },
-        onPinch: ({ event, delta: [d], origin: [oX, oY], wheeling }) => {
-          event.preventDefault();
-          cancelTap.current = true;
-
-          zoom(
-            {
-              clientX: oX,
-              clientY: oY,
-            },
-            -d
-          );
-        },
-      },
-      { target: containerRef, wheel: { eventOptions: { passive: false } } }
-    );
+      center
+    }), [center]);
 
     useEffect(() => {
-      center();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+      if (viewport) {
+        setViewport(viewport)
+      }
+    }, [setViewport, viewport]);
 
-    // Framer motion is lazy loading the image, so we need to re-center it once it's loaded
-    useMotionValueEvent(scale, "change", (latest) => {
-      if (latest === 0) scale.set(getDefaults().scale);
-    });
+    const onClick = useCallback(() => secondBase && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head"), [secondBase, setSingleSnapshot, singleSnapshot]);
 
     return (
-      <div className="h-full w-full flex-col flex items-center">
-        <div className="bg-surface-container-low border rounded-md border-outline px-2 py-1 text-sm mb-2">
-          <span className="">{baseline === undefined ? secondBase && showSecondBase ? "Baseline" : "Changes" : baseline ? "Baseline" : "Changes"}</span>
-        </div>
-        <DottedBackground
-          ref={parentRef}
-          className={cx(
-            "h-full w-full bg-surface-container-low rounded border border-outline-variant overflow-hidden",
-            className
-          )}
-        >
-          <div
-            ref={containerRef}
-            className="grow-0 w-full h-full cursor-grab z-0 select-non touch-none	active:cursor-grabbing"
-          >
-            <m.div
-              ref={draggableRef}
-              suppressHydrationWarning
-              style={{
-                scale,
-                x,
-                y,
-                aspectRatio: `${base.width} / ${base.height}`,
-                transformOrigin: "top center",
-              }}
-              className="relative z-0"
-            >
-              <ChatBubbles scale={scale} bubbles={chatBubbles} />
-              <NextImage
-                key={`base - ${base.src.toString()}`}
-                quality={100}
-                priority
-                className={cx(
-                  "pointer-events-none z-0 select-none absolute inset-0",
-                  showSecondBase && "opacity-0",
-                  showOverlay && overlay && "brightness-[50%]"
-                )}
-                draggable={false}
-                alt={base.alt}
-                src={base.src}
-                fill
-                unoptimized={!optimize}
-                placeholder={optimize ? "blur" : "empty"}
-              />
-              {secondBase && (
-                <NextImage
-                  key={`second - base - ${secondBase.src.toString()}`}
-                  quality={100}
-                  priority
-                  className={cx(
-                    "pointer-events-none z-0 select-none z-0 absolute inset-0 ",
-                    !showSecondBase && "opacity-0"
-                  )}
-                  draggable={false}
-                  alt={secondBase.alt}
-                  src={secondBase.src}
-                  fill
-                  placeholder={optimize ? "blur" : "empty"}
-                  unoptimized={!optimize}
-                />
-              )}
-              {overlay && (
-                <NextImage
-                  key={`overlay - ${overlay.src.toString()}`}
-                  priority
-                  quality={100}
-                  className={cx(
-                    (!showOverlay || showSecondBase) && "opacity-0",
-                    "pointer-events-none select-none z-10 absolute inset-0 z-10"
-                  )}
-                  draggable={false}
-                  alt={overlay.alt}
-                  src={overlay.src}
-                  fill
-                  placeholder={optimize ? "blur" : "empty"}
-                  unoptimized={!optimize}
-                />
-              )}
-            </m.div>
-          </div>
-        </DottedBackground>
+      <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
+        <ReactFlow proOptions={{
+          hideAttribution: true
+        }} onPaneClick={onClick} onNodeClick={onClick} nodesFocusable={false} zoomOnDoubleClick={false} nodesDraggable={false} nodes={nodes} nodeTypes={nodeTypes} maxZoom={10} onNodesChange={onNodesChange} fitView onMove={onMove} >
+          <Background />
+        </ReactFlow>
       </div>
     );
   }
 );
+
+
+
