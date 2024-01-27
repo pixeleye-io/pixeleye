@@ -74,7 +74,7 @@ function ImageNode({ data: {
 
 
   return (
-    <div>
+    <div className="active:cursor-grabbing">
       <NextImage
         key={`base - ${base.src.toString()}`}
         quality={100}
