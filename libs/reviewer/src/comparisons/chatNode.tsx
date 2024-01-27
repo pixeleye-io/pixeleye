@@ -56,7 +56,7 @@ function Comments({
 
 
     return (
-        <ul role="list">
+        <ul role="list" className="space-y-4 flex flex-col">
             {comments.map((comment, i) => (
                 <li key={i} className="flex">
                     <div className="flex-shrink-0">
@@ -71,9 +71,6 @@ function Comments({
                         <p className="text-sm font-medium text-on-surface">{comment.author}</p>
                         <div className="mt-1 text-sm text-on-surface-variant">
                             <p>{comment.content}</p>
-                        </div>
-                        <div className="mt-2 text-sm space-x-2">
-                            <span className="text-on-surface-variant">{comment.createdAt}</span>
                         </div>
                     </div>
                 </li>
@@ -102,7 +99,7 @@ export function ChatNode({ data: {
 
             </PopoverTrigger>
             <PopoverContent className="!p-2" side="right">
-                <ScrollArea className="!max-h-[300px] pb-4">
+                <ScrollArea className="!max-h-[300px] mb-4">
                     <Comments comments={[{
                         content: "This is a comment",
                         createdAt: "Today",

@@ -26,7 +26,14 @@ func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 
 		buildID := c.Param("build_id")
 
-		log.Debug().Msgf("build id: %s", buildID)
+		if buildID == "" {
+			snapshot, err := GetSnapshot(c)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
+			}
+
+			buildID = snapshot.BuildID
+		}
 
 		if !utils.ValidateNanoid(buildID) {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")

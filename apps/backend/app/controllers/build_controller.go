@@ -83,7 +83,6 @@ func CreateBuild(c echo.Context) error {
 	validate := utils.NewValidator()
 
 	build.ID, err = nanoid.New()
-
 	if err != nil {
 		return err
 	}

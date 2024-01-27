@@ -191,3 +191,29 @@ func GetSnapURL(c echo.Context) error {
 		PresignedHTTPRequest: url,
 	})
 }
+
+func CreateSnapshotConversation(c echo.Context) error {
+
+	snapshot, err := middleware.GetSnapshot(c)
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	conversation := &models.Conversation{
+		SnapshotID: snapshot.ID,
+		X:          0,
+		Y:          0,
+		CreatedAt:  utils.CurrentTime(),
+	}
+
+	if err := db.CreateConversation(c.Request().Context(), conversation); err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, conversation)
+}
