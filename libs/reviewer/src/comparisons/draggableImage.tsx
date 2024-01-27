@@ -8,8 +8,10 @@ import {
   forwardRef,
   useImperativeHandle,
   useContext,
+  useMemo,
+  useState,
 } from "react";
-import { DottedBackground } from "@pixeleye/ui";
+import { DottedBackground, Popover, PopoverContent, PopoverTrigger } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
 import {
   createUseGesture,
@@ -18,6 +20,7 @@ import {
   wheelAction,
 } from "@use-gesture/react";
 import { useStore } from "zustand";
+import { ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/solid";
 
 interface ImageProps {
   base: {
@@ -46,6 +49,7 @@ interface ImageProps {
   scale: MotionValue<number>;
   onTap?: () => void;
   className?: string;
+  chatBubbles?: ChatBubble[];
 }
 
 export type DraggableImageRef = {
@@ -56,6 +60,107 @@ export type DraggableImageRef = {
     scale: number;
   };
 };
+
+export interface ChatBubble {
+  id: string;
+  content: string;
+  top: number;
+  left: number;
+}
+
+interface GroupedChatBubble {
+  count: number;
+  bubbleIds: string[];
+  top: number;
+  left: number;
+  id: string;
+}
+
+
+
+function ChatBubbles({
+  scale,
+  bubbles
+}: {
+  scale: MotionValue<number>;
+  bubbles: ChatBubble[];
+}) {
+
+  const [counterScale, setCounterScale] = useState(1 / scale.get())
+
+
+  useMotionValueEvent(scale, "change", (latest) => {
+    setCounterScale(1 / latest)
+  });
+
+  const groupedBubbles = useMemo(() => {
+
+    const areNear = (a: ChatBubble, b: GroupedChatBubble) => {
+      const distance = Math.sqrt(Math.pow(a.top - b.top, 2) + Math.pow(a.left - b.left, 2))
+      return distance < 100 * counterScale
+    }
+
+    const groupedBubbles: GroupedChatBubble[] = []
+
+    bubbles.forEach((bubble) => {
+      const index = groupedBubbles.findIndex((b) => areNear(bubble, b))
+
+      if (index !== -1) {
+        const group = groupedBubbles[index]
+        group.count++
+
+        group.left = ((group.count * group.left) + bubble.left) / (group.count + 1)
+        group.top = ((group.count * group.top) + bubble.top) / (group.count + 1)
+
+        group.bubbleIds.push(bubble.id)
+
+        group.id = group.bubbleIds.join("-")
+
+      } else {
+        groupedBubbles.push({
+          bubbleIds: [bubble.id],
+          id: bubble.id,
+          top: bubble.top,
+          left: bubble.left,
+          count: 1
+        })
+      }
+    })
+
+    return groupedBubbles
+  }, [bubbles, counterScale])
+
+  return (
+    <>
+      {groupedBubbles.map((bubble) => (
+        <div className={cx("absolute z-10 h-0 w-0 ", bubble.count === 1 ? "-translate-y-[1.75rem] -translate-x-[0.3rem] " : "-translate-y-8 -translate-x-2")} key={bubble.id} style={{
+          top: `${bubble.top}px`, left: `${bubble.left}`, scale: counterScale
+        }}>
+          <Popover>
+            <PopoverTrigger className="p-0 m-0">
+              {
+                bubble.count === 1 ? (
+                  <ChatBubbleOvalLeftEllipsisIcon className="text-tertiary h-8 w-8 z-40 !cursor-pointer" />
+                ) : (
+                  <span className="bg-tertiary h-10 w-10 z-40 rounded-full absolute !cursor-pointer">
+                    <span className="text-on-tertiary text-xs font-bold absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">{bubble.count}</span>
+                  </span>
+                )
+              }
+            </PopoverTrigger>
+
+            <PopoverContent align="end" side="right">
+              test
+            </PopoverContent>
+
+          </Popover>
+        </div>
+
+      ))}
+    </>
+  )
+
+}
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
@@ -71,6 +176,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       showSecondBase = false,
       baseline,
       branch,
+      chatBubbles = []
     },
     ref
   ) {
@@ -250,14 +356,15 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
                 aspectRatio: `${base.width} / ${base.height}`,
                 transformOrigin: "top center",
               }}
-              className="relative z-0 pointer-events-none"
+              className="relative z-0"
             >
+              <ChatBubbles scale={scale} bubbles={chatBubbles} />
               <NextImage
-                key={`base-${base.src.toString()}`}
+                key={`base - ${base.src.toString()}`}
                 quality={100}
                 priority
                 className={cx(
-                  "pointer-events-none z-0 select-none z-0 absolute inset-0",
+                  "pointer-events-none z-0 select-none absolute inset-0",
                   showSecondBase && "opacity-0",
                   showOverlay && overlay && "brightness-[50%]"
                 )}
@@ -270,7 +377,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               />
               {secondBase && (
                 <NextImage
-                  key={`second-base-${secondBase.src.toString()}`}
+                  key={`second - base - ${secondBase.src.toString()}`}
                   quality={100}
                   priority
                   className={cx(
@@ -287,7 +394,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               )}
               {overlay && (
                 <NextImage
-                  key={`overlay-${overlay.src.toString()}`}
+                  key={`overlay - ${overlay.src.toString()}`}
                   priority
                   quality={100}
                   className={cx(
