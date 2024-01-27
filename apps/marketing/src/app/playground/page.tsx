@@ -1,6 +1,5 @@
 import { ExtendedSnapshotPair, Reviewer } from "@pixeleye/reviewer";
 import { Build } from "@pixeleye/api";
-import ukWiki from "./assets/uk-wiki.png";
 import HomeBase from "./assets/home-baseline.png";
 import HomeChanged from "./assets/home-changed.png";
 import HomeDiff from "./assets/home-diff.png";
@@ -25,6 +24,7 @@ const dummyBuild: Build = {
   updatedAt: new Date().toUTCString(),
   errors: [],
   sha: "123",
+  isLatest: true,
   title: "Playground build",
 };
 
@@ -87,6 +87,7 @@ export default function PlaygroundPage() {
   return (
     <Suspense>
       <Reviewer
+        userRole="admin"
         className="sm:h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
         build={dummyBuild}
         snapshots={dummySnapshots}
