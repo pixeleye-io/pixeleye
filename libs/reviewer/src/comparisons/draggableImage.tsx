@@ -180,7 +180,18 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
         <ReactFlow proOptions={{
           hideAttribution: true
-        }} onPaneClick={onClick} onNodeClick={onClick} nodesFocusable={false} zoomOnDoubleClick={false} nodesDraggable={false} nodes={nodes} nodeTypes={nodeTypes} maxZoom={10} onNodesChange={onNodesChange} fitView onMove={onMove} >
+        }} onPaneClick={onClick} onWheelCapture={(e) => {
+          if (e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            setViewport({
+              x: (viewport?.x || 0) + e.deltaX,
+              y: (viewport?.y || 0) + e.deltaY,
+              zoom: viewport?.zoom || 1,
+            })
+          }
+        }} onNodeClick={onClick} nodesFocusable={false} zoomOnDoubleClick={false} nodesDraggable={false} nodes={nodes} nodeTypes={nodeTypes} maxZoom={10} onNodesChange={onNodesChange} fitView onMove={onMove} >
           <Background />
         </ReactFlow>
       </div>

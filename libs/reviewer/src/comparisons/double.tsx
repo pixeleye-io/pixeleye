@@ -34,32 +34,40 @@ export function Double({ draggableImageRef }: DoubleProps) {
         <ReactFlowProvider>
 
           {validSnapshot && (
-            <DraggableImage
-              ref={draggableImageRef}
-              onMove={(_, view) => setViewport(view)}
-              base={{
-                src: snapshot.snapURL!,
-                width: snapshot.snapWidth!,
-                height: snapshot.snapHeight!,
-                alt: "New snapshot",
-              }}
-              overlay={
-                validDiff
-                  ? {
-                    src: snapshot.diffURL!,
-                    width: snapshot.diffWidth!,
-                    height: snapshot.diffHeight!,
-                    alt: "Highlighted difference between snapshots",
-                  }
-                  : undefined
-              }
-            />
+            <div className="flex flex-col w-full h-full justify-center items-center">
+              <p className="bg-surface-container-low border rounded-md border-outline px-2 py-1 text-sm mb-2">
+                Changes
+              </p>
+
+              <DraggableImage
+                ref={draggableImageRef}
+                onMove={(_, view) => setViewport(view)}
+                viewport={viewport}
+                base={{
+                  src: snapshot.snapURL!,
+                  width: snapshot.snapWidth!,
+                  height: snapshot.snapHeight!,
+                  alt: "New snapshot",
+                }}
+                overlay={
+                  validDiff
+                    ? {
+                      src: snapshot.diffURL!,
+                      width: snapshot.diffWidth!,
+                      height: snapshot.diffHeight!,
+                      alt: "Highlighted difference between snapshots",
+                    }
+                    : undefined
+                }
+              />
+            </div>
+
           )}
         </ReactFlowProvider>
         <ReactFlowProvider>
           {
             !validBaseline && (
-              <div className="flex flex-col items-center justify-center w-full h-full pt-8">
+              <div className="flex flex-col items-center flex-1 justify-center w-full h-full pt-8">
                 <div className="flex flex-col items-center justify-center w-full h-full bg-surface-container rounded mt-1 border border-outline-variant">
                   <p className="text-center text-gray-400">No baseline snapshot</p>
                 </div>
@@ -67,15 +75,21 @@ export function Double({ draggableImageRef }: DoubleProps) {
             )
           }
           {validBaseline && (
-            <DraggableImage
-              viewport={viewport}
-              base={{
-                src: snapshot.baselineURL!,
-                width: snapshot.baselineWidth!,
-                height: snapshot.baselineHeight!,
-                alt: "Baseline snapshot",
-              }}
-            />
+            <div className="flex flex-col h-full w-full justify-center items-center">
+              <p className="bg-surface-container-low border rounded-md border-outline px-2 py-1 text-sm mb-2">
+                Baseline
+              </p>
+              <DraggableImage
+                onMove={(_, view) => setViewport(view)}
+                viewport={viewport}
+                base={{
+                  src: snapshot.baselineURL!,
+                  width: snapshot.baselineWidth!,
+                  height: snapshot.baselineHeight!,
+                  alt: "Baseline snapshot",
+                }}
+              />
+            </div>
           )}
         </ReactFlowProvider>
 
