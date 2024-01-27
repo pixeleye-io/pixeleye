@@ -141,7 +141,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   ) {
 
     const initialNodes = [
-      { id: '1', position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }];
+      { id: '1', position: { x: 0, y: 0 }, width: 100, height: 100, data: { base, overlay, secondBase }, type: 'image' }];
 
     const [nodes, setNodes] = useState<Node[]>(initialNodes);
     const nodeTypes = useMemo(() => ({ image: ImageNode }), []);

@@ -88,7 +88,7 @@ export default function PlaygroundPage() {
     <Suspense>
       <Reviewer
         userRole="admin"
-        className="sm:h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
+        className="h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
         build={dummyBuild}
         snapshots={dummySnapshots}
         optimize
