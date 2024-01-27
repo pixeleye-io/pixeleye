@@ -156,7 +156,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       [setNodes]
     );
 
-    const { fitView, setViewport } = useReactFlow();
+    const { fitView, setViewport, getViewport } = useReactFlow();
 
     const center = useCallback(() => {
       fitView();
@@ -184,11 +184,12 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
           if (e.shiftKey) {
             e.preventDefault();
             e.stopPropagation();
+            const vp = getViewport();
 
             setViewport({
-              x: (viewport?.x || 0) + e.deltaX,
-              y: (viewport?.y || 0) + e.deltaY,
-              zoom: viewport?.zoom || 1,
+              x: vp.x - e.deltaX,
+              y: vp.y - e.deltaY,
+              zoom: vp.zoom,
             })
           }
         }} onNodeClick={onClick} nodesFocusable={false} zoomOnDoubleClick={false} nodesDraggable={false} nodes={nodes} nodeTypes={nodeTypes} maxZoom={10} onNodesChange={onNodesChange} fitView onMove={onMove} >

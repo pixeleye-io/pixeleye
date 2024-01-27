@@ -7,7 +7,7 @@ const selector = (s: ReactFlowState) => ({ transform: s.transform, patternId: `p
 
 function Background({
     id,
-    gap = 50,
+    gap = 100,
     size,
     offset = 2
 }: BackgroundProps) {
@@ -15,7 +15,7 @@ function Background({
     const { transform, patternId } = useStore(selector, shallow);
     const patternSize = size || 1;
     const gapXY: [number, number] = Array.isArray(gap) ? gap : [gap, gap];
-    const scaledGap: [number, number] = [gapXY[0] * transform[2] * 0.75 || 1, gapXY[1] * transform[2] * 0.75 || 1];
+    const scaledGap: [number, number] = [gapXY[0] * transform[2] * 0.5 || 1, gapXY[1] * transform[2] * 0.5 || 1];
     const scaledSize = patternSize * transform[2];
 
     const patternOffset = [scaledSize / offset, scaledSize / offset]
@@ -31,8 +31,8 @@ function Background({
         >
             <pattern
                 id={_patternId}
-                x={transform[0] * 0.75 % scaledGap[0]}
-                y={transform[1] * 0.75 % scaledGap[1]}
+                x={transform[0] * 0.5 % scaledGap[0]}
+                y={transform[1] * 0.5 % scaledGap[1]}
                 width={scaledGap[0]}
                 height={scaledGap[1]}
                 patternUnits="userSpaceOnUse"
