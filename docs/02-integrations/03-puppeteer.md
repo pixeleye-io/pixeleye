@@ -53,13 +53,13 @@ import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
 
 ## Options
 
-| Options           | Type                 | Default   | Description                             |
-| ----------------- | -------------------- | --------- | --------------------------------------- |
-| `name` (required) | `string`             | N/A       | The name of the snapshot.               |
-| `variant`         | `string`             | undefined | The variant of the snapshot.            |
-| `fullPage`        | `boolean`            | false     | Whether to capture the full page.       |
-| `selector`        | `string`             | undefined | The selector of the element to capture. |
-| `devices`         | `DeviceDescriptor[]` | []        | The devices to capture the snapshot on. |
-| `maskSelectors`   | `string[]`           | []        | The selectors to mask.                  |
-| `maskColor`       | `string`             | pink      | The color to mask the selectors with.   |
-| `css`             | `string`             | undefined | The CSS to inject into the page.        |
+| Options         | Type               | Default   | Description                             |
+| --------------- | ------------------ | --------- | --------------------------------------- |
+| name (required) | string             | N/A       | The name of the snapshot.               |
+| variant         | string             | undefined | The variant of the snapshot.            |
+| fullPage        | boolean            | false     | Whether to capture the full page.       |
+| selector        | string             | undefined | The selector of the element to capture. |
+| devices         | DeviceDescriptor[] | []        | The devices to capture the snapshot on. |
+| maskSelectors   | string[]           | []        | The selectors to mask.                  |
+| maskColor       | string             | pink      | The color to mask the selectors with.   |
+| css             | string             | undefined | The CSS to inject into the page.        |
