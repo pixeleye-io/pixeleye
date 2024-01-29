@@ -136,8 +136,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               nodesDraggable={false}
               nodes={nodes}
               nodeTypes={nodeTypes}
-
-
+              onNodeClick={onClick}
               onContextMenu={(e) => {
                 contextMenuCoords.current = { x: e.clientX, y: e.clientY };
               }}
