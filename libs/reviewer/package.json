@@ -25,13 +25,13 @@
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.5",
     "@types/react-dom": "18.2.18",
-    "@use-gesture/react": "^10.3.0",
     "class-variance-authority": "^0.7.0",
     "framer-motion": "^11.0.3",
     "next": "14.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hotkeys-hook": "^4.4.4",
+    "reactflow": "^11.10.3",
     "usehooks-ts": "^2.10.0",
     "zustand": "^4.5.0"
   }

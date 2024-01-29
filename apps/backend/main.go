@@ -50,6 +50,7 @@ func main() {
 	routes.GitRoutes(e)
 	routes.InviteRoutes(e)
 	routes.WebhookRoutes(e)
+	routes.SnapshotRoutes(e)
 
 	cron.StartCron()
 

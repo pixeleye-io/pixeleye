@@ -1,23 +1,18 @@
-import NextImage, { StaticImageData } from "next/image";
-import { StoreContext } from "../store";
-import { MotionValue, m, useMotionValueEvent } from "framer-motion";
+import 'reactflow/dist/style.css';
+
+import { StaticImageData } from "next/image";
 import {
-  useEffect,
-  useRef,
-  useCallback,
-  forwardRef,
-  useImperativeHandle,
-  useContext,
+  forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState,
 } from "react";
-import { DottedBackground } from "@pixeleye/ui";
-import { cx } from "class-variance-authority";
-import {
-  createUseGesture,
-  dragAction,
-  pinchAction,
-  wheelAction,
-} from "@use-gesture/react";
+import ReactFlow, { OnNodesChange, applyNodeChanges, Node, useReactFlow, OnMove, Viewport } from 'reactflow';
+import { store } from "../store";
 import { useStore } from "zustand";
+import Background from "./background";
+import { ImageNode } from './imageNode';
+import { ChatNode } from './chatNode';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuPortal, ContextMenuTrigger } from '@pixeleye/ui';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+
 
 interface ImageProps {
   base: {
@@ -38,274 +33,151 @@ interface ImageProps {
     width: number;
     height: number;
   };
-  baseline?: boolean;
-  branch: string;
-  showSecondBase?: boolean;
-  x: MotionValue<number>;
-  y: MotionValue<number>;
-  scale: MotionValue<number>;
-  onTap?: () => void;
-  className?: string;
+  viewport?: Viewport;
+  onMove?: OnMove;
 }
 
 export type DraggableImageRef = {
   center: () => void;
-  getDefaults: () => {
-    x: number;
-    y: number;
-    scale: number;
-  };
 };
+
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
     {
       base,
       overlay,
-      x,
-      y,
-      scale,
-      onTap,
-      className,
       secondBase,
-      showSecondBase = false,
-      baseline,
-      branch,
+      viewport,
+      onMove
     },
     ref
   ) {
-    const parentRef = useRef<HTMLDivElement>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const draggableRef = useRef<HTMLDivElement>(null);
 
-    const store = useContext(StoreContext)
+    const initialNodes: Node[] = [
+      { id: '1', position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' },
+    ];
+
+    const [nodes, setNodes] = useState<Node[]>(initialNodes);
+    const nodeTypes = useMemo(() => ({ image: ImageNode, chat: ChatNode }), []);
+
+    const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
+    const setSingleSnapshot = useStore(store,
+      (state) => state.setSingleSnapshot
+    );
+
+    const onNodesChange = useCallback<OnNodesChange>(
+      (changes) => {
 
 
-    const optimize = useStore(store, (state) => state.optimize);
-    const showOverlay = useStore(store, (state) => state.showDiff);
+        changes = changes.filter((change) => {
+          return !((change.type === 'select' && change.id === "1"))
 
-    const cancelTap = useRef(false);
+        });
 
-    const getDefaults = useCallback(() => {
-      if (!parentRef.current)
-        return {
-          x: 0,
-          y: 8,
-          scale: 1,
-        };
 
-      const { width, height } = parentRef.current.getBoundingClientRect();
+        setNodes((nds) => applyNodeChanges(changes, nds))
+      },
+      [setNodes]
+    );
 
-      const { width: baseWidth, height: baseHeight } = base;
-
-      const aspect = width / baseWidth;
-
-      const adjustedHeight = baseHeight * aspect;
-      const adjustedWidth = baseWidth * aspect;
-
-      const scale = Math.max(
-        Math.min(
-          (width - 16) / adjustedWidth,
-          (height - 16) / adjustedHeight,
-          10
-        ),
-        0.25
-      );
-
-      return {
-        x: 0,
-        y: 8,
-        scale,
-      };
-    }, [base]);
+    const { fitView, setViewport, getViewport, screenToFlowPosition, addNodes } = useReactFlow();
 
     const center = useCallback(() => {
-      const { scale: s, x: dX, y: dY } = getDefaults();
+      fitView();
 
-      scale.set(s);
-      x.set(dX);
-      y.set(dY);
-    }, [getDefaults, scale, x, y]);
+    }, [fitView]);
+
 
     useImperativeHandle(ref, () => ({
-      center,
-      getDefaults,
-    }));
-
-    const zoom = useCallback(
-      (
-        event: {
-          clientX: number;
-          clientY: number;
-        },
-        delta: number
-      ) => {
-        const prevS = scale.get();
-        const s = Math.max(0.1, prevS - delta);
-
-        const {
-          left: containerLeft,
-          top: containerTop,
-          width,
-        } = draggableRef.current!.getBoundingClientRect();
-
-        const dx = event.clientX - containerLeft - width / 2;
-        const dy = event.clientY - containerTop;
-
-        const newX = x.get() - dx * (s / prevS - 1);
-        const newY = y.get() - dy * (s / prevS - 1);
-
-        scale.set(s);
-        x.set(newX);
-        y.set(newY);
-      },
-      [scale, x, y]
-    );
-
-    const useGesture = createUseGesture([dragAction, wheelAction, pinchAction]);
-
-    useGesture(
-      {
-        onDrag: ({ delta: [dx, dy], pinching, tap }) => {
-          if (pinching) return;
-
-          if (tap && onTap && !cancelTap.current) {
-            return onTap();
-          }
-
-          x.set(dx + x.get());
-          y.set(dy + y.get());
-        },
-        onDragEnd: () => (cancelTap.current = false),
-        onWheel: ({
-          event,
-          delta: [dX, dY],
-          pinching,
-          ctrlKey,
-          altKey,
-          shiftKey,
-        }) => {
-          if (pinching) return;
-
-          event.preventDefault();
-          cancelTap.current = true;
-
-          if (altKey || shiftKey || ctrlKey) {
-            x.set(x.get() - dX);
-            y.set(y.get() - dY);
-            return;
-          }
-
-          zoom(event, dY / 1000);
-        },
-        onPinch: ({ event, delta: [d], origin: [oX, oY], wheeling }) => {
-          event.preventDefault();
-          cancelTap.current = true;
-
-          zoom(
-            {
-              clientX: oX,
-              clientY: oY,
-            },
-            -d
-          );
-        },
-      },
-      { target: containerRef, wheel: { eventOptions: { passive: false } } }
-    );
+      center
+    }), [center]);
 
     useEffect(() => {
-      center();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+      if (viewport) {
+        setViewport(viewport)
+      }
+    }, [setViewport, viewport]);
 
-    // Framer motion is lazy loading the image, so we need to re-center it once it's loaded
-    useMotionValueEvent(scale, "change", (latest) => {
-      if (latest === 0) scale.set(getDefaults().scale);
-    });
+    const onClick = useCallback(() => secondBase && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head"), [secondBase, setSingleSnapshot, singleSnapshot]);
+
+
+
+    const contextMenuCoords = useRef({ x: 0, y: 0 })
+
+
+
 
     return (
-      <div className="h-full w-full flex-col flex items-center">
-        <div className="bg-surface-container-low border rounded-md border-outline px-2 py-1 text-sm mb-2">
-          <span className="">{baseline === undefined ? secondBase && showSecondBase ? "Baseline" : "Changes" : baseline ? "Baseline" : "Changes"}</span>
-        </div>
-        <DottedBackground
-          ref={parentRef}
-          className={cx(
-            "h-full w-full bg-surface-container-low rounded border border-outline-variant overflow-hidden",
-            className
-          )}
-        >
-          <div
-            ref={containerRef}
-            className="grow-0 w-full h-full cursor-grab z-0 select-non touch-none	active:cursor-grabbing"
-          >
-            <m.div
-              ref={draggableRef}
-              suppressHydrationWarning
-              style={{
-                scale,
-                x,
-                y,
-                aspectRatio: `${base.width} / ${base.height}`,
-                transformOrigin: "top center",
+      <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
+        <ContextMenu>
+          <ContextMenuTrigger disabled className='w-full h-full'>
+            <ReactFlow
+              proOptions={{
+                hideAttribution: true
               }}
-              className="relative z-0 pointer-events-none"
-            >
-              <NextImage
-                key={`base-${base.src.toString()}`}
-                quality={100}
-                priority
-                className={cx(
-                  "pointer-events-none z-0 select-none z-0 absolute inset-0",
-                  showSecondBase && "opacity-0",
-                  showOverlay && overlay && "brightness-[50%]"
-                )}
-                draggable={false}
-                alt={base.alt}
-                src={base.src}
-                fill
-                unoptimized={!optimize}
-                placeholder={optimize ? "blur" : "empty"}
-              />
-              {secondBase && (
-                <NextImage
-                  key={`second-base-${secondBase.src.toString()}`}
-                  quality={100}
-                  priority
-                  className={cx(
-                    "pointer-events-none z-0 select-none z-0 absolute inset-0 ",
-                    !showSecondBase && "opacity-0"
-                  )}
-                  draggable={false}
-                  alt={secondBase.alt}
-                  src={secondBase.src}
-                  fill
-                  placeholder={optimize ? "blur" : "empty"}
-                  unoptimized={!optimize}
-                />
-              )}
-              {overlay && (
-                <NextImage
-                  key={`overlay-${overlay.src.toString()}`}
-                  priority
-                  quality={100}
-                  className={cx(
-                    (!showOverlay || showSecondBase) && "opacity-0",
-                    "pointer-events-none select-none z-10 absolute inset-0 z-10"
-                  )}
-                  draggable={false}
-                  alt={overlay.alt}
-                  src={overlay.src}
-                  fill
-                  placeholder={optimize ? "blur" : "empty"}
-                  unoptimized={!optimize}
-                />
-              )}
-            </m.div>
-          </div>
-        </DottedBackground>
-      </div>
+              onPaneClick={onClick}
+              minZoom={0.1}
+              onWheelCapture={(e) => {
+                if (e.shiftKey) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const vp = getViewport();
+
+                  setViewport({
+                    x: vp.x - e.deltaX,
+                    y: vp.y - e.deltaY,
+                    zoom: vp.zoom,
+                  })
+                }
+              }}
+              nodesFocusable={false}
+              zoomOnDoubleClick={false}
+              nodesDraggable={false}
+              nodes={nodes}
+              nodeTypes={nodeTypes}
+              onNodeClick={onClick}
+              onContextMenu={(e) => {
+                contextMenuCoords.current = { x: e.clientX, y: e.clientY };
+              }}
+              maxZoom={10}
+              onNodesChange={onNodesChange}
+              fitView
+              onMove={onMove} >
+              <Background />
+            </ReactFlow>
+          </ContextMenuTrigger>
+          <ContextMenuPortal >
+            <ContextMenuContent >
+              <ContextMenuItem onClick={(e) => {
+
+                const pos = screenToFlowPosition(contextMenuCoords.current);
+
+                const randID = Math.random().toString(36).substring(7); // TODO - make this use the convo id after the convo is created
+
+
+                addNodes([
+                  {
+                    id: randID,
+                    type: 'chat',
+                    position: pos,
+                    data: { text: "" },
+                    zIndex: 100
+                  }
+                ])
+
+
+
+              }}>
+                Comment
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPortal>
+        </ContextMenu>
+      </div >
     );
   }
 );
+
+
+

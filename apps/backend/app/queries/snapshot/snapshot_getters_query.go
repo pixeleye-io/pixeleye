@@ -152,3 +152,13 @@ func (q *SnapshotQueries) GetReviewableSnapshotsByBuild(ctx context.Context, bui
 
 	return snapshots, err
 }
+
+func (q *SnapshotQueries) GetSnapshot(ctx context.Context, id string) (models.Snapshot, error) {
+	snapshot := models.Snapshot{}
+
+	query := `SELECT * FROM snapshot WHERE id = $1`
+
+	err := q.GetContext(ctx, &snapshot, query, id)
+
+	return snapshot, err
+}

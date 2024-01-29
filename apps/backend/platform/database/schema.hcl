@@ -937,3 +937,82 @@ table "project_invite_code" {
     null = false
   }
 }
+
+table "snapshot_conversation" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "snapshot_id" {
+    type = varchar(21)
+    null = false
+  }
+  foreign_key "snapshot_id" {
+    columns     = [column.snapshot_id]
+    ref_columns = [table.snapshot.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "x" {
+    type = real
+    null = false
+  }
+
+  column "y" {
+    type = real
+    null = false
+  }
+}
+
+table "snapshot_conversation_message" {
+  schema = schema.public
+  column "id" {
+    type = varchar(21)
+    null = false
+  }
+
+  primary_key {
+    columns = [column.id]
+  }
+
+  column "conversation_id" {
+    type = varchar(21)
+    null = false
+  }
+  foreign_key "conversation_id" {
+    columns     = [column.conversation_id]
+    ref_columns = [table.snapshot_conversation.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "created_at" {
+    type = timestamptz
+    null = false
+  }
+
+  column "author_id" {
+    type = varchar(21)
+    null = false
+  }
+  foreign_key "author_id" {
+    columns     = [column.author_id]
+    ref_columns = [table.users.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "content" {
+    type = text
+    null = false
+  }
+}

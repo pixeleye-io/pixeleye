@@ -25,7 +25,7 @@ Our review experience comes with a number of controls to help you review your ch
 
 - Drag the screenshots around by clicking and dragging on the screenshot.
 - Zoom in and out by scrolling on the screenshot.
-- Holding alt and scrolling will move the screenshots up/down or left/right.
+- Holding shift and scrolling will move the screenshots up/down or left/right.
 
 ## Sidebar
 

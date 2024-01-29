@@ -23,6 +23,7 @@ import { Snapshot } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
 import { snapshotStatusText } from "./panels/snapshots";
 import { HandThumbDownIcon, HandThumbUpIcon } from "@heroicons/react/24/solid";
+import { ReactFlowProvider } from "reactflow";
 
 const buttonColors: Record<Snapshot["status"], string> = {
   approved: "dark:bg-green-300 dark:text-green-900 bg-green-500 text-green-50",
@@ -305,10 +306,10 @@ export function Compare() {
             <p className="text-error">{snapshot.error}</p>
           )}
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
-            <Single draggableImageRef={singleRef} />
+              <Single draggableImageRef={singleRef} />
           </TabsContent>
           <TabsContent className="w-full h-full !mt-0 grow-0" value="double">
-            <Double draggableImageRef={doubleRef} />
+              <Double draggableImageRef={doubleRef} />
           </TabsContent>
         </div>
       </Tabs>
