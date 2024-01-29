@@ -111,7 +111,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     return (
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
         <ContextMenu>
-          <ContextMenuTrigger className='w-full h-full'>
+          <ContextMenuTrigger disabled className='w-full h-full'>
             <ReactFlow
               proOptions={{
                 hideAttribution: true
