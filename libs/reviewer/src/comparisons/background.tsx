@@ -38,7 +38,7 @@ function Background({
                 patternUnits="userSpaceOnUse"
                 patternTransform={`translate(-${patternOffset[0]},-${patternOffset[1]})`}
             >
-                <circle cx={radius} cy={radius} r={radius} fill="currentColor" className={'text-on-surface-variant/75'} />
+                <circle cx={radius} cy={radius} r={radius} fill="currentColor" className={'text-on-surface-variant'} />
             </pattern>
             <rect x="0" y="0" width="100%" height="100%" fill={`url(#${_patternId})`} />
             <rect transform={`translate(-${scaledGap[0] / 2}, -${scaledGap[1] / 2})`} width="100%" height="100%" fill={`url(#${_patternId})`} />
