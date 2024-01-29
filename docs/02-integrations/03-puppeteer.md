@@ -36,30 +36,87 @@ const config: Config = {
 ### Adding to your tests
 
 export default config;
+
 ```ts
 import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
 
-
 // ...
 
-    await pixeleyeSnapshot(app.page, {
-        name: "landing-header",
-        selector: "header.sticky",
-    });
+await pixeleyeSnapshot(app.page, {
+  name: "landing-header",
+  selector: "header.sticky",
+});
 
 // ...
+```
 
-````
+## API Reference
 
-## Options
+### `pixeleyeSnapshot(page, options)`
 
-| Options         | Type               | Default   | Description                             |
-| --------------- | ------------------ | --------- | --------------------------------------- |
-| name (required) | string             | N/A       | The name of the snapshot.               |
-| variant         | string             | undefined | The variant of the snapshot.            |
-| fullPage        | boolean            | false     | Whether to capture the full page.       |
-| selector        | string             | undefined | The selector of the element to capture. |
-| devices         | DeviceDescriptor[] | []        | The devices to capture the snapshot on. |
-| maskSelectors   | string[]           | []        | The selectors to mask.                  |
-| maskColor       | string             | pink      | The color to mask the selectors with.   |
-| css             | string             | undefined | The CSS to inject into the page.        |
+Captures a snapshot of the current page.
+
+#### Page
+
+- **Type:** `Page`
+
+The page to capture the snapshot on. This is the page returned from `puppeteer.launch()`.
+
+#### Options - name (required)
+
+- **Type:** `string`
+
+The name of the snapshot. This helps us identity which snapshots to compare with as well as giving a nice name in our dashboard.
+
+#### Options - variant
+
+- **Type:** `string`
+- **Default:** `undefined`
+
+The variant of the snapshot. It's up to you how you use this, but it's useful for capturing different states of the same component. E.g., a collection of snapshots with the name `button` could have variants of `primary`, `secondary`, etc.
+
+#### Options - fullPage
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to capture the full page. If set to `true`, the entire page will be captured. If set to `false`, only the current viewport will be captured.
+
+#### Options - selector
+
+- **Type:** `string`
+- **Default:** `undefined`
+
+The selector of the element to capture. If set, only the element matching the selector will be captured. If not set, the entire page will be captured.
+
+#### Options - devices
+
+- **Type:** `DeviceDescriptor[]`
+- **Default:** `Defined in pixeleye.config.ts`
+
+The devices to capture the snapshot on. If set, the snapshot will be captured on each device. If not set, the snapshot will be captured on the current viewport.
+
+This will override the `devices` option set in `pixeleye.config.ts`.
+
+#### Options - maskSelectors
+
+- **Type:** `string[]`
+- **Default:** `[]`
+
+The selectors to mask. If set, the selectors will be masked with the color defined in `maskColor`. If not set, no selectors will be masked.
+
+#### Options - maskColor
+
+- **Type:** `string`
+- **Default:** `#FF00FF (pink)`
+
+The color to mask the selectors with. This can be any valid CSS color. We recommend using a color that is not used anywhere else on the page.
+
+#### Options - css
+
+- **Type:** `string`
+- **Default:** `undefined`
+
+The CSS to inject into the page. This can be used to hide elements that you don't want to capture. For example, you may want to hide a cookie banner that appears on the page.
+
+This css is append to the css defined in `pixeleye.config.ts`. Anything which needs overriding there should be overridden via css here.
