@@ -1,4 +1,5 @@
 import { defaultConfig } from "./defaults";
+import { setEnv } from "@pixeleye/cli-env";
 import jitiFactory from "jiti";
 import { transform } from "sucrase";
 import { join } from "node:path";
@@ -59,7 +60,7 @@ function readConfig(path: string): Config | (() => Promise<Config>) {
 }
 
 export async function loadConfig(path?: string): Promise<Config> {
-  if (!path) {
+  if (path) {
     // We store the path in an env variable so that we can access the config via other integrations. E.g Puppeteer.
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     path = process.env.PIXELEYE_CONFIG_PATH;
@@ -102,5 +103,17 @@ export async function loadConfig(path?: string): Promise<Config> {
     console.log("Config is empty.");
   }
 
-  return mergeObjects(defaultConfig as Config, userConfig);
+  const merged = mergeObjects(defaultConfig as Config, userConfig);
+
+  for (const key of Object.keys(merged) as Array<keyof Config>) {
+    // IF string then set env variable
+    if (typeof merged[key] === "string") {
+      setEnv(`PIXELEYE_${key.toUpperCase()}`, merged[key] as string);
+    } else {
+      // ELSE stringify and set env variable
+      setEnv(`PIXELEYE_${key.toUpperCase()}`, JSON.stringify(merged[key]));
+    }
+  }
+
+  return merged;
 }

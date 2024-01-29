@@ -2,7 +2,7 @@
   "name": "@pixeleye/cypress",
   "description": "Cypress integration for Pixeleye",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
@@ -17,7 +17,7 @@
   "typings": "src/index.ts",
   "files": [
     "README.md",
-    "bin",
+    "dist",
     "LICENSE"
   ],
   "peerDependencies": {
@@ -25,9 +25,10 @@
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
-    "cypress": "^3.4.1",
+    "cypress": "^13.6.3",
     "rrweb-snapshot": "2.0.0-alpha.11",
-    "undici": "^6.4.0"
+    "undici": "^6.5.0",
+    "@pixeleye/cli-api": "workspace:*"
   },
   "devDependencies": {
     "@pixeleye/cli-booth": "workspace:*",
@@ -36,7 +37,7 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@swc-node/register": "^1.6.8",
-    "@types/node": "20.11.6",
+    "@types/node": "20.11.10",
     "execa": "^8.0.1",
     "get-port": "^7.0.0",
     "rimraf": "^5.0.5",

@@ -1,5 +1,5 @@
 const config = {
-  token: "pxi__KMI1Wd97vU1bAyvZL50ecb04CL44S613:k6b7rfXCX8ah_5AODIZFv",
+  token: "pxi__Tr3fGPT9IpWZyq6oR19_GmMWfBM2Pzl3:Jw-gbMBbOd5RRbcOF-Q2-",
   endpoint: "http://localhost:5000",
 };
 

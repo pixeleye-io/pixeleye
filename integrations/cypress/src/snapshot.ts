@@ -1,6 +1,4 @@
-import { loadConfig } from "@pixeleye/cli-config";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import "cypress";
 import {
   Options as ServerOptions,
   SnapshotRequest,
@@ -19,33 +17,31 @@ export interface Options {
   css?: string;
 }
 
-function pixeleyeSnapshot(options: Options) {
+export const pixeleyeSnapshot = (options: Options) => {
   if (!options.name) {
     throw new Error("No name provided");
   }
 
   const opts: ServerOptions = {
-    endpoint: `http://localhost:${
-      // eslint-disable-next-line turbo/no-undeclared-env-vars
-      process.env.PIXELEYE_BOOTH_PORT
-    }`,
+    endpoint: `http://localhost:${Cypress.env("PIXELEYE_BOOTH_PORT")}`,
   };
 
+  const configCSS = Cypress.env("PIXELEYE_CSS") || "";
+
+  const devices = Cypress.env("PIXELEYE_DEVICES");
+
+  const css =
+    configCSS || options.css
+      ? `${configCSS ?? ""}\n${options.css ?? ""}`
+      : undefined;
+
   return cy.document().then(async (doc) => {
-    const config = await loadConfig();
-
-    const css =
-      config.css || options.css
-        ? `${config.css ?? ""}\n${options.css ?? ""}`
-        : undefined;
-
     const serializedDom = domSnapshot(doc);
     if (!serializedDom) {
       throw new Error("Failed to serialize DOM");
     }
-
     const snap: SnapshotRequest = {
-      devices: options.devices ?? config.devices ?? [],
+      devices: options.devices ?? devices ?? [],
       name: options.name,
       variant: options.variant,
       selector: options.selector,
@@ -56,23 +52,19 @@ function pixeleyeSnapshot(options: Options) {
       fullPage: options.fullPage,
     };
 
-    await snapshot(
-      {
-        endpoint: opts.endpoint,
+    cy.request({
+      url: `${opts.endpoint}/snapshot`,
+      method: "POST",
+      body: JSON.stringify(snap),
+      headers: {
+        "Content-Type": "application/json",
       },
-      snap
-    )
-      .catch((err) => {
-        throw new Error(`Failed to snapshot: ${err.message}`);
-      })
-      .then((res) => {
-        if (res.status < 200 || res.status >= 300) {
-          throw new Error(
-            `Failed to snapshot: ${res.status}, ${JSON.stringify(res.json())}`
-          );
-        }
-      });
+    }).then((res) => {
+      if (res.status < 200 || res.status >= 300) {
+        throw new Error(
+          `Failed to snapshot: ${res.status}, ${JSON.stringify(res.body)}`
+        );
+      }
+    });
   });
-}
-
-Cypress.Commands.add("pixeleyeSnapshot", pixeleyeSnapshot);
+};

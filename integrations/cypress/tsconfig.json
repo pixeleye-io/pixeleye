@@ -1,5 +1,8 @@
 {
   "extends": "@pixeleye/tsconfig/node.json",
   "include": ["."],
-  "exclude": ["dist", "build", "node_modules"]
+  "compilerOptions": {
+    "types": ["cypress"],
+  },
+  "exclude": ["dist", "build", "node_modules"],
 }
