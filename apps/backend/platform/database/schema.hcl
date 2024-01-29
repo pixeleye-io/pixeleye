@@ -965,12 +965,12 @@ table "snapshot_conversation" {
   }
 
   column "x" {
-    type = integer
+    type = real
     null = false
   }
 
   column "y" {
-    type = integer
+    type = real
     null = false
   }
 }

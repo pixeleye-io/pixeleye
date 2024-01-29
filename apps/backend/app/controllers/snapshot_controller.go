@@ -217,3 +217,23 @@ func CreateSnapshotConversation(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, conversation)
 }
+
+func GetConversationsWithMessages(c echo.Context) error {
+
+	conversation, err := middleware.GetSnapshot(c)
+	if err != nil {
+		return err
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	conversations, err := db.GetSnapshotsConversationsWithMessages(c.Request().Context(), conversation.ID)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, conversations)
+}

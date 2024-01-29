@@ -19,4 +19,5 @@ func SnapshotRoutes(e *echo.Echo) {
 	baseRoutes.Use(baseRoleMiddleware.ProjectRoleAccess)
 
 	baseRoutes.POST("/conversations", controllers.CreateSnapshotConversation)
+	baseRoutes.GET("/conversations", controllers.GetConversationsWithMessages)
 }

@@ -6,8 +6,8 @@ type Conversation struct {
 	ID         string    `db:"id" json:"id" validate:"required,nanoid"`
 	CreatedAt  time.Time `db:"created_at" json:"createdAt"`
 	SnapshotID string    `db:"snapshot_id" json:"snapshotID" validate:"required,nanoid"`
-	X          int       `db:"x" json:"x"`
-	Y          int       `db:"y" json:"y"`
+	X          float32   `db:"x" json:"x"`
+	Y          float32   `db:"y" json:"y"`
 }
 
 type ConversationMessage struct {

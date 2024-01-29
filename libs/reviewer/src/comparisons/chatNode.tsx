@@ -87,8 +87,8 @@ export function ChatNode({ data: {
 
     return (
         <Popover>
-            <PopoverTrigger onClick={(e) => e.stopPropagation()}>
-                <div className="scale-90 origin-bottom-left transition hover:scale-100 rounded-[9999px_9999px_9999px_0px] h-8 w-8 border border-outline flex items-center justify-center bg-tertiary z-50 -translate-y-full">
+            <PopoverTrigger className="z-50" onClick={(e) => e.stopPropagation()}>
+                <div className="scale-90 origin-bottom-left transition hover:scale-100 rounded-[9999px_9999px_9999px_0px] h-8 w-8 border border-outline flex items-center justify-center bg-tertiary  -translate-y-full">
                     <Avatar className="!w-6 !h-6">
                         <Avatar.Image alt={`${author || "unknown"}'s profile picture`} src={avatarURL ?? ""} />
                         <Avatar.Fallback className="!text-xs bg-tertiary-container text-on-tertiary-container">
