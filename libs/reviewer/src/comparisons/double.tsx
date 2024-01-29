@@ -67,7 +67,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
         <ReactFlowProvider>
           {
             !validBaseline && (
-              <div className="flex flex-col items-center flex-1 justify-center w-full h-full pt-8">
+              <div className="flex flex-col items-center justify-center w-full h-full pt-8">
                 <div className="flex flex-col items-center justify-center w-full h-full bg-surface-container rounded mt-1 border border-outline-variant">
                   <p className="text-center text-gray-400">No baseline snapshot</p>
                 </div>
