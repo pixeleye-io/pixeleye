@@ -25,13 +25,14 @@ See [Getting Started](/docs/01-getting-started/02-setup.md) for more information
 
 ### Create a `pixeleye.config.{js,ts}` file
 
-````ts
+```ts
 import { Config } from "pixeleye";
 
 const config: Config = {
   projectToken: "YOUR_PROJECT_TOKEN",
   // ...
 };
+```
 
 ### Adding to your tests
 

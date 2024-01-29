@@ -26,15 +26,16 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/graceful-fs": "^4.1.9",
-    "@types/node": "20.11.6",
+    "@types/node": "20.11.10",
     "@types/require-relative": "^0.8.2",
-    "esbuild": "^0.19.12",
+    "esbuild": "^0.20.0",
     "rimraf": "^5.0.5"
   },
   "dependencies": {
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-booth": "workspace:^",
     "@pixeleye/cli-config": "workspace:*",
+    "@pixeleye/cli-env": "workspace:*",
     "@pixeleye/storybook": "workspace:*",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",

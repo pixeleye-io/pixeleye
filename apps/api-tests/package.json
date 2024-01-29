@@ -13,13 +13,13 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@t3-oss/env-core": "^0.8.0",
     "@types/eventsource": "^1.1.15",
-    "@types/node": "20.11.6",
+    "@types/node": "20.11.10",
     "@types/wait-on": "^5.3.4",
     "env-cmd": "^10.1.0",
     "pactum": "^3.6.0",
     "typescript": "^5.3.3",
-    "undici": "^6.4.0",
-    "vitest": "^1.2.1",
+    "undici": "^6.5.0",
+    "vitest": "^1.2.2",
     "zod": "^3.22.4"
   },
   "dependencies": {

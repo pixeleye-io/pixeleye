@@ -46,6 +46,8 @@ export function ImageNode({ data: {
                 key={`base - ${base.src.toString()}`}
                 quality={100}
                 priority
+                width={base.width}
+                height={base.height}
                 className={cx(
                     "pointer-events-none select-none",
                     singleSnapshot !== "head" && "hidden",
@@ -66,6 +68,8 @@ export function ImageNode({ data: {
                         "pointer-events-none select-none",
                         singleSnapshot === "head" && "hidden",
                     )}
+                    width={secondBase.width}
+                    height={secondBase.height}
                     draggable={false}
                     alt={secondBase.alt}
                     src={secondBase.src}
@@ -82,6 +86,8 @@ export function ImageNode({ data: {
                         (!showOverlay || singleSnapshot !== "head") && "opacity-0",
                         "pointer-events-none select-none absolute inset-0",
                     )}
+                    width={overlay.width}
+                    height={overlay.height}
                     draggable={false}
                     alt={overlay.alt}
                     src={overlay.src}
