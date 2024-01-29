@@ -101,6 +101,10 @@ func CreateUploadURL(c echo.Context) error {
 		return err
 	}
 
+	if len(body.SnapshotUploads) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No snapshots to upload")
+	}
+
 	validate := utils.NewValidator()
 
 	if err := validate.Struct(body); err != nil {

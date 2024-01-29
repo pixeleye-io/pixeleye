@@ -1,13 +1,13 @@
 {
-  "name": "@pixeleye/puppeteer",
+  "name": "@pixeleye/cypress",
+  "description": "Cypress integration for Pixeleye",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.2",
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
-    "build": "pnpm rimraf ./dist && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist",
-    "test:e2e": "vitest"
+    "build": "pnpm rimraf ./dist && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
   },
   "publishConfig": {
     "main": "./dist/index.js",
@@ -21,15 +21,14 @@
     "LICENSE"
   ],
   "peerDependencies": {
-    "puppeteer": "^20 || ^21",
-    "puppeteer-core": "^20 || ^21"
+    "cypress": "^3"
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
-    "puppeteer": "^21.10.0",
-    "puppeteer-core": "^21.10.0",
+    "cypress": "^13.6.3",
     "rrweb-snapshot": "2.0.0-alpha.11",
-    "undici": "^6.5.0"
+    "undici": "^6.5.0",
+    "@pixeleye/cli-api": "workspace:*"
   },
   "devDependencies": {
     "@pixeleye/cli-booth": "workspace:*",
@@ -41,9 +40,7 @@
     "@types/node": "20.11.10",
     "execa": "^8.0.1",
     "get-port": "^7.0.0",
-    "pptr-testing-library": "^0.7.0",
     "rimraf": "^5.0.5",
-    "typescript": "5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "5.3.3"
   }
 }

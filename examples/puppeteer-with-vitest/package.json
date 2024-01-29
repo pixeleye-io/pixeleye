@@ -9,9 +9,9 @@
     "@pixeleye/puppeteer": "workspace:*",
     "pixeleye": "workspace:*",
     "playwright": "^1.41.1",
-    "puppeteer": "^21.9.0",
-    "puppeteer-core": "^21.9.0",
-    "vitest": "^1.2.1"
+    "puppeteer": "^21.10.0",
+    "puppeteer-core": "^21.10.0",
+    "vitest": "^1.2.2"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
