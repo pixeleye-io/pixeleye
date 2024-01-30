@@ -379,9 +379,6 @@ importers:
       '@pixeleye/cypress':
         specifier: workspace:*
         version: link:../../integrations/cypress
-      '@playwright/test':
-        specifier: ^1.41.1
-        version: 1.41.1
       cypress-vite:
         specifier: ^1.5.0
         version: 1.5.0(vite@5.0.12)
@@ -4433,6 +4430,7 @@ packages:
     hasBin: true
     dependencies:
       playwright: 1.41.1
+    dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.11(react-refresh@0.14.0)(webpack@5.90.0):
     resolution: {integrity: sha512-7j/6vdTym0+qZ6u4XbSAxrWBGYSdCfTzySkj7WAFgDLmSyWlOrWvpyzxlFh5jtw9dn0oL/jtW+06XfFiisN3JQ==}
