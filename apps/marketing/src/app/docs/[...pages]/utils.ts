@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { Octokit } from "@octokit/core";
+import { Section } from "./docsNav";
 
 export async function getFile(page: string[]) {
   const path = page.join("/");
