@@ -19,7 +19,7 @@ If you want to use a vcs integration which wasn't installed automatically, you'l
 
 #### Github
 
-For github, we just require that our app is installed in your organization/account and that you have given it access to the relevant repositories. You can do this by going to the https://github.com/apps/pixeleye-io/installations/new
+For github, we just require that our app is installed in your organization/account and that you have given it access to the relevant repositories. You can do this by going to the [Github install page](https://github.com/apps/pixeleye-io/installations/new)
 
 #### Other
 
