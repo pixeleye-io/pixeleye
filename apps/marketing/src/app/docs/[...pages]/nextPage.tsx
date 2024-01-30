@@ -1,5 +1,5 @@
 import { Button, Link } from "@pixeleye/ui";
-import { getFiles } from "./layout";
+import { getFiles } from "./utils";
 import { Section } from "./docsNav";
 import NextLink from "next/link";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";

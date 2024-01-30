@@ -1,44 +1,9 @@
 import { Container, ScrollArea } from "@pixeleye/ui";
 import { Section, DocsNavDesktop, DocsNavMobile } from "./docsNav";
-import { getAllFiles } from "./utils";
+import { getFiles } from "./utils";
 
 
-async function getFiles() {
-  const files = await getAllFiles();
 
-  const sections = files.reduce((acc, { url }) => {
-    const [section, link] = url.split("/", 2);
-    const sectionIndex = acc.findIndex(
-      (s) => s.title === section.replaceAll("-", " ")
-    );
-
-    const linkObj = {
-      title: link.replaceAll("-", " "),
-      href: `/docs/${url}`,
-    };
-
-    if (sectionIndex === -1) {
-      return [
-        ...acc,
-        {
-          title: section.replaceAll("-", " "),
-          links: [linkObj],
-        },
-      ];
-    }
-
-    return [
-      ...acc.slice(0, sectionIndex),
-      {
-        ...acc[sectionIndex],
-        links: [...acc[sectionIndex].links, linkObj],
-      },
-      ...acc.slice(sectionIndex + 1),
-    ];
-  }, [] as Section[]);
-
-  return sections;
-}
 
 export default async function DocsLayout({
   children,
