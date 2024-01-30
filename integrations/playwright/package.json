@@ -1,0 +1,46 @@
+{
+  "name": "@pixeleye/playwright",
+  "private": false,
+  "version": "0.0.1",
+  "license": "AGPL-3.0",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
+    "build": "pnpm rimraf ./dist && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist",
+    "test:e2e": "vitest"
+  },
+  "publishConfig": {
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts"
+  },
+  "main": "src/index.ts",
+  "typings": "src/index.ts",
+  "files": [
+    "README.md",
+    "dist",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "playwright": "^1"
+  },
+  "dependencies": {
+    "@pixeleye/cli-devices": "workspace:*",
+    "playwright": "^1.41.1",
+    "rrweb-snapshot": "2.0.0-alpha.11",
+    "undici": "^6.5.0"
+  },
+  "devDependencies": {
+    "@pixeleye/cli-booth": "workspace:*",
+    "@pixeleye/cli-config": "workspace:*",
+    "@pixeleye/esbuild": "workspace:*",
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*",
+    "@swc-node/register": "^1.6.8",
+    "@types/node": "20.11.10",
+    "execa": "^8.0.1",
+    "get-port": "^7.0.0",
+    "rimraf": "^5.0.5",
+    "typescript": "5.3.3",
+    "vitest": "^1.2.2"
+  }
+}

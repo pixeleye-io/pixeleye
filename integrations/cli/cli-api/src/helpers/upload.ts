@@ -11,6 +11,8 @@ export async function uploadSnapshots(
     format: string;
   }[]
 ) {
+  if (files.length === 0) return [];
+
   const api = API({ endpoint, token });
 
   const snapshots = await Promise.all(

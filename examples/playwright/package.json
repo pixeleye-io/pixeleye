@@ -1,0 +1,19 @@
+{
+  "name": "@pixeleye/playwright-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test:e2e": "pixeleye exec -- npx playwright test"
+  },
+  "dependencies": {
+    "@pixeleye/playwright": "0.0.1",
+    "pixeleye": "workspace:*",
+    "playwright": "^1.41.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.41.1",
+    "@pixeleye/tsconfig": "workspace:*",
+    "@types/node": "20.11.10",
+    "typescript": "^5.3.3"
+  }
+}

@@ -130,7 +130,6 @@ export async function waitForBuildResult(
     );
 
     es.addEventListener("message", (event) => {
-      console.log(event);
       const data = JSON.parse(event.data);
       if (data.type === "build_status") {
         const newStatus = data.data.status;

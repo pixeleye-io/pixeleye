@@ -36,7 +36,9 @@ export async function captureScreenshot(
     const mirror = createMirror();
     rebuild(options.serializedDom, { doc, cache, mirror });
 
-    await page.setContent(doc.documentElement.outerHTML);
+    await page.setContent(doc.documentElement.outerHTML, {
+      timeout: 60_000,
+    });
   } else {
     await page.close();
     throw new Error("No url or serializedDom provided");
