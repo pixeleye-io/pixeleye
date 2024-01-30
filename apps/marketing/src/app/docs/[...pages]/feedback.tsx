@@ -116,7 +116,7 @@ export function Feedback({ page }: {
 
     return (
         <div className="relative h-8 w-full">
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
                 {!submitted && (
                     <m.div key="form" initial={{ opacity: 0 }} exit={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <FeedbackForm onSubmit={onSubmit} />
