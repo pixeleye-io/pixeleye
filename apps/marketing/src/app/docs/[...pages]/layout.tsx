@@ -3,7 +3,7 @@ import { Section, DocsNavDesktop, DocsNavMobile } from "./docsNav";
 import { getAllFiles } from "./utils";
 
 
-export async function getFiles() {
+async function getFiles() {
   const files = await getAllFiles();
 
   const sections = files.reduce((acc, { url }) => {
