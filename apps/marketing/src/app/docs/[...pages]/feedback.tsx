@@ -2,6 +2,7 @@
 
 import { AnimatePresence, m } from 'framer-motion'
 import { forwardRef, Fragment, useState } from 'react'
+import { usePlausible } from 'next-plausible'
 
 function CheckIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
     return (
@@ -68,14 +69,47 @@ const FeedbackThanks = forwardRef<React.ElementRef<'div'>>(
     },
 )
 
-export function Feedback() {
+export function Feedback({ page }: {
+    page: string
+}) {
     let [submitted, setSubmitted] = useState(false)
+    type MyEvents = {
+        pageLike: { page: string }
+        pageDislike: { page: string }
+        pageLikeDislike: { page: string; response: "like" | "dislike" }
+    }
+    const plausible = usePlausible<MyEvents>()
 
     function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
-        // event.nativeEvent.submitter.dataset.response
-        // => "yes" or "no"
+
+        const response = (event.nativeEvent as any).submitter.dataset.response === "yes" ? "like" : "dislike"
+
+        console.log("response", response)
+
+        plausible("pageLikeDislike", {
+            props: {
+                page,
+                response,
+            }
+        })
+
+        if (response === "like") {
+            plausible("pageLike", {
+                props: {
+                    page,
+                }
+            })
+        } else {
+            plausible("pageDislike", {
+                props: {
+                    page,
+                }
+            })
+        }
+
+
 
         setSubmitted(true)
     }

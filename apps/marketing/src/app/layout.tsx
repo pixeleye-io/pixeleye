@@ -6,6 +6,7 @@ import Providers from "./providers";
 import { cx } from "class-variance-authority";
 import Footer from "./footer";
 import Header from "./header";
+import PlausibleProvider from 'next-plausible'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,11 +28,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.webmanifest" />
-        <script
-          defer
-          data-domain="pixeleye.io"
-          src="https://analytics.pixeleye.io/js/script.js"
-        />
+        <PlausibleProvider selfHosted domain="pixeleye.io" customDomain="https://analytics.pixeleye.io" />
       </head>
       <body
         className={cx(

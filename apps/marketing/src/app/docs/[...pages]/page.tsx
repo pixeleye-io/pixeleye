@@ -125,7 +125,7 @@ export default async function Page({
       <div className="min-w-0 max-w-4xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full">
         {renderers.react(content, React, { components: {} })}
         <div className="flex justify-between items-center flex-col lg:flex-row mt-24 space-y-6">
-          <Feedback />
+          <Feedback page={file.url} />
           {lastModified && (
             <p className="text-sm text-on-surface-variant not-prose text-right sm:whitespace-nowrap">
               Last modified: {lastModified.toLocaleDateString()}
