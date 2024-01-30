@@ -1,6 +1,7 @@
 {
   "extends": "@pixeleye/tsconfig/nextjs.json",
   "compilerOptions": {
+    "declarationMap": true,
     "plugins": [
       {
         "name": "next"

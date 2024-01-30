@@ -2,11 +2,8 @@ import { Container, ScrollArea } from "@pixeleye/ui";
 import { Section, DocsNavDesktop, DocsNavMobile } from "./docsNav";
 import { getAllFiles } from "./utils";
 
-export default async function DocsLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+
+export async function getFiles() {
   const files = await getAllFiles();
 
   const sections = files.reduce((acc, { url }) => {
@@ -39,6 +36,17 @@ export default async function DocsLayout({
       ...acc.slice(sectionIndex + 1),
     ];
   }, [] as Section[]);
+
+  return sections;
+}
+
+export default async function DocsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+  const sections = await getFiles();
 
   return (
     <Container>
