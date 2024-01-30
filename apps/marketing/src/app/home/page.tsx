@@ -80,7 +80,7 @@ function Hero() {
             </h3>
           </div>
           <div className="mt-10 lg:mt-16">
-            <NextLink href="#" className="inline-flex space-x-6 group">
+            <NextLink href="/docs/integrations/storybook" className="inline-flex space-x-6 group">
               <span className="rounded-full bg-tertiary-container/75 px-3 py-1 text-sm font-semibold leading-6 text-on-tertiary-container ring-1 ring-inset ring-tertiary/75">
                 What&apos;s new
               </span>
