@@ -52,7 +52,7 @@ await pixeleyeSnapshot({
 
 ## API Reference
 
-### `pixeleyeSnapshot(options)`
+### `fn pixeleyeSnapshot(options)`
 
 Captures a snapshot of the current page.
 
