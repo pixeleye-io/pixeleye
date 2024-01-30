@@ -1,6 +1,6 @@
 import { Container, ScrollArea } from "@pixeleye/ui";
-import { Section, DocsNavDesktop, DocsNavMobile } from "./docsNav";
-import { getFiles } from "./utils";
+import { Section, DocsNavDesktop, DocsNavMobile } from "./[...pages]/docsNav";
+import { getFiles } from "./[...pages]/utils";
 
 
 
