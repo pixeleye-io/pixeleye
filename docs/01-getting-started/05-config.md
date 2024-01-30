@@ -1,5 +1,5 @@
 ---
-title: Pixeleye.config.{js,ts}
+title: Config
 description: Options available in the Pixeleye config file
 ---
 
