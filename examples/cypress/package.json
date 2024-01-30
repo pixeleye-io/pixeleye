@@ -9,6 +9,7 @@
   "dependencies": {
     "@cypress/webpack-batteries-included-preprocessor": "^3.0.2",
     "@pixeleye/cypress": "workspace:*",
+    "@playwright/test": "^1.41.1",
     "cypress-vite": "^1.5.0",
     "pixeleye": "workspace:*"
   },

@@ -54,21 +54,23 @@ export async function handleQueue({
     })
   )
     .then(async (files) => uploadSnapshots(endpoint, token, files))
-    .then((ids) =>
-      api.post("/v1/client/builds/{id}/upload", {
-        params: {
-          id: buildID,
-        },
-        body: {
-          snapshots: ids.map(({ id }, i) => ({
-            name: body.name,
-            variant: body.variant,
-            snapID: id,
-            target: body.devices[i].name as string,
-            viewport: `${body.devices[i].viewport.width}x${body.devices[i].viewport.height}`,
-            targetIcon: body.devices[i].icon,
-          })),
-        },
-      })
+    .then(
+      (ids) =>
+        ids.length > 0 &&
+        api.post("/v1/client/builds/{id}/upload", {
+          params: {
+            id: buildID,
+          },
+          body: {
+            snapshots: ids.map(({ id }, i) => ({
+              name: body.name,
+              variant: body.variant,
+              snapID: id,
+              target: body.devices[i].name as string,
+              viewport: `${body.devices[i].viewport.width}x${body.devices[i].viewport.height}`,
+              targetIcon: body.devices[i].icon,
+            })),
+          },
+        })
     );
 }

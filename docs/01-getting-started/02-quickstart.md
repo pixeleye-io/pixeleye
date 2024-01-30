@@ -45,7 +45,6 @@ We currently support the following official integrations:
 
 > Note: If you want to use another tool, you can use our CLI tool directly.
 
-
 ## Start coding
 
 You're all set! Now you can start coding and Pixeleye will automatically run your tests and report back to you. You can view the results on the project page.

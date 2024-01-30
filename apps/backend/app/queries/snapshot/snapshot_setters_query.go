@@ -216,7 +216,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	}
 
 	if len(newSnapshots) == 0 {
-		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "no new snapshots to upload")
+		return nil, false, echo.NewHTTPError(http.StatusAccepted, "no new snapshots to upload")
 	}
 
 	validate := utils.NewValidator()

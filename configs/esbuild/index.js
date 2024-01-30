@@ -10,7 +10,7 @@ export function build(entryPoints, outfile, external = [], banner = {}) {
     banner,
     bundle: true,
     platform: "node",
-    target: "node18",
+    target: "node20",
     outfile,
     external,
 

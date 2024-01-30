@@ -435,6 +435,10 @@ func UploadPartial(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	if partial.Snapshots == nil || len(partial.Snapshots) == 0 {
+		return echo.NewHTTPError(http.StatusAccepted, "no snapshots to upload")
+	}
+
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err

@@ -1,0 +1,6 @@
+{
+  "extends": "@pixeleye/tsconfig/node.json",
+  "include": ["."],
+  "compilerOptions": {},
+  "exclude": ["dist", "build", "node_modules"],
+}
