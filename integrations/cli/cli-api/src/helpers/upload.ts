@@ -65,8 +65,6 @@ export async function uploadSnapshots(
     })
   );
 
-  console.log(snapshots);
-
   return snapshots.map(({ hash }) => ({
     id: presignedMap[hash].id,
   }));
