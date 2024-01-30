@@ -14,6 +14,7 @@ export const optionMap = {
   t: "token",
   e: "endpoint",
   p: "boothPort",
+  w: "wait",
 } as const;
 
 const configOption = (name: string) =>
@@ -43,18 +44,33 @@ apiOptions("storybook")
     "URL to storybook, can be local or remote",
     "http://localhost:6006"
   )
+  .option(
+    "-w, --wait [wait]",
+    "Wait for build results, outputting them once finished processing",
+    "false"
+  )
   .description("Run storybook and upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(storybook);
 
 apiOptions("exec")
   .argument("[command...]", "Command to execute")
+  .option(
+    "-w, --wait [wait]",
+    "Wait for build results, outputting them once finished processing",
+    "false"
+  )
   .description("Start your e2e tests with pixeleye running in the background")
   .hook("preAction", loadAndMergeConfig)
   .action(execHandler);
 
 apiOptions("upload")
   .argument("<dir?", "Directory to upload")
+  .option(
+    "-w, --wait [wait]",
+    "Wait for build results, outputting them once finished processing",
+    "false"
+  )
   .description("Upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(uploadHandler);

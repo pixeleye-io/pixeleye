@@ -10,6 +10,7 @@ import { Config } from "@pixeleye/cli-config";
 import {
   getExitBuild,
   startBooth,
+  waitForBuildResult,
   waitForProcessing,
   watchExit,
 } from "./utils";
@@ -103,6 +104,16 @@ export async function storybook(url: string, options: Config) {
 
   const completeSpinner = ora("Completing build...").start();
 
+  let statusFailed = false;
+  // We need to do this before completing to ensure we don't miss any status updates
+  const status = waitForBuildResult(
+    options.token,
+    build,
+    options.endpoint
+  ).catch(() => {
+    statusFailed = true;
+  });
+
   await api
     .post("/v1/client/builds/{id}/complete", {
       params: {
@@ -115,6 +126,21 @@ export async function storybook(url: string, options: Config) {
     });
 
   completeSpinner.succeed("Successfully completed build.");
+
+  if (options.waitForStatus) {
+    const waitForStatus = ora("Waiting for build to finish processing").start();
+
+    await status;
+
+    if (statusFailed) {
+      waitForStatus.fail("Failed to wait for build to finish processing.");
+      await process.exit(1);
+    }
+
+    waitForStatus.succeed("Successfully finished processing build.");
+
+    console.log(`\nBuild status: ${status}`);
+  }
 
   child.kill();
 

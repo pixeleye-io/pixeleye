@@ -5,7 +5,12 @@ import { errStr } from "../messages/ui/theme";
 import { API, createBuild, uploadSnapshots } from "@pixeleye/cli-api";
 import { PartialSnapshot } from "@pixeleye/api";
 import { Config } from "@pixeleye/cli-config";
-import { getExitBuild, splitIntoChunks, watchExit } from "./utils";
+import {
+  getExitBuild,
+  splitIntoChunks,
+  waitForBuildResult,
+  watchExit,
+} from "./utils";
 import fsCallback from "graceful-fs";
 import { promisify } from "util";
 import { join } from "path";
@@ -134,6 +139,16 @@ export async function uploadHandler(dir: string, options: Config) {
 
   const completeSpinner = ora("Completing build...").start();
 
+  let statusFailed = false;
+  // We need to do this before completing to ensure we don't miss any status updates
+  const status = waitForBuildResult(
+    options.token,
+    build,
+    options.endpoint
+  ).catch(() => {
+    statusFailed = true;
+  });
+
   await api
     .post("/v1/client/builds/{id}/complete", {
       params: {
@@ -146,6 +161,21 @@ export async function uploadHandler(dir: string, options: Config) {
     });
 
   completeSpinner.succeed("Successfully completed build.");
+
+  if (options.waitForStatus) {
+    const waitForStatus = ora("Waiting for build to finish processing").start();
+
+    await status;
+
+    if (statusFailed) {
+      waitForStatus.fail("Failed to wait for build to finish processing.");
+      await process.exit(1);
+    }
+
+    waitForStatus.succeed("Successfully finished processing build.");
+
+    console.log(`\nBuild status: ${status}`);
+  }
 
   process.exit(0);
 }

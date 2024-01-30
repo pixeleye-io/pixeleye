@@ -61,6 +61,14 @@ export type Config = {
   css?: string;
 
   /**
+   * Wait for the build to finish processing before exiting.
+   * We will output the status of the build once it has finished processing.
+   *
+   * @default false
+   */
+  waitForStatus?: boolean;
+
+  /**
    * Storybook specific options.
    */
   storybookOptions?: {

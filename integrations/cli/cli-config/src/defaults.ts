@@ -15,4 +15,5 @@ export const defaultConfig: Omit<Config, "token"> = {
   },
   maskColor: "#FF00FF",
   css: undefined,
+  waitForStatus: false,
 };

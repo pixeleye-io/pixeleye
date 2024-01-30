@@ -4,6 +4,8 @@ import ora from "ora";
 import { errStr } from "../messages/ui/theme";
 import { execFile } from "node:child_process";
 import { finished, ping } from "@pixeleye/cli-booth";
+import { Build } from "@pixeleye/api";
+import EventSource from "eventsource";
 
 export const getExitBuild =
   (api: APIType, buildID: string) => async (err: any) => {
@@ -108,4 +110,48 @@ export function splitIntoChunks<T>(array: T[], chunkSize: number): T[][] {
   return array.flatMap((_, i) =>
     i % chunkSize === 0 ? [array.slice(i, i + chunkSize)] : []
   );
+}
+
+export async function waitForBuildResult(
+  token: string,
+  build: Build,
+  endpoint?: string
+): Promise<Build["status"]> {
+  return new Promise<Build["status"]>((resolve, reject) => {
+    console.log(
+      `${endpoint || "https://api.pixeleye.io"}/v1/client/builds/${build.id}/events`
+    );
+    const es = new EventSource(
+      `${endpoint || "https://api.pixeleye.io"}/v1/client/builds/${build.id}/events`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      }
+    );
+
+    es.addEventListener("message", (event) => {
+      console.log(event);
+      const data = JSON.parse(event.data);
+      if (data.type === "build_status") {
+        const newStatus = data.data.status;
+
+        if (
+          [
+            "processing",
+            "queued-processing",
+            "uploading",
+            "queued-uploading",
+          ].includes(newStatus)
+        ) {
+          return;
+        }
+
+        resolve(newStatus);
+      }
+    });
+
+    es.onerror = (err) => {
+      reject(err);
+    };
+  });
 }

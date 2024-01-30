@@ -99,6 +99,14 @@ The devices to capture the snapshot on. If set, the snapshot will be captured on
 
 This will override the `devices` option set in `pixeleye.config.ts`.
 
+#### Options - waitForStatus
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+If set to `true`, we will wait for the build to finish processing and return the status of the build to stdout.
+This is useful for CI/CD environments where you want to capture the status of the build.
+
 #### Options - maskSelectors
 
 - **Type:** `string[]`

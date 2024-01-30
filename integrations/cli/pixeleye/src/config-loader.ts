@@ -14,7 +14,11 @@ export async function loadAndMergeConfig(
   // Merge config file options with command line options
   for (const [key, value] of Object.entries(config)) {
     // Map short options to long options
-    const mappedKey = optionMap[key as keyof typeof optionMap] || key;
+    let mappedKey: string = optionMap[key as keyof typeof optionMap] || key;
+
+    if (mappedKey === "wait") {
+      mappedKey = "waitForStatus";
+    }
 
     const defaultValue = defaultConfig[mappedKey as keyof typeof defaultConfig];
 
