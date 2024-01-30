@@ -14,6 +14,7 @@ import { cx } from "class-variance-authority";
 import { Link } from "@pixeleye/ui";
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { PageNavigation } from "./nextPage";
+import { HeadingNav } from "./heading-nav";
 
 export const dynamicParams = false;
 
@@ -96,6 +97,8 @@ function collectHeadings(node: any) {
   return headings;
 }
 
+
+
 export default async function Page({
   params,
 }: {
@@ -116,9 +119,7 @@ export default async function Page({
 
   const headings = collectHeadings(ast);
 
-  function isActive(section: any) {
-    return false;
-  }
+
 
   return (
     <>
@@ -137,68 +138,7 @@ export default async function Page({
 
       </div>
       <div className="hidden xl:sticky xl:top-[4.5rem] xl:-mr-6 xl:block xl:h-[calc(100vh-4.5rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">
-        <nav aria-labelledby="on-this-page-title" className="w-56">
-          {headings.length > 0 && (
-            <>
-              <h2
-                id="on-this-page-title"
-                className="font-display text-sm font-medium text-slate-900 dark:text-white"
-              >
-                On this page
-              </h2>
-              <ol role="list" className="mt-4 space-y-3 text-sm">
-                {headings.map((section) => (
-                  <li key={section.id}>
-                    <h3>
-                      <NextLink
-                        href={`#${section.id}`}
-                        className={cx(
-                          isActive(section)
-                            ? "text-tertiary"
-                            : "font-normal text-on-surface-variant hover:text-on-surface"
-                        )}
-                      >
-                        {section.title}
-                      </NextLink>
-                    </h3>
-                    {section.children.length > 0 && (
-                      <ol
-                        role="list"
-                        className="mt-2 space-y-3 pl-5 text-on-surface-variant"
-                      >
-                        {section.children.map((subSection: any) => (
-                          <li key={subSection.id}>
-                            <NextLink
-                              href={`#${subSection.id}`}
-                              className={
-                                isActive(subSection)
-                                  ? "text-tertiary"
-                                  : "text-on-surface-variant hover:text-on-surface"
-                              }
-                            >
-                              {subSection.title}
-                            </NextLink>
-                          </li>
-                        ))}
-                      </ol>
-                    )}
-                  </li>
-                ))}
-              </ol>
-              <hr className="border-outline-variant my-4" />
-              <Link
-                size="sm"
-                href={file.githubURL}
-                rel="noopener noreferrer"
-                variant="text"
-                target="_blank"
-                className="!text-sm flex items-center"
-              >
-                Edit this page on GitHub <ArrowUpRightIcon className="ml-1 mt-px" height="1em" width="1em" />
-              </Link>
-            </>
-          )}
-        </nav>
+        <HeadingNav headings={headings} githubURL={file.githubURL} />
       </div>
     </>
   );
