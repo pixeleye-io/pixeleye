@@ -13,7 +13,7 @@
   }
 }
 
-.prose p {
+.prose p:not(.not-prose) {
   @apply text-on-surface my-4;
 }
 
@@ -38,32 +38,41 @@
 }
 
 .prose table {
-  @apply my-2 text-sm
+  @apply my-2 text-sm;
 }
 
 .prose thead {
-  @apply border-b border-outline-variant
+  @apply border-b border-outline-variant;
 }
 
 .prose th {
-  @apply font-bold text-left pb-1
+  @apply font-bold text-left pb-1;
 }
 
 .prose tr {
-  @apply border-b border-outline-variant
+  @apply border-b border-outline-variant;
 }
 .prose tr:last-child {
-  @apply border-none
+  @apply border-none;
 }
 
 .prose td {
-  @apply py-1 pr-2
+  @apply py-1 pr-2;
 }
 
 .prose td:first-child {
-  @apply whitespace-nowrap
+  @apply whitespace-nowrap;
 }
 
-.prose a {
-  @apply text-blue-700 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-400
+.prose ul {
+  @apply list-disc list-inside my-4;
+}
+
+.prose ol {
+  @apply list-decimal list-inside my-4;
+}
+
+
+.prose a:not(.not-prose) {
+  @apply text-blue-700 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-400;
 }

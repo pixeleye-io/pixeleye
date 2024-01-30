@@ -5,14 +5,15 @@ import heading from "../../../schema/heading.markdoc";
 import callout from "../../../schema/callout.markdoc";
 import fence from "../../../schema/fence.markdoc";
 import code from "../../../schema/code.markdoc";
-
+import { Feedback } from "./feedback";
 import link from "../../../schema/link.markdoc";
-import { getFile, getAllFiles } from "./utils";
+import { getFile, getAllFiles, getCommitDate } from "./utils";
 import yaml from "js-yaml";
 import NextLink from "next/link";
 import { cx } from "class-variance-authority";
 import { Link } from "@pixeleye/ui";
-import { ArrowRightOnRectangleIcon, ArrowUpRightIcon } from "@heroicons/react/24/outline";
+import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
+import { PageNavigation } from "./nextPage";
 
 export const dynamicParams = false;
 
@@ -107,6 +108,8 @@ export default async function Page({
     return notFound();
   });
 
+  const lastModified = await getCommitDate(file.path)
+
   const ast = parse(file.text);
 
   const content = transform(ast, config);
@@ -121,6 +124,17 @@ export default async function Page({
     <>
       <div className="min-w-0 max-w-4xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full">
         {renderers.react(content, React, { components: {} })}
+        <div className="flex justify-between items-center flex-col lg:flex-row mt-24 space-y-6">
+          <Feedback page={file.url} />
+          {lastModified && (
+            <p className="text-sm text-on-surface-variant not-prose text-right sm:whitespace-nowrap">
+              Last modified: {lastModified.toLocaleDateString()}
+            </p>
+          )}
+        </div>
+        <hr className="border-outline-variant mt-4 mb-4" />
+        <PageNavigation currentPageURL={"/docs/" + pages.join("/")} />
+
       </div>
       <div className="hidden xl:sticky xl:top-[4.5rem] xl:-mr-6 xl:block xl:h-[calc(100vh-4.5rem)] xl:flex-none xl:overflow-y-auto xl:py-16 xl:pr-6">
         <nav aria-labelledby="on-this-page-title" className="w-56">

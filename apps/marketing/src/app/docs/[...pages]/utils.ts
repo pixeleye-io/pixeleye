@@ -39,12 +39,24 @@ interface GitFiles {
   };
 }
 
-export const getAllFiles = cache(async () => {
-  const octokit = new Octokit({
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
-    auth: process.env.DOCS_TOKEN,
+const octokit = new Octokit({
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  auth: process.env.DOCS_TOKEN,
+});
+
+export const getCommitDate = cache(async (name: string) => {
+  const commit = await octokit.request("GET /repos/{owner}/{repo}/commits", {
+    owner: "pixeleye-io",
+    repo: "pixeleye",
+    path: `docs/${name}`,
   });
 
+  const date = commit.data[0]?.commit?.committer?.date;
+
+  return date ? new Date(date) : undefined;
+});
+
+export const getAllFiles = cache(async () => {
   const gitFiles = await octokit.graphql<GitFiles>(
     `{
       repository(owner: "pixeleye-io", name: "pixeleye") {
@@ -85,7 +97,12 @@ export const getAllFiles = cache(async () => {
               .join("/")
               .replace(".md", "")
               .replaceAll(/(\d\d-)/g, ""),
-            githubURL: ["https://github.com/pixeleye-io/pixeleye/blob/main/docs", folder.name, file.name].join("/"),
+            path: [folder.name, file.name].join("/"),
+            githubURL: [
+              "https://github.com/pixeleye-io/pixeleye/blob/main/docs",
+              folder.name,
+              file.name,
+            ].join("/"),
             text: file.object.text,
           };
         })
