@@ -1,4 +1,6 @@
 import { nodes, Node, Config } from "@markdoc/markdoc";
+import { useRef } from "react";
+import { HeadingComponent } from "./heading";
 
 function generateID(children: any, attributes: any) {
   if (attributes.id && typeof attributes.id === "string") {
@@ -17,7 +19,16 @@ const Heading = {
   transform(node: Node, config: Config) {
     const base = nodes.heading.transform?.(node, config) as any;
     base.attributes.id = generateID(base.children, base.attributes);
-    return base;
+
+    if (base.name === "h1") {
+      return base;
+    }
+
+    return HeadingComponent({
+      ...base.attributes,
+      level: base.name.replace("h", ""),
+      children: base.children,
+    });
   },
 };
 
