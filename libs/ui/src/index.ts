@@ -29,3 +29,4 @@ export * from "./accordion";
 export * from "./code";
 export * from "./switch";
 export * from "./contextMenu";
+export * from "./command"

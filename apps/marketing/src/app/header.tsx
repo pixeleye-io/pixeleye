@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, MagnifyingGlassCircleIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Button, Logo } from "@pixeleye/ui";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { cx } from "class-variance-authority";
+import { DocSearch } from "./docs/search";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -49,38 +50,41 @@ export default function Header() {
                 className={cx(
                   "text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors",
                   pathname.startsWith(item.selector || item.href) &&
-                    "!text-tertiary"
+                  "!text-tertiary"
                 )}
               >
                 {item.name}
               </NextLink>
             ))}
+
           </div>
         </div>
-        <div className="flex lg:hidden">
+        <div className="flex items-center space-x-4">
+
+          <NextLink
+            href="https://github.com/pixeleye-io/pixeleye"
+            className="text-sm hidden lg:block font-semibold leading-6 text-tertiary"
+          >
+            Star us on Github
+          </NextLink>
+
+          <DocSearch />
+
+          <Button variant="outline" className="hidden lg:block">
+            <NextLink href="#">Get started</NextLink>
+          </Button>
+
           <Button
             type="button"
             variant="link"
-            className="h-8"
+            className="h-8 lg:hidden"
             onClick={() => setMobileMenuOpen(true)}
           >
             <span className="sr-only">Open main menu</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </Button>
-        </div>
-        <div className="hidden lg:flex items-center space-x-4">
-          <NextLink
-            href="https://github.com/pixeleye-io/pixeleye"
-            className="text-sm font-semibold leading-6 text-tertiary flex items-center gap-x-1.5 justify-center"
-          >
-            Star us on Github{" "}
-            <span className="mb-px" aria-hidden="true">
-              &rarr;
-            </span>
-          </NextLink>
-          <Button variant="outline">
-            <NextLink href="#">Get started</NextLink>
-          </Button>
+
+
         </div>
       </nav>
       <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -119,7 +123,7 @@ export default function Header() {
                       className={cx(
                         "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
                         pathname.startsWith(item.selector || item.href) &&
-                          "!text-tertiary"
+                        "!text-tertiary"
                       )}
                     >
                       {item.name}
