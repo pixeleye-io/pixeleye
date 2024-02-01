@@ -10,6 +10,8 @@ import {
   useId,
   useContext,
   useState,
+  useEffect,
+  useLayoutEffect,
 } from "react";
 import { m } from "framer-motion";
 
@@ -23,13 +25,20 @@ const Tabs = forwardRef<
   ComponentPropsWithoutRef<typeof TabsPrimitive.Root> & {
     storageKey?: string;
   }
->(function Tabs({ defaultValue, storageKey, onValueChange, ...props }, ref) {
+>(function Tabs({ defaultValue, storageKey, onValueChange, value, ...props }, ref) {
   const defaultVal =
     storageKey && typeof window !== "undefined"
       ? localStorage.getItem(storageKey)
       : defaultValue;
 
-  const [selected, setSelected] = useState(defaultVal ?? defaultValue);
+  const [selected, setSelected] = useState(value ?? defaultVal ?? defaultValue);
+
+  useEffect(() => {
+    if (value) {
+      setSelected(value);
+    }
+  }
+    , [value]);
 
   const onChange = (val: string) => {
     setSelected(val);

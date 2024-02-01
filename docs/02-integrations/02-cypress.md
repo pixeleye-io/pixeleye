@@ -25,9 +25,33 @@ HTML content goes here
 
 We require the Pixeleye cli tool and Cypress tool
 
+{% tabs %}
+
+{% tab label="NPM" %}
+
 ```bash
-npm install pixeleye @pixeleye/cypress
+npm install pixeleye @pixeleye/cypress --save-dev
 ```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn add pixeleye @pixeleye/cypress --dev
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm add pixeleye @pixeleye/cypress --save-dev
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ### Get a project token
 
@@ -37,7 +61,7 @@ See [Getting Started](/docs/01-getting-started/02-setup.md) for more information
 
 ### Create a `pixeleye.config.{js,ts}` file
 
-```pixeleye.ts
+```pixeleye.config.ts
 import { Config } from "pixeleye";
 
 const config: Config = {
@@ -48,16 +72,14 @@ const config: Config = {
 
 ### Adding to your tests
 
-export default config;
-
-```ts
+```someTest.cy.ts
 import { pixeleyeSnapshot } from "@pixeleye/cypress";
 
 // ...
 
-await pixeleyeSnapshot({
-  name: "landing-header",
-});
+  await pixeleyeSnapshot({
+    name: "landing-header",
+  });
 
 // ...
 ```

@@ -5,14 +5,12 @@ import heading from "../../../schema/heading.markdoc";
 import callout from "../../../schema/callout.markdoc";
 import fence from "../../../schema/fence.markdoc";
 import code from "../../../schema/code.markdoc";
+import { tab, tabs } from "../../../schema/tabs.markdoc";
+import { TabRender, TabsRender } from "./tabs";
 import { Feedback } from "./feedback";
 import link from "../../../schema/link.markdoc";
 import { getFile, getAllFiles, getCommitDate } from "./utils";
 import yaml from "js-yaml";
-import NextLink from "next/link";
-import { cx } from "class-variance-authority";
-import { Link } from "@pixeleye/ui";
-import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
 import { PageNavigation } from "./nextPage";
 import { HeadingNav } from "./heading-nav";
 
@@ -31,6 +29,7 @@ export async function generateMetadata({
   });
 
   const ast = parse(file.text);
+
 
   const frontmatter = ast.attributes.frontmatter
     ? (yaml.load(ast.attributes.frontmatter) as Record<string, string>)
@@ -52,6 +51,8 @@ export async function generateStaticParams() {
 
 const config: any = {
   tags: {
+    tabs,
+    tab,
     callout,
   },
   nodes: {
@@ -124,7 +125,12 @@ export default async function Page({
   return (
     <>
       <div className="min-w-0 max-w-4xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full">
-        {renderers.react(content, React, { components: {} })}
+          {renderers.react(content, React, {
+            components: {
+              Tabs: TabsRender,
+              Tab: TabRender,
+            }
+          })}
         <div className="flex justify-between items-center flex-col lg:flex-row mt-24 space-y-6">
           <Feedback page={file.url} />
           {lastModified && (

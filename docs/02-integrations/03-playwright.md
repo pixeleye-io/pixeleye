@@ -13,9 +13,33 @@ description: How to integrate Playwright into Pixeleye and begin visually testin
 
 We require the Pixeleye cli tool and Playwright tool
 
+{% tabs %}
+
+{% tab label="NPM" %}
+
 ```bash
-npm install pixeleye @pixeleye/playwright
+npm install pixeleye @pixeleye/playwright --save-dev
 ```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn add pixeleye @pixeleye/playwright --dev
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm add pixeleye @pixeleye/playwright --save-dev
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ### Get a project token
 
