@@ -104,7 +104,15 @@ We support capturing multiple variants of your components. As long as there's a 
 
 Using the official storybook theme addon
 
+{% tabs %}
+
+{% tab label="TypeScript" %}
+
 ```pixeleye.config.ts
+import { Config } from "pixeleye";
+
+const config: Config = {
+  projectToken: "YOUR_PROJECT_TOKEN",
   storybookOptions: {
     variants: [
       {
@@ -117,4 +125,32 @@ Using the official storybook theme addon
       },
     ],
   }
+}
 ```
+
+{% /tab %}
+
+{% tab label="JavaScript" %}
+
+```pixeleye.config.js
+/** @type {import('pixeleye').Config}*/
+const config = {
+  projectToken: "YOUR_PROJECT_TOKEN",
+  storybookOptions: {
+    variants: [
+      {
+        name: "Dark",
+        params: "globals=theme:dark",
+      },
+      {
+        name: "Light",
+        params: "globals=theme:light",
+      },
+    ],
+  }
+}
+```
+
+{% /tab %}
+
+{% /tabs %}
