@@ -69,6 +69,7 @@ export default config;
 {% tab label="JavaScript" %}
 
 ```pixeleye.config.js
+/** @type {import('pixeleye').Config} */
 const config = {
   projectToken: "YOUR_PROJECT_TOKEN",
   // ...

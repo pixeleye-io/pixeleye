@@ -1,6 +1,7 @@
-import { Code, BrightProps } from "bright";
+import { Code, BrightProps, Extension } from "bright";
 import { ReactNode } from "react";
 import { Copy } from "./title";
+import { darkTheme, lightTheme } from "./themes";
 
 
 export const Title: BrightProps["TitleBarContent"] = (props) => {
@@ -18,7 +19,7 @@ export const Title: BrightProps["TitleBarContent"] = (props) => {
 
   return (
     <div
-      className="flex items-center justify-between w-full text-sm py-1 text-on-surface bg-surface-container"
+      className="flex items-center justify-between w-full text-sm py-1 text-on-surface bg-surface-container-high"
     >
       <div
         className="flex gap-1 ml-2 w-12"
@@ -33,6 +34,18 @@ export const Title: BrightProps["TitleBarContent"] = (props) => {
   )
 }
 
+export const Root: BrightProps["Root"] = ({ style, ...props }) => {
+
+  const newStyle = {
+    ...style,
+    background: "red"
+  }
+
+
+  return (
+    <pre style={newStyle} {...props} />
+  )
+}
 
 
 export interface FenceProps {
@@ -41,20 +54,34 @@ export interface FenceProps {
   title?: string;
 }
 
-Code.theme = {
-  dark: "dark-plus",
-  light: "light-plus",
-  lightSelector: "html.light",
-};
 
 
-
-const titleBar = {
+const titleBar: Extension = {
   name: "titleBar",
   TitleBarContent: Title,
 }
 
+const pre: Extension = {
+  name: "root",
+  Root,
+}
+
 
 export default function Fence({ children, language, title, ...rest }: FenceProps) {
-  return <Code lang={language} title={title} extensions={[titleBar]}>{children}</Code>;
+  return <Code
+    theme={{
+      dark: darkTheme,
+      light: lightTheme,
+      lightSelector: "html.light",
+
+    }}
+    lang={language}
+    title={title}
+    extensions={[titleBar]}
+  >
+    {children}
+  </Code>;
 }
+
+
+
