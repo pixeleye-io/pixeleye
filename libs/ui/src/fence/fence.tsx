@@ -16,7 +16,7 @@ Code.theme = {
 
 const Title: BrightProps["TitleBarContent"] = (props) => {
   const { title, colors } = props
-  const { foreground, background } = colors
+  const { foreground } = colors
 
   const circle = {
     borderRadius: "100%",
@@ -28,26 +28,17 @@ const Title: BrightProps["TitleBarContent"] = (props) => {
 
   return (
     <div
-      style={{
-        background,
-        color: foreground,
-        padding: "3px 0",
-        fontSize: "0.9em",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        width: "100%",
-      }}
+      className="flex items-center justify-between w-full text-sm py-1 text-on-surface bg-surface-container"
     >
       <div
-        style={{ gap: 4, display: "flex", marginLeft: 8 }}
+        className="flex gap-1 ml-2 w-12"
       >
         <div style={circle} />
         <div style={circle} />
         <div style={circle} />
       </div>
-      <span style={{ opacity: 0.8 }}>{title}</span>
-      <div style={{ width: 45 }} />
+      <span>{title}</span>
+      <div className="w-12" />
     </div>
   )
 }
