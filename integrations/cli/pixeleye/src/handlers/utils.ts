@@ -118,9 +118,6 @@ export async function waitForBuildResult(
   endpoint?: string
 ): Promise<Build["status"]> {
   return new Promise<Build["status"]>((resolve, reject) => {
-    console.log(
-      `${endpoint || "https://api.pixeleye.io"}/v1/client/builds/${build.id}/events`
-    );
     const es = new EventSource(
       `${endpoint || "https://api.pixeleye.io"}/v1/client/builds/${build.id}/events`,
       {
