@@ -25,7 +25,7 @@ See [Getting Started](/docs/01-getting-started/02-setup.md) for more information
 
 ### Create a `pixeleye.config.{js,ts}` file
 
-```ts
+```pixeleye.ts
 import { Config } from "pixeleye";
 
 const config: Config = {
