@@ -13,9 +13,33 @@ description: How to integrate Storybook into Pixeleye and begin visually testing
 
 We require the Pixeleye cli tool:
 
+{% tabs %}
+
+{% tab label="NPM" %}
+
 ```bash
-npm install pixeleye
+npm install pixeleye --save-dev
 ```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn add pixeleye --dev
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm add pixeleye --save-dev
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ### Get a project token
 

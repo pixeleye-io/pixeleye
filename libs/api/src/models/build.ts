@@ -11,6 +11,9 @@ export const BuildZod = z.object({
   parentIDs: z.array(z.string().length(21)).optional(),
   targetBuildIDs: z.array(z.string().length(21)).optional(),
 
+  prID: z.string().optional(),
+  targetBranch: z.string().optional(),
+
   isLatest: z.boolean().optional(),
 
   sha: z.string(),
