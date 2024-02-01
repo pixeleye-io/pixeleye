@@ -30,7 +30,7 @@ function Anchor({
             href={`#${id}`}
             className="group text-inherit no-underline hover:text-inherit not-prose"
         >
-            <div className="absolute ml-[calc(-1*var(--width)+0.5rem)] mt-1 hidden w-[var(--width)] opacity-0 transition [--width:calc(2.625rem+0.5px+50%-min(50%,calc(theme(maxWidth.lg)+theme(spacing.8))))] group-hover:opacity-100 md:block lg:z-10 2xl:[--width:theme(spacing.10)]">
+            <div className="absolute -ml-7 mt-1 hidden w-10 opacity-0 transition  group-hover:opacity-100 md:block lg:z-10 xl:-ml-9">
                 <div className="group/anchor block h-5 w-5 rounded-lg ring-1 ring-inset bg-surface-container-high ring-outline hover:bg-surface-container-highest">
                     <AnchorIcon className="h-5 w-5 stroke-on-surface-variant transition group-hover/anchor:stroke-on-surface" />
                 </div>
