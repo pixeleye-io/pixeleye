@@ -16,9 +16,11 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/analytics"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/payments"
+	"github.com/posthog/posthog-go"
 	"github.com/rs/zerolog/log"
 	"github.com/stripe/stripe-go/v76"
 )
@@ -525,17 +527,23 @@ func UploadComplete(c echo.Context) error {
 		return err
 	}
 
+	snapCount, err := db.CountBuildSnapshots(c.Request().Context(), build.ID)
+	if err != nil {
+		return err
+	}
+
+	analytics.Track(posthog.Capture{
+		DistinctId: project.TeamID,
+		Event:      "Build Completed",
+		Properties: posthog.NewProperties().Set("team_id", project.TeamID).Set("id", build.ID).Set("project_id", build.ProjectID).Set("build_number", build.BuildNumber).Set("snapshots", snapCount),
+	})
+
 	if os.Getenv("PIXELEYE_HOSTING") == "true" {
 		team, err := db.GetTeamByID(c.Request().Context(), project.TeamID)
 		if err != nil {
 			return err
 		}
 		if team.BillingStatus == models.TEAM_BILLING_STATUS_ACTIVE {
-
-			snapCount, err := db.CountBuildSnapshots(c.Request().Context(), build.ID)
-			if err != nil {
-				return err
-			}
 
 			paymentClient := payments.NewPaymentClient()
 			if err := paymentClient.ReportSnapshotUsage(team, build.ID, snapCount); err != nil {

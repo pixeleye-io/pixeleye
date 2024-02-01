@@ -12,6 +12,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/routes"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/analytics"
 	"github.com/pixeleye-io/pixeleye/platform/cron"
 
 	"github.com/joho/godotenv"
@@ -24,6 +25,9 @@ func main() {
 			log.Info().Msg("No .env file found")
 		}
 	}
+
+	// We want to clean up the analytics client when the server is shut down.
+	defer analytics.CloseClient()
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
