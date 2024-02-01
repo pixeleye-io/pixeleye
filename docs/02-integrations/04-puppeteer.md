@@ -13,9 +13,33 @@ description: How to integrate Puppeteer into Pixeleye and begin visually testing
 
 We require the Pixeleye cli tool and Puppeteer tool
 
+{% tabs %}
+
+{% tab label="NPM" %}
+
 ```bash
-npm install pixeleye @pixeleye/puppeteer
+npm install pixeleye @pixeleye/puppeteer --save-dev
 ```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn add pixeleye @pixeleye/puppeteer --dev
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm add pixeleye @pixeleye/puppeteer --save-dev
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ### Get a project token
 

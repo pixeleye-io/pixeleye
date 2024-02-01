@@ -11,11 +11,7 @@ export const tab = {
 
 export const tabs = {
   render: "Tabs",
-  attributes: {
-    group: {
-      type: String,
-    }
-  },
+  attributes: {},
   transform(node: Node, config: Config) {
     const labels = node
       .transformChildren(config)

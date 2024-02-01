@@ -25,9 +25,33 @@ HTML content goes here
 
 We require the Pixeleye cli tool and Cypress tool
 
+{% tabs %}
+
+{% tab label="NPM" %}
+
 ```bash
-npm install pixeleye @pixeleye/cypress
+npm install pixeleye @pixeleye/cypress --save-dev
 ```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn add pixeleye @pixeleye/cypress --dev
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm add pixeleye @pixeleye/cypress --save-dev
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ### Get a project token
 
