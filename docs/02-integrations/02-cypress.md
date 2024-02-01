@@ -25,7 +25,7 @@ See [Getting Started](/docs/01-getting-started/02-setup.md) for more information
 
 ### Create a `pixeleye.config.{js,ts}` file
 
-```pixeleye.ts
+```pixeleye.config.ts
 import { Config } from "pixeleye";
 
 const config: Config = {
@@ -36,16 +36,14 @@ const config: Config = {
 
 ### Adding to your tests
 
-export default config;
-
-```ts
+```someTest.cy.ts
 import { pixeleyeSnapshot } from "@pixeleye/cypress";
 
 // ...
 
-await pixeleyeSnapshot({
-  name: "landing-header",
-});
+  await pixeleyeSnapshot({
+    name: "landing-header",
+  });
 
 // ...
 ```
