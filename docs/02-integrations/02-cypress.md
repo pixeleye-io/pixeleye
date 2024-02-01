@@ -9,6 +9,18 @@ description: How to integrate Cypress into Pixeleye and begin visually testing y
 
 ## Quick start
 
+{% tabs %}
+
+{% tab label="React" %}
+React content goes here
+{% /tab %}
+
+{% tab label="HTML" %}
+HTML content goes here
+{% /tab %}
+
+{% /tabs %}
+
 ### Installation
 
 We require the Pixeleye cli tool and Cypress tool
