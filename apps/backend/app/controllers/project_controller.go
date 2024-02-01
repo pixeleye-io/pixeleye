@@ -362,7 +362,7 @@ func AddUserToProject(c echo.Context) error {
 	
 	Thanks,
 	
-	Pixeleye Team`, os.Getenv("FRONTEND_URL")+"/invite/"+invite.ID)
+	Pixeleye Team`, os.Getenv("FRONTEND_URL")+"/invites/"+invite.ID)
 
 		if err := email.SendEmail(body.Email, "Pixeleye project invite", emailBody); err != nil {
 			return err

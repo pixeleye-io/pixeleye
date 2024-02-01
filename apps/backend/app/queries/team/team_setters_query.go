@@ -5,9 +5,11 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
+	"github.com/posthog/posthog-go"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/analytics"
 )
 
 func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creatorID string) error {
@@ -53,6 +55,12 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	if _, err = q.NamedExecContext(ctx, createUserOnTeamQuery, userOnTeam); err != nil {
 		return err
 	}
+
+	analytics.Track(posthog.Capture{
+		DistinctId: team.ID,
+		Event:      "Team Created",
+		Properties: posthog.NewProperties().Set("team_id", team.ID).Set("team_type", team.Type).Set("team_url", team.URL).Set("team_name", team.Name).Set("team_avatar_url", team.AvatarURL).Set("team_owner_id", team.OwnerID),
+	})
 
 	return nil
 }
@@ -108,8 +116,19 @@ func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamM
 	query := `INSERT INTO team_users (team_id, user_id, role, role_sync, type) VALUES (:team_id, :user_id, :role, :role_sync, :type)`
 
 	_, err := q.NamedExecContext(ctx, query, members)
+	if err != nil {
+		return err
+	}
 
-	return err
+	for _, member := range members {
+		analytics.Track(posthog.Capture{
+			DistinctId: member.TeamID,
+			Event:      "Team Member Added",
+			Properties: posthog.NewProperties().Set("team_id", member.TeamID).Set("user_id", member.UserID).Set("role", member.Role).Set("type", member.Type),
+		})
+	}
+
+	return nil
 }
 
 func (q *TeamQueries) UpdateUserRoleOnTeam(ctx context.Context, teamID string, memberID string, role string, roleSync bool) error {

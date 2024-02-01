@@ -9,6 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/analytics"
+	"github.com/posthog/posthog-go"
 
 	nanoid "github.com/matoous/go-nanoid/v2"
 )
@@ -220,7 +222,17 @@ func (q *ProjectQueries) CreateProject(ctx context.Context, project *models.Proj
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	analytics.Track(posthog.Capture{
+		DistinctId: project.TeamID,
+		Event:      "Project Created",
+		Properties: posthog.NewProperties().Set("team_id", project.TeamID).Set("id", project.ID).Set("name", project.Name).Set("source", project.Source).Set("source_id", project.SourceID).Set("url", project.URL),
+	})
+
+	return nil
 }
 
 func (q *ProjectQueries) UpdateProject(ctx context.Context, project *models.Project) error {
@@ -327,7 +339,17 @@ func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, pr
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	analytics.Track(posthog.Capture{
+		DistinctId: teamID,
+		Event:      "User Invited to Project",
+		Properties: posthog.NewProperties().Set("team_id", teamID).Set("user_id", userID).Set("role", role).Set("type", "invited"),
+	})
+
+	return nil
 }
 
 // Assumes that the user is already on the team

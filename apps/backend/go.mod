@@ -68,6 +68,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ory/client-go v1.4.0
+	github.com/posthog/posthog-go v0.0.0-20240115103626-fbd687c18571
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.31.0
 	github.com/stretchr/testify v1.8.4
