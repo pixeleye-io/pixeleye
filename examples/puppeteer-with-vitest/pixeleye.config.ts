@@ -1,4 +1,4 @@
 export default {
-  token: "pxi__hcyslbsduva8-TOnCAMY5lTQQTaPfWgf:eTgDhcVrB-MEZ7NutB4K3",
+  token: "pxi__wkJ7heGzKUBOA8QjpDDQ1YvMetgxFghY:rUMLi03CbQIjnQMYOG80C",
   endpoint: "http://localhost:5000",
 };

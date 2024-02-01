@@ -75,17 +75,19 @@ export async function createBuild(api: APIType) {
   let targetBuildIDs = [];
 
   if (env.isPR) {
-    if (!env.prBranch) {
+    if (!env.targetBranch) {
       throw new Error(
         "No PR branch name not found, please set the environment variable PIXELEYE_PR_BRANCH"
       );
     }
 
-    const mergeBase = await getMergeBase(env.prBranch).catch(() => undefined);
+    const mergeBase = await getMergeBase(env.targetBranch).catch(
+      () => undefined
+    );
 
     if (mergeBase === undefined) {
       console.warn(
-        `No merge base found for ${env.prBranch}, we will attempt to use the latest build in that branch. This could mean we aren't accurately testing the changes in this PR.`
+        `No merge base found for ${env.targetBranch}, we will attempt to use the latest build in that branch. This could mean we aren't accurately testing the changes in this PR.`
       );
     }
 
@@ -95,7 +97,7 @@ export async function createBuild(api: APIType) {
         shas: mergeBase ? [mergeBase] : undefined,
       },
       queries: {
-        branch: mergeBase ? undefined : env.prBranch,
+        branch: mergeBase ? undefined : env.targetBranch,
         limit: 1,
       },
     });
@@ -103,7 +105,7 @@ export async function createBuild(api: APIType) {
     if (mergeBaseBuild.length === 0 && mergeBase) {
       mergeBaseBuild = await api.post("/v1/client/builds", {
         queries: {
-          branch: env.prBranch,
+          branch: env.targetBranch,
           limit: 1,
         },
       });
@@ -111,7 +113,7 @@ export async function createBuild(api: APIType) {
 
     if (mergeBaseBuild.length === 0) {
       throw new Error(
-        `No build found for ${env.prBranch}, please run pixeleye on that branch first`
+        `No build found for ${env.targetBranch}, please run pixeleye on that branch first`
       );
     }
 
@@ -126,6 +128,9 @@ export async function createBuild(api: APIType) {
       sha: env.commit,
       targetBuildIDs,
       parentIDs: parentBuilds?.map((build) => build.id),
+      targetBranch: env.targetBranch,
+      prID: env.prID,
+      title: env.title,
     },
   });
 

@@ -144,7 +144,7 @@ function BuildRow({ build }: { build: Build }) {
               <NextLink href={`/builds/${build.id}`} className="flex gap-x-2 ">
                 <span className="whitespace-nowrap">{buildStatuses[build.status]}</span>
                 <span className="text-outline">/</span>
-                <span className="whitespace-nowrap text-on-surface-variant truncate">{build.title || "some build title adsf sdafads fdasf dasf dasf dasf ads fads fdas fsa f"}</span>
+                <span className="whitespace-nowrap text-on-surface-variant truncate">{build.title || build.message || `No Title`}</span>
                 <span className="absolute inset-0" />
               </NextLink>
             </h2>
@@ -156,20 +156,36 @@ function BuildRow({ build }: { build: Build }) {
             </svg>
             <div className="flex items-center space-x-1">
               <CalendarDaysIcon className="h-4 w-4" />
-              <p className="whitespace-nowrap"> {dayjs(build.createdAt).fromNow()}</p>
+              <p className="whitespace-nowrap">{dayjs(build.createdAt).fromNow()}</p>
             </div>
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center ">
-            <span className="text-xs text-blue-600 min-w-0 bg-blue-50 font-semibold dark:bg-blue-900/25 dark:text-blue-300 ring-blue-600/20 rounded px-2 py-1 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 512 512" fill="currentColor">
-                <path d="M306 2c8 4 14 13 14 22v40h16c71 0 128 57 128 128v167a80 80 0 1 1-64 0V192c0-35-29-64-64-64h-16v40a24 24 0 0 1-40 18l-80-72c-5-5-8-11-8-18s3-13 8-18l80-72c7-6 17-8 26-4zM104 80a24 24 0 1 0-48 0 24 24 0 1 0 48 0zm8 73v206a80 80 0 1 1-64 0V153a80 80 0 1 1 64 0zm-8 279a24 24 0 1 0-48 0 24 24 0 1 0 48 0zm328 24a24 24 0 1 0 0-48 24 24 0 1 0 0 48z" />
-              </svg>
-              <span className="truncate min-w-0">
-                {build.branch}
+          <div className="flex items-center">
+            <span className="text-xs text-blue-600 space-y-2 min-w-0 bg-blue-50 font-semibold dark:bg-blue-900/25 dark:text-blue-300 ring-blue-600/20 rounded px-2 py-1 flex flex-col items-start justify-center">
+              <span className="flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="h-4 w-4 mr-2" fill="currentColor">
+                  <path d="M80 104a24 24 0 1 0 0-48 24 24 0 1 0 0 48zm80-24c0 33-20 61-48 73v88c19-11 41-17 64-17h96c35 0 64-29 64-64v-7a80 80 0 1 1 64 0v7c0 71-57 128-128 128h-96c-35 0-64 29-64 64v7a80 80 0 1 1-64 0V153a80 80 0 1 1 112-73zm232 0a24 24 0 1 0-48 0 24 24 0 1 0 48 0zM80 456a24 24 0 1 0 0-48 24 24 0 1 0 0 48z" />
+                </svg>
+                <span className="truncate min-w-0">
+                  {build.branch}
+                </span>
               </span>
+              {
+                (build.prID) && (
+                  <span className="flex items-start justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 512 512" fill="currentColor">
+                      <path d="M306 2c8 4 14 13 14 22v40h16c71 0 128 57 128 128v167a80 80 0 1 1-64 0V192c0-35-29-64-64-64h-16v40a24 24 0 0 1-40 18l-80-72c-5-5-8-11-8-18s3-13 8-18l80-72c7-6 17-8 26-4zM104 80a24 24 0 1 0-48 0 24 24 0 1 0 48 0zm8 73v206a80 80 0 1 1-64 0V153a80 80 0 1 1 64 0zm-8 279a24 24 0 1 0-48 0 24 24 0 1 0 48 0zm328 24a24 24 0 1 0 0-48 24 24 0 1 0 0 48z" />
+                    </svg>
+                    <span className="truncate min-w-0">
+                      #{build.prID}
+                    </span>
+                  </span>
+                )}
+
             </span>
+
+
           </div>
         </div>
         {

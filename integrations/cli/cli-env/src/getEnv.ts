@@ -8,12 +8,14 @@ export interface Environment {
   branch?: string;
   isCI?: boolean;
   isPR?: boolean;
-  prBranch?: string;
+  targetBranch?: string;
+  prID?: string;
+  title?: string;
 }
 
 export async function getEnvironment(): Promise<Environment> {
   // TODO Add my own handlers for common services
-  const { name, commit, isPr, branch, isCi, prBranch } = envCi({
+  const { name, commit, isPr, branch, isCi, prBranch, pr, tag } = envCi({
     env: process.env,
     root: process.cwd(),
   });
@@ -27,8 +29,10 @@ export async function getEnvironment(): Promise<Environment> {
     name: name,
     commit: process.env.PIXELEYE_COMMIT || commit || gitBranch,
     branch: process.env.PIXELEYE_BRANCH || branch || gitCommit,
-    prBranch: process.env.PIXELEYE_PR_BRANCH || prBranch,
+    targetBranch: process.env.PIXELEYE_PR_BRANCH || prBranch,
     isCI: isCi,
     isPR: isPr,
+    prID: pr,
+    title: tag,
   };
 }

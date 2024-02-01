@@ -572,6 +572,16 @@ table "build" {
     null = false
   }
 
+  column "pr_id" {
+    type = varchar(255)
+    null = false
+  }
+
+  column "target_branch" {
+    type = varchar(255)
+    null = false
+  }
+
   column "warnings" {
     type = sql("text[]")
     null = true
