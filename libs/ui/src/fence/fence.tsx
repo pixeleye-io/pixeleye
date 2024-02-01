@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 export interface FenceProps {
   children: ReactNode;
   language?: string;
+  title?: string;
 }
 
 Code.theme = {
@@ -12,6 +13,7 @@ Code.theme = {
   lightSelector: "html.light",
 };
 
-export default function Fence({ children, language }: FenceProps) {
-  return <Code lang={language}>{children}</Code>;
+export default function Fence({ children, language, title, ...rest }: FenceProps) {
+  console.log(rest, title)
+  return <Code lang={language} title={title}>{children}</Code>;
 }
