@@ -9,7 +9,11 @@ This file can be used to configure Pixeleye. We default to looking at the root o
 
 This file should export a `Config` object. It can be a function that returns a `Config` object or a `Config` object itself.
 
-```ts
+{% tabs %}
+
+{% tab label="TypeScript" %}
+
+```pixeleye.config.ts
 import { Config } from "pixeleye";
 
 const config: Config = {
@@ -19,6 +23,23 @@ const config: Config = {
 
 export default config;
 ```
+
+{% /tab %}
+
+{% tab label="JavaScript" %}
+
+```pixeleye.config.js
+const config = {
+  projectToken: "YOUR_PROJECT_TOKEN",
+  // ...
+};
+
+export default config;
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ## Options
 

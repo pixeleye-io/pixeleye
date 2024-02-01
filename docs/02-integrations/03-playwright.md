@@ -47,16 +47,39 @@ You can get a project token from the Pixeleye dashboard. You will need this to a
 
 See [Getting Started](/docs/01-getting-started/02-setup.md) for more information.
 
-### Create a `pixeleye.config.{js,ts}` file
+### Create a pixeleye.config.{js,ts} file
 
-```ts
+{% tabs %}
+
+{% tab label="TypeScript" %}
+
+```pixeleye.config.ts
 import { Config } from "pixeleye";
 
 const config: Config = {
   projectToken: "YOUR_PROJECT_TOKEN",
   // ...
 };
+
+export default config;
 ```
+
+{% /tab %}
+
+{% tab label="JavaScript" %}
+
+```pixeleye.config.js
+const config = {
+  projectToken: "YOUR_PROJECT_TOKEN",
+  // ...
+};
+
+export default config;
+```
+
+{% /tab %}
+
+{% /tabs %}
 
 ### Adding to your tests
 
