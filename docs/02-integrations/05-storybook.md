@@ -86,7 +86,7 @@ export default config;
 
 We recommend adding the following to your `package.json` file:
 
-```json
+```package.json
 {
   "scripts": {
     "pixeleye": "pixeleye storybook --url http://localhost:6006"
@@ -104,7 +104,7 @@ We support capturing multiple variants of your components. As long as there's a 
 
 Using the official storybook theme addon
 
-```js
+```pixeleye.config.ts
   storybookOptions: {
     variants: [
       {

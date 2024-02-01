@@ -84,19 +84,16 @@ export default config;
 
 ### Adding to your tests
 
-export default config;
-
-```ts
+```some.spec.ts
 import { pixeleyeSnapshot } from "@pixeleye/playwright";
 
-// ...
-
-await pixeleyeSnapshot(app.page, {
-  name: "landing-header",
-  selector: "header.sticky",
+test("Some test", async ({ page }) => {
+  // ...
+  await pixeleyeSnapshot(page, {
+    name: "button",
+  });
+  // ...
 });
-
-// ...
 ```
 
 ## API Reference
