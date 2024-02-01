@@ -1,8 +1,7 @@
 import { Tag, Config, Node } from "@markdoc/markdoc";
-import { TabRender, TabsRender } from "./tabs";
 
 export const tab = {
-  render: TabRender,
+  render: "Tab",
   attributes: {
     label: {
       type: String,
@@ -11,8 +10,12 @@ export const tab = {
 };
 
 export const tabs = {
-  render: TabsRender,
-  attributes: {},
+  render: "Tabs",
+  attributes: {
+    group: {
+      type: String,
+    }
+  },
   transform(node: Node, config: Config) {
     const labels = node
       .transformChildren(config)
@@ -21,6 +24,10 @@ export const tabs = {
         typeof tab === "object" ? (tab as any).attributes.label : null
       );
 
-    return new Tag((this as any).render, { labels }, node.transformChildren(config));
+    return new Tag(
+      (this as any).render,
+      { labels },
+      node.transformChildren(config)
+    );
   },
 };

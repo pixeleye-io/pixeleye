@@ -6,6 +6,7 @@ import callout from "../../../schema/callout.markdoc";
 import fence from "../../../schema/fence.markdoc";
 import code from "../../../schema/code.markdoc";
 import { tab, tabs } from "../../../schema/tabs.markdoc";
+import { TabRender, TabsRender } from "./tabs";
 import { Feedback } from "./feedback";
 import link from "../../../schema/link.markdoc";
 import { getFile, getAllFiles, getCommitDate } from "./utils";
@@ -50,9 +51,9 @@ export async function generateStaticParams() {
 
 const config: any = {
   tags: {
-    callout,
     tabs,
-    tab
+    tab,
+    callout,
   },
   nodes: {
     heading,
@@ -124,7 +125,12 @@ export default async function Page({
   return (
     <>
       <div className="min-w-0 max-w-4xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full">
-        {renderers.react(content, React, { components: {} })}
+          {renderers.react(content, React, {
+            components: {
+              Tabs: TabsRender,
+              Tab: TabRender,
+            }
+          })}
         <div className="flex justify-between items-center flex-col lg:flex-row mt-24 space-y-6">
           <Feedback page={file.url} />
           {lastModified && (
