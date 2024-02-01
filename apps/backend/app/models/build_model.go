@@ -43,6 +43,9 @@ type Build struct {
 	Errors             pq.StringArray `db:"errors" json:"errors,omitempty"`
 	Warnings           pq.StringArray `db:"warnings" json:"warnings,omitempty"`
 	DeletedSnapshotIDs pq.StringArray `db:"deleted_snapshot_ids" json:"deletedSnapshotIDs,omitempty"`
+
+	PrID         string `db:"pr_id" json:"prID,omitempty"`
+	TargetBranch string `db:"target_branch" json:"targetBranch,omitempty"`
 }
 
 type BuildHistory struct {

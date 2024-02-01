@@ -32,7 +32,7 @@ func (tx *BuildQueriesTx) UpdateBuild(ctx context.Context, build *models.Build) 
 // Creates a new build and updates the build history table accordingly
 func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) error {
 	selectProjectQuery := `SELECT * FROM project WHERE id = $1 FOR UPDATE`
-	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, build_number) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :build_number) RETURNING *`
+	insertBuildQuery := `INSERT INTO build (id, sha, branch, title, message, status, project_id, created_at, updated_at, build_number, pr_title, pr_id, target_branch) VALUES (:id, :sha, :branch, :title, :message, :status, :project_id, :created_at, :updated_at, :build_number, :pr_title, :pr_id, :target_branch) RETURNING *`
 	updateBuildNumber := `UPDATE project SET build_count = $1 WHERE id = $2`
 	buildHistoryQuery := `INSERT INTO build_history (parent_id, child_id) VALUES (:parent_id, :child_id) ON CONFLICT DO NOTHING`
 	targetBuildQuery := `INSERT INTO build_targets (build_id, target_id) VALUES (:build_id, :target_id) ON CONFLICT DO NOTHING`
