@@ -10,12 +10,7 @@ export function errMsg(strings: TemplateStringsArray, ...args: any[]) {
 }
 
 export function errStr(str: string | object) {
-  try {
-    const json = JSON.stringify(str, null, 2);
-    return chalk.bold.red(json);
-  } catch {
-    return chalk.bold.red(str);
-  }
+  return chalk.bold.red(str);
 }
 
 export function warnMsg(strings: TemplateStringsArray, ...args: any[]) {
