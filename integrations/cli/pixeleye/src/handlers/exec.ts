@@ -114,16 +114,6 @@ export async function execHandler(command: string[], options: Config) {
 
   const completeSpinner = ora("Completing build...").start();
 
-  let statusFailed = false;
-  // We need to do this before completing to ensure we don't miss any status updates
-  const status = waitForBuildResult(
-    options.token,
-    build,
-    options.endpoint
-  ).catch(() => {
-    statusFailed = true;
-  });
-
   await api
     .post("/v1/client/builds/{id}/complete", {
       params: {
@@ -133,19 +123,22 @@ export async function execHandler(command: string[], options: Config) {
     .catch(async (err) => {
       completeSpinner.fail("Failed to complete build.");
       await exitBuild(err);
+    })
+    .then(() => {
+      completeSpinner.succeed("Successfully completed build.");
     });
-
-  completeSpinner.succeed("Successfully completed build.");
 
   if (options.waitForStatus) {
     const waitForStatus = ora("Waiting for build to finish processing").start();
 
-    const finalStatus = await status;
-
-    if (statusFailed) {
+    const finalStatus = await waitForBuildResult(
+      options.token,
+      build,
+      options.endpoint
+    ).catch(async () => {
       waitForStatus.fail("Failed to wait for build to finish processing.");
       await process.exit(1);
-    }
+    });
 
     waitForStatus.succeed("Successfully finished processing build.");
 

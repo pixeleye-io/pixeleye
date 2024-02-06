@@ -59,6 +59,8 @@ function readConfig(path: string): Config | (() => Promise<Config>) {
   return config.default ?? config;
 }
 
+const toUpperCamelCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter}`).toUpperCase();
+
 export async function loadConfig(path?: string): Promise<Config> {
   if (path) {
     // We store the path in an env variable so that we can access the config via other integrations. E.g Puppeteer.
@@ -108,10 +110,10 @@ export async function loadConfig(path?: string): Promise<Config> {
   for (const key of Object.keys(merged) as Array<keyof Config>) {
     // IF string then set env variable
     if (typeof merged[key] === "string") {
-      setEnv(`PIXELEYE_${key.toUpperCase()}`, merged[key] as string);
+      setEnv(`PIXELEYE_${toUpperCamelCase(key)}`, merged[key] as string);
     } else {
       // ELSE stringify and set env variable
-      setEnv(`PIXELEYE_${key.toUpperCase()}`, JSON.stringify(merged[key]));
+      setEnv(`PIXELEYE_${toUpperCamelCase(key)}`, JSON.stringify(merged[key]));
     }
   }
 

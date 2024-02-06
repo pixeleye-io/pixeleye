@@ -75,6 +75,8 @@ func SubscribeToBuild(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get build")
 	}
 
+	initial := c.QueryParam("initial")
+
 	c.Response().Header().Set("Content-Type", "text/event-stream")
 	c.Response().Header().Set("Cache-Control", "no-cache")
 	c.Response().Header().Set("Connection", "keep-alive")
@@ -93,6 +95,30 @@ func SubscribeToBuild(c echo.Context) error {
 
 	c.Response().Flush()
 
+	if initial == "true" {
+
+		event := events.EventPayload{
+			Type: events.ProjectEvent_BuildStatus,
+			Data: events.BuildStatusBody{
+				BuildID:   build.ID,
+				Status:    build.Status,
+				ProjectID: build.ProjectID,
+			},
+		}
+
+		msg, err := json.Marshal(event)
+		if err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", msg); err != nil {
+			return err
+		}
+
+		c.Response().Flush()
+
+	}
+
 	quit := make(chan bool)
 	go func(quit chan bool, build *models.Build, res *echo.Response) {
 		err = broker.SubscribeToQueue(connection, build.ProjectID, brokerTypes.ProjectUpdate, func(msg []byte) error {
@@ -101,9 +127,7 @@ func SubscribeToBuild(c echo.Context) error {
 
 			event := events.EventPayload{}
 
-			err := json.Unmarshal(msg, &event)
-
-			if err != nil {
+			if err := json.Unmarshal(msg, &event); err != nil {
 				return err
 			}
 

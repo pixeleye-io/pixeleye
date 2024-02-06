@@ -491,9 +491,9 @@ func UploadPartial(c echo.Context) error {
 	log.Debug().Msgf("Queuing %v snapshots for processing", snapshots)
 
 	if len(snapshots) == 0 {
-		return echo.NewHTTPError(http.StatusOK, "no snapshots to process")
+		return c.String(http.StatusOK, "no snapshots to process")
 	} else if snapshots[0].Status == models.SNAPSHOT_STATUS_QUEUED {
-		return echo.NewHTTPError(http.StatusOK, "snapshots will begin processing once dependencies have been processed")
+		return c.String(http.StatusOK, "snapshots will begin processing once dependencies have been processed")
 	}
 
 	channel, err := broker.GetBroker()
