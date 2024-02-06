@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/go-github/v56/github"
 	"github.com/labstack/echo/v4"
-	"github.com/pixeleye-io/pixeleye/app/billing"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -445,7 +444,7 @@ func GetBillingPortalSession(c echo.Context) error {
 
 	paymentClient := payments.NewPaymentClient()
 
-	session, err := paymentClient.CreateBillingPortalSession(team, billing.CUSTOMER_BILLING_FLOW_MANAGE_BILLING)
+	session, err := paymentClient.CreateBillingPortalSession(team)
 	if err != nil {
 		return err
 	}

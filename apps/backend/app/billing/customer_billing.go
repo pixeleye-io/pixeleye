@@ -2,7 +2,6 @@ package billing
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -14,35 +13,17 @@ import (
 	"github.com/stripe/stripe-go/v76/client"
 )
 
-// nolint:gochecknoglobals
-var stripePlans []models.TeamPlan
-
 type CustomerBilling struct {
 	API *client.API
 }
 
 type CreateCustomerOpts struct {
 	TeamID string
-	Email  *string
-}
-
-// TODO - make this an api call to stripe so we can have 1 source of truth
-func GetPlans() ([]models.TeamPlan, error) {
-	if len(stripePlans) == 0 {
-		plans := os.Getenv("STRIPE_PLANS")
-
-		if err := json.Unmarshal([]byte(plans), &stripePlans); err != nil {
-			return []models.TeamPlan{}, err
-		}
-	}
-
-	return stripePlans, nil
 }
 
 // If it's a user team we attach their email
 func (c *CustomerBilling) CreateCustomer(opts CreateCustomerOpts) (*stripe.Customer, error) {
 	params := &stripe.CustomerParams{
-		Email: opts.Email,
 		Metadata: map[string]string{
 			"teamID": opts.TeamID,
 		},
@@ -100,13 +81,11 @@ func (c *CustomerBilling) GetOrCreateCustomer(ctx context.Context, team models.T
 	return customer, nil
 }
 
-func (c *CustomerBilling) CreateBillingPortalSession(team models.Team, flow string) (*stripe.BillingPortalSession, error) {
+func (c *CustomerBilling) CreateBillingPortalSession(team models.Team) (*stripe.BillingPortalSession, error) {
 
 	if team.CustomerID == "" {
 		return nil, fmt.Errorf("team does not have a customer id")
 	}
-
-	flowData := resolveFlowData(flow)
 
 	var returnURL string
 	if team.Type == models.TEAM_TYPE_USER {
@@ -118,7 +97,6 @@ func (c *CustomerBilling) CreateBillingPortalSession(team models.Team, flow stri
 	params := &stripe.BillingPortalSessionParams{
 		Customer:  stripe.String(team.CustomerID),
 		ReturnURL: stripe.String(returnURL),
-		FlowData:  flowData,
 	}
 
 	return c.API.BillingPortalSessions.New(params)
@@ -260,21 +238,6 @@ func (c *CustomerBilling) GetCustomer(customerID string) (*stripe.Customer, erro
 	return c.API.Customers.Get(customerID, nil)
 }
 
-func (c *CustomerBilling) GetCustomerPaymentMethods(customerID string) ([]*stripe.PaymentMethod, error) {
-	list := c.API.PaymentMethods.List(&stripe.PaymentMethodListParams{
-		Customer: stripe.String(customerID),
-		Type:     stripe.String("card"),
-	})
-
-	paymentMethods := []*stripe.PaymentMethod{}
-
-	for list.Next() {
-		paymentMethods = append(paymentMethods, list.PaymentMethod())
-	}
-
-	return paymentMethods, nil
-}
-
 func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, snapshotCount int64) error {
 
 	params := &stripe.UsageRecordParams{
@@ -288,41 +251,4 @@ func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, 
 	_, err := c.API.UsageRecords.New(params)
 
 	return err
-}
-
-func GetTeamBillingStatus(status stripe.SubscriptionStatus) string {
-	switch status {
-	case stripe.SubscriptionStatusActive:
-		return models.TEAM_BILLING_STATUS_ACTIVE
-	case stripe.SubscriptionStatusPastDue:
-		return models.TEAM_BILLING_STATUS_PAST_DUE
-	case stripe.SubscriptionStatusUnpaid:
-		return models.TEAM_BILLING_STATUS_UNPAID
-	case stripe.SubscriptionStatusCanceled:
-		return models.TEAM_BILLING_STATUS_CANCELED
-	case stripe.SubscriptionStatusIncomplete:
-		return models.TEAM_BILLING_STATUS_INCOMPLETE
-	case stripe.SubscriptionStatusIncompleteExpired:
-		return models.TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED
-	default:
-		return models.TEAM_BILLING_STATUS_CANCELED
-	}
-}
-
-func (c *CustomerBilling) CreateSetupIntent(ctx context.Context, team models.Team) (*stripe.SetupIntent, error) {
-
-	customer, err := c.GetOrCreateCustomer(ctx, team)
-	if err != nil {
-		return nil, err
-	}
-
-	params := &stripe.SetupIntentParams{
-		Customer:           stripe.String(customer.ID),
-		Description:        stripe.String("Setup payment details for team"),
-		PaymentMethodTypes: []*string{stripe.String("card")},
-		Usage:              stripe.String("off_session"),
-		UseStripeSDK:       stripe.Bool(true),
-	}
-
-	return c.API.SetupIntents.New(params)
 }
