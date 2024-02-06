@@ -107,6 +107,11 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 		return err
 	}
 
+	if len(snaps) == 0 {
+		// We have no snapshots to process so we can just finish
+		return tx.Commit()
+	}
+
 	snapIDs := make([]string, len(snaps))
 	for i, snap := range snaps {
 		snap.Status = models.SNAPSHOT_STATUS_PROCESSING

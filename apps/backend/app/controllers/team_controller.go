@@ -390,6 +390,39 @@ func GetCurrentSubscription(c echo.Context) error {
 
 }
 
+func SetSnapshotLimit(c echo.Context) error {
+
+	type SnapshotLimitRequest struct {
+		Limit int `json:"limit" validate:"required,min=5000"`
+	}
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	var req SnapshotLimitRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	validator := utils.NewValidator()
+	if err := validator.Struct(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if err := db.SetTeamSnapshotLimit(c.Request().Context(), team.ID, req.Limit); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
 func Subscribe(c echo.Context) error {
 
 	team, err := middleware.GetTeam(c)

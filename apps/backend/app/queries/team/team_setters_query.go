@@ -182,3 +182,11 @@ func (q *TeamQueries) UpdateTeamBilling(ctx context.Context, team models.Team) e
 
 	return err
 }
+
+func (q *TeamQueries) SetTeamSnapshotLimit(ctx context.Context, teamID string, limit int) error {
+	query := `UPDATE team SET snapshot_limit = $1 WHERE id = $2`
+
+	_, err := q.ExecContext(ctx, query, limit, teamID)
+
+	return err
+}

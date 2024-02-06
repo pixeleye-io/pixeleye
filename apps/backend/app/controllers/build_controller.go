@@ -76,16 +76,17 @@ func CreateBuild(c echo.Context) error {
 		if slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
 			// Pro tier
 
-			// startDateTime := time.Unix(subscription.CurrentPeriodStart, 0)
-			// endDateTime := time.Unix(subscription.CurrentPeriodEnd, 0)
+			startDateTime := time.Unix(subscription.CurrentPeriodStart, 0)
+			endDateTime := time.Unix(subscription.CurrentPeriodEnd, 0)
 
-			// snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
-			// if err != nil {
-			// 	return err
-			// }
+			snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+			if err != nil {
+				return err
+			}
 
-			// TODO - check if we've reached our user customisable limit
-
+			if snapshotCount >= team.SnapshotLimit {
+				return echo.NewHTTPError(http.StatusBadRequest, "snapshot limit reached")
+			}
 		} else {
 			// Free tier
 			startDateTime := time.Now().AddDate(0, -1, 0)
@@ -572,9 +573,9 @@ func UploadComplete(c echo.Context) error {
 			return err
 		}
 
-		if slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
+		if subscription != nil && slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
 			// Pro tier - we want to report the snapshot usage
-			if err := paymentClient.ReportSnapshotUsage(team, build.ID, snapCount); err != nil {
+			if err := paymentClient.ReportSnapshotUsage(subscription.Items.Data[0].ID, build.ID, snapCount); err != nil {
 				log.Error().Err(err).Msg("Failed to report snapshot usage")
 				// We can't seem to report the usage, We should log these in a database somewhere but for now we'll just give the user the benefit of the doubt and let them continue without paying
 			}

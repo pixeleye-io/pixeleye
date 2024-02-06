@@ -69,6 +69,11 @@ type POST = Method<{
       checkoutURL: string;
     };
   };
+  "/v1/teams/{teamID}/billing/limit": {
+    req: {
+      limit: number;
+    };
+  };
 }>;
 
 type PATCH = Method<{

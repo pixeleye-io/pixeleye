@@ -140,7 +140,7 @@ export async function execHandler(command: string[], options: Config) {
   if (options.waitForStatus) {
     const waitForStatus = ora("Waiting for build to finish processing").start();
 
-    await status;
+    const finalStatus = await status;
 
     if (statusFailed) {
       waitForStatus.fail("Failed to wait for build to finish processing.");
@@ -149,7 +149,7 @@ export async function execHandler(command: string[], options: Config) {
 
     waitForStatus.succeed("Successfully finished processing build.");
 
-    console.log(`\nBuild status: ${status}`);
+    console.log(`\nBuild status: ${finalStatus}`);
   }
 
   child.kill();

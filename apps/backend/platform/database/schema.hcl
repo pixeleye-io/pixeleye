@@ -191,15 +191,22 @@ table "team" {
     default = "active"
   }
 
+
+  column "snapshot_limit" {
+    type    = integer
+    null    = false
+    default = 5000
+  }
+
   column "subscription_id" {
-    type = varchar(255)
-    null = false
+    type    = varchar(255)
+    null    = false
     default = ""
   }
 
   column "customer_id" {
-    type = varchar(255)
-    null = false
+    type    = varchar(255)
+    null    = false
     default = ""
   }
 

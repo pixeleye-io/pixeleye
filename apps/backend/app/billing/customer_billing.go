@@ -220,11 +220,11 @@ func (c *CustomerBilling) GetCustomer(customerID string) (*stripe.Customer, erro
 	return c.API.Customers.Get(customerID, nil)
 }
 
-func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, snapshotCount int64) error {
+func (c *CustomerBilling) ReportSnapshotUsage(subscriptionID string, buildID string, snapshotCount int64) error {
 
 	params := &stripe.UsageRecordParams{
 		Quantity:         stripe.Int64(snapshotCount),
-		SubscriptionItem: stripe.String(team.SubscriptionID),
+		SubscriptionItem: stripe.String(subscriptionID),
 		Action:           stripe.String("increment"),
 	}
 

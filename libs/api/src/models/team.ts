@@ -15,6 +15,8 @@ export const TeamZod = z.object({
   customerID: z.string().optional(),
   planID: z.string().optional(),
 
+  snapshotLimit: z.number().optional(),
+
   billingStatus: z
     .enum([
       "active",

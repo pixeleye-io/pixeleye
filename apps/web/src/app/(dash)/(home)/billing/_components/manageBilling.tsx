@@ -3,10 +3,13 @@
 import { API, useTeam } from "@/libs";
 import { CreditCardIcon } from "@heroicons/react/24/outline";
 import { Team, Subscription } from "@pixeleye/api";
-import { Button, Container, Link } from "@pixeleye/ui";
-import { useMutation } from "@tanstack/react-query";
+import { Button, Container, Input, Link, Switch, Toggle, Dialog, DialogContent, DialogHeader, DialogDescription, DialogFooter, DialogPortal, DialogTitle, DialogTrigger } from "@pixeleye/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import NextLink from "next/link";
+import { useEffect, useState } from "react";
+import { queries } from "@/queries";
+import { useForm } from "react-hook-form";
 
 export function ManageBillingAccount(
     { team, subscription }: {
@@ -39,7 +42,37 @@ export function ManageBillingAccount(
         }
     })
 
-    console.log(subscription)
+
+    const [snapshotsLimited, setSnapshotsLimited] = useState(team.snapshotLimit != null && team.snapshotLimit > 5000)
+
+    const queryClient = useQueryClient()
+
+
+    const [limitSnapsOpen, setLimitSnapsOpen] = useState(false)
+
+    const updateSnapshotLimit = useMutation({
+        mutationFn: (limit: number) => API.post("/v1/teams/{teamID}/billing/limit", {
+            params: {
+                teamID: team!.id,
+            },
+            body: {
+                limit: limit * 1000
+            }
+        }).then(() => limit),
+        onSuccess: (limit) => {
+            queryClient.invalidateQueries(queries.teams.detail(team.id))
+            setSnapshotsLimited(limit > 5000)
+            setLimitSnapsOpen(false)
+        }
+    })
+
+
+    const { register, handleSubmit } = useForm<{ limit: number }>({
+        defaultValues: {
+            limit: team.snapshotLimit === 5000 || !team.snapshotLimit ? 100 : team.snapshotLimit / 1000
+        }
+    })
+
 
     return (
         <>
@@ -85,16 +118,70 @@ export function ManageBillingAccount(
                             <p className="mt-1 text-sm text-on-surface-variant">
                                 <span className="text-primary text-lg">Thank you for supporting open-source!</span> <br /> Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
                             </p>
-                            <div className="mt-6">
+                            <div className="mt-6 flex flex-col space-y-8">
 
-                                <Button loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
-                                    Manage account
-                                </Button>
+                                <div className="flex space-x-4 items-center justify-center">
+
+                                    <Button className="w-fit" loading={manageBillingAccount.isPending} onClick={() => manageBillingAccount.mutate()}>
+                                        Manage account
+                                    </Button>
+
+                                    <Dialog open={limitSnapsOpen} onOpenChange={setLimitSnapsOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="secondary">
+                                                Limit snapshots
+                                            </Button>
+                                        </DialogTrigger>
+
+                                        <DialogPortal>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Limit snapshots</DialogTitle>
+                                                    <DialogDescription>
+                                                        Limit the number of snapshots that can be taken per month.
+
+                                                    </DialogDescription>
+                                                </DialogHeader>
+
+                                                <form onSubmit={handleSubmit((({ limit }) => updateSnapshotLimit.mutate(limit)))}>
+
+                                                    <div className="space-y-4 flex flex-col my-8">
+
+                                                        <div className="space-y-4 flex flex-col max-w-56">
+                                                            <label className="flex space-x-4">
+                                                                <span>Enable limit</span>
+                                                                <Switch checked={snapshotsLimited} onCheckedChange={setSnapshotsLimited} />
+                                                            </label>
+                                                            <Input step="0.001" suffix="/k" label="Limit (thousand)" defaultValue={100} type="number" min={5} disabled={!snapshotsLimited} {...register("limit", {
+                                                                min: 5
+                                                            })} />
+
+                                                        </div>
+
+                                                        <p className="text-on-surface-variant">
+                                                            Your first 5k snapshots are free.
+                                                        </p>
+                                                    </div>
+
+
+                                                    <DialogFooter>
+                                                        <Button type="button" variant="secondary" onClick={() => setLimitSnapsOpen(false)}>Cancel</Button>
+                                                        <Button loading={updateSnapshotLimit.isPending} type="submit">Save</Button>
+                                                    </DialogFooter>
+                                                </form>
+
+                                            </DialogContent>
+                                        </DialogPortal>
+
+
+
+                                    </Dialog>
+                                </div>
                             </div></>
                         )
                     }
                 </div>
-            </Container>
+            </Container >
 
         </>
     )
