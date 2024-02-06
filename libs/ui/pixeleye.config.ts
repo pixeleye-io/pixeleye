@@ -1,5 +1,5 @@
 const config = {
-  token: "pxi__sVEgnuVysmiqk2lxRZ6eH7M7gO-vaZPV:Ezx8dXSwxHRRghzTrLJat",
+  token: "pxi__mTABxKK2sYY55ILmIvMTa-S6ABixvSPR:ZwEWrRCK_IyeX9sUzsh_v",
   endpoint: "http://localhost:5000",
   waitForStatus: true,
 
