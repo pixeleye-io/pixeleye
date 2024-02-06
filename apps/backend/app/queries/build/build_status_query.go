@@ -2,9 +2,11 @@ package build_queries
 
 import (
 	"context"
+	"slices"
 
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -37,7 +39,7 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	case models.SNAPSHOT_STATUS_FAILED:
 		return models.BUILD_STATUS_FAILED
 	case models.SNAPSHOT_STATUS_QUEUED:
-		return models.BUILD_STATUS_QUEUED_PROCESSING
+		return models.BUILD_STATUS_PROCESSING
 	case models.SNAPSHOT_STATUS_PROCESSING:
 		return models.BUILD_STATUS_PROCESSING
 	case models.SNAPSHOT_STATUS_UNREVIEWED:
@@ -191,7 +193,24 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 		return models.BUILD_STATUS_ORPHANED, nil
 	}
 
-	return getBuildStatusFromSnapshotStatuses(snapshotStatus), nil
+	status := getBuildStatusFromSnapshotStatuses(snapshotStatus)
+
+	if slices.Contains([]string{models.BUILD_STATUS_PROCESSING, models.BUILD_STATUS_UPLOADING}, status) {
+		depsProcessing, err := db.AreBuildDependenciesPostProcessing(ctx, build)
+		if err != nil {
+			return "", err
+		}
+
+		if !depsProcessing {
+			if status == models.BUILD_STATUS_PROCESSING {
+				return models.BUILD_STATUS_QUEUED_PROCESSING, nil
+			} else if status == models.BUILD_STATUS_UPLOADING {
+				return models.BUILD_STATUS_QUEUED_UPLOADING, nil
+			}
+		}
+	}
+
+	return status, nil
 }
 
 func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buildID string) (*models.Build, error) {
@@ -218,7 +237,6 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 	}
 
 	status, err := tx.CalculateBuildStatus(ctx, build)
-
 	if err != nil {
 		return &build, err
 	}
@@ -238,18 +256,41 @@ func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buil
 			return &build, err
 		}
 
+		var snaps []models.Snapshot
+		if build.Status == models.BUILD_STATUS_PROCESSING {
+			// Get all queued snaps and start processing them
+			snaps, err = tx.CheckAndProcessQueuedSnapshots(ctx, build)
+			if err != nil {
+				log.Error().Err(err).Msgf("Failed to check and process queued snapshots for build %s", build.ID)
+				return &build, err
+			}
+		}
+
 		if err = tx.Commit(); err != nil {
 			return &build, err
 		}
 
-		go func(build models.Build) {
-			notifier, err := events.GetNotifier(nil)
+		go func(build models.Build, snaps []models.Snapshot) {
+			broker, err := broker.GetBroker()
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get broker")
+				return
+			}
+
+			notifier, err := events.GetNotifier(broker)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to get notifier")
 				return
 			}
+
 			notifier.BuildStatusChange(build)
-		}(build)
+			if len(snaps) > 0 {
+				// We need to queue the snapshots to be ingested
+				if err := broker.QueueSnapshotsIngest(snaps); err != nil {
+					log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
+				}
+			}
+		}(build, snaps)
 	}
 
 	if models.IsBuildPostProcessing(build.Status) {

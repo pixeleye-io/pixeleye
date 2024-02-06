@@ -41,10 +41,9 @@ func TeamRoutes(e *echo.Echo) {
 		billingRoutes.Use(billingRoleMiddleware.TeamRoleAccess)
 
 		billingRoutes.GET("/portal", controllers.GetBillingPortalSession)
-		billingRoutes.POST("/account", controllers.CreateBillingAccount)
-		billingRoutes.POST("/plan", controllers.SubscribeToPlan)
-		billingRoutes.GET("/plan", controllers.GetTeamBillingPlan)
-
+		billingRoutes.POST("/subscribe", controllers.Subscribe)
+		billingRoutes.GET("/subscription", controllers.GetCurrentSubscription)
+		billingRoutes.POST("/limit", controllers.SetSnapshotLimit)
 	}
 
 	adminRoutes := v1.Group("/admin")

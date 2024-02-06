@@ -1,17 +1,17 @@
 package billing
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"os"
 
+	"slices"
+
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/client"
 )
-
-// nolint:gochecknoglobals
-var stripePlans []models.TeamPlan
 
 type CustomerBilling struct {
 	API *client.API
@@ -19,25 +19,11 @@ type CustomerBilling struct {
 
 type CreateCustomerOpts struct {
 	TeamID string
-	Email  *string
-}
-
-func GetPlans() ([]models.TeamPlan, error) {
-	if len(stripePlans) == 0 {
-		plans := os.Getenv("STRIPE_PLANS")
-
-		if err := json.Unmarshal([]byte(plans), &stripePlans); err != nil {
-			return []models.TeamPlan{}, err
-		}
-	}
-
-	return stripePlans, nil
 }
 
 // If it's a user team we attach their email
 func (c *CustomerBilling) CreateCustomer(opts CreateCustomerOpts) (*stripe.Customer, error) {
 	params := &stripe.CustomerParams{
-		Email: opts.Email,
 		Metadata: map[string]string{
 			"teamID": opts.TeamID,
 		},
@@ -51,31 +37,37 @@ func (c *CustomerBilling) CreateCustomer(opts CreateCustomerOpts) (*stripe.Custo
 	return customer, nil
 }
 
-const (
-	CUSTOMER_BILLING_FLOW_MANAGE_BILLING = "manage_billing"
-	CUSTOMER_BILLING_FLOW_METHOD_UPDATE  = "method_update"
-)
-
-func resolveFlowData(flow string) *stripe.BillingPortalSessionFlowDataParams {
-	switch flow {
-	case CUSTOMER_BILLING_FLOW_MANAGE_BILLING:
-		return &stripe.BillingPortalSessionFlowDataParams{}
-	case CUSTOMER_BILLING_FLOW_METHOD_UPDATE:
-		return &stripe.BillingPortalSessionFlowDataParams{
-			Type: stripe.String("payment_method_update"),
-		}
-	default:
-		return nil
+func (c *CustomerBilling) GetOrCreateCustomer(ctx context.Context, team models.Team) (*stripe.Customer, error) {
+	if team.CustomerID != "" {
+		return c.GetCustomer(team.CustomerID)
 	}
+
+	customer, err := c.CreateCustomer(CreateCustomerOpts{
+		TeamID: team.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	team.CustomerID = customer.ID
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.UpdateTeamBilling(ctx, team); err != nil {
+		return nil, err
+	}
+
+	return customer, nil
 }
 
-func (c *CustomerBilling) CreateBillingPortalSession(team models.Team, flow string) (*stripe.BillingPortalSession, error) {
+func (c *CustomerBilling) CreateBillingPortalSession(team models.Team) (*stripe.BillingPortalSession, error) {
 
-	if team.BillingAccountID == nil {
+	if team.CustomerID == "" {
 		return nil, fmt.Errorf("team does not have a customer id")
 	}
-
-	flowData := resolveFlowData(flow)
 
 	var returnURL string
 	if team.Type == models.TEAM_TYPE_USER {
@@ -85,93 +77,158 @@ func (c *CustomerBilling) CreateBillingPortalSession(team models.Team, flow stri
 	}
 
 	params := &stripe.BillingPortalSessionParams{
-		Customer:  team.BillingAccountID,
+		Customer:  stripe.String(team.CustomerID),
 		ReturnURL: stripe.String(returnURL),
-		FlowData:  flowData,
 	}
 
 	return c.API.BillingPortalSessions.New(params)
 }
 
-func (c *CustomerBilling) SubscribeToPlan(team models.Team) (*stripe.Subscription, *models.TeamPlan, error) {
-	if team.BillingAccountID == nil {
-		return nil, nil, fmt.Errorf("team does not have a customer id")
+func (c *CustomerBilling) getLatestSubscription(team models.Team) (*stripe.Subscription, error) {
+	if team.CustomerID == "" {
+		return nil, fmt.Errorf("team does not have a customer id")
+	}
+
+	price := os.Getenv("STRIPE_PRICE_ID")
+
+	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
+		Customer: &team.CustomerID,
+		Price:    stripe.String(price),
+	})
+
+	// We will only ever have 1 active subscription
+	if list.Next() {
+		return list.Subscription(), nil
+	}
+
+	return nil, nil
+}
+
+func (c *CustomerBilling) CanCreateNewSubscription(team models.Team) (bool, int, error) {
+	if team.CustomerID == "" {
+		return true, 0, nil
 	}
 
 	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
-		Customer: team.BillingAccountID,
+		Customer: &team.CustomerID,
 	})
 
-	// check if they have any subscriptions
+	// If we have a subscription, we can't create a new one
 	if list.Next() {
-		return nil, nil, fmt.Errorf("team already has a subscription")
-	}
-
-	// Check if they have any outstanding payments
-
-	params := &stripe.InvoiceSearchParams{
-		SearchParams: stripe.SearchParams{Query: "(status:\"open\" OR status:\"uncollectible\") AND customer:" + *team.BillingAccountID},
-	}
-	invoices := c.API.Invoices.Search(params)
-
-	if invoices.Next() {
-		invoices.Invoice()
-		return nil, nil, fmt.Errorf("team has an outstanding payment")
-	}
-
-	plans, err := GetPlans()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var defaultPlan *models.TeamPlan
-	for _, plan := range plans {
-		if plan.Default {
-			defaultPlan = &plan
-			break
+		sub := list.Subscription()
+		if sub.Status == stripe.SubscriptionStatusActive {
+			return false, 1, nil
+		} else if slices.Contains([]stripe.SubscriptionStatus{
+			stripe.SubscriptionStatusIncomplete,
+			stripe.SubscriptionStatusIncompleteExpired,
+			stripe.SubscriptionStatusPastDue,
+			stripe.SubscriptionStatusUnpaid,
+		}, sub.Status) {
+			return false, 2, nil
 		}
 	}
 
-	sub, err := c.API.Subscriptions.New(&stripe.SubscriptionParams{
-		Customer: team.BillingAccountID,
-		AutomaticTax: &stripe.SubscriptionAutomaticTaxParams{
+	return true, 0, nil
+}
+
+func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team models.Team) (*stripe.Subscription, error) {
+	if team.CustomerID == "" {
+		// If we don't have a customer id, we definitely don't have a subscription
+		return nil, nil
+	}
+
+	var sub *stripe.Subscription
+
+	if team.SubscriptionID == "" {
+		var err error
+		sub, err = c.getLatestSubscription(team)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// If we have a subscription id, we can just get the subscription
+	if team.SubscriptionID != "" {
+		var err error
+		sub, err = c.API.Subscriptions.Get(team.SubscriptionID, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if slices.Contains([]stripe.SubscriptionStatus{
+			stripe.SubscriptionStatusCanceled,
+			stripe.SubscriptionStatusIncompleteExpired,
+			stripe.SubscriptionStatusUnpaid,
+		}, sub.Status) {
+			// If the subscription is in a state where it's not active, we should get the latest subscription
+			sub, err = c.getLatestSubscription(team)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if sub != nil && team.SubscriptionID != sub.ID {
+		team.SubscriptionID = sub.ID
+
+		db, err := database.OpenDBConnection()
+		if err != nil {
+			return nil, err
+		}
+
+		if err := db.UpdateTeamBilling(ctx, team); err != nil {
+			return nil, err
+		}
+	}
+
+	return sub, nil
+}
+
+func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) (
+	*stripe.CheckoutSession, error) {
+
+	customer, err := c.GetOrCreateCustomer(ctx, team)
+	if err != nil {
+		return nil, err
+	}
+
+	price := os.Getenv("STRIPE_PRICE_ID")
+
+	return c.API.CheckoutSessions.New(&stripe.CheckoutSessionParams{
+		SuccessURL: stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
+		CancelURL:  stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
+		Mode:       stripe.String("subscription"),
+		Customer:   stripe.String(customer.ID),
+		TaxIDCollection: &stripe.CheckoutSessionTaxIDCollectionParams{
 			Enabled: stripe.Bool(true),
 		},
-
-		Items: []*stripe.SubscriptionItemsParams{
+		CustomerUpdate: &stripe.CheckoutSessionCustomerUpdateParams{
+			Address:  stripe.String("auto"),
+			Shipping: stripe.String("auto"),
+			Name:     stripe.String("auto"),
+		},
+		AutomaticTax: &stripe.CheckoutSessionAutomaticTaxParams{
+			Enabled: stripe.Bool(true),
+		},
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price: stripe.String(defaultPlan.PricingID),
+				Price: stripe.String(price),
 			},
 		},
 	})
 
-	return sub, defaultPlan, err
 }
 
 func (c *CustomerBilling) GetCustomer(customerID string) (*stripe.Customer, error) {
 	return c.API.Customers.Get(customerID, nil)
 }
 
-func (c *CustomerBilling) GetCustomerPaymentMethods(customerID string) ([]*stripe.PaymentMethod, error) {
-	list := c.API.PaymentMethods.List(&stripe.PaymentMethodListParams{
-		Customer: stripe.String(customerID),
-		Type:     stripe.String("card"),
-	})
-
-	paymentMethods := []*stripe.PaymentMethod{}
-
-	for list.Next() {
-		paymentMethods = append(paymentMethods, list.PaymentMethod())
-	}
-
-	return paymentMethods, nil
-}
-
-func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, snapshotCount int64) error {
+func (c *CustomerBilling) ReportSnapshotUsage(subscriptionID string, buildID string, snapshotCount int64) error {
 
 	params := &stripe.UsageRecordParams{
 		Quantity:         stripe.Int64(snapshotCount),
-		SubscriptionItem: team.BillingSubscriptionItemID,
+		SubscriptionItem: stripe.String(subscriptionID),
 		Action:           stripe.String("increment"),
 	}
 
@@ -180,31 +237,4 @@ func (c *CustomerBilling) ReportSnapshotUsage(team models.Team, buildID string, 
 	_, err := c.API.UsageRecords.New(params)
 
 	return err
-}
-
-func (c *CustomerBilling) GetCurrentSubscription(team models.Team) (*stripe.Subscription, error) {
-	if team.BillingSubscriptionID == nil {
-		return nil, fmt.Errorf("team does not have a subscription id")
-	}
-
-	return c.API.Subscriptions.Get(*team.BillingSubscriptionID, nil)
-}
-
-func GetTeamBillingStatus(status stripe.SubscriptionStatus) string {
-	switch status {
-	case stripe.SubscriptionStatusActive:
-		return models.TEAM_BILLING_STATUS_ACTIVE
-	case stripe.SubscriptionStatusPastDue:
-		return models.TEAM_BILLING_STATUS_PAST_DUE
-	case stripe.SubscriptionStatusUnpaid:
-		return models.TEAM_BILLING_STATUS_UNPAID
-	case stripe.SubscriptionStatusCanceled:
-		return models.TEAM_BILLING_STATUS_CANCELED
-	case stripe.SubscriptionStatusIncomplete:
-		return models.TEAM_BILLING_STATUS_INCOMPLETE
-	case stripe.SubscriptionStatusIncompleteExpired:
-		return models.TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED
-	default:
-		return models.TEAM_BILLING_STATUS_CANCELED
-	}
 }

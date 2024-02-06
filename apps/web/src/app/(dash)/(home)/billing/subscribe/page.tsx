@@ -1,12 +1,15 @@
-import { env } from "@/env";
-import { getTeam } from "@/serverLibs";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { NoBillingAccount } from "./_components/noBillingAccount";
-import { ManageBillingAccount } from "./_components/manageBilling";
 import { API } from "@/libs";
+import { getTeam } from "@/serverLibs";
+import { StripeElementsOptions, loadStripe } from "@stripe/stripe-js";
+import { useTheme } from "next-themes";
+import { cookies } from "next/headers";
+import { Payment } from "./_components/payment";
+import { env } from "@/env";
+import { redirect } from "next/navigation";
 
-export default async function BillingPage({
+
+
+export default async function SubscribePage({
     searchParams
 }: {
     searchParams: {
@@ -14,11 +17,17 @@ export default async function BillingPage({
     }
 }) {
 
-    const cookie = cookies().toString();
-
     const team = await getTeam(searchParams);
 
-    const subscription = await API.get("/v1/teams/{teamID}/billing/subscription", {
+    const cookie = cookies().toString();
+
+
+    if (team.planID) {
+        redirect(`/billing${team.type !== "user" ? `?team=${team.id}` : ""}`);
+    }
+
+
+    const setupIntent = await API.post("/v1/teams/{teamID}/billing/account2", {
         params: {
             teamID: team!.id,
         },
@@ -32,12 +41,13 @@ export default async function BillingPage({
         redirect("/dashboard")
     }
 
-    console.log(subscription)
 
     return (
-        <main>
-            <ManageBillingAccount subscription={subscription} team={team} />
-        </main>
+        <Payment clientSecret={setupIntent.clientSecret} teamID={team.id} />
     )
+
+
+
+
 
 }

@@ -35,6 +35,36 @@ func (tx *BuildQueriesTx) GetQueuedSnapshots(ctx context.Context, build *models.
 
 }
 
+func (tx *BuildQueriesTx) CheckAndProcessQueuedSnapshots(ctx context.Context, build models.Build) ([]models.Snapshot, error) {
+
+	snaps, err := tx.GetQueuedSnapshots(ctx, &build)
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to get queued snapshots for build %s", build.ID)
+		return nil, err
+	}
+
+	if len(snaps) == 0 {
+		// We have no snapshots to process so we can just finish
+		return []models.Snapshot{}, nil
+	}
+
+	snapIDs := make([]string, len(snaps))
+	for i, snap := range snaps {
+		snap.Status = models.SNAPSHOT_STATUS_PROCESSING
+		snapIDs[i] = snap.ID
+	}
+
+	stx := snapshot_queries.SnapshotQueriesTx{
+		Tx: tx.Tx,
+	}
+
+	if err := stx.BatchUpdateSnapshotStatus(ctx, snapIDs, models.SNAPSHOT_STATUS_PROCESSING); err != nil {
+		log.Error().Err(err).Msgf("Failed to update snapshots for build %s", build.ID)
+	}
+
+	return snaps, nil
+}
+
 func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build models.Build) error {
 
 	if models.IsBuildPostProcessing(build.Status) {
@@ -100,25 +130,10 @@ func (q *BuildQueries) CheckAndProcessQueuedBuild(ctx context.Context, build mod
 	}
 
 	// Get all queued snaps and start processing them
-
-	snaps, err := tx.GetQueuedSnapshots(ctx, &build)
+	snaps, err := tx.CheckAndProcessQueuedSnapshots(ctx, build)
 	if err != nil {
-		log.Error().Err(err).Msgf("Failed to get queued snapshots for build %s", build.ID)
+		log.Error().Err(err).Msgf("Failed to check and process queued snapshots for build %s", build.ID)
 		return err
-	}
-
-	snapIDs := make([]string, len(snaps))
-	for i, snap := range snaps {
-		snap.Status = models.SNAPSHOT_STATUS_PROCESSING
-		snapIDs[i] = snap.ID
-	}
-
-	stx := snapshot_queries.SnapshotQueriesTx{
-		Tx: tx.Tx,
-	}
-
-	if err := stx.BatchUpdateSnapshotStatus(ctx, snapIDs, models.SNAPSHOT_STATUS_PROCESSING); err != nil {
-		log.Error().Err(err).Msgf("Failed to update snapshots for build %s", build.ID)
 	}
 
 	if err := tx.Commit(); err != nil {

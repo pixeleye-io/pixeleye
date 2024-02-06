@@ -11,6 +11,12 @@ export const TeamZod = z.object({
   name: z.string(),
   url: z.string().url().optional(),
   avatarURL: z.string().url().optional(),
+
+  customerID: z.string().optional(),
+  planID: z.string().optional(),
+
+  snapshotLimit: z.number().optional(),
+
   billingStatus: z
     .enum([
       "active",
@@ -51,6 +57,20 @@ export const UserOnTeamZod = UserZod.extend({
   type: z.enum(["invited", "git"]),
 });
 
+export const Subscription = z.object({
+  id: z.string(),
+  status: z.enum([
+    "incomplete",
+    "incomplete_expired",
+    "active",
+    "past_due",
+    "canceled",
+    "unpaid",
+  ]),
+  cancelAt: z.number().optional(),
+});
+
+export type Subscription = z.infer<typeof Subscription>;
 export type Team = z.infer<typeof TeamZod>;
 export type UserOnTeam = z.infer<typeof UserOnTeamZod>;
 export type TeamPlan = z.infer<typeof TeamPlanZod>;

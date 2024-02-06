@@ -7,6 +7,9 @@ import { Button, Container } from "@pixeleye/ui";
 import { useMutation } from "@tanstack/react-query";
 import { redirect } from "next/navigation";
 import { useRouter } from 'next/navigation'
+import { StripeElementsOptions, loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement } from "@stripe/react-stripe-js";
+import NextLink from "next/link";
 
 export function NoBillingAccount(
     {
@@ -18,14 +21,14 @@ export function NoBillingAccount(
 
     const router = useRouter()
 
-    const createBillingAccount = useMutation({
-        mutationFn: () => API.post("/v1/teams/{teamID}/billing/account", {
+    const { mutate: upgradeToPro, isPending } = useMutation({
+        mutationFn: () => API.post("/v1/teams/{teamID}/billing/subscribe", {
             params: {
                 teamID: team!.id,
             },
         }),
         onSuccess: (data) => {
-            router.push(data.billingPortalURL)
+            router.push(data.checkoutURL)
         }
     })
 
@@ -36,13 +39,13 @@ export function NoBillingAccount(
                     <CreditCardIcon
                         className="mx-auto h-12 w-12 text-on-surface"
                     />
-                    <h3 className="mt-2 text-sm font-semibold text-on-surface">No billing account</h3>
+                    <h3 className="mt-2 text-sm font-semibold text-on-surface">You&apos;re currently using Pixeleye for free</h3>
                     <p className="mt-1 text-sm text-on-surface-variant">
-                        You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month.
+                        This means you are limited to 5000 snapshots per month.
                     </p>
                     <div className="mt-6">
-                        <Button className="mt-8" loading={createBillingAccount.isPending} onClick={() => createBillingAccount.mutate()}>
-                            Create billing account
+                        <Button className="mt-8" onClick={() => upgradeToPro()} loading={isPending}>
+                            Upgrade to Pro
                         </Button>
                     </div>
                 </div>

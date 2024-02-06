@@ -256,6 +256,12 @@ export function Navbar() {
               <a href="https://pixeleye.io/home" target="_blank">Pixeleye homepage <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-auto" /></a>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
+              <a href="https://github.com/pixeleye-io/pixeleye/issues" target="_blank">Report an issue <ArrowTopRightOnSquareIcon className="h-4 w-4 ml-auto" /></a>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
               <Link href="/logout">Log out</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>

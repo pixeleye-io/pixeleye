@@ -3,7 +3,7 @@ import { forwardRef, InputHTMLAttributes, ReactNode } from "react";
 import { Label } from "../label";
 import { useId } from "react";
 
-export interface InputBaseProps extends InputHTMLAttributes<HTMLInputElement> {}
+export interface InputBaseProps extends InputHTMLAttributes<HTMLInputElement> { }
 
 export const InputBase = forwardRef<HTMLInputElement, InputBaseProps>(
   function InputBase({ className, type, ...props }, ref) {
@@ -23,10 +23,11 @@ export const InputBase = forwardRef<HTMLInputElement, InputBaseProps>(
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: ReactNode;
+  suffix?: ReactNode;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, id: passedId, ...rest },
+  { label, suffix, id: passedId, ...rest },
   ref
 ) {
   const randId = useId();
@@ -34,8 +35,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
   return (
     <div className="grid items-center w-full max-w-sm gap-2 text-on-surface">
-      <Label htmlFor={id}>{label}</Label>
-      <InputBase id={id} {...rest} ref={ref} />
+      <Label className="text-start" htmlFor={id}>{label}</Label>
+      <div className="flex justify-center items-center space-x-2">
+        <InputBase id={id} {...rest} ref={ref} />
+        {suffix && <span className="whitespace-nowrap">{suffix}</span>}
+      </div>
+
     </div>
   );
 });
