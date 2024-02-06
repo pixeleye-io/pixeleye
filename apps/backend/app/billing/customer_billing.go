@@ -37,24 +37,6 @@ func (c *CustomerBilling) CreateCustomer(opts CreateCustomerOpts) (*stripe.Custo
 	return customer, nil
 }
 
-const (
-	CUSTOMER_BILLING_FLOW_MANAGE_BILLING = "manage_billing"
-	CUSTOMER_BILLING_FLOW_METHOD_UPDATE  = "method_update"
-)
-
-func resolveFlowData(flow string) *stripe.BillingPortalSessionFlowDataParams {
-	switch flow {
-	case CUSTOMER_BILLING_FLOW_MANAGE_BILLING:
-		return &stripe.BillingPortalSessionFlowDataParams{}
-	case CUSTOMER_BILLING_FLOW_METHOD_UPDATE:
-		return &stripe.BillingPortalSessionFlowDataParams{
-			Type: stripe.String("payment_method_update"),
-		}
-	default:
-		return nil
-	}
-}
-
 func (c *CustomerBilling) GetOrCreateCustomer(ctx context.Context, team models.Team) (*stripe.Customer, error) {
 	if team.CustomerID != "" {
 		return c.GetCustomer(team.CustomerID)
