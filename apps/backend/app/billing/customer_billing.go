@@ -89,9 +89,11 @@ func (c *CustomerBilling) getLatestSubscription(team models.Team) (*stripe.Subsc
 		return nil, fmt.Errorf("team does not have a customer id")
 	}
 
+	price := os.Getenv("STRIPE_PRICE_ID")
+
 	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
 		Customer: &team.CustomerID,
-		Price:    stripe.String("price_1OgtrZJdnGhKgAvmAR1LX8fl"),
+		Price:    stripe.String(price),
 	})
 
 	// We will only ever have 1 active subscription
@@ -191,6 +193,8 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 		return nil, err
 	}
 
+	price := os.Getenv("STRIPE_PRICE_ID")
+
 	return c.API.CheckoutSessions.New(&stripe.CheckoutSessionParams{
 		SuccessURL: stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
 		CancelURL:  stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
@@ -209,7 +213,7 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 		},
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price: stripe.String("price_1OgtrZJdnGhKgAvmAR1LX8fl"),
+				Price: stripe.String(price),
 			},
 		},
 	})
