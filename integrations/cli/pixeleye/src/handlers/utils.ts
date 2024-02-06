@@ -69,6 +69,7 @@ export const startBooth = ({
     ],
     {
       cwd: __dirname,
+      env: process.env,
     },
     (error, stdout, _) => {
       if (error) {
@@ -119,13 +120,12 @@ export async function waitForBuildResult(
 ): Promise<Build["status"]> {
   return new Promise<Build["status"]>((resolve, reject) => {
     const es = new EventSource(
-      `${endpoint || "https://api.pixeleye.io"}/v1/client/builds/${build.id}/events`,
+      `${endpoint || "https://api.pixeleye.io"}/v1/client/builds/${build.id}/events?initial=true`,
       {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       }
     );
-
     es.addEventListener("message", (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "build_status") {

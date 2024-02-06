@@ -1,8 +1,9 @@
 import polka from "polka";
 import { json } from "body-parser";
 import { Build } from "@pixeleye/api";
-import { DomEnvironment } from "@pixeleye/cli-config";
+import { DomEnvironment, getEnvConfig } from "@pixeleye/cli-config";
 import { SnapshotRequest, handleQueue, queue } from "./snapshotQueue";
+import { getBrowser } from "@pixeleye/cli-capture/src/browsers";
 
 export interface BoothServerOptions {
   port: number;
@@ -10,6 +11,19 @@ export interface BoothServerOptions {
   token: string;
   buildID: Build["id"];
   domEnvironment: DomEnvironment;
+}
+
+// We want to warm up the browsers in the pixeleye.config.js file to speed up the first snapshot
+function warmUpBrowsers() {
+  const devices = getEnvConfig().devices;
+
+  if (!devices) {
+    return;
+  }
+
+  for (const device of devices) {
+    getBrowser(device);
+  }
 }
 
 export function startServer(options: BoothServerOptions) {
@@ -21,6 +35,10 @@ export function startServer(options: BoothServerOptions) {
         limit: "100mb",
       })
     );
+
+
+    // pre load the browsers we know we will use
+    warmUpBrowsers();
 
     app.get("/ping", (_, res) => {
       res.end("pong");

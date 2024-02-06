@@ -25,6 +25,8 @@ var snapshotStatusMap = map[string]int{
 	"unknown":                               9,
 }
 
+//
+
 // We assume that builds are past the preProcessing stage
 func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	worstStatus := "unknown"

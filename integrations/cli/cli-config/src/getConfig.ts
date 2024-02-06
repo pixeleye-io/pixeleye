@@ -12,10 +12,10 @@ export function getEnvConfig(
     boothPort: envFn("PIXELEYE_BOOTH_PORT"),
     endpoint: envFn("PIXELEYE_ENDPOINT"),
     css: envFn("PIXELEYE_CSS"),
-    devices: JSON.parse(envFn("PIXELEYE_DEVICES") || "") as Config["devices"],
+    devices: JSON.parse(envFn("PIXELEYE_DEVICES") || "{}") as Config["devices"],
     maskColor: envFn("PIXELEYE_MASK_COLOR"),
     storybookOptions: JSON.parse(
-      envFn("PIXELEYE_STORYBOOK_OPTIONS") || ""
+      envFn("PIXELEYE_STORYBOOK_OPTIONS") || "{}"
     ) as Config["storybookOptions"],
   };
 }
