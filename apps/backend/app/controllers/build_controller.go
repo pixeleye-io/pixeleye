@@ -582,15 +582,6 @@ func UploadComplete(c echo.Context) error {
 		}
 	}
 
-	go func(build models.Build) {
-		notifier, err := events.GetNotifier(nil)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get notifier")
-			return
-		}
-		notifier.BuildStatusChange(build)
-	}(uploadedBuild)
-
 	go func(db *database.Queries, buildID string) {
 		ctx := context.Background()
 		if _, err := db.CheckAndUpdateStatusAccordingly(ctx, buildID); err != nil {

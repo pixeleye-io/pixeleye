@@ -188,24 +188,26 @@ function BuildRow({ build }: { build: Build }) {
 
           </div>
         </div>
-        {
-          ["processing", "uploading", "queued-processing", "queued-uploading"].includes(build.status) ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="z-10">
-                  <EllipsisVerticalIcon className="h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => abortBuild.mutate()}>
-                  Cancel build
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <ChevronRightIcon className="h-5 w-5 text-on-surface-variant" />
-          )
-        }
+        <div className="w-10 flex items-center justify-center">
+          {
+            ["processing", "uploading", "queued-processing", "queued-uploading"].includes(build.status) ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="z-10">
+                    <EllipsisVerticalIcon className="h-6 w-6" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => abortBuild.mutate()}>
+                    Cancel build
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <ChevronRightIcon className="h-5 w-5 text-on-surface-variant" />
+            )
+          }
+        </div>
 
       </div>
     </li>

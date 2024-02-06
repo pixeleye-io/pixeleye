@@ -46,7 +46,7 @@ func TestGetBuildStatusFromSnapshotStatuses(t *testing.T) {
 				"unchanged",
 				"orphaned",
 			},
-			want: "queued-processing",
+			want: "processing",
 		},
 		{
 			name: "All statuses except failed and queued",

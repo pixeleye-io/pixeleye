@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/rs/zerolog/log"
 )
 
@@ -136,7 +138,6 @@ func (q *BuildQueries) CompleteBuild(ctx context.Context, id string) (models.Bui
 	defer tx.Rollback()
 
 	build, err := tx.GetBuildForUpdate(ctx, id)
-
 	if err != nil {
 		return build, err
 	}
@@ -163,7 +164,49 @@ func (q *BuildQueries) CompleteBuild(ctx context.Context, id string) (models.Bui
 		return build, err
 	}
 
-	return build, tx.Commit()
+	var snaps []models.Snapshot
+	if status == models.BUILD_STATUS_PROCESSING {
+		// Sometimes we have left over snaps that need to be processed
+
+		// Get all queued snaps and start processing them
+		snaps, err = tx.CheckAndProcessQueuedSnapshots(ctx, build)
+		if err != nil {
+			log.Error().Err(err).Msgf("Failed to check and process queued snapshots for build %s", build.ID)
+			return build, err
+		}
+
+	}
+
+	if err := tx.Commit(); err != nil {
+		return build, err
+	}
+
+	// Send our snaps to the rabbitmq queue and alert any listeners that our build status has changed
+	go func(build models.Build, snaps []models.Snapshot) {
+
+		broker, err := broker.GetBroker()
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get broker")
+			return
+		}
+
+		notifier, err := events.GetNotifier(broker)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+
+		notifier.BuildStatusChange(build)
+
+		if len(snaps) > 0 {
+			// We need to queue the snapshots to be ingested
+			if err := broker.QueueSnapshotsIngest(snaps); err != nil {
+				log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
+			}
+		}
+	}(build, snaps)
+
+	return build, nil
 }
 
 func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
