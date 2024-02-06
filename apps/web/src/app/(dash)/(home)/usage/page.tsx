@@ -43,7 +43,7 @@ export default async function UsagePage({
 
   const cookie = cookies().toString();
 
-  const [snapUsage, buildUsage, teamPlan] = await Promise.all([API.get("/v1/teams/{teamID}/usage/snapshots", {
+  const [snapUsage, buildUsage] = await Promise.all([API.get("/v1/teams/{teamID}/usage/snapshots", {
     headers: {
       cookie,
     },
@@ -57,22 +57,9 @@ export default async function UsagePage({
     params: {
       teamID: team.id,
     },
-  }), API.get("/v1/teams/{teamID}/billing/plan", {
-    headers: {
-      cookie,
-    },
-    params: {
-      teamID: team.id,
-    },
-  }).catch(() => ({
-    name: "Free",
-  } as TeamPlan))]);
-
-  const cost = calculateCost(teamPlan, snapUsage.snapshotCount);
-  const prevCost = calculateCost(teamPlan, snapUsage.prevSnapshotCount);
+  })]);
 
   const snapshotChange = ((snapUsage.snapshotCount - snapUsage.prevSnapshotCount) / snapUsage.prevSnapshotCount) * 100;
-  const snapshotCostChange = (cost - prevCost / prevCost) * 100;
   const buildChange = ((buildUsage.buildCount - buildUsage.prevBuildCount) / buildUsage.prevBuildCount) * 100;
 
   const stats: StatType[] = [
@@ -89,13 +76,6 @@ export default async function UsagePage({
       previousStat: buildUsage.prevBuildCount.toString(),
       change: `${Number.isNaN(buildChange) ? 0 : buildChange.toFixed(2)} %`,
       changeType: buildChange > 0 ? "increase" : buildChange < 0 ? "decrease" : "level",
-    },
-    {
-      name: "Total cost",
-      stat: `$${cost.toFixed(2)}`,
-      previousStat: `$${prevCost.toFixed(2)}`,
-      change: `${Number.isNaN(snapshotCostChange) ? 0 : snapshotCostChange.toFixed(2)} %`,
-      changeType: snapshotCostChange > 0 ? "increase" : snapshotCostChange < 0 ? "decrease" : "level",
     }
   ];
 
@@ -105,7 +85,7 @@ export default async function UsagePage({
       <div className="pt-12">
         <h3 className="text-base font-semibold leading-6 text-on-surface">Last 30 days</h3>
         <p className="text-on-surface-variant text-sm mb-6">Total cost is just an estimate based on the total snapshots used within this period. Please check your invoices for an accurate price</p>
-        <dl className="mt-5 grid grid-cols-1 divide-y divide-outline overflow-hidden rounded-lg bg-surface-container shadow md:grid-cols-3 md:divide-x md:divide-y-0">
+        <dl className="mt-5 grid grid-cols-1 divide-y divide-outline overflow-hidden rounded-lg bg-surface-container shadow md:grid-cols-2 md:divide-x md:divide-y-0">
           {stats.map((item) => (
             <div key={item.name} className="px-4 py-5 sm:p-6">
               <dt className="text-base font-normal text-on-surface">{item.name}</dt>
