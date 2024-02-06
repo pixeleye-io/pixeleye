@@ -2,6 +2,7 @@ package build_queries
 
 import (
 	"context"
+	"slices"
 
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -194,16 +195,18 @@ func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models
 
 	status := getBuildStatusFromSnapshotStatuses(snapshotStatus)
 
-	depsProcessing, err := db.AreBuildDependenciesPostProcessing(ctx, build)
-	if err != nil {
-		return "", err
-	}
+	if slices.Contains([]string{models.BUILD_STATUS_PROCESSING, models.BUILD_STATUS_UPLOADING}, status) {
+		depsProcessing, err := db.AreBuildDependenciesPostProcessing(ctx, build)
+		if err != nil {
+			return "", err
+		}
 
-	if !depsProcessing {
-		if status == models.BUILD_STATUS_PROCESSING {
-			return models.BUILD_STATUS_QUEUED_PROCESSING, nil
-		} else if status == models.BUILD_STATUS_UPLOADING {
-			return models.BUILD_STATUS_QUEUED_UPLOADING, nil
+		if !depsProcessing {
+			if status == models.BUILD_STATUS_PROCESSING {
+				return models.BUILD_STATUS_QUEUED_PROCESSING, nil
+			} else if status == models.BUILD_STATUS_UPLOADING {
+				return models.BUILD_STATUS_QUEUED_UPLOADING, nil
+			}
 		}
 	}
 
