@@ -37,12 +37,21 @@ function createAPI(endpoint: string, headers?: HeadersInit) {
       },
       options?.retries,
       options?.retryWait
-    ).then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(res);
-    })
+    )
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        }
+        return Promise.reject(res);
+      })
+      .catch((err) => {
+        if (err instanceof Response) {
+          return err.json().then((json) => {
+            throw new Error(JSON.stringify(json));
+          });
+        }
+        throw err;
+      })
   );
 }
 
