@@ -45,6 +45,7 @@
     "next-plausible": "^3.12.0",
     "next-sitemap": "^4.2.3",
     "next-themes": "^0.2.1",
+    "posthog-js": "^1.104.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.49.3",

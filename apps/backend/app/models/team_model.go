@@ -36,14 +36,12 @@ type Team struct {
 
 	Type string `db:"type" json:"type" validate:"required,oneof=github gitlab bitbucket user"`
 
-	Name                      string  `db:"name" json:"name" validate:"required"`
-	AvatarURL                 string  `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
-	URL                       string  `db:"url" json:"url" validate:"omitempty,url"`
-	BillingStatus             string  `db:"billing_status" json:"billingStatus" validate:"required,oneof=active inactive canceled past_due not_created"`
-	BillingAccountID          *string `db:"billing_account_id" json:"billingAccountID"`
-	BillingPlanID             *string `db:"billing_plan_id" json:"billingPlanID"`
-	BillingSubscriptionID     *string `db:"billing_subscription_id" json:"billingSubscriptionID"`
-	BillingSubscriptionItemID *string `db:"billing_subscription_item_id" json:"billingSubscriptionItemID"`
+	Name      string `db:"name" json:"name" validate:"required"`
+	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
+	URL       string `db:"url" json:"url" validate:"omitempty,url"`
+
+	SubscriptionID string `db:"subscription_id" json:"subscriptionID,omitempty" validate:"omitempty"`
+	CustomerID     string `db:"customer_id" json:"customerID,omitempty" validate:"omitempty"`
 
 	ExternalID string `db:"external_id" json:"externalID" validate:"omitempty"` // Used for GitHub, GitLab, Bitbucket
 

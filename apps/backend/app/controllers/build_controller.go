@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	nanoid "github.com/matoous/go-nanoid/v2"
-	"github.com/pixeleye-io/pixeleye/app/billing"
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -61,14 +61,34 @@ func CreateBuild(c echo.Context) error {
 			return err
 		}
 
-		if team.BillingStatus == models.TEAM_BILLING_STATUS_PAST_DUE || team.BillingStatus == models.TEAM_BILLING_STATUS_INCOMPLETE_EXPIRED {
-			return echo.NewHTTPError(http.StatusBadRequest, "payment is overdue, please update your payment details")
+		paymentClient := payments.NewPaymentClient()
+
+		subscription, err := paymentClient.GetCurrentSubscription(c.Request().Context(), team)
+		if err != nil {
+			return err
 		}
 
-		if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
+		if slices.Contains([]stripe.SubscriptionStatus{"incomplete_expired", "unpaid"}, subscription.Status) {
+			// Customer has an unpaid or incomplete subscription, we don't want to let them have anymore snapshots, even free ones until we've sorted this out.
+			return echo.NewHTTPError(http.StatusBadRequest, "Account is not active, Please update your payments/subscription")
+		}
 
+		if slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
+			// Pro tier
+
+			// startDateTime := time.Unix(subscription.CurrentPeriodStart, 0)
+			// endDateTime := time.Unix(subscription.CurrentPeriodEnd, 0)
+
+			// snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
+			// if err != nil {
+			// 	return err
+			// }
+
+			// TODO - check if we've reached our user customisable limit
+
+		} else {
+			// Free tier
 			startDateTime := time.Now().AddDate(0, -1, 0)
-
 			endDateTime := time.Now()
 
 			snapshotCount, err := db.GetTeamSnapshotCount(c.Request().Context(), team.ID, startDateTime, endDateTime)
@@ -80,6 +100,7 @@ func CreateBuild(c echo.Context) error {
 				return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
 			}
 		}
+
 	}
 
 	validate := utils.NewValidator()
@@ -543,27 +564,19 @@ func UploadComplete(c echo.Context) error {
 		if err != nil {
 			return err
 		}
-		if team.BillingStatus == models.TEAM_BILLING_STATUS_ACTIVE {
 
-			paymentClient := payments.NewPaymentClient()
+		paymentClient := payments.NewPaymentClient()
+
+		subscription, err := paymentClient.GetCurrentSubscription(c.Request().Context(), team)
+		if err != nil {
+			return err
+		}
+
+		if slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
+			// Pro tier - we want to report the snapshot usage
 			if err := paymentClient.ReportSnapshotUsage(team, build.ID, snapCount); err != nil {
 				log.Error().Err(err).Msg("Failed to report snapshot usage")
-				if stripeErr, ok := err.(*stripe.Error); ok {
-					if stripeErr.HTTPStatusCode >= 400 && stripeErr.HTTPStatusCode < 500 {
-						subscription, err := paymentClient.GetCurrentSubscription(team)
-						if err != nil {
-							log.Error().Err(err).Msg("Failed to get current subscription")
-							return err
-						}
-						if subscription.Status != stripe.SubscriptionStatusActive {
-							if err := db.UpdateTeamBillingStatus(c.Request().Context(), team.ID, billing.GetTeamBillingStatus(subscription.Status)); err != nil {
-								log.Error().Err(err).Msg("Failed to update team billing status")
-								return err
-							}
-						}
-					}
-				}
-
+				// We can't seem to report the usage, We should log these in a database somewhere but for now we'll just give the user the benefit of the doubt and let them continue without paying
 			}
 		}
 	}

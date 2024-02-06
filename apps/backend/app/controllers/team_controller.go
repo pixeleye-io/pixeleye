@@ -359,13 +359,84 @@ func GetInstallations(c echo.Context) error {
 	return c.JSON(http.StatusOK, installations)
 }
 
+type SubscriptionResponse struct {
+	Status   string `json:"status"`
+	CancelAt int64  `json:"cancelAt"`
+	ID       string `json:"id"`
+}
+
+func GetCurrentSubscription(c echo.Context) error {
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	paymentClient := payments.NewPaymentClient()
+
+	sub, err := paymentClient.GetCurrentSubscription(c.Request().Context(), team)
+	if err != nil {
+		return err
+	}
+
+	if sub == nil {
+		return c.NoContent(http.StatusOK)
+	}
+
+	return c.JSON(http.StatusOK, SubscriptionResponse{
+		Status:   string(sub.Status),
+		CancelAt: sub.CancelAt,
+		ID:       sub.ID,
+	})
+
+}
+
+func Subscribe(c echo.Context) error {
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	paymentClient := payments.NewPaymentClient()
+
+	if ok, code, err := paymentClient.CanCreateNewSubscription(team); err != nil {
+		return err
+	} else if !ok {
+		if code == 1 {
+			return c.String(http.StatusBadRequest, "You already has an active subscription")
+		} else if code == 2 {
+			return c.String(http.StatusBadRequest, "You need to settle your outstanding balance before you can subscribe to a new plan")
+		}
+	}
+
+	if sub, err := paymentClient.GetCurrentSubscription(c.Request().Context(), team); err != nil {
+		return err
+	} else if sub != nil {
+		return c.String(http.StatusBadRequest, "Team already has a subscription")
+	}
+
+	session, err := paymentClient.CreateCheckout(c.Request().Context(), team)
+	if err != nil {
+		return err
+	}
+
+	type CheckoutSessionResponse struct {
+		CheckoutURL string `json:"checkoutURL"`
+	}
+
+	return c.JSON(http.StatusOK, CheckoutSessionResponse{
+		CheckoutURL: session.URL,
+	})
+}
+
 func GetBillingPortalSession(c echo.Context) error {
 	team, err := middleware.GetTeam(c)
 	if err != nil {
 		return err
 	}
 
-	if team.BillingAccountID == nil || *team.BillingAccountID == "" {
+	if team.CustomerID == "" {
 
 		log.Error().Msgf("Team does not have a billing account id, This should never happen. Team: %+v", team)
 
@@ -382,162 +453,4 @@ func GetBillingPortalSession(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"billingPortalURL": session.URL,
 	})
-}
-
-func CreateBillingAccount(c echo.Context) error {
-
-	user, err := middleware.GetUser(c)
-	if err != nil {
-		return err
-	}
-
-	team, err := middleware.GetTeam(c)
-	if err != nil {
-		return err
-	}
-
-	if team.BillingAccountID != nil && *team.BillingAccountID != "" {
-		return c.String(http.StatusBadRequest, "Team already has a billing account")
-	}
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	paymentClient := payments.NewPaymentClient()
-
-	var customerOpts billing.CreateCustomerOpts
-	if team.OwnerID != nil && *team.OwnerID == user.ID {
-		// This is a user team, we need to attach their email to the customer
-		customerOpts = billing.CreateCustomerOpts{
-			TeamID: team.ID,
-			Email:  &user.Email,
-		}
-	} else if team.OwnerID != nil && *team.OwnerID != "" {
-		// This shouldn't happen but someone is trying to access billing for a user team they don't own
-		return c.String(http.StatusBadRequest, "You can't create a billing account for a personal team which isn't yours")
-	} else {
-		customerOpts = billing.CreateCustomerOpts{
-			TeamID: team.ID,
-		}
-	}
-
-	// Create a customer in stripe
-	customer, err := paymentClient.CreateCustomer(customerOpts)
-	if err != nil {
-		return err
-	}
-
-	// Update the team with the customer id
-	team.BillingAccountID = &customer.ID
-	team.BillingStatus = models.TEAM_BILLING_STATUS_NOT_CREATED
-
-	if err := db.UpdateTeamBilling(c.Request().Context(), team); err != nil {
-		return err
-	}
-
-	session, err := paymentClient.CreateBillingPortalSession(team, billing.CUSTOMER_BILLING_FLOW_MANAGE_BILLING)
-	if err != nil {
-		return c.String(
-			http.StatusBadRequest,
-			err.Error(),
-		)
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"billingPortalURL": session.URL,
-	})
-}
-
-func SubscribeToPlan(c echo.Context) error {
-	team, err := middleware.GetTeam(c)
-	if err != nil {
-		return err
-	}
-
-	if team.BillingAccountID == nil {
-		return c.String(http.StatusBadRequest, "Team does not have a billing account")
-	}
-
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	paymentClient := payments.NewPaymentClient()
-
-	// Create a subscription
-	sub, plan, err := paymentClient.SubscribeToPlan(team)
-	if err != nil {
-		return c.JSON(
-			http.StatusBadRequest,
-			map[string]interface{}{
-				"message": err.Error(),
-			},
-		)
-	}
-
-	team.BillingStatus = models.TEAM_BILLING_STATUS_ACTIVE
-	team.BillingPlanID = &plan.PricingID
-	team.BillingSubscriptionID = &sub.ID
-	team.BillingSubscriptionItemID = &sub.Items.Data[0].ID
-	if err := db.UpdateTeamBilling(c.Request().Context(), team); err != nil {
-		return err
-	}
-
-	if list, err := paymentClient.GetCustomerPaymentMethods(*team.BillingAccountID); err != nil {
-		return err
-	} else if len(list) > 0 {
-		// If the customer already has a payment method, we can redirect them to the billing portal
-		session, err := paymentClient.CreateBillingPortalSession(team, billing.CUSTOMER_BILLING_FLOW_MANAGE_BILLING)
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"billingPortalURL": session.URL,
-		})
-	}
-
-	// If the customer doesn't have any payment methods, we need to redirect them to the billing portal
-	session, err := paymentClient.CreateBillingPortalSession(team, billing.CUSTOMER_BILLING_FLOW_METHOD_UPDATE)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"billingPortalURL": session.URL,
-	})
-}
-
-func GetTeamBillingPlan(c echo.Context) error {
-	team, err := middleware.GetTeam(c)
-	if err != nil {
-		return err
-	}
-
-	freePlan := models.TeamPlan{
-		Name:      "Free",
-		ProductID: "",
-		PricingID: "",
-		Default:   false,
-	}
-
-	if team.BillingStatus != models.TEAM_BILLING_STATUS_ACTIVE {
-		return c.JSON(http.StatusOK, freePlan)
-	}
-
-	plans, err := billing.GetPlans()
-	if err != nil {
-		return err
-	}
-
-	for _, plan := range plans {
-		if plan.PricingID == *team.BillingPlanID {
-			return c.JSON(http.StatusOK, plan)
-		}
-	}
-
-	return c.NoContent(http.StatusNotFound)
 }

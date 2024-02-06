@@ -1,5 +1,5 @@
 import { Method } from "api-typify";
-import { Repo, Team, TeamPlan, UserOnTeam } from "../models";
+import { Repo, Subscription, Team, TeamPlan, UserOnTeam } from "../models";
 import { Installation } from "../models/installation";
 
 type GET = Method<{
@@ -37,8 +37,8 @@ type GET = Method<{
       billingPortalURL: string;
     };
   };
-  "/v1/teams/{teamID}/billing/plan": {
-    res: TeamPlan;
+  "/v1/teams/{teamID}/billing/subscription": {
+    res?: Subscription;
   };
 }>;
 
@@ -54,9 +54,19 @@ type POST = Method<{
       billingPortalURL: string;
     };
   };
+  "/v1/teams/{teamID}/billing/account2": {
+    res: {
+      clientSecret: string;
+    };
+  };
   "/v1/teams/{teamID}/billing/plan": {
     res: {
       billingPortalURL: string;
+    };
+  };
+  "/v1/teams/{teamID}/billing/subscribe": {
+    res: {
+      checkoutURL: string;
     };
   };
 }>;

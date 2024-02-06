@@ -191,30 +191,16 @@ table "team" {
     default = "active"
   }
 
-  column "billing_status" {
-    type    = enum.billing_status
-    null    = false
-    default = "not_created"
+  column "subscription_id" {
+    type = varchar(255)
+    null = false
+    default = ""
   }
 
-  column "billing_account_id" {
+  column "customer_id" {
     type = varchar(255)
-    null = true
-  }
-
-  column "billing_subscription_item_id" {
-    type = varchar(255)
-    null = true
-  }
-
-  column "billing_subscription_id" {
-    type = varchar(255)
-    null = true
-  }
-
-  column "billing_plan_id" {
-    type = varchar(255)
-    null = true
+    null = false
+    default = ""
   }
 
   column "created_at" {
