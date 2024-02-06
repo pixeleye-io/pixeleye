@@ -61,7 +61,7 @@ export function ManageBillingAccount(
         }).then(() => limit),
         onSuccess: (limit) => {
             queryClient.invalidateQueries(queries.teams.detail(team.id))
-            setSnapshotsLimited(limit > 5000)
+            setSnapshotsLimited(limit * 1000 > 5000)
             setLimitSnapsOpen(false)
         }
     })
