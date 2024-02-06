@@ -91,7 +91,7 @@ func (c *CustomerBilling) getLatestSubscription(team models.Team) (*stripe.Subsc
 
 	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
 		Customer: &team.CustomerID,
-		Price:    stripe.String("price_1OgnJIJdnGhKgAvmy3eHz8BV"),
+		Price:    stripe.String("price_1OgtrZJdnGhKgAvmAR1LX8fl"),
 	})
 
 	// We will only ever have 1 active subscription
@@ -209,7 +209,7 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 		},
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price: stripe.String("price_1OgnJIJdnGhKgAvmy3eHz8BV"),
+				Price: stripe.String("price_1OgtrZJdnGhKgAvmAR1LX8fl"),
 			},
 		},
 	})
