@@ -13,7 +13,8 @@ if (typeof window !== 'undefined' && env.NEXT_PUBLIC_POSTHOG_KEY) {
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: "https://pixeleye.io/ingest",
     ui_host: "https://eu.posthog.com",
-    capture_pageview: false // Disable automatic pageview capture, as we capture manually
+    capture_pageview: false, // Disable automatic pageview capture, as we capture manually
+    autocapture: false, // Disable automatic event capture, as we capture manually
   })
 }
 
