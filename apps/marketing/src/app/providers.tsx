@@ -9,7 +9,7 @@ import posthog from 'posthog-js'
 import { env } from "./env";
 
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && env.NEXT_PUBLIC_POSTHOG_KEY) {
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: "https://pixeleye.io/ingest",
     ui_host: "https://eu.posthog.com",
