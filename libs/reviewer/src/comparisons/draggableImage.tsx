@@ -54,9 +54,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     ref
   ) {
 
-    const initialNodes: Node[] = [
-      { id: '1', position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' },
-    ];
+    const initialNodes: Node[] = [];
 
     const [nodes, setNodes] = useState<Node[]>(initialNodes);
     const nodeTypes = useMemo(() => ({ image: ImageNode, chat: ChatNode }), []);
@@ -104,6 +102,17 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
 
     const contextMenuCoords = useRef({ x: 0, y: 0 })
+
+    useEffect(() => {
+
+      setNodes([
+        { id: "0", position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
+      ])
+
+      center();
+
+    }, [setNodes, base, overlay, secondBase, center]);
+
 
 
 
