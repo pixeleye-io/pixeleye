@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v58/github"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"

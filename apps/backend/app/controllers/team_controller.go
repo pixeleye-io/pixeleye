@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v58/github"
 	"github.com/labstack/echo/v4"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
