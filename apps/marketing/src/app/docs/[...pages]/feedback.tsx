@@ -1,6 +1,7 @@
 'use client'
 
 import { AnimatePresence, m } from 'framer-motion'
+import posthog from 'posthog-js'
 import { forwardRef, useState } from 'react'
 
 function CheckIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -84,30 +85,10 @@ export function Feedback({ page }: {
 
         const response = (event.nativeEvent as any).submitter.dataset.response === "yes" ? "like" : "dislike"
 
-        console.log("response", response)
-
-        // plausible("pageLikeDislike", {
-        //     props: {
-        //         page,
-        //         response,
-        //     }
-        // })
-
-        // if (response === "like") {
-        //     plausible("pageLike", {
-        //         props: {
-        //             page,
-        //         }
-        //     })
-        // } else {
-        //     plausible("pageDislike", {
-        //         props: {
-        //             page,
-        //         }
-        //     })
-        // }
-
-
+        posthog.capture("docsLikeDislike", {
+            page,
+            response,
+        })
 
         setSubmitted(true)
     }
