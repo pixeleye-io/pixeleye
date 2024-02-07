@@ -75,7 +75,7 @@ export default function CustomGitPage() {
               required: true,
             })}
           />
-          <Input label="Project url" type="url" {...register("url", {})} />
+          <Input label="Project url (optional)" type="url" {...register("url", {})} />
           <Button loading={formState.isSubmitting} type="submit">
             Add project
           </Button>
