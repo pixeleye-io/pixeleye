@@ -1,8 +1,7 @@
 'use client'
 
 import { AnimatePresence, m } from 'framer-motion'
-import { forwardRef, Fragment, useState } from 'react'
-import { usePlausible } from 'next-plausible'
+import { forwardRef, useState } from 'react'
 
 function CheckIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
     return (
@@ -78,7 +77,6 @@ export function Feedback({ page }: {
         pageDislike: { page: string }
         pageLikeDislike: { page: string; response: "like" | "dislike" }
     }
-    const plausible = usePlausible<MyEvents>()
 
     function onSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -88,26 +86,26 @@ export function Feedback({ page }: {
 
         console.log("response", response)
 
-        plausible("pageLikeDislike", {
-            props: {
-                page,
-                response,
-            }
-        })
+        // plausible("pageLikeDislike", {
+        //     props: {
+        //         page,
+        //         response,
+        //     }
+        // })
 
-        if (response === "like") {
-            plausible("pageLike", {
-                props: {
-                    page,
-                }
-            })
-        } else {
-            plausible("pageDislike", {
-                props: {
-                    page,
-                }
-            })
-        }
+        // if (response === "like") {
+        //     plausible("pageLike", {
+        //         props: {
+        //             page,
+        //         }
+        //     })
+        // } else {
+        //     plausible("pageDislike", {
+        //         props: {
+        //             page,
+        //         }
+        //     })
+        // }
 
 
 

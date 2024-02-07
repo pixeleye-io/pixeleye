@@ -1,7 +1,9 @@
 import { GiftIcon, WindowIcon } from "@heroicons/react/24/outline";
 import { Logo } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
-import { BitBucketLogo, GithubLogo, GitlabLogo } from "./logos";
+import { BitBucketLogo, CypressLogo, GithubLogo, GitlabLogo, PlaywrightLogo, PuppeteerLogo, StorybookLogo } from "./logos";
+import { ChromiumLogo, EdgeLogo, WebkitLogo, FirefoxLogo } from "@pixeleye/device-logos";
+import OperaLogo from "@pixeleye/device-logos/src/opera";
 
 export interface PlanetProps {
   children: React.ReactNode;
@@ -74,33 +76,33 @@ export default function LogoOrbit() {
         </Ring>
         <Ring className="w-[22rem] h-[22rem] z-10">
           <Planet count={5} index={0}>
-            <GiftIcon className="w-8 h-8" />
+            <ChromiumLogo className="w-8 h-8" />
           </Planet>
           <Planet count={5} index={1}>
-            <WindowIcon className="w-8 h-8" />
+            <EdgeLogo className="w-8 h-8" />
           </Planet>
           <Planet count={5} index={2}>
-            <WindowIcon className="w-8 h-8" />
+            <WebkitLogo className="w-8 h-8" />
           </Planet>
           <Planet count={5} index={3}>
-            <WindowIcon className="w-8 h-8" />
+            <FirefoxLogo className="w-8 h-8" />
           </Planet>
           <Planet count={5} index={4}>
-            <WindowIcon className="w-8 h-8" />
+            <OperaLogo className="w-8 h-8" />
           </Planet>
         </Ring>
         <Ring className="w-[32rem] h-[32rem] z-0">
           <Planet count={4} index={0}>
-            <GiftIcon className="w-8 h-8" />
+            <PlaywrightLogo className="w-8 h-8" />
           </Planet>
           <Planet count={4} index={1}>
-            <WindowIcon className="w-8 h-8" />
+            <StorybookLogo className="w-8 h-8" />
           </Planet>
           <Planet count={4} index={2}>
-            <WindowIcon className="w-8 h-8" />
+            <CypressLogo className="w-8 h-8" />
           </Planet>
           <Planet count={4} index={3}>
-            <WindowIcon className="w-8 h-8" />
+            <PuppeteerLogo className="w-8 h-8" />
           </Planet>
         </Ring>
       </ul>
