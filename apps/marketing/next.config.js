@@ -15,6 +15,14 @@ const nextConfig = {
       }
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/:path*",
+        destination: "https://eu.posthog.com/:path*",
+      },
+    ];
+  },
   async redirects() {
     return [
       {

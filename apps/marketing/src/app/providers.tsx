@@ -1,9 +1,21 @@
 "use client";
 
-import React, { useContext } from "react";
+import React from "react";
 import { LazyMotion } from "framer-motion";
 import { ThemeProvider } from "next-themes";
-import { create, useStore } from "zustand";
+import { create } from "zustand";
+import { PostHogProvider } from 'posthog-js/react';
+import posthog from 'posthog-js'
+import { env } from "./env";
+
+
+if (typeof window !== 'undefined') {
+  posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
+    api_host: "https://pixeleye.io/ingest",
+    ui_host: "https://eu.posthog.com",
+    capture_pageview: false // Disable automatic pageview capture, as we capture manually
+  })
+}
 
 export interface GlobalStore {
   framerLoaded: boolean;
@@ -26,8 +38,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     });
 
   return (
-    <ThemeProvider attribute="class">
-      <LazyMotion features={loadFeatures}>{children}</LazyMotion>
-    </ThemeProvider>
+    <PostHogProvider>
+      <ThemeProvider attribute="class">
+        <LazyMotion features={loadFeatures}>{children}</LazyMotion>
+      </ThemeProvider>
+    </PostHogProvider>
   );
 }

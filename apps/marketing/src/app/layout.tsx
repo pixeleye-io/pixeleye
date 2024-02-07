@@ -7,6 +7,7 @@ import { cx } from "class-variance-authority";
 import Footer from "./footer";
 import Header from "./header";
 import PlausibleProvider from 'next-plausible'
+import dynamic from "next/dynamic";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +16,10 @@ export const metadata: Metadata = {
   description:
     "Open-source, self-hostable, platform for visual regression testing.",
 };
+
+const PageViews = dynamic(() => import('./pageViews'), {
+  ssr: false,
+})
 
 export default function RootLayout({
   children,
@@ -37,6 +42,7 @@ export default function RootLayout({
         )}
       >
         <Providers>
+          <PageViews />
           <Header />
           <div className="lg:pt-[4.5rem] pt-16">{children}</div>
           <Footer />
