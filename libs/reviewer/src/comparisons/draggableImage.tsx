@@ -109,9 +109,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
         { id: "0", position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
       ])
 
-      center();
-
-    }, [setNodes, base, overlay, secondBase, center]);
+    }, [setNodes, base, overlay, secondBase]);
 
 
 
