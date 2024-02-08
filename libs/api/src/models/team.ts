@@ -70,6 +70,7 @@ export const Subscription = z.object({
   cancelAt: z.number().optional(),
 });
 
+export type UserOnTeamRole = z.infer<typeof UserOnTeamZod>["role"];
 export type Subscription = z.infer<typeof Subscription>;
 export type Team = z.infer<typeof TeamZod>;
 export type UserOnTeam = z.infer<typeof UserOnTeamZod>;

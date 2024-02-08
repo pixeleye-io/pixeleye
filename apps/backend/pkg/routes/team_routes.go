@@ -54,5 +54,6 @@ func TeamRoutes(e *echo.Echo) {
 	adminRoutes.PATCH("", controllers.UpdateTeam)
 
 	adminRoutes.DELETE("/users/:user_id", controllers.RemoveTeamMember)
+	adminRoutes.PATCH("/users/:user_id", controllers.UpdateUserOnTeam)
 
 }
