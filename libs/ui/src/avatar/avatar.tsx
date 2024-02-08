@@ -38,7 +38,7 @@ const AvatarImage = React.forwardRef<
       className={cx("aspect-square h-full w-full", className)}
       src={props.src as string}
       alt={props.alt as string}
-      layout="fill"
+      fill
     />
   </AvatarPrimitive.Image>
 ));

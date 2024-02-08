@@ -113,13 +113,7 @@ function ReviewerInternal({
       const group = snapshotTargetGroups.find((group) => group.snapshots.some((snapshot) => snapshot.id === snapshotId));
       setCurrentSnapshot(group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].snapshots[0]);
     }
-  }, [
-    setCurrentSnapshot,
-    currentSnapshot,
-    snapshotTargetGroups.length,
-    snapshotTargetGroups,
-    searchParams,
-  ]);
+  }, [currentSnapshot, searchParams, setCurrentSnapshot, snapshotTargetGroups]);
 
   useEffect(() => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -197,7 +191,6 @@ function ReviewerInternal({
 
 
 export function Reviewer(props: ReviewerProps) {
-
   return (
     <StoreContext.Provider value={store}>
       <ReviewerInternal {...props} />

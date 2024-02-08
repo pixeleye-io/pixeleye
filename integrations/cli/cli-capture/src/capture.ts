@@ -13,12 +13,21 @@ export interface CaptureScreenshotOptions {
   device: DeviceDescriptor;
   domEnvironment: DomEnvironment;
   url?: string;
-  serializedDom?: serializedNodeWithId;
+  content?: string;
   selector?: string;
   fullPage?: boolean;
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
+}
+
+export function getBuildContent(serializedDom: serializedNodeWithId): string {
+  const doc = new JSDOM().window.document;
+  const cache = createCache();
+  const mirror = createMirror();
+  rebuild(serializedDom, { doc, cache, mirror });
+
+  return doc.documentElement.outerHTML;
 }
 
 export async function captureScreenshot(
@@ -30,13 +39,8 @@ export async function captureScreenshot(
 
   if (options.url) {
     await page.goto(options.url);
-  } else if (options.serializedDom) {
-    const doc = new JSDOM().window.document;
-    const cache = createCache();
-    const mirror = createMirror();
-    rebuild(options.serializedDom, { doc, cache, mirror });
-
-    await page.setContent(doc.documentElement.outerHTML, {
+  } else if (options.content) {
+    await page.setContent(options.content, {
       timeout: 60_000,
     });
   } else {

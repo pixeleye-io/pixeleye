@@ -195,7 +195,7 @@ table "team" {
   column "snapshot_limit" {
     type    = integer
     null    = false
-    default = 5000
+    default = 0
   }
 
   column "subscription_id" {
@@ -436,7 +436,7 @@ table "project" {
   column "snapshot_threshold" {
     type    = float
     null    = false
-    default = 0.2
+    default = 0.1
   }
 
   column "snapshot_blur" {

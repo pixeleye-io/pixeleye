@@ -54,8 +54,7 @@ export default function Status({ status, size = "sm", snapshotStatus }: StatusPr
     <TooltipProvider delayDuration={100}>
       <Tooltip>
 
-        <TooltipTrigger>
-
+        <TooltipTrigger asChild>
           <span
             className={cx(
               "relative flex items-center justify-center",

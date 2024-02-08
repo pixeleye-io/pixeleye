@@ -95,7 +95,7 @@ function TooltipWrapper({
     <TooltipProvider>
       <Tooltip>
 
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           {children}
         </TooltipTrigger>
         <TooltipContent>

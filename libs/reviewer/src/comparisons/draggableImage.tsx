@@ -33,6 +33,7 @@ interface ImageProps {
     width: number;
     height: number;
   };
+  id: string;
   viewport?: Viewport;
   onMove?: OnMove;
 }
@@ -42,6 +43,8 @@ export type DraggableImageRef = {
 };
 
 
+const nodeTypes = { image: ImageNode, chat: ChatNode }
+
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
     {
@@ -49,20 +52,25 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       overlay,
       secondBase,
       viewport,
-      onMove
+      onMove,
+      id
     },
     ref
   ) {
 
-    const initialNodes: Node[] = [];
 
-    const [nodes, setNodes] = useState<Node[]>(initialNodes);
-    const nodeTypes = useMemo(() => ({ image: ImageNode, chat: ChatNode }), []);
+    const [nodes, setNodes] = useState<Node[]>([]);
+
+
+    const updateImages = useRef(false);
 
     const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
     const setSingleSnapshot = useStore(store,
       (state) => state.setSingleSnapshot
     );
+
+
+    const { fitView, setViewport, getViewport, screenToFlowPosition, addNodes } = useReactFlow();
 
     const onNodesChange = useCallback<OnNodesChange>(
       (changes) => {
@@ -75,11 +83,15 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
 
         setNodes((nds) => applyNodeChanges(changes, nds))
+
+        if (updateImages.current) {
+          fitView();
+          updateImages.current = false;
+        }
       },
-      [setNodes]
+      [fitView]
     );
 
-    const { fitView, setViewport, getViewport, screenToFlowPosition, addNodes } = useReactFlow();
 
     const center = useCallback(() => {
       fitView();
@@ -99,21 +111,18 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     const onClick = useCallback(() => secondBase && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head"), [secondBase, setSingleSnapshot, singleSnapshot]);
 
-
-
     const contextMenuCoords = useRef({ x: 0, y: 0 })
 
     useEffect(() => {
 
       setNodes([
-        { id: "0", position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
+        { id: id, position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
       ])
 
-    }, [setNodes, base, overlay, secondBase]);
+      updateImages.current = true;
 
 
-
-
+    }, [base, id, overlay, secondBase]);
 
     return (
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
@@ -149,7 +158,6 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               }}
               maxZoom={10}
               onNodesChange={onNodesChange}
-              fitView
               onMove={onMove} >
               <Background />
             </ReactFlow>

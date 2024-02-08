@@ -36,7 +36,7 @@ function EmptyState({ id }: { id: string }) {
 
       <div className="mt-6">
         <Button asChild>
-          <NextLink href="https://pixeleye.io/docs">Integration docs</NextLink>
+          <a target="_blank" href="https://pixeleye.io/docs/getting-started/quickstart">Integration docs</a>
         </Button>
       </div>
     </div>

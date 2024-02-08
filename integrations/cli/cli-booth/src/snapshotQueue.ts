@@ -1,4 +1,4 @@
-import { captureScreenshot } from "@pixeleye/cli-capture";
+import { captureScreenshot, getBuildContent } from "@pixeleye/cli-capture";
 import { serializedNodeWithId } from "rrweb-snapshot";
 import PQueue from "p-queue";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
@@ -8,7 +8,8 @@ import type { DomEnvironment } from "@pixeleye/cli-config";
 export interface SnapshotRequest {
   name: string;
   variant?: string;
-  serializedDom: serializedNodeWithId;
+  serializedDom?: serializedNodeWithId;
+  url?: string;
   selector?: string;
   fullPage?: boolean;
   devices: DeviceDescriptor[];
@@ -34,12 +35,17 @@ export async function handleQueue({
 }) {
   const api = API({ endpoint, token });
 
+  const content = body.serializedDom
+    ? getBuildContent(body.serializedDom)
+    : undefined;
+
   await Promise.all(
     body.devices.map(async (device) => {
       const file = await captureScreenshot({
         domEnvironment,
         device,
-        serializedDom: body.serializedDom,
+        content,
+        url: body.url,
         selector: body.selector,
         fullPage: body.fullPage,
         maskSelectors: body.maskSelectors,

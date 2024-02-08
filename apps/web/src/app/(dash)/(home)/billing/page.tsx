@@ -2,7 +2,6 @@ import { env } from "@/env";
 import { getTeam } from "@/serverLibs";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { NoBillingAccount } from "./_components/noBillingAccount";
 import { ManageBillingAccount } from "./_components/manageBilling";
 import { API } from "@/libs";
 
@@ -31,8 +30,6 @@ export default async function BillingPage({
         // Billing is only available for the pixeleye cloud product
         redirect("/dashboard")
     }
-
-    console.log(subscription)
 
     return (
         <main>

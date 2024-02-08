@@ -32,6 +32,7 @@ export function Single({ draggableImageRef }: SingleProps) {
             </p>
             <DraggableImage
               ref={draggableImageRef}
+              id={snapshot.id}
               base={{
                 src: snapshot.snapURL!,
                 width: snapshot.snapWidth!,

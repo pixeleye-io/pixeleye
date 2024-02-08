@@ -420,6 +420,10 @@ export function UpdateProjectSection({ project }: { project: Project }) {
 
   const [snapshotBlur, setSnapshotBlur] = useState<boolean>(project.snapshotBlur ?? true);
 
+  const [threshold, setThreshold] = useState<number[]>([
+    project.snapshotThreshold ?? 0.2,
+  ]);
+
 
   const mutation = useMutation({
     mutationFn: (data: { name: string; snapshotThreshold: number, snapshotBlur: boolean, autoApprove: string }) =>
@@ -456,13 +460,9 @@ export function UpdateProjectSection({ project }: { project: Project }) {
     },
   });
 
-  const onSubmit = handleSubmit(({ name, snapshotThreshold, autoApprove }) =>
-    mutation.mutate({ name, snapshotThreshold, snapshotBlur, autoApprove })
+  const onSubmit = handleSubmit(({ name, autoApprove }) =>
+    mutation.mutate({ name, snapshotThreshold: threshold[0], snapshotBlur, autoApprove })
   );
-
-  const [threshold, setThreshold] = useState<number[]>([
-    project.snapshotThreshold || 0.2,
-  ]);
 
 
 
@@ -481,7 +481,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
           {...register("autoApprove", { required: false })}
         />
         <p className="text-on-surface-variant text-sm pt-2">
-          Regex expression of branches where snapshots are automatically approved. <br/> It&apos;s generally a good idea to auto approve your main branch
+          Regex expression of branches where snapshots are automatically approved. <br /> It&apos;s generally a good idea to auto approve your main branch
         </p>
       </div>
       <div className="flex flex-col">
@@ -492,6 +492,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
           value={threshold}
           onValueChange={setThreshold}
           {...register("snapshotThreshold", { min: 0, max: 1 })}
+          name="snapshotThreshold"
           step={0.01}
           min={0}
           max={1}
@@ -505,7 +506,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
           >
             Learn more
           </Link>
-          . Recommended: 0.2{" "}
+          . Recommended: 0.1{" "}
         </p>
       </div>
       <div className="flex flex-col">
@@ -519,7 +520,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
         <p className="text-on-surface-variant text-sm pt-2">
           Temporary blur when comparing snapshots. <Link className="!text-sm"
             href="https://pixeleye.io/docs/features/diff-highlighting#blur"
-            target="_blank">Learn more</Link>. Recommended: Enabled
+            target="_blank">Learn more</Link>. Recommended: Disabled
         </p>
 
       </div>

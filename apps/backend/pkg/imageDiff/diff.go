@@ -9,8 +9,9 @@ import (
 
 // Options struct.
 type Options struct {
-	Threshold float64
-	Blur      bool
+	Threshold             float64
+	Blur                  bool
+	AntiAliasingDetection bool
 }
 
 // Result struct.
@@ -23,14 +24,17 @@ type Result struct {
 // Diff between two images.
 func Diff(image1 image.Image, image2 image.Image, options Options) (*Result, error) {
 
+	_img1 := &_image{image1}
+	_img2 := &_image{image2}
+
 	if options.Blur {
 		var err error
-		image1, err = stackblur.Process(image1, 3)
+		image1, err = stackblur.Process(image1, 2)
 		if err != nil {
 			return nil, err
 		}
 
-		image2, err = stackblur.Process(image2, 3)
+		image2, err = stackblur.Process(image2, 2)
 		if err != nil {
 			return nil, err
 		}
@@ -50,6 +54,13 @@ func Diff(image1 image.Image, image2 image.Image, options Options) (*Result, err
 				delta := Delta(pixel1, pixel2)
 
 				if delta > maxDelta {
+
+					if options.AntiAliasingDetection {
+						if detectAntiAliasing(x, y, _img1, _img2) || detectAntiAliasing(x, y, _img2, _img1) {
+							continue
+						}
+					}
+
 					diff.SetNRGBA(x, y, color.NRGBA{R: 255, G: 0, B: 0, A: 255})
 
 					diffPixelsCount++

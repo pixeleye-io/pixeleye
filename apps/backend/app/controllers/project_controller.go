@@ -164,10 +164,10 @@ func GetProject(c echo.Context) error {
 }
 
 type updateProjectRequest struct {
-	Name         string   `json:"name"`
-	Threshold    *float64 `json:"threshold" validate:"omitempty,min=0,max=1"`
-	SnapshotBlur *bool    `json:"snapshotBlur"`
-	AutoApprove  string   `json:"autoApprove" validate:"omitempty"`
+	Name              string   `json:"name"`
+	SnapshotThreshold *float64 `json:"snapshotThreshold" validate:"omitempty,min=0,max=1"`
+	SnapshotBlur      *bool    `json:"snapshotBlur"`
+	AutoApprove       string   `json:"autoApprove" validate:"omitempty"`
 }
 
 func UpdateProject(c echo.Context) error {
@@ -190,8 +190,8 @@ func UpdateProject(c echo.Context) error {
 		project.Name = body.Name
 	}
 
-	if body.Threshold != nil {
-		project.SnapshotThreshold = *body.Threshold
+	if body.SnapshotThreshold != nil {
+		project.SnapshotThreshold = *body.SnapshotThreshold
 	}
 
 	if body.SnapshotBlur != nil {
