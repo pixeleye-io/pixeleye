@@ -12,7 +12,7 @@ import {
   Toggle,
 } from "@pixeleye/ui";
 import { CompareTab, SnapshotTargetGroup, StoreContext, store } from "./store";
-import { FC, useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import { FC, useCallback, useContext, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, ChevronDownIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
@@ -23,7 +23,6 @@ import { Snapshot } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
 import { snapshotStatusText } from "./panels/snapshots";
 import { HandThumbDownIcon, HandThumbUpIcon } from "@heroicons/react/24/solid";
-import { ReactFlowProvider } from "reactflow";
 
 const buttonColors: Record<Snapshot["status"], string> = {
   approved: "dark:bg-green-300 dark:text-green-900 bg-green-500 text-green-50",
@@ -126,31 +125,6 @@ function TabSwitcher() {
   );
 }
 
-const snapStatusColors: Record<Snapshot["status"], string> = {
-  "approved": "bg-green-500/25 border-green-700 dark:text-green-200 text-green-700",
-  "rejected": "bg-orange-500/25 border-orange-700 dark:text-orange-200 text-orange-700",
-  "unreviewed": "bg-yellow-500/25 border-yellow-700 dark:text-yellow-200 text-yellow-700",
-  "orphaned": "dark:bg-white/25 dark:border-white dark:text-white text-black/75 border-black dark:border-black",
-  aborted: "bg-red-500/25 border-red-700 dark:text-red-200 text-red-700",
-  failed: "bg-red-500/25 border-red-700 dark:text-red-200 text-red-700",
-  missing_baseline: "bg-red-500/25 border-red-700 dark:text-red-200 text-red-700",
-  processing: "bg-blue-500/25 border-blue-700 dark:text-blue-200 text-blue-700",
-  unchanged: "bg-teal-500/25 border-teal-700 dark:text-teal-200 light:text-teal-700",
-}
-
-function SnapStatus({ status }: {
-  status: Snapshot["status"]
-}) {
-
-  return (
-    <div className="flex items-center justify-center mt-4">
-      <p className={cx("border text-sm p-1 rounded block", snapStatusColors[status])}>
-        {snapshotStatusText[status]}
-      </p>
-    </div>
-  )
-}
-
 interface DisplayOptionsProps {
   resetAlignment: (type?: "single" | "double") => void;
 }
@@ -246,14 +220,9 @@ export function Compare() {
     }
   }, []);
 
-  useEffect(() => {
-    resetAlignment();
-  }, [resetAlignment, snapshot]);
-
   if (!snapshot) {
     return null;
   }
-
   const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
 
   return (
@@ -306,10 +275,10 @@ export function Compare() {
             <p className="text-error">{snapshot.error}</p>
           )}
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
-              <Single draggableImageRef={singleRef} />
+            <Single draggableImageRef={singleRef} />
           </TabsContent>
           <TabsContent className="w-full h-full !mt-0 grow-0" value="double">
-              <Double draggableImageRef={doubleRef} />
+            <Double draggableImageRef={doubleRef} />
           </TabsContent>
         </div>
       </Tabs>

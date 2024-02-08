@@ -40,7 +40,7 @@ function AccordionSnaps({
   return (
     <Accordion.Item value={name}>
       <Accordion.Trigger className="px-2" size="sm">
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 items-center">
           <Status snapshotStatus status={name} />
           <span>{snapshotStatusText[name]}</span>
         </div>

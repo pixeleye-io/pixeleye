@@ -66,7 +66,7 @@ function BatchApprove() {
     <DropdownMenu>
       <TooltipProvider>
         <Tooltip delayDuration={100}>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"

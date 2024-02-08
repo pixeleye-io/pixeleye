@@ -42,6 +42,8 @@ export type DraggableImageRef = {
 };
 
 
+const nodeTypes =  { image: ImageNode, chat: ChatNode }
+
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
     {
@@ -54,15 +56,19 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     ref
   ) {
 
-    const initialNodes: Node[] = [];
 
-    const [nodes, setNodes] = useState<Node[]>(initialNodes);
-    const nodeTypes = useMemo(() => ({ image: ImageNode, chat: ChatNode }), []);
+    const [nodes, setNodes] = useState<Node[]>([]);
+
+
+    const updateImages = useRef(false);
 
     const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
     const setSingleSnapshot = useStore(store,
       (state) => state.setSingleSnapshot
     );
+
+
+    const { fitView, setViewport, getViewport, screenToFlowPosition, addNodes } = useReactFlow();
 
     const onNodesChange = useCallback<OnNodesChange>(
       (changes) => {
@@ -75,11 +81,15 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
 
         setNodes((nds) => applyNodeChanges(changes, nds))
+
+        if (updateImages.current) {
+          fitView();
+          updateImages.current = false;
+        }
       },
-      [setNodes]
+      [fitView]
     );
 
-    const { fitView, setViewport, getViewport, screenToFlowPosition, addNodes } = useReactFlow();
 
     const center = useCallback(() => {
       fitView();
@@ -109,11 +119,10 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
         { id: "0", position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
       ])
 
-    }, [setNodes, base, overlay, secondBase]);
+      updateImages.current = true;
 
 
-
-
+    }, [base, overlay, secondBase]);
 
     return (
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
@@ -149,7 +158,6 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               }}
               maxZoom={10}
               onNodesChange={onNodesChange}
-              fitView
               onMove={onMove} >
               <Background />
             </ReactFlow>
