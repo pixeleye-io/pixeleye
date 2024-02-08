@@ -393,7 +393,7 @@ func GetCurrentSubscription(c echo.Context) error {
 func SetSnapshotLimit(c echo.Context) error {
 
 	type SnapshotLimitRequest struct {
-		Limit int `json:"limit" validate:"required,min=5000"`
+		Limit int `json:"limit" validate:"min=0"`
 	}
 
 	team, err := middleware.GetTeam(c)

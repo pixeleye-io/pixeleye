@@ -40,7 +40,7 @@ type Team struct {
 	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
 	URL       string `db:"url" json:"url" validate:"omitempty,url"`
 
-	SnapshotLimit int `db:"snapshot_limit" json:"snapshotLimit" validate:"min=5000,required"`
+	SnapshotLimit int `db:"snapshot_limit" json:"snapshotLimit" validate:"min=0,required"`
 
 	SubscriptionID string `db:"subscription_id" json:"subscriptionID,omitempty" validate:"omitempty"`
 	CustomerID     string `db:"customer_id" json:"customerID,omitempty" validate:"omitempty"`

@@ -84,7 +84,7 @@ func CreateBuild(c echo.Context) error {
 				return err
 			}
 
-			if snapshotCount >= team.SnapshotLimit {
+			if team.SnapshotLimit >= 500 && snapshotCount >= team.SnapshotLimit {
 				return echo.NewHTTPError(http.StatusBadRequest, "snapshot limit reached")
 			}
 		} else {

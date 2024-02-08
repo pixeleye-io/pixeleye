@@ -195,7 +195,7 @@ table "team" {
   column "snapshot_limit" {
     type    = integer
     null    = false
-    default = 5000
+    default = 0
   }
 
   column "subscription_id" {

@@ -42,8 +42,10 @@ export function ManageBillingAccount(
         }
     })
 
+    console.log(team)
 
-    const [snapshotsLimited, setSnapshotsLimited] = useState(team.snapshotLimit != null && team.snapshotLimit > 5000)
+
+    const [snapshotsLimited, setSnapshotsLimited] = useState((team.snapshotLimit || 0) >= 5000)
 
     const queryClient = useQueryClient()
 
@@ -56,12 +58,12 @@ export function ManageBillingAccount(
                 teamID: team!.id,
             },
             body: {
-                limit: limit * 1000
+                limit: snapshotsLimited ? limit * 1000 : 0
             }
-        }).then(() => limit),
+        }).then(() => snapshotsLimited ? limit * 1000 : 0),
         onSuccess: (limit) => {
             queryClient.invalidateQueries(queries.teams.detail(team.id))
-            setSnapshotsLimited(limit * 1000 > 5000)
+            setSnapshotsLimited(limit * 1000 >= 5000)
             setLimitSnapsOpen(false)
         }
     })
@@ -69,7 +71,7 @@ export function ManageBillingAccount(
 
     const { register, handleSubmit } = useForm<{ limit: number }>({
         defaultValues: {
-            limit: team.snapshotLimit === 5000 || !team.snapshotLimit ? 100 : team.snapshotLimit / 1000
+            limit: !team.snapshotLimit || team.snapshotLimit < 5000 ? 100 : team.snapshotLimit / 1000
         }
     })
 
