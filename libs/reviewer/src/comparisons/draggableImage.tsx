@@ -33,6 +33,7 @@ interface ImageProps {
     width: number;
     height: number;
   };
+  id: string;
   viewport?: Viewport;
   onMove?: OnMove;
 }
@@ -42,7 +43,7 @@ export type DraggableImageRef = {
 };
 
 
-const nodeTypes =  { image: ImageNode, chat: ChatNode }
+const nodeTypes = { image: ImageNode, chat: ChatNode }
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
@@ -51,7 +52,8 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       overlay,
       secondBase,
       viewport,
-      onMove
+      onMove,
+      id
     },
     ref
   ) {
@@ -109,20 +111,18 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     const onClick = useCallback(() => secondBase && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head"), [secondBase, setSingleSnapshot, singleSnapshot]);
 
-
-
     const contextMenuCoords = useRef({ x: 0, y: 0 })
 
     useEffect(() => {
 
       setNodes([
-        { id: "0", position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
+        { id: id, position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
       ])
 
       updateImages.current = true;
 
 
-    }, [base, overlay, secondBase]);
+    }, [base, id, overlay, secondBase]);
 
     return (
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">

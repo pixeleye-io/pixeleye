@@ -83,6 +83,8 @@ const dummySnapshots: ExtendedSnapshotPair[] = [
   },
 ];
 
+const simulatedBrowsers = dummySnapshots.flatMap((snapshot) => ["chrome", "edge", "firefox", "safari"].map((browser) => ({ ...snapshot, id: snapshot.id + browser, targetIcon: browser })));
+
 export default function PlaygroundPage() {
   return (
     <Suspense>
@@ -90,7 +92,7 @@ export default function PlaygroundPage() {
         userRole="admin"
         className="h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
         build={dummyBuild}
-        snapshots={dummySnapshots}
+        snapshots={simulatedBrowsers}
         optimize
       />
     </Suspense>

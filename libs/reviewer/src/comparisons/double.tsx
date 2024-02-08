@@ -43,6 +43,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
                 ref={draggableImageRef}
                 onMove={(_, view) => setViewport(view)}
                 viewport={viewport}
+                id={snapshot.id}
                 base={{
                   src: snapshot.snapURL!,
                   width: snapshot.snapWidth!,
@@ -82,6 +83,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
               <DraggableImage
                 onMove={(_, view) => setViewport(view)}
                 viewport={viewport}
+                id={snapshot.id}
                 base={{
                   src: snapshot.baselineURL!,
                   width: snapshot.baselineWidth!,
