@@ -186,7 +186,7 @@ func processSnapshot(ctx context.Context, project models.Project, build models.B
 		return err
 	}
 
-	diffImage, err := imageDiff.Diff(snapshotImage, baselineImage, imageDiff.Options{Threshold: project.SnapshotThreshold, Blur: project.SnapshotBlur})
+	diffImage, err := imageDiff.Diff(snapshotImage, baselineImage, imageDiff.Options{Threshold: project.SnapshotThreshold, Blur: project.SnapshotBlur, AntiAliasingDetection: true})
 	if err != nil {
 		log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to generate diff image")
 		return err
