@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-github/v56/github"
 	"github.com/labstack/echo/v4"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -42,6 +43,61 @@ func GetTeamProjects(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, projects)
+}
+
+func UpdateUserOnTeam(c echo.Context) error {
+
+	type UpdateProjectRoleRequest struct {
+		Role string `json:"role" validate:"omitempty,oneof=owner admin accountant member"`
+		Sync bool   `json:"sync"`
+	}
+
+	userID := c.Param("user_id")
+
+	team, err := middleware.GetTeam(c)
+	if err != nil {
+		return err
+	}
+
+	if team.Type == models.TEAM_TYPE_USER {
+		return c.String(http.StatusBadRequest, "You can't update roles on your personal team")
+	}
+
+	var req UpdateProjectRoleRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	validator := utils.NewValidator()
+	if err := validator.Struct(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	if req.Role != "" && req.Sync {
+		return echo.NewHTTPError(http.StatusBadRequest, "cannot sync and update role at the same time")
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	if req.Role != "" {
+		if err := db.UpdateUserRoleOnTeam(c.Request().Context(), team.ID, userID, req.Role, false); err != nil {
+			return err
+		}
+	} else if req.Sync {
+		// We want to use the lowest role possible prior to syncing to ensure we don't accidentally give someone a higher role
+		if err := db.UpdateUserRoleOnTeam(c.Request().Context(), team.ID, userID, models.TEAM_MEMBER_ROLE_MEMBER, req.Sync); err != nil {
+			return err
+		}
+
+		if err := git.SyncTeamMembers(c.Request().Context(), team); err != nil {
+			return err
+		}
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func GetTeamUsers(c echo.Context) error {

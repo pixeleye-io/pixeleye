@@ -81,6 +81,13 @@ type PATCH = Method<{
     res: undefined;
     req: Pick<Team, "name" | "avatarURL" | "url">;
   };
+  "/v1/teams/{teamID}/admin/users/{userID}": {
+    res: undefined;
+    req: {
+      role?: "admin" | "member" | "owner" | "accountant";
+      sync?: boolean;
+    };
+  };
 }>;
 
 export interface TeamAPI {

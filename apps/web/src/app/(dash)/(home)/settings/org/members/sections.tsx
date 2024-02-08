@@ -3,10 +3,16 @@
 import { API } from "@/libs";
 import {
   Button,
-  Table
+  Table,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@pixeleye/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Team, UserOnTeam } from "@pixeleye/api";
+import { Team, UserOnTeam, UserOnTeamRole } from "@pixeleye/api";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { queries } from "@/queries";
 
@@ -71,10 +77,68 @@ export function MemberSection({
     },
   });
 
+  const updateRole = useMutation({
+
+    mutationFn: ({ userID, role }: { userID: string; role: UserOnTeamRole | "sync" }) => API.patch("/v1/teams/{teamID}/admin/users/{userID}", {
+      params: {
+        teamID: team.id,
+        userID,
+      },
+      body: {
+        role: role === "sync" ? undefined : role,
+        sync: role === "sync" ? true : undefined,
+      },
+    }),
+
+
+    onMutate: ({ userID, role }) => {
+      queryClient.cancelQueries(
+        queries.teams.detail(team.id)._ctx.listMembers()
+      );
+
+      const old = queryClient.getQueryData(
+        queries.teams.detail(team.id)._ctx.listMembers()._ctx.git().queryKey
+      ) as UserOnTeam[];
+
+      const newMembers = old.map((member: UserOnTeam) => {
+        if (member.id === userID) {
+          return {
+            ...member,
+            role: role === "sync" ? "syncing..." : role,
+          };
+        }
+        return member;
+      });
+
+      queryClient.setQueryData(
+        queries.teams.detail(team.id)._ctx.listMembers()._ctx.git().queryKey,
+        newMembers
+      );
+
+      return {
+        old,
+      };
+    },
+
+    onError: (_err, _, context) => {
+      queryClient.setQueryData(
+        queries.teams.detail(team.id)._ctx.listMembers()._ctx.git().queryKey,
+        context?.old
+      );
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries(
+        queries.teams.detail(team.id)._ctx.listMembers()
+      );
+    },
+
+  });
+
+
   const members = type === "invited" ? invitedMembers : gitMembers;
 
   if (members.isLoading) {
-    // TODO loading state
     return null;
   }
 
@@ -105,7 +169,35 @@ export function MemberSection({
               <span>{member.name}</span>
               <span className="text-on-surface-variant">{member.email}</span>
             </Table.Cell>
-            <Table.Cell>{member.role}</Table.Cell>
+            <Table.Cell>
+              <Select
+                disabled={
+                  !["owner", "admin"].includes(team.role || "") ||
+                  member.role === "owner" ||
+                  member.role === "admin" && team.role !== "owner"
+                }
+                value={member.role}
+                onValueChange={(role) =>
+                  updateRole.mutate({
+                    userID: member.id,
+                    role: role as UserOnTeamRole,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue className="whitespace-nowrap px-2 first-letter:uppercase">
+                    {member.roleSync ? `${member.role} (Synced)` : member.role}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="accountant">Accountant</SelectItem>
+                    <SelectItem value="member">Member</SelectItem>
+                    {type === "git" && (<SelectItem value="sync">Sync</SelectItem>)}
+                  </SelectGroup>
+                </SelectContent>
+              </Select></Table.Cell>
             {type === "invited" && ["admin", "owner"].includes(team.role || "") && (
               <Table.Cell>
                 <Button
@@ -122,6 +214,6 @@ export function MemberSection({
           </Table.Row>
         ))}
       </Table.Body>
-    </Table>
+    </Table >
   );
 }

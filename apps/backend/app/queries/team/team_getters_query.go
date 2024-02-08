@@ -114,7 +114,7 @@ type UserOnTeam struct {
 	*models.User
 	Type     string `db:"type" json:"type"`
 	Role     string `db:"role" json:"role"`
-	RoleSync bool   `db:"role_sync" json:"role_sync"`
+	RoleSync bool   `db:"role_sync" json:"roleSync"`
 }
 
 func (q *TeamQueries) GetUsersOnTeam(ctx context.Context, teamID string) ([]UserOnTeam, error) {
