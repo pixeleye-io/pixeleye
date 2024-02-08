@@ -60,6 +60,8 @@ import { Config } from "pixeleye";
 
 const config: Config = {
   projectToken: "YOUR_PROJECT_TOKEN",
+  // or
+  // projectToken: process.env.PIXELEYE_PROJECT_TOKEN,
   // ...
 };
 
@@ -74,6 +76,8 @@ export default config;
 /** @type {import('pixeleye').Config} */
 const config = {
   projectToken: "YOUR_PROJECT_TOKEN",
+  // or
+  // projectToken: process.env.PIXELEYE_PROJECT_TOKEN,
   // ...
 };
 
