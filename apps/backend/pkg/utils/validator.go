@@ -26,6 +26,7 @@ func ValidateViewport(viewport string) bool {
 	return viewportRegex.MatchString(viewport)
 }
 
+
 // NewValidator func for create a new validator for model fields.
 func NewValidator() *validator.Validate {
 	// Create a new validator for a Book model.
