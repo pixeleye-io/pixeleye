@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -24,6 +25,8 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	port := os.Getenv("DB_PORT")
 	dbName := os.Getenv("DB_NAME")
 	dbSSLMode := os.Getenv("DB_SSL_MODE")
+
+	password = url.PathEscape(password)
 
 	postgresConnURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", username, password, host, port, dbName, dbSSLMode)
 
