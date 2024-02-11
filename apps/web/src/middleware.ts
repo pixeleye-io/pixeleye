@@ -13,6 +13,10 @@ export async function middleware(request: NextRequest) {
     },
   }).catch(() => null);
 
+  if (data?.status !== 200) {
+    return NextResponse.redirect("/login");
+  }
+
   const session = (await data?.json()) as Session | undefined;
 
   const url = request.nextUrl.clone();
@@ -21,7 +25,7 @@ export async function middleware(request: NextRequest) {
     if (request.nextUrl.pathname === "/") {
       // Users not logged in who are trying to access the homepage are redirected to the actual homepage.
       url.pathname = env.NEXT_PUBLIC_PIXELEYE_HOSTING ? "/home" : "/login";
-      return NextResponse.rewrite(url);
+      return NextResponse.redirect(url);
     }
 
     url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
