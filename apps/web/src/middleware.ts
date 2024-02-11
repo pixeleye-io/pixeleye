@@ -13,13 +13,13 @@ export async function middleware(request: NextRequest) {
     },
   }).catch(() => null);
 
+  const url = request.nextUrl.clone();
+
   if (data?.status !== 200) {
-    return NextResponse.redirect("/login");
+    return NextResponse.redirect(url + "/logout");
   }
 
   const session = (await data?.json()) as Session | undefined;
-
-  const url = request.nextUrl.clone();
 
   if (!data || data.status >= 300 || data.status < 200 || !session) {
     if (request.nextUrl.pathname === "/") {
