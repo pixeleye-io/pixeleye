@@ -36,6 +36,18 @@ func getConfig() (aws.Config, error) {
 	var accessKeyId = os.Getenv("S3_ACCESS_KEY_ID")
 	var accessKeySecret = os.Getenv("S3_KEY_SECRET")
 
+	if endpoint == "" || accessKeyId == "" || accessKeySecret == "" {
+		return config.LoadDefaultConfig(context.TODO())
+	}
+
+	if endpoint == "" {
+		return config.LoadDefaultConfig(context.TODO(),
+			config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+				accessKeyId, accessKeySecret, "",
+			)),
+		)
+	}
+
 	r2Resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		return aws.Endpoint{
 			URL: endpoint,
