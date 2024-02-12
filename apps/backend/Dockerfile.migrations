@@ -1,3 +1,5 @@
 FROM arigaio/atlas:latest
 
 COPY ./platform/migrations migrations 
+
+COPY ./atlas.hcl atlas.hcl
