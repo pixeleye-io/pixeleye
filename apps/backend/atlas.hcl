@@ -1,33 +1,46 @@
-variable "DB_USERNAME" {
-  description = "The username for the database"
-  type        = string
+data "external" "DB_USERNAME" {
+  program = [
+    "printenv",
+    "DB_USERNAME"
+  ]
 }
 
-variable "DB_PASSWORD" {
-  description = "The password for the database"
-  type        = string
+data "external" "DB_PASSWORD" {
+  program = [
+    "printenv",
+    "DB_PASSWORD"
+  ]
 }
 
-variable "DB_NAME" {
-  description = "The name of the database"
-  type        = string
+data "external" "DB_HOST" {
+  program = [
+    "printenv",
+    "DB_HOST"
+  ]
 }
 
-variable "DB_HOST" {
-  description = "The endpoint of the database (excluding port)"
-  type        = string
+data "external" "DB_PORT" {
+  program = [
+    "printenv",
+    "DB_PORT"
+  ]
 }
 
-variable "DB_PORT" {
-  description = "The port of the database"
-  type        = string
+data "external" "DB_NAME" {
+  program = [
+    "printenv",
+    "DB_NAME"
+  ]
 }
 
-variable "DB_PARAMS" {
-  description = "Search params to append to db connection url"
-  type        = string
+data "external" "DB_PARAMS" {
+  program = [
+    "printenv",
+    "DB_PARAMS"
+  ]
 }
+
 
 env {
-  url = "postgres://${var.DB_USERNAME}:${var.DB_PASSWORD}@${var.DB_HOST}:${var.DB_PORT}/${var.DB_NAME}?${var.DB_PARAMS}"
+  url = "postgres://${data.DB_USERNAME}:${data.DB_PASSWORD}@${data.DB_HOST}:${data.DB_PORT}/${data.DB_NAME}?${data.DB_PARAMS}"
 }
