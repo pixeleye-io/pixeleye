@@ -16,12 +16,12 @@ COPY ./platform/migrations migrations
 
 COPY ./atlas.hcl atlas.hcl
 
-ENV DB_USERNAME=postgres
-ENV DB_PASSWORD=pass
-ENV DB_HOST=127.0.0.1
-ENV DB_PORT=5432
-ENV DB_NAME=pixeleye
-ENV DB_PARAMS=sslmode=disable
+# ENV DB_USERNAME=postgres
+# ENV DB_PASSWORD=pass
+# ENV DB_HOST=127.0.0.1
+# ENV DB_PORT=5432
+# ENV DB_NAME=pixeleye
+# ENV DB_PARAMS=sslmode=disable
 
 
 ENTRYPOINT [ "sh", "-c", "atlas migrate apply --url 'postgres://'${DB_USERNAME}':'${DB_PASSWORD}'@'${DB_HOST}':'${DB_PORT}'/'${DB_NAME}'?'${DB_PARAMS}''" ]
