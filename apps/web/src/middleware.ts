@@ -10,7 +10,10 @@ export async function middleware(request: NextRequest) {
     headers: {
       cookie: request.cookies.toString(),
     },
-  }).catch(() => null);
+  }).catch((err) => {
+    console.log(err);
+    return undefined;
+  });
 
   const url = request.nextUrl.clone();
 
