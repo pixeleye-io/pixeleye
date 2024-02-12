@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
-  console.log({ url, data });
+  console.log({ url, data, test: oryEndpoint + "/sessions/whoami" });
 
   const session = (await data?.json()) as Session | undefined;
 
