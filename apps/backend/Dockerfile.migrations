@@ -24,4 +24,4 @@ COPY ./atlas.hcl atlas.hcl
 # ENV DB_PARAMS=sslmode=disable
 
 
-ENTRYPOINT [ "sh", "-c", "atlas migrate apply --url 'postgres://'${DB_USERNAME}':'${DB_PASSWORD}'@'${DB_HOST}':'${DB_PORT}'/'${DB_NAME}'?'${DB_PARAMS}''" ]
+ENTRYPOINT [ "sh", "-c", "echo 'postgres://'${DB_USERNAME}':'${DB_PASSWORD}'@'${DB_HOST}':'${DB_PORT}'/'${DB_NAME}'?'${DB_PARAMS}''" ]
