@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
-  console.log(url);
+  console.log({ url, data });
 
   if (data?.status !== 200) {
     url.pathname = "/logout";
