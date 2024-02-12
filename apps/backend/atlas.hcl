@@ -29,5 +29,5 @@ variable "DB_PARAMS" {
 }
 
 env {
-  url = "postgres://${var.DB_USERNAME}:${var.DB_PASSWORD}@${var.DB_HOST}:${var.DB_PORT}/${var.DB_NAME}?${var.DB_PARAMS} 
+  url = "postgres://${var.DB_USERNAME}:${var.DB_PASSWORD}@${var.DB_HOST}:${var.DB_PORT}/${var.DB_NAME}?${var.DB_PARAMS}"
 }
