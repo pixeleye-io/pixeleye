@@ -17,7 +17,8 @@ export async function middleware(request: NextRequest) {
   console.log(url);
 
   if (data?.status !== 200) {
-    return NextResponse.redirect(url + "/logout");
+    url.pathname = "/logout";
+    return NextResponse.redirect(url);
   }
 
   const session = (await data?.json()) as Session | undefined;
