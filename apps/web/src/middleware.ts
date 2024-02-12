@@ -11,18 +11,12 @@ export async function middleware(request: NextRequest) {
       cookie: request.cookies.toString(),
     },
   }).catch((err) => {
-    console.log(err);
     return undefined;
   });
 
   const url = request.nextUrl.clone();
 
   console.log({ url, data });
-
-  if (data?.status !== 200) {
-    url.pathname = "/logout";
-    return NextResponse.redirect(url);
-  }
 
   const session = (await data?.json()) as Session | undefined;
 
