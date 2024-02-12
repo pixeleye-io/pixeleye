@@ -22,6 +22,10 @@ const nextConfig = {
         destination: "https://eu.posthog.com/:path*",
       },
       {
+        source: "/dashboard",
+        destination: "https://app.pixeleye.io/dashboard",
+      },
+      {
         source: "/dashboard/:path*",
         destination: "https://app.pixeleye.io/dashboard/:path*",
       },
