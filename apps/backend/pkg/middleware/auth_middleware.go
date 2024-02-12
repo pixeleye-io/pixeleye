@@ -60,7 +60,7 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		session, err := k.validateSession(c.Request())
 		if err != nil || !*session.Active {
-			log.Info().Msgf("Session: %v", session)
+			log.Err(err).Msg("Error validating session")
 			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized1")
 		}
 
