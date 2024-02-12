@@ -1,3 +1,7 @@
+
+const internalRewrites = ["dashboard", "billing", "settings", "usage", "add", "builds", "invites", "projects", "auth-error", "login", "logout", "registration", "verification"]
+
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
@@ -21,63 +25,17 @@ const nextConfig = {
         source: "/ingest/:path*",
         destination: "https://eu.posthog.com/:path*",
       },
-      {
-        source: "/dashboard",
-        destination: "https://app.pixeleye.io/dashboard",
-      },
-      {
-        source: "/dashboard/:path*",
-        destination: "https://app.pixeleye.io/dashboard/:path*",
-      },
-      {
-        source: "/billing/:path*",
-        destination: "https://app.pixeleye.io/billing/:path*",
-      },
-      {
-        source: "/settings/:path*",
-        destination: "https://app.pixeleye.io/settings/:path*",
-      },
-      {
-        source: "/usage/:path*",
-        destination: "https://app.pixeleye.io/usage/:path*",
-      },
-      {
-        source: "/add/:path*",
-        destination: "https://docs.pixeleye.io/add/:path*",
-      },
-      {
-        source: "/builds/:path*",
-        destination: "https://app.pixeleye.io/builds/:path*",
-      },
-      {
-        source: "/invites/:path*",
-        destination: "https://app.pixeleye.io/invites/:path*",
-      },
-      {
-        source: "/projects/:path*",
-        destination: "https://app.pixeleye.io/projects/:path*",
-      },
-      {
-        source: "/auth-error",
-        destination: "https://app.pixeleye.io/auth-error",
-      },
-      {
-        source: "/login",
-        destination: "https://app.pixeleye.io/login",
-      },
-      {
-        source: "/logout",
-        destination: "https://app.pixeleye.io/logout",
-      },
-      {
-        source: "/registration",
-        destination: "https://app.pixeleye.io/registration",
-      },
-      {
-        source: "/verification",
-        destination: "https://app.pixeleye.io/verification",
-      },
 
+      ...internalRewrites.flatMap((name) => [
+        {
+          source: `/${name}`,
+          destination: `https://app.pixeleye.io/${name}`
+        },
+        {
+          source: `/${name}/:path*`,
+          destination: `https://app.pixeleye.io/${name}/:path*`
+        },
+      ])
     ];
   },
   async redirects() {
