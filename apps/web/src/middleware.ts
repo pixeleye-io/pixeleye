@@ -13,9 +13,7 @@ export async function middleware(request: NextRequest) {
         .map((cookie) => `${cookie.name}=${cookie.value}`)
         .join("; "),
     },
-  }).catch((err) => {
-    return undefined;
-  });
+  }).catch(() => undefined);
 
   const url = request.nextUrl.clone();
 
