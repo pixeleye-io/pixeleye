@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { oryEndpoint } from "./app/(auth)/utils";
+import { oryEndpoint } from "@pixeleye/auth";
 import type { NextRequest } from "next/server";
 import { Session } from "@ory/kratos-client";
-import { env } from "./env";
 
 // Anyone not logged in is redirected to the login page.
 
@@ -23,8 +22,7 @@ export async function middleware(request: NextRequest) {
 
   if (!data || data.status >= 300 || data.status < 200 || !session) {
     if (request.nextUrl.pathname === "/") {
-      // Users not logged in who are trying to access the homepage are redirected to the actual homepage.
-      url.pathname = env.NEXT_PUBLIC_PIXELEYE_HOSTING ? "/home" : "/login";
+      url.pathname = "/login";
       return NextResponse.redirect(url);
     }
 

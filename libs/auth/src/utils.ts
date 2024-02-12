@@ -1,7 +1,8 @@
-import { env } from "@/env";
 import { Configuration, FrontendApi } from "@ory/client";
 
-export const oryEndpoint = env.ORY_URL;
+export const oryEndpoint = process.env.ORY_URL;
+
+export type { Session } from "@ory/client";
 
 export const frontend = new FrontendApi(
   new Configuration({

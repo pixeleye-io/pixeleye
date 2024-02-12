@@ -1,7 +1,7 @@
 import { Link } from "@pixeleye/ui";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { getUrlForFlow, isQuerySet, frontend } from "../utils";
+import { getUrlForFlow, isQuerySet, frontend } from "@pixeleye/auth";
 import { filterNodesByGroups } from "@ory/integrations/ui";
 import { AuthNode, ErrorsList } from "../sharedComponents";
 

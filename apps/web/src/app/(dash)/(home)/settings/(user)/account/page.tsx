@@ -1,5 +1,5 @@
 import { AuthNode, ErrorsList } from "@/app/(auth)/sharedComponents";
-import { frontend, getUrlForFlow, isQuerySet } from "@/app/(auth)/utils";
+import { frontend, getUrlForFlow, isQuerySet } from "@pixeleye/auth";
 import { getTeam } from "@/serverLibs";
 import { filterNodesByGroups } from "@ory/integrations/ui";
 import { cookies } from "next/headers";

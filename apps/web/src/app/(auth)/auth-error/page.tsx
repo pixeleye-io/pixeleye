@@ -1,11 +1,7 @@
 import { Button } from "@pixeleye/ui";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import Link from "next/link";
-import { getUrlForFlow, isQuerySet, frontend } from "../utils";
-import { filterNodesByGroups } from "@ory/integrations/ui";
-import { AuthNode, ErrorsList } from "../sharedComponents";
-import { FlowError, FrontendApi } from "@ory/kratos-client";
+import { frontend } from "@pixeleye/auth";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 
 export default async function AuthErrorPage({

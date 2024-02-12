@@ -27,6 +27,7 @@
     "@ory/integrations": "^1.1.5",
     "@ory/kratos-client": "^1.0.0",
     "@pixeleye/api": "workspace:*",
+    "@pixeleye/auth": "workspace:*",
     "@pixeleye/reviewer": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@stripe/react-stripe-js": "^2.4.0",

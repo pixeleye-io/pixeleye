@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@pixeleye/ui";
 import { Session } from "@ory/client";
 import { cookies } from "next/headers";
-import { oryEndpoint } from "./(auth)/utils";
+import { oryEndpoint } from "@pixeleye/auth";
 
 export function UnauthenticatedPage() {
   return (

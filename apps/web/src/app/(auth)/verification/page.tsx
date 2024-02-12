@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { getUrlForFlow, isQuerySet, frontend } from "../utils";
+import { getUrlForFlow, isQuerySet, frontend } from "@pixeleye/auth";
 import { AuthNode } from "../sharedComponents";
 
 export default async function VerificationPage({

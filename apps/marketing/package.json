@@ -28,6 +28,7 @@
     "@marsidev/react-turnstile": "^0.5.1",
     "@octokit/core": "^5.1.0",
     "@pixeleye/api": "workspace:*",
+    "@pixeleye/auth": "workspace:*",
     "@pixeleye/device-logos": "workspace:*",
     "@pixeleye/reviewer": "workspace:*",
     "@pixeleye/ui": "workspace:*",

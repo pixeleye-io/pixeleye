@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { frontend } from "../utils";
+import { frontend } from "@pixeleye/auth";
 import { redirect } from "next/navigation";
 
 export async function GET(request: Request) {

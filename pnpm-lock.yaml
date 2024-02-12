@@ -106,6 +106,9 @@ importers:
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../../libs/api
+      '@pixeleye/auth':
+        specifier: workspace:*
+        version: link:../../libs/auth
       '@pixeleye/device-logos':
         specifier: workspace:*
         version: link:../../libs/device-logos
@@ -230,6 +233,9 @@ importers:
       '@pixeleye/api':
         specifier: workspace:*
         version: link:../../libs/api
+      '@pixeleye/auth':
+        specifier: workspace:*
+        version: link:../../libs/auth
       '@pixeleye/reviewer':
         specifier: workspace:*
         version: link:../../libs/reviewer
@@ -959,6 +965,28 @@ importers:
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../configs/tsconfig
+
+  libs/auth:
+    dependencies:
+      '@ory/client':
+        specifier: ^1.5.1
+        version: 1.5.1
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../configs/tsconfig
+      '@types/node':
+        specifier: 20.11.10
+        version: 20.11.10
 
   libs/device-logos:
     dependencies:
