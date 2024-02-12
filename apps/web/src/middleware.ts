@@ -25,6 +25,8 @@ export async function middleware(request: NextRequest) {
 
   const session = (await data?.json()) as Session | undefined;
 
+  console.log(session);
+
   if (!data || data.status >= 300 || data.status < 200 || !session) {
     if (request.nextUrl.pathname === "/") {
       url.pathname = "/login";
