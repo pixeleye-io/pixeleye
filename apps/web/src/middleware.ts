@@ -10,7 +10,6 @@ export async function middleware(request: NextRequest) {
     headers: {
       cookie: request.cookies.toString(),
     },
-    credentials: "",
   }).catch((err) => {
     return undefined;
   });
