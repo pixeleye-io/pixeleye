@@ -79,11 +79,6 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: "/",
-        destination: "/home",
-        permanent: false,
-      },
-      {
         source: "/docs",
         destination: "/docs/getting-started/introduction",
         permanent: true,
