@@ -1,33 +1,33 @@
-variable "db_user" {
+variable "DB_USERNAME" {
   description = "The username for the database"
   type        = string
 }
 
-variable "db_password" {
+variable "DB_PASSWORD" {
   description = "The password for the database"
   type        = string
 }
 
-variable "db_name" {
+variable "DB_NAME" {
   description = "The name of the database"
   type        = string
 }
 
-variable "db_endpoint" {
+variable "DB_HOST" {
   description = "The endpoint of the database (excluding port)"
   type        = string
 }
 
-variable "db_port" {
+variable "DB_PORT" {
   description = "The port of the database"
   type        = string
 }
 
-variable "db_params" {
+variable "DB_PARAMS" {
   description = "Search params to append to db connection url"
   type        = string
 }
 
 env {
-  url = "postgres://${var.db_user}:${var.db_password}@${var.db_endpoint}:${var.db_port}/${var.db_name}?${var.db_params} 
+  url = "postgres://${var.DB_USERNAME}:${var.DB_PASSWORD}@${var.DB_HOST}:${var.DB_PORT}/${var.DB_NAME}?${var.DB_PARAMS} 
 }
