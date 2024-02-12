@@ -7,9 +7,7 @@ import { Session } from "@ory/kratos-client";
 
 export async function middleware(request: NextRequest) {
   const data = await fetch(oryEndpoint + "/sessions/whoami", {
-    headers: {
-      cookie: request.cookies.toString(),
-    },
+    credentials: "same-origin",
   }).catch((err) => {
     return undefined;
   });
