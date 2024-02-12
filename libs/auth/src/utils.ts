@@ -1,5 +1,6 @@
 import { Configuration, FrontendApi } from "@ory/client";
 
+// eslint-disable-next-line turbo/no-undeclared-env-vars
 export const oryEndpoint = process.env.ORY_URL;
 
 export type { Session } from "@ory/client";

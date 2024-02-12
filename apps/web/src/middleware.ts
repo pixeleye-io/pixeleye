@@ -14,6 +14,8 @@ export async function middleware(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
+  console.log(url);
+
   if (data?.status !== 200) {
     return NextResponse.redirect(url + "/logout");
   }
