@@ -6,6 +6,8 @@ const nextConfig = {
   images: {
     domains: ["avatars.githubusercontent.com"],
   },
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  assetPrefix: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" ? "https://app.pixeleye.io" : undefined
 };
 
 module.exports = nextConfig;
