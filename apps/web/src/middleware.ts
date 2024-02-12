@@ -36,8 +36,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
-    // return NextResponse.redirect(url);
+    url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
+    return NextResponse.redirect(url);
   }
 
   if (request.nextUrl.pathname === "/") {
