@@ -1,5 +1,20 @@
-FROM arigaio/atlas:latest
+# FROM arigaio/atlas:latest
 
-COPY ./platform/migrations migrations 
+# COPY ./platform/migrations migrations 
+
+# COPY ./atlas.hcl atlas.hcl
+
+FROM ubuntu:22.04
+
+RUN apt-get update
+
+RUN apt-get install -y curl
+
+RUN curl -sSf https://atlasgo.sh | sh
+
+COPY ./platform/migrations migrations
 
 COPY ./atlas.hcl atlas.hcl
+
+
+ENTRYPOINT [ "sh", "-c", "atlas migrate apply --url postgres://$DB_USERNAME:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?$DB_PARAMS" ]
