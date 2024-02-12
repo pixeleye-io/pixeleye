@@ -54,24 +54,24 @@ const nextConfig = {
         destination: "https://app.pixeleye.io/projects/:path*",
       },
       {
-        source: "/auth-error/:path*",
-        destination: "https://app.pixeleye.io/auth-error/:path*",
+        source: "/auth-error",
+        destination: "https://app.pixeleye.io/auth-error",
       },
       {
         source: "/login",
         destination: "https://app.pixeleye.io/login",
       },
       {
-        source: "/logout/:path*",
-        destination: "https://app.pixeleye.io/logout/:path*",
+        source: "/logout",
+        destination: "https://app.pixeleye.io/logout",
       },
       {
-        source: "/registration/:path*",
-        destination: "https://app.pixeleye.io/registration/:path*",
+        source: "/registration",
+        destination: "https://app.pixeleye.io/registration",
       },
       {
-        source: "/verification/:path*",
-        destination: "https://app.pixeleye.io/verification/:path*",
+        source: "/verification",
+        destination: "https://app.pixeleye.io/verification",
       },
 
     ];
