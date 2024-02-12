@@ -142,6 +142,8 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 	log.Info().Msgf("Cookies: %v", cookies)
 
 	resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).Cookie(cookies).Execute()
+
+	log.Info().Msgf("Response: %v", resp)
 	if err != nil {
 		return nil, err
 	}
