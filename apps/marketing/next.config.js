@@ -58,8 +58,8 @@ const nextConfig = {
         destination: "https://app.pixeleye.io/auth-error/:path*",
       },
       {
-        source: "/login/:path*",
-        destination: "https://app.pixeleye.io/login/:path*",
+        source: "/login",
+        destination: "https://app.pixeleye.io/login",
       },
       {
         source: "/logout/:path*",
