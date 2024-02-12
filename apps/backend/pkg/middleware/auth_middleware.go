@@ -60,7 +60,7 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		session, err := k.validateSession(c.Request())
 		if err != nil || !*session.Active {
-			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized1")
 		}
 
 		db, err := database.OpenDBConnection()
@@ -118,12 +118,12 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 	if authorization != "" {
 
 		if len(authorization) < 7 {
-			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized2")
 		}
 		tokenType := authorization[:6]
 
 		if tokenType != "Bearer" && tokenType != "bearer" {
-			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized3")
 		}
 
 		authorization = authorization[7:]
