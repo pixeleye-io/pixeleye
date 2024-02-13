@@ -61,9 +61,10 @@ func GetConnection() (*amqp.Connection, error) {
 		userName := os.Getenv("AMQP_USER")
 		password := os.Getenv("AMQP_PASSWORD")
 		host := os.Getenv("AMQP_HOST")
+		vhost := os.Getenv("AMQP_VHOST")
 		port := os.Getenv("AMQP_PORT")
 
-		url := fmt.Sprintf("amqp://%s:%s@%s:%s/", userName, password, host, port)
+		url := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", userName, password, host, port, vhost)
 
 		log.Info().Msgf("Connecting to RabbitMQ at %s", url)
 
