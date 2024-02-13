@@ -85,14 +85,14 @@ export default async function AddProjectPage({
                 width={128}
                 height={128}
                 className="flex-shrink-0 w-32 h-32 mx-auto rounded-full dark:hidden"
-                src={source.imageUrl.light}
+                src={env.NEXT_PUBLIC_PIXELEYE_HOSTING ? "https://app.pixeleye.io" + source.imageUrl.light : source.imageUrl.light}
                 alt={`${source.name} logo`}
               />
               <Image
                 width={128}
                 height={128}
                 className="flex-shrink-0 hidden w-32 h-32 mx-auto rounded-full dark:block"
-                src={source.imageUrl.dark}
+                src={env.NEXT_PUBLIC_PIXELEYE_HOSTING ? "https://app.pixeleye.io" + source.imageUrl.dark : source.imageUrl.dark}
                 alt={`${source.name} logo`}
               />
               <h3 className="mt-4 text-lg">{source.name}</h3>
