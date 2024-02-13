@@ -17,7 +17,7 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	// Define database connection settings.
 	maxConn, _ := strconv.Atoi(os.Getenv("DB_MAX_CONNECTIONS"))
 	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
-	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
+	maxLifetimeConn, _ := time.ParseDuration(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
 
 	username := os.Getenv("DB_USERNAME")
 	password := os.Getenv("DB_PASSWORD")
@@ -42,7 +42,7 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 	// 	- SetConnMaxLifetime: 0, connections are reused forever
 	db.SetMaxOpenConns(maxConn)
 	db.SetMaxIdleConns(maxIdleConn)
-	db.SetConnMaxLifetime(time.Duration(maxLifetimeConn))
+	db.SetConnMaxLifetime(maxLifetimeConn)
 
 	// Try to ping database.
 	if err := db.Ping(); err != nil {

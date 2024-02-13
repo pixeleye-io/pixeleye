@@ -72,7 +72,7 @@ services:
       - DB_URL="host=database port=5432 user=postgres password=postgres dbname=preview sslmode=disable"
       - DB_MAX_CONNECTIONS="100"
       - DB_MAX_IDLE_CONNECTIONS="10"
-      - DB_MAX_LIFETIME_CONNECTIONS="2"
+      - DB_MAX_LIFETIME_CONNECTIONS="2h"
       - S3_BUCKET="pixeleye"
       - S3_ENDPOINT="http://localhost:9000"
       - S3_ACCESS_KEY_ID=admin
