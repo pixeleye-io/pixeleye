@@ -1,14 +1,10 @@
 import { API } from "@pixeleye/cli-api";
+import { Config } from "@pixeleye/cli-config";
 import ora from "ora";
 
-interface Config {
-  token: string;
-  url: string;
-}
-
-export async function ping(_: unknown, options: Config) {
+export async function ping(options: Config) {
   const api = API({
-    endpoint: options.url,
+    endpoint: options.endpoint!,
     token: options.token,
   });
 
