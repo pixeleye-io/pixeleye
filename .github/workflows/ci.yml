@@ -22,6 +22,8 @@ jobs:
               - 'apps/backend/platform/migrations/**'
             backend:
               - 'apps/backend/**'
+            frontend:
+              - 'apps/web/**'
   node-ci:
     name: Node - Build, Lint, Test, Types
     timeout-minutes: 15
@@ -314,3 +316,19 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  promote-vercel-prod:
+    needs:
+      [
+        deploy-private-ingest-image,
+        deploy-private-api-image,
+        deploy-private-migration-image,
+      ]
+    if: github.ref == 'refs/heads/main' && ${{ needs.changes.outputs.frontend == 'true' }}
+    name: Promote to Vercel Production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Promote to Vercel Production
+        run: vercel promote --yes --token=${{ secrets.VERCEL_TOKEN }} pixeleye-web-git-main-pixeleye.vercel.app
