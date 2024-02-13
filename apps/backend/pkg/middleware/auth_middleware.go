@@ -140,8 +140,11 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 	cookies := r.Cookies()
 
 	cookie := ""
-	for _, c := range cookies {
-		cookie += c.Name + "=" + c.Value + ";"
+	for i, c := range cookies {
+		if i != 0 {
+			cookie += "; "
+		}
+		cookie += c.Name + "=" + c.Value
 	}
 
 	log.Info().Msgf("Cookies: %v", cookies)
