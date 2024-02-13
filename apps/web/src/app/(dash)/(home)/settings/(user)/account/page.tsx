@@ -23,7 +23,7 @@ export default async function AccountPage({
     redirect(`/settings/org?team=${team.id}`);
   }
 
-  const cookie = cookies().toString();
+  const cookie = decodeURI(cookies().toString());
 
   const flow = await frontend
     .getSettingsFlow({
