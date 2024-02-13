@@ -147,7 +147,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 		cookie += c.Name + "=" + c.Value
 	}
 
-	log.Info().Msgf("Cookies: %v", cookies)
+	log.Info().Msgf(cookie)
 
 	resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).Cookie(cookie).Execute()
 
