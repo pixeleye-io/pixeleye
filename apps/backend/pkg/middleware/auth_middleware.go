@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -60,8 +61,7 @@ func (k *oryMiddleware) Session(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		session, err := k.validateSession(c.Request())
 		if err != nil || !*session.Active {
-			log.Err(err).Msgf("Error validating session: %v", err)
-			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized1")
+			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}
 
 		db, err := database.OpenDBConnection()
@@ -119,12 +119,12 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 	if authorization != "" {
 
 		if len(authorization) < 7 {
-			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized2")
+			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}
 		tokenType := authorization[:6]
 
 		if tokenType != "Bearer" && tokenType != "bearer" {
-			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized3")
+			return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}
 
 		authorization = authorization[7:]
@@ -137,21 +137,14 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 		return resp, nil
 	}
 
-	cookies := r.Cookies()
+	cookies := r.Header.Get("Cookie")
 
-	cookie := ""
-	for i, c := range cookies {
-		if i != 0 {
-			cookie += "; "
-		}
-		cookie += c.Name + "=" + c.Value
+	decoded, err := url.QueryUnescape(cookies);
+	if err != nil {
+		return nil, err
 	}
 
-	log.Info().Msgf(cookie)
-
-	resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).Cookie(cookie).Execute()
-
-	log.Info().Msgf("Response: %v", resp)
+	resp, _, err := k.ory.FrontendAPI.ToSession(r.Context()).Cookie(decoded).Execute()
 	if err != nil {
 		return nil, err
 	}
