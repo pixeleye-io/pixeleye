@@ -334,4 +334,4 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Promote to Vercel Production
-        run: vercel promote --yes --token=${{ secrets.VERCEL_TOKEN }} pixeleye-web-git-main-pixeleye.vercel.app
+        run: vercel promote --yes --token=${{ secrets.VERCEL_TOKEN }} --scope pixeleye pixeleye-web-git-main-pixeleye.vercel.app
