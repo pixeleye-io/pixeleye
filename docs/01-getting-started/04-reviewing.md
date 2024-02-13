@@ -1,8 +1,16 @@
 ---
 title: Reviewing
-description: How to get started with Pixeleye
+description: Pixeleye boasts an awesome review experience. Bulk approve snapshots, itterate on designs and catch issues.
 ---
 
-# Get started with Pixeleye
+# Revewing your snapshots
 
-[Links](/)
+Any snapshots with detected changes will be surfaced for approval. We aim for the review process to work with your pull-requests rather than against it. When using our offical git integrations, we post comments into the pull requests & commits to ensure you don't miss a detail.
+
+## Auto approvals
+
+To make sure Pixeleye is in sync with your production, you should auto approve your main branches.
+Under your project settings, you can write a regex query to match branch names.
+
+E.g `^main$` will auto approve the branch called 'main' and only 'main'
+
