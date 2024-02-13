@@ -56,17 +56,21 @@ func GetChannel() (*amqp.Channel, error) {
 
 func GetConnection() (*amqp.Connection, error) {
 	if globalConnection == nil || globalConnection.IsClosed() {
-		// url := os.Getenv("AMQP_URL")
-
 		userName := os.Getenv("AMQP_USER")
 		password := os.Getenv("AMQP_PASSWORD")
 		host := os.Getenv("AMQP_HOST")
 		vhost := os.Getenv("AMQP_VHOST")
 		port := os.Getenv("AMQP_PORT")
+		tls := os.Getenv("AMQP_TLS")
 
-		url := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", userName, password, host, port, vhost)
+		protocol := "amqp"
+		if tls == "true" {
+			protocol = "amqps"
+		}
 
-		log.Info().Msgf("Connecting to RabbitMQ at %s", url)
+		url := fmt.Sprintf("%s://%s:%s@%s:%s/%s", protocol, userName, password, host, port, vhost)
+
+		log.Info().Msgf("Connecting to RabbitMQ")
 
 		// Define a new Database connection
 		var err error
