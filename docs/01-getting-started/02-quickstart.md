@@ -41,7 +41,7 @@ We currently support the following official integrations:
 - [cypress](/docs/integrations/cypress)
 - [puppeteer](/docs/integrations/puppeteer)
 - [playwright](/docs/integrations/playwright)
-- [any other platform](/docs/integrations/any-other-platform)
+- [any other platform](/docs/integrations/any-other-platform-(cli))
 
 > Note: If you want to use another tool, you can use our CLI tool directly.
 
