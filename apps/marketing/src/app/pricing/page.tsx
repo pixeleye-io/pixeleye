@@ -125,7 +125,7 @@ export default function PricingPage() {
           <div
             key={tier.id}
             className={cx(
-              tier.mostPopular ? "lg:z-10 lg:rounded-b-none" : "lg:mt-8",
+              tier.awesomeValue ? "lg:z-10 lg:rounded-b-none" : "lg:mt-8",
               tierIdx === 0 ? "lg:rounded-r-none" : "",
               tierIdx === tiers.length - 1 ? "lg:rounded-l-none" : "",
               "flex flex-col justify-between rounded-3xl bg-surface-container-low p-8 ring-1 ring-outline-variant xl:p-10"
@@ -136,15 +136,15 @@ export default function PricingPage() {
                 <h3
                   id={tier.id}
                   className={cx(
-                    tier.mostPopular ? "text-tertiary" : "text-on-surface",
+                    tier.awesomeValue ? "text-tertiary" : "text-on-surface",
                     "text-lg font-semibold leading-8"
                   )}
                 >
                   {tier.name}
                 </h3>
-                {tier.mostPopular ? (
+                {tier.awesomeValue ? (
                   <p className="rounded-full bg-tertiary/10 px-2.5 py-1 text-xs font-semibold leading-5 text-tertiary">
-                    Most popular
+                    Awesome value
                   </p>
                 ) : null}
               </div>
@@ -192,7 +192,7 @@ export default function PricingPage() {
             <Button
               asChild
               full
-              variant={tier.mostPopular ? "default" : "outline"}
+              variant={tier.awesomeValue ? "default" : "outline"}
             >
               <a
                 href={tier.href}
