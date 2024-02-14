@@ -18,7 +18,7 @@ export default function Error({
   return (
     <div>
       <h2 className="text-xl text-on-surface">Something went wrong!</h2>
-        <p className="text-error">{error}</p>
+        <p className="text-error">{error.toString()}</p>
       <Button
         onClick={
           // Attempt to recover by trying to re-render the segment
