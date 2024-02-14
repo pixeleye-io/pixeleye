@@ -68,12 +68,12 @@ func CreateBuild(c echo.Context) error {
 			return err
 		}
 
-		if slices.Contains([]stripe.SubscriptionStatus{"incomplete_expired", "unpaid"}, subscription.Status) {
+		if subscription != nil && slices.Contains([]stripe.SubscriptionStatus{"incomplete_expired", "unpaid"}, subscription.Status) {
 			// Customer has an unpaid or incomplete subscription, we don't want to let them have anymore snapshots, even free ones until we've sorted this out.
 			return echo.NewHTTPError(http.StatusBadRequest, "Account is not active, Please update your payments/subscription")
 		}
 
-		if slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
+		if subscription != nil && slices.Contains([]stripe.SubscriptionStatus{"active", "unpaid", "incomplete"}, subscription.Status) {
 			// Pro tier
 
 			startDateTime := time.Unix(subscription.CurrentPeriodStart, 0)
