@@ -52,7 +52,7 @@ const tiers = [
       "Unlimited projects",
       "Unlimited collaborators",
     ],
-    mostPopular: false,
+    awesomeValue: false,
   },
   {
     name: "Pro",
@@ -69,7 +69,7 @@ const tiers = [
       "Unlimited projects",
       "Unlimited collaborators",
     ],
-    mostPopular: true,
+    awesomeValue: true,
   },
   {
     name: "Enterprise",
@@ -79,7 +79,7 @@ const tiers = [
     cta: "Contact us",
     description: "Dedicated support and discounted pricing.",
     features: ["Large volume discounts", "Dedicated support", "Custom contracts"],
-    mostPopular: false,
+    awesomeValue: false,
   },
 ];
 
