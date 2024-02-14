@@ -5,6 +5,15 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  Dialog,
+  DialogFooter,
+  DialogHeader,
+  DialogPortal,
+  DialogTitle,
+  Link,
 } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
 import NextLink from "next/link";
@@ -13,10 +22,21 @@ import { FAQ } from "./faq";
 import { Examples } from "./examples";
 import { Metadata } from "next";
 
+// TODO - get this from stripe
+const volumePricing = {
+  "For the first 0 to 5,000": "Free",
+  "For the next 5,001 to 100,000": "$0.003",
+  "For the next 100,001 to 250,000": "$0.0025",
+  "For the next 250,001 to 600,000": "$0.0022",
+  "For the next 600,001 to 2,000,000": "$0.0019",
+  "For the next 2,000,001 to 5,000,000": "$0.0017",
+  "For anything above 5,000,001": "$0.0015",
+}
+
 export const metadata: Metadata = {
-    title: "Pricing | Pixeleye",
-    description: "Want to avoid the hassle of setting up and maintaining your own instance? We offer a hosted solution for you.",
-  };
+  title: "Pricing | Pixeleye",
+  description: "Want to avoid the hassle of setting up and maintaining your own instance? We offer a hosted solution for you.",
+};
 
 const tiers = [
   {
@@ -42,9 +62,10 @@ const tiers = [
     perMonth: true,
     description: "A usage-based plan mostly for small to medium teams.",
     cta: "Buy plan",
+    priceModalIndex: 1,
     features: [
       "5000 free monthly snapshots",
-      "$0.003 per snapshot after",
+      "Volume pricing starting at $0.003",
       "Unlimited projects",
       "Unlimited collaborators",
     ],
@@ -57,7 +78,7 @@ const tiers = [
     priceMonthly: "Custom",
     cta: "Contact us",
     description: "Dedicated support and discounted pricing.",
-    features: ["Volume discounts", "Dedicated support", "Custom contracts"],
+    features: ["Large volume discounts", "Dedicated support",  "Custom contracts"],
     mostPopular: false,
   },
 ];
@@ -144,13 +165,26 @@ export default function PricingPage() {
                 role="list"
                 className="mt-8 space-y-3 text-sm leading-6 text-on-surface-variant"
               >
-                {tier.features.map((feature) => (
+                {tier.features.map((feature, i) => (
                   <li key={feature} className="flex gap-x-3">
-                    <CheckIcon
-                      className="h-6 w-5 flex-none text-tertiary"
-                      aria-hidden="true"
-                    />
-                    {feature}
+                    {
+                      tier.priceModalIndex === i ? (
+                        <PricingModal>
+                          <CheckIcon
+                            className="h-6 w-5 flex-none text-tertiary"
+                            aria-hidden="true"
+                          />
+                          {feature}
+                        </PricingModal>
+                      )
+                        : <>
+                          <CheckIcon
+                            className="h-6 w-5 flex-none text-tertiary"
+                            aria-hidden="true"
+                          />
+                          {feature}
+                        </>
+                    }
                   </li>
                 ))}
               </ul>
@@ -204,4 +238,60 @@ export default function PricingPage() {
       <SelfHostBanner />
     </div>
   );
+}
+
+
+
+function PricingModal({
+  children,
+
+}: {
+  children: React.ReactNode;
+}) {
+
+
+
+
+  return (
+    <Dialog>
+      <Link asChild size="sm">
+        <DialogTrigger className="flex gap-x-3 !text-sm">
+          {children}
+        </DialogTrigger>
+      </Link>
+
+      <DialogPortal>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Volume Pricing</DialogTitle>
+            <DialogDescription>
+              We want to make sure you get the best deal possible. That&apos;s why we openly offer volume discounts.
+            </DialogDescription>
+          </DialogHeader>
+
+
+          <div className="p-4">
+
+
+            <ul role="list" className="flex flex-col space-y-2">
+              {Object.entries(volumePricing).map(([key, value]) => (
+                <li key={key} className="flex justify-between">
+                  <p>{key}</p>
+                  <p className="text-start min-w-16">{value}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <DialogFooter>
+            <Button>
+              Get started with Pro
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
+  )
+
+
 }
