@@ -18,7 +18,7 @@ jobs:
       migrations: ${{ steps.filter.outputs.migrations }}
       backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -43,7 +43,7 @@ jobs:
       NEXT_PUBLIC_BACKEND_URL: "http://localhost:5000"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -71,7 +71,7 @@ jobs:
     name: Golang - Lint, Test, Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with:
           go-version: "1.21"
@@ -115,7 +115,7 @@ jobs:
           - 5430:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: ariga/atlas-action@v0
@@ -152,7 +152,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Atlas
         run: |
