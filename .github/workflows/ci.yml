@@ -126,7 +126,7 @@ jobs:
     name: Atlas - Linting
     runs-on: ubuntu-latest
     needs: paths-filter-pr
-    if: ${{ github.ref == 'refs/heads/main' || needs.paths-filter-pr.outputs.migrations == 'true' }}
+    if: github.ref == 'refs/heads/main' || needs.paths-filter-pr.outputs.migrations == 'true'
     services:
       postgres:
         image: postgres:15-alpine
