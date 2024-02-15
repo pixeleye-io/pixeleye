@@ -121,7 +121,6 @@ jobs:
         run: |
           cd apps/backend
           go test -v ./...
-          
 
   atlas-lint:
     name: Atlas - Linting
