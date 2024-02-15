@@ -17,6 +17,7 @@ jobs:
     outputs:
       migrations: ${{ steps.filter.outputs.migrations }}
       backend: ${{ steps.filter.outputs.backend }}
+      anythingButMigrations: ${{ steps.filter.outputs.anythingButMigrations }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -28,6 +29,8 @@ jobs:
               - 'apps/backend/platform/migrations/**'
             backend:
               - 'apps/backend/**'
+            anythingButMigrations:
+              - '!(apps/backend/platform/migrations/**)'
   node-ci:
     name: Node - Build, Lint, Test, Types
     timeout-minutes: 15
@@ -211,6 +214,18 @@ jobs:
       #     ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
 
       #   run: go run main.go & pnpm turbo test:api
+
+  migrations-are-alone:
+    name: Migrations are alone
+    runs-on: ubuntu-latest
+    needs: [paths-filter]
+    if: ${{ github.base_ref == 'refs/heads/main' &&  needs.paths-filter.outputs.migrations == 'true'  && needs.paths-filter.outputs.anythingButMigrations == 'true' }}
+    steps:
+      - name: Fail job
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setFailed('Database migrations should be alone in a PR, please move them to a separate PR')
 
   deploy-private-migration-image:
     name: Deploy database migrations
