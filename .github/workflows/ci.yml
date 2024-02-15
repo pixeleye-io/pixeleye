@@ -219,7 +219,7 @@ jobs:
     name: Migrations are alone
     runs-on: ubuntu-latest
     needs: [paths-filter]
-    if: ${{ github.base_ref == 'refs/heads/main' &&  needs.paths-filter.outputs.migrations == 'true'  && needs.paths-filter.outputs.anythingButMigrations == 'true' }}
+    if: ${{ github.base_ref == 'main' &&  needs.paths-filter.outputs.migrations == 'true'  && needs.paths-filter.outputs.anythingButMigrations == 'true' }}
     steps:
       - name: Fail job
         uses: actions/github-script@v7
