@@ -22,6 +22,7 @@ jobs:
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          base: ${{ github.ref }}
           filters: |
             migrations:
               - 'apps/backend/platform/migrations/**'
