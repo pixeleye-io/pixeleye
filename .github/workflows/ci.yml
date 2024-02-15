@@ -216,7 +216,7 @@ jobs:
     name: Deploy database migrations
     runs-on: ubuntu-latest
     needs: [api-tests, atlas-lint, paths-filter]
-    if: github.ref == 'refs/heads/main' && ${{ needs.paths-filter.outputs.migrations == 'true' }}
+    if: ${{ github.ref == 'refs/heads/main' &&  needs.paths-filter.outputs.migrations == 'true' }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
