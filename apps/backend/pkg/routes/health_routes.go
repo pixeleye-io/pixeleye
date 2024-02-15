@@ -13,7 +13,7 @@ func HealthRoutes(e *echo.Echo) {
 
 	v1.GET("/ping", func(c echo.Context) error {
 		// Return HTTP 200 status and JSON response.
-		return c.String(http.StatusOK, "pong")
+		return c.String(http.StatusOK, "pong from Pixeleye!")
 	})
 
 }
