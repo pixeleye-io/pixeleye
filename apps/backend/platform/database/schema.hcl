@@ -436,7 +436,7 @@ table "project" {
   column "snapshot_threshold" {
     type    = float
     null    = false
-    default = 0.1
+    default = 0.01
   }
 
   column "snapshot_blur" {

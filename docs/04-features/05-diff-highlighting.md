@@ -41,7 +41,9 @@ We have built in support for detecting anti-aliasing. This is a common cause of 
 
 ## Threshold
 
-When comparing screenshots, we use a threshold to determine if a pixel has changed. This threshold is configurable under each projects manage page. The default threshold is 0.1. A lower threshold will result in more pixels being highlighted as changed. Depending on your project, you may want to adjust this threshold to suit your needs. Gradients and anti-aliasing can cause a lot of pixels to be highlighted as changed. If you're seeing a lot of false positives, try increasing the threshold.
+When comparing screenshots, we use a threshold to determine if a pixel has changed. This threshold is configurable under each projects manage page. The default threshold is 0.01. A lower threshold will result in more pixels being highlighted as changed. Depending on your project, you may want to adjust this threshold to suit your needs. Gradients and anti-aliasing can cause a lot of pixels to be highlighted as changed. If you're seeing a lot of false positives, try increasing the threshold.
+
+You can use this to fix false postives caused by anti-aliasing or gradients but can also remove the need to reviewing imperceptible changes.
 
 ## Blur
 

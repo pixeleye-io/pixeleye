@@ -506,7 +506,7 @@ export function UpdateProjectSection({ project }: { project: Project }) {
           >
             Learn more
           </Link>
-          . Recommended: 0.1{" "}
+          . Recommended: 0.01{" "}
         </p>
       </div>
       <div className="flex flex-col">
