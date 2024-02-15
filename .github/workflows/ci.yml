@@ -17,13 +17,31 @@ jobs:
     outputs:
       migrations: ${{ steps.filter.outputs.migrations }}
       backend: ${{ steps.filter.outputs.backend }}
-      anythingButMigrations: ${{ steps.filter.outputs.anythingButMigrations }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           base: ${{ github.ref }}
+          filters: |
+            migrations:
+              - 'apps/backend/platform/migrations/**'
+            backend:
+              - 'apps/backend/**'
+            anythingButMigrations:
+              - '!(apps/backend/platform/migrations/**)'
+  paths-filter-pr:
+    name: Paths filter
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      migrations: ${{ steps.filter.outputs.migrations }}
+      anythingButMigrations: ${{ steps.filter.outputs.anythingButMigrations }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
           filters: |
             migrations:
               - 'apps/backend/platform/migrations/**'
@@ -106,8 +124,8 @@ jobs:
   atlas-lint:
     name: Atlas - Linting
     runs-on: ubuntu-latest
-    needs: paths-filter
-    if: github.ref == 'refs/heads/main' || needs.paths-filter.outputs.migrations == 'true'
+    needs: paths-filter-pr
+    if: github.ref == 'refs/heads/main' || needs.paths-filter-pr.outputs.migrations == 'true'
     services:
       postgres:
         image: postgres:15-alpine
@@ -218,8 +236,8 @@ jobs:
   migrations-are-alone:
     name: Migrations are alone
     runs-on: ubuntu-latest
-    needs: [paths-filter]
-    if: ${{ github.base_ref == 'main' &&  needs.paths-filter.outputs.migrations == 'true'  && needs.paths-filter.outputs.anythingButMigrations == 'true' }}
+    needs: [paths-filter-pr]
+    if: ${{ github.base_ref == 'main' &&  needs.paths-filter-pr.outputs.migrations == 'true'  && needs.paths-filter-pr.outputs.anythingButMigrations == 'true' }}
     steps:
       - name: Fail job
         uses: actions/github-script@v7
