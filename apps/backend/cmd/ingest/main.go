@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	log.Info().Msg("Hello from Alfie")
+
 	log.Info().Msg("Starting ingest server...")
 	ingest.StartIngestServerWithGracefulShutdown()
 }
