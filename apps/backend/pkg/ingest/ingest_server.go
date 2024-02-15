@@ -3,13 +3,10 @@ package ingest
 import (
 	"context"
 	"encoding/json"
-	"net/http"
 	"os"
 	"os/signal"
 
-	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/processors"
-	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -40,17 +37,6 @@ func StartIngestServer() {
 	startIngestServer(quit)
 }
 
-func HealthRoutes(e *echo.Echo) {
-
-	// Create routes group.
-	v1 := e.Group("/v1/health")
-
-	v1.GET("/ping", func(c echo.Context) error {
-		// Return HTTP 200 status and JSON response.
-		return c.String(http.StatusOK, "pong")
-	})
-}
-
 // StartIngestServer starts the ingest server.
 func startIngestServer(quit chan bool) {
 	// Create rabbitmq
@@ -59,12 +45,6 @@ func startIngestServer(quit chan bool) {
 		log.Fatal().Err(err).Msg("Error while connecting to broker")
 	}
 	defer broker.Close()
-
-	// Setup echo server for health checks
-	e := echo.New()
-	HealthRoutes(e)
-
-	utils.StartServerWithGracefulShutdown(e)
 
 	// TODO avoid shutting down if we get an error
 

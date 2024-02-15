@@ -112,23 +112,24 @@ export async function uploadHandler(dir: string, options: Config) {
         readFiles
       );
 
-      await api.post("/v1/client/builds/{id}/upload", {
-        params: {
-          id: build.id,
-        },
-        body: {
-          snapshots: readFiles.map(
-            ({ name, format }, i) =>
-              ({
-                name: decode(name).name,
-                variant: decode(name).variant,
-                format,
-                snapID: uploaded[i].id,
-                target: "unknown device",
-              }) as PartialSnapshot
-          ),
-        },
-      });
+      if (uploaded.length > 0)
+        await api.post("/v1/client/builds/{id}/upload", {
+          params: {
+            id: build.id,
+          },
+          body: {
+            snapshots: readFiles.map(
+              ({ name, format }, i) =>
+                ({
+                  name: decode(name).name,
+                  variant: decode(name).variant,
+                  format,
+                  snapID: uploaded[i].id,
+                  target: "unknown device",
+                }) as PartialSnapshot
+            ),
+          },
+        });
     }
   } catch (err: any) {
     uploadingSpinner.fail("Failed to upload snapshots to Pixeleye.");
