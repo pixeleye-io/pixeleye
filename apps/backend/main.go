@@ -26,6 +26,8 @@ func main() {
 		}
 	}
 
+	log.Info().Msg("Starting Pixeleye backend...")
+
 	// We want to clean up the analytics client when the server is shut down.
 	defer analytics.CloseClient()
 
