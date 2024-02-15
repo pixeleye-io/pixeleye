@@ -31,7 +31,7 @@ jobs:
             anythingButMigrations:
               - '!(apps/backend/platform/migrations/**)'
   paths-filter-pr:
-    name: Paths filter
+    name: Paths filter PR
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
     permissions:
