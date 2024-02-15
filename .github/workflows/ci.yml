@@ -305,7 +305,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: pixeleye/pixeleye-ingest-private
+          images: 727935601513.dkr.ecr.us-east-2.amazonaws.com/pixeleye-ingest
           tags: |
             latest
             type=sha
