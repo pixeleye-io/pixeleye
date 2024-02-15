@@ -1,5 +1,5 @@
 
-const internalRewrites = ["dashboard", "billing", "settings", "usage", "add", "builds", "invites", "projects", "auth-error", "login", "logout", "registration", "verification"]
+const internalRewrites = ["dashboard", "billing", "settings", "usage", "add", "builds", "invites", "projects", "auth-error", "login", "logout", "registration", "recovery", "verification"]
 
 
 /** @type {import('next').NextConfig} */
