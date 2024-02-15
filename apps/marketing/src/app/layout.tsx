@@ -34,6 +34,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="theme-color" content="#fdf8fd" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="dark light" />
 
       </head>
       <body
