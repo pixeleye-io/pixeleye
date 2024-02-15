@@ -237,7 +237,7 @@ export function Review({ buildID, project }: ReviewProps) {
           snapshotIDs,
         },
       }),
-    ...reviewSingleOptimisticUpdate("rejected"),
+    ...reviewSingleOptimisticUpdate("approved"),
   });
 
   const reject = useMutation({
