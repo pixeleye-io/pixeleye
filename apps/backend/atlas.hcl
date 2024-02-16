@@ -44,3 +44,4 @@ data "external" "DB_PARAMS" {
 env "env_url" {
   url = "postgres://${data.DB_USERNAME}:${data.DB_PASSWORD}@${data.DB_HOST}:${data.DB_PORT}/${data.DB_NAME}?${data.DB_PARAMS}"
 }
+
