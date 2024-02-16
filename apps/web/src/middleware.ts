@@ -17,16 +17,7 @@ export async function middleware(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
-  console.log({
-    url,
-    data,
-    test: oryEndpoint + "/sessions/whoami",
-    cookies: request.cookies.toString(),
-  });
-
   const session = (await data?.json()) as Session | undefined;
-
-  console.log(session);
 
   if (!data || data.status >= 300 || data.status < 200 || !session) {
     if (request.nextUrl.pathname === "/") {

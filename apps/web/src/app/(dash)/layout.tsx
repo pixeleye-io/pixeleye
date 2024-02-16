@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { Navbar } from "./navbar";
-import { API } from "@/libs";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { queries, getQueryClient } from "@/queries";
 import { Logo } from "@pixeleye/ui";
