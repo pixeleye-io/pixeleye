@@ -5,9 +5,13 @@ import type { NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const data = await fetch(oryEndpoint + "/sessions/whoami", {
     headers: {
-      cookie: request.cookies.toString(),
+      cookie: request.cookies
+        .getAll()
+        .map((cookie) => `${cookie.name}=${cookie.value}`)
+        .join("; "),
     },
-  }).catch(() => null);
+  }).catch(() => undefined);
+
 
   const url = request.nextUrl.clone();
 

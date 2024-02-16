@@ -3,6 +3,8 @@ import NextLink from "next/link";
 import { cookies } from "next/headers";
 import { Session, oryEndpoint } from "@pixeleye/auth"
 
+export const runtime = 'edge';
+
 export function UnauthenticatedPage() {
   return (
     <main className="grid min-h-full place-items-center px-6 py-24 sm:py-32 lg:px-8">
@@ -27,9 +29,12 @@ export function UnauthenticatedPage() {
 export default async function NotFoundPage() {
   const data = await fetch(oryEndpoint + "/sessions/whoami", {
     headers: {
-      cookie: cookies().toString(),
+      cookie: cookies()
+        .getAll()
+        .map((cookie) => `${cookie.name}=${cookie.value}`)
+        .join("; "),
     },
-  }).catch(() => null);
+  }).catch(() => undefined);
 
   const session = (await data?.json()) as Session | undefined;
 

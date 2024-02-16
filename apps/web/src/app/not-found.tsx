@@ -28,7 +28,10 @@ export function UnauthenticatedPage() {
 export default async function NotFoundPage() {
   const data = await fetch(oryEndpoint + "/sessions/whoami", {
     headers: {
-      cookie: cookies().toString(),
+      cookie: cookies()
+        .getAll()
+        .map((cookie) => `${cookie.name}=${cookie.value}`)
+        .join("; "),
     },
   }).catch(() => null);
 
