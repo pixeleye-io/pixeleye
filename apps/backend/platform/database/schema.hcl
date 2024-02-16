@@ -453,6 +453,7 @@ table "project" {
   }
 }
 
+
 enum "project_member_role" {
   schema = schema.public
   values = ["admin", "reviewer", "viewer"]
