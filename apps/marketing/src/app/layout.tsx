@@ -46,7 +46,7 @@ export default function RootLayout({
         <Providers>
           <PageViews />
           <Header />
-          <div className="lg:pt-[4.5rem] pt-16">{children}</div>
+          <div className="lg:pt-[4.5rem] pt-16 min-h-screen">{children}</div>
           <Footer />
         </Providers>
       </body>
