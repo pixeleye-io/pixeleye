@@ -46,8 +46,7 @@ jobs:
             migrations:
               - 'apps/backend/platform/migrations/**'
             anythingButMigrations:
-              - '!(apps/backend/platform/migrations/**)'
-              - '!(apps/backend/platform/database/schema.hcl)'
+              - '!(apps/backend/platform/*(database/schema.hcl)*(migrations/**))'
             schema:
               - 'apps/backend/platform/database/schema.hcl'
   node-ci:
