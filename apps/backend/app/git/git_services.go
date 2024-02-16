@@ -158,6 +158,7 @@ func SyncUserAccounts(ctx context.Context, user models.User) error {
 
 	tokens, err := identity.GetTokens(ctx, user.AuthID)
 	if err != nil {
+		log.Err(err).Msg("Failed to get user tokens from ory")
 		return err
 	}
 
