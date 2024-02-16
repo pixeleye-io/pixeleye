@@ -26,17 +26,17 @@ export function UnauthenticatedPage() {
 }
 
 export default async function NotFoundPage() {
-  // const data = await fetch(oryEndpoint + "/sessions/whoami", {
-  //   headers: {
-  //     cookie: cookies().toString(),
-  //   },
-  // }).catch(() => null);
+  const data = await fetch(oryEndpoint + "/sessions/whoami", {
+    headers: {
+      cookie: cookies().toString(),
+    },
+  }).catch(() => null);
 
-  // const session = (await data?.json()) as Session | undefined;
+  const session = (await data?.json()) as Session | undefined;
 
-  // if (!data || data.status >= 300 || data.status < 200 || !session) {
-  //   return <UnauthenticatedPage />;
-  // }
+  if (!data || data.status >= 300 || data.status < 200 || !session) {
+    return <UnauthenticatedPage />;
+  }
 
   return (
     <>
