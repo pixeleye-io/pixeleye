@@ -89,7 +89,7 @@ export function ManageBillingAccount(
                             <p className="mt-1 text-sm text-on-surface-variant">
                                 You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month.
                             </p>
-                            <Link href="https://pixeleye.io/pricing">
+                            <Link target="_blank" href="https://pixeleye.io/pricing">
                                 Pricing
                             </Link>
                             {
