@@ -216,7 +216,7 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 	if err != nil {
 		return err
 	}
-	build = &curBuild
+	build.Status = curBuild.Status
 
 	if !models.IsBuildPreProcessing(build.Status) {
 		// Build has already been marked as complete
