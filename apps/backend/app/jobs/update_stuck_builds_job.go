@@ -27,11 +27,8 @@ func UpdateStuckBuilds() {
 	}
 
 	for _, build := range builds {
-
-		for _, build := range builds {
-			if err := statuses_build.ProcessBuildDependents(ctx, build); err != nil {
-				log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
-			}
+		if err := statuses_build.ProcessBuildDependents(ctx, build); err != nil {
+			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
 		}
 
 		events.HandleBuildStatusChange(build)

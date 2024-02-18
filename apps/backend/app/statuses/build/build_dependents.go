@@ -23,9 +23,7 @@ func queueSnapshots(tx *build_queries.BuildQueriesTx, ctx context.Context, build
 	if len(snaps) == 0 && build.Status == models.BUILD_STATUS_PROCESSING {
 		// We aren't going to have more snaps uploaded and we don't have any queued snaps
 		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
-		if err != nil {
-			return err
-		}
+		return err
 	}
 
 	// Send our snapshots to the message queue

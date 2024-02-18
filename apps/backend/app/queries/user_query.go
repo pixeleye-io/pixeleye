@@ -267,8 +267,11 @@ func (q *UserQueries) deleteUser(id string) error {
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	if _, err = tx.ExecContext(ctx, deleteUsersTeamQuery, id); err != nil {
 		return err

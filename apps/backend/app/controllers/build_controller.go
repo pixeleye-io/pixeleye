@@ -482,9 +482,11 @@ func UploadPartial(c echo.Context) error {
 
 	if buildUpdated {
 		events.HandleBuildStatusChange(*build)
-	}
 
-	log.Debug().Msgf("Queuing %v snapshots for processing", snapshots)
+		if err := statuses_build.SyncBuildStatus(c.Request().Context(), build); err != nil {
+			return err
+		}
+	}
 
 	if len(snapshots) == 0 {
 		return c.String(http.StatusOK, "no snapshots to process")

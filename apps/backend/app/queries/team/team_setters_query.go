@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/posthog/posthog-go"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
@@ -82,8 +83,11 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	query, args, err := sqlx.In(query, teamID, memberIDs)
 	if err != nil {

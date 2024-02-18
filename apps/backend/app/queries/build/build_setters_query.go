@@ -34,8 +34,11 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	project := models.Project{}
 	if err = tx.GetContext(ctx, &project, selectProjectQuery, build.ProjectID); err != nil {

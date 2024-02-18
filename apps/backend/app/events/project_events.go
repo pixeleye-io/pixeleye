@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
+	"github.com/pixeleye-io/pixeleye/app/git"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -36,7 +36,7 @@ func syncWithGithub(ctx context.Context, build models.Build) error {
 		return err
 	}
 
-	if err := git_github.SyncBuildStatusWithCheckRun(context.Background(), project, build); err != nil {
+	if err := git.SyncBuildStatusWithVCS(context.Background(), project, build); err != nil {
 		return err
 	}
 

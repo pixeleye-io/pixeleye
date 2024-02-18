@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/processors"
 	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
@@ -84,9 +83,6 @@ func startIngestServer(quit chan bool) {
 					log.Fatal().Err(err).Msg("Error while failing build")
 					return nil
 				}
-
-				events.HandleBuildStatusChange(build)
-
 			}
 
 			return nil
