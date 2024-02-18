@@ -6,7 +6,6 @@ require (
 	github.com/aws/smithy-go v1.17.0
 	github.com/bradleyfalzon/ghinstallation/v2 v2.9.0
 	github.com/go-playground/validator/v10 v10.16.0
-	github.com/google/go-github/v56 v56.0.0
 	github.com/google/go-github/v59 v59.0.0
 	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
@@ -54,7 +53,6 @@ require (
 )
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/aws/aws-sdk-go-v2 v1.21.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.42
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.40
