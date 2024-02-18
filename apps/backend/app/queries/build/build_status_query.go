@@ -52,7 +52,7 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	case models.SNAPSHOT_STATUS_ORPHANED:
 		return models.BUILD_STATUS_ORPHANED
 	default:
-		return models.BUILD_STATUS_UNCHANGED
+		return models.BUILD_STATUS_PROCESSING
 	}
 }
 
@@ -119,7 +119,7 @@ func (q *BuildQueries) AreBuildDependenciesPostProcessing(ctx context.Context, b
 }
 
 // CalculateBuildStatus
-func (tx *BuildQueriesTx) CalculateBuildStatusFromSnapshots(ctx context.Context, build models.Build) (string, error) {
+func (tx *BuildQueriesTx) CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx context.Context, build models.Build) (string, error) {
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
 
 	if models.IsBuildPreProcessing(build.Status) || models.IsBuildFailedOrAborted(build.Status) || models.IsBuildQueued(build.Status) {
@@ -130,6 +130,13 @@ func (tx *BuildQueriesTx) CalculateBuildStatusFromSnapshots(ctx context.Context,
 
 	if err := tx.SelectContext(ctx, &snapshotStatus, selectSnapshotsQuery, build.ID); err != nil {
 		return build.Status, err
+	}
+
+	filtered := []string{}
+	for _, status := range snapshotStatus {
+		if status != models.SNAPSHOT_STATUS_QUEUED {
+			filtered = append(filtered, status)
+		}
 	}
 
 	return getBuildStatusFromSnapshotStatuses(snapshotStatus), nil

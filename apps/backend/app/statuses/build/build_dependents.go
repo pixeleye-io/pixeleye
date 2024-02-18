@@ -22,7 +22,7 @@ func queueSnapshots(tx *build_queries.BuildQueriesTx, ctx context.Context, build
 
 	if len(snaps) == 0 && build.Status == models.BUILD_STATUS_PROCESSING {
 		// We aren't going to have more snaps uploaded and we don't have any queued snaps
-		build.Status, err = tx.CalculateBuildStatusFromSnapshots(ctx, *build)
+		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
 		if err != nil {
 			return err
 		}
@@ -87,7 +87,7 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 		build.Status = models.BUILD_STATUS_UPLOADING
 	} else if build.Status == models.BUILD_STATUS_QUEUED_PROCESSING {
 		build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
-		build.Status, err = tx.CalculateBuildStatusFromSnapshots(ctx, *build)
+		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
 		if err != nil {
 			return err
 		}
@@ -231,7 +231,7 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 		build.Status = models.BUILD_STATUS_QUEUED_PROCESSING
 	} else {
 		build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
-		build.Status, err = tx.CalculateBuildStatusFromSnapshots(ctx, *build)
+		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
 		if err != nil {
 			return err
 		}
