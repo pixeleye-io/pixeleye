@@ -8,6 +8,7 @@ import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { sleep } from "pactum";
 import { like } from "pactum-matchers";
+import { nan } from "zod";
 
 const projectData: ProjectBody = {
   name: "Some project for testing",
@@ -125,10 +126,14 @@ describe.concurrent(
         },
       ];
 
+      const sha1 = nanoid(40);
+      const sha2 = nanoid(40);
+      const sha3 = nanoid(40);
+
       const build1 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "dev",
-        sha: "123",
+        sha: sha1,
         expectedBuildStatus: ["orphaned"],
         snapshots: snapshot1,
       }).catch((err) => {
@@ -138,7 +143,7 @@ describe.concurrent(
       const build2 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "dev",
-        sha: "1234",
+        sha: sha2,
         expectedBuildStatus: ["unreviewed"],
         parentBuildIds: build1.id,
         snapshots: snapshot2,
@@ -149,7 +154,7 @@ describe.concurrent(
       await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "dev",
-        sha: "12345",
+        sha: sha3,
         expectedBuildStatus: ["unreviewed"],
         parentBuildIds: build1.id,
         snapshots: snapshot2,
