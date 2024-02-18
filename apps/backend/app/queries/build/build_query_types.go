@@ -8,6 +8,7 @@ import (
 
 type BuildQueries struct {
 	*sqlx.DB
+	DBx *sqlx.DB // Avoids ambiguous method calls
 }
 
 type BuildQueriesTx struct {

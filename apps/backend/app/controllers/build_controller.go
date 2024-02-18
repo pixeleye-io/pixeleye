@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/analytics"
@@ -200,7 +200,13 @@ func AbortBuild(c echo.Context) error {
 		return err
 	}
 
-	if err := db.AbortBuild(c.Request().Context(), *build); err != nil {
+	if err := db.UpdateBuildStatus(c.Request().Context(), build, models.BUILD_STATUS_ABORTED); err != nil {
+		return err
+	}
+
+	events.HandleBuildStatusChange(*build)
+
+	if err := statuses_build.ProcessBuildDependents(c.Request().Context(), *build); err != nil {
 		return err
 	}
 
@@ -209,22 +215,25 @@ func AbortBuild(c echo.Context) error {
 
 func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) error {
 
+	if len(snapshotIDs) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to approve")
+	}
+
 	build, err := middleware.GetBuild(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
-	// We can only approve snapshots if the build is in a reviewable state
-	if models.IsBuildPreProcessing(build.Status) || models.IsBuildProcessing(build.Status) {
-		return echo.NewHTTPError(http.StatusBadRequest, "build is still processing")
-	} else if build.Status == models.BUILD_STATUS_ORPHANED {
-		return echo.NewHTTPError(http.StatusBadRequest, "build is orphaned")
-	} else if build.Status == models.BUILD_STATUS_UNCHANGED {
-		return echo.NewHTTPError(http.StatusBadRequest, "build is unchanged")
+	// We can only approve/reject snapshot if the build is the latest build
+	if !build.IsLatest {
+		return echo.NewHTTPError(http.StatusBadRequest, "build is not the latest build")
 	}
 
-	if len(snapshotIDs) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to approve")
+	// We can only approve snapshots if the build is in a reviewable state
+	if !models.IsBuildPostProcessing(build.Status) {
+		return echo.NewHTTPError(http.StatusBadRequest, "cannot approve snapshots for a build that hasn't finished processing")
+	} else if models.IsBuildFailedOrAborted(build.Status) {
+		return echo.NewHTTPError(http.StatusBadRequest, "cannot approve snapshots for a failed or aborted build")
 	}
 
 	db, err := database.OpenDBConnection()
@@ -232,12 +241,8 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 		return err
 	}
 
-	// We can only approve snapshot if the build is the latest build
-	if !build.IsLatest {
-		return echo.NewHTTPError(http.StatusBadRequest, "build is not the latest build")
-	}
-
 	// Check that our snapshots are all from the correct build
+	// TODO - we should add a query to just fetch the snapshots we need
 	allSnapshots, err := db.GetSnapshotsByBuild(c.Request().Context(), build.ID)
 	if err != nil {
 		return err
@@ -247,8 +252,8 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 		found := false
 		for _, snapshot := range allSnapshots {
 			if snapshot.ID == id {
-				if snapshot.Status == models.SNAPSHOT_STATUS_UNCHANGED || snapshot.Status == models.SNAPSHOT_STATUS_ORPHANED || snapshot.Status == models.SNAPSHOT_STATUS_MISSING_BASELINE {
-					return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v is either unchanged or orphaned (you can't approve a snapshot in this state)", snapshot.ID))
+				if !slices.Contains([]string{models.SNAPSHOT_STATUS_APPROVED, models.SNAPSHOT_STATUS_REJECTED, models.SNAPSHOT_STATUS_UNREVIEWED}, snapshot.Status) {
+					return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("snapshot %v isn't reviewable (status needs to be unreviewed, approved or rejected)", id))
 				}
 				found = true
 				break
@@ -264,13 +269,11 @@ func setSnapshotStatus(c echo.Context, status string, snapshotIDs []string) erro
 		return err
 	}
 
-	// We can check if the build is now complete
-	newBuild, err := db.CheckAndUpdateStatusAccordingly(c.Request().Context(), build.ID)
-	if err != nil {
+	if err := statuses_build.SyncBuildStatus(c.Request().Context(), build); err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, newBuild)
+	return c.JSON(http.StatusOK, build)
 }
 
 type SnapshotApprovalBody struct {
@@ -472,23 +475,18 @@ func UploadPartial(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to upload")
 	}
 
-	snapshots, updateBuild, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
+	snapshots, buildUpdated, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
 	if err != nil {
 		return err
 	}
 
-	if updateBuild {
-		go func(build models.Build) {
-			notifier, err := events.GetNotifier(nil)
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to get notifier")
-				return
-			}
-			notifier.BuildStatusChange(build)
-		}(*build)
-	}
+	if buildUpdated {
+		events.HandleBuildStatusChange(*build)
 
-	log.Debug().Msgf("Queuing %v snapshots for processing", snapshots)
+		if err := statuses_build.SyncBuildStatus(c.Request().Context(), build); err != nil {
+			return err
+		}
+	}
 
 	if len(snapshots) == 0 {
 		return c.String(http.StatusOK, "no snapshots to process")
@@ -501,11 +499,6 @@ func UploadPartial(c echo.Context) error {
 		return err
 	}
 
-	// TODO - Handle error.
-	// Need to decide what to do if we can't queue snapshots for processing.
-	// The build will remain in a pending state
-	// We could create a new table to store snapshots that have failed to be processed,
-	// and then once our message broker is back online, we can re-queue them.
 	if err := channel.QueueSnapshotsIngest(snapshots); err != nil {
 		return err
 	}
@@ -538,14 +531,11 @@ func UploadComplete(c echo.Context) error {
 		return err
 	}
 
-	log.Debug().Msgf("Completing build %v", build)
-
 	if !models.IsBuildPreProcessing(build.Status) {
 		return echo.NewHTTPError(http.StatusBadRequest, "build has already been completed")
 	}
 
-	uploadedBuild, err := db.CompleteBuild(c.Request().Context(), build.ID)
-	if err != nil {
+	if err := statuses_build.CompleteBuild(c.Request().Context(), build); err != nil {
 		return err
 	}
 
@@ -582,14 +572,7 @@ func UploadComplete(c echo.Context) error {
 		}
 	}
 
-	go func(db *database.Queries, buildID string) {
-		ctx := context.Background()
-		if _, err := db.CheckAndUpdateStatusAccordingly(ctx, buildID); err != nil {
-			log.Error().Err(err).Msg("Failed to check and update build status")
-		}
-	}(db, uploadedBuild.ID)
-
-	return c.JSON(http.StatusAccepted, uploadedBuild)
+	return c.JSON(http.StatusAccepted, build)
 }
 
 // Filters out a list of build id's returning the latest for any given chain

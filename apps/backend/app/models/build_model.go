@@ -44,6 +44,8 @@ type Build struct {
 	Warnings           pq.StringArray `db:"warnings" json:"warnings,omitempty"`
 	DeletedSnapshotIDs pq.StringArray `db:"deleted_snapshot_ids" json:"deletedSnapshotIDs,omitempty"`
 
+	CheckRunID string `db:"check_run_id" json:"checkRunID,omitempty"`
+
 	PrID         string `db:"pr_id" json:"prID,omitempty"`
 	TargetBranch string `db:"target_branch" json:"targetBranch,omitempty"`
 }
@@ -72,4 +74,8 @@ func IsBuildPostProcessing(status string) bool {
 
 func IsBuildFailedOrAborted(status string) bool {
 	return status == BUILD_STATUS_FAILED || status == BUILD_STATUS_ABORTED
+}
+
+func IsBuildQueued(status string) bool {
+	return status == BUILD_STATUS_QUEUED_UPLOADING || status == BUILD_STATUS_QUEUED_PROCESSING
 }

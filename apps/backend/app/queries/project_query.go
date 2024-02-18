@@ -11,6 +11,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/analytics"
 	"github.com/posthog/posthog-go"
+	"github.com/rs/zerolog/log"
 
 	nanoid "github.com/matoous/go-nanoid/v2"
 )
@@ -211,8 +212,11 @@ func (q *ProjectQueries) CreateProject(ctx context.Context, project *models.Proj
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	if _, err = tx.NamedExecContext(ctx, query, project); err != nil {
 		return err
@@ -328,8 +332,11 @@ func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, pr
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	if _, err = tx.ExecContext(ctx, queryProject, projectID, userID, role); err != nil {
 		return err

@@ -1,8 +1,12 @@
 package events
 
 import (
+	"context"
+
+	"github.com/pixeleye-io/pixeleye/app/git"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
+	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,7 +25,31 @@ type BuildStatusBody struct {
 	ProjectID string `json:"projectID"`
 }
 
+func syncWithGithub(ctx context.Context, build models.Build) error {
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	project, err := db.GetProject(ctx, build.ProjectID)
+	if err != nil {
+		return err
+	}
+
+	if err := git.SyncBuildStatusWithVCS(context.Background(), project, build); err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
 func (b *ProjectEvent) BuildStatusChange(build models.Build) {
+
+	if err := syncWithGithub(context.Background(), build); err != nil {
+		log.Error().Err(err).Msg("Failed to sync build status with github")
+	}
+
 	log.Debug().Msgf("Build status changed to %v", build)
 	event := EventPayload{
 		Type: ProjectEvent_BuildStatus,

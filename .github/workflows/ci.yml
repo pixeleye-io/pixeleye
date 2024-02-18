@@ -159,9 +159,14 @@ jobs:
           dir-name: "pixeleye"
 
   api-tests:
-    name: API Tests
     runs-on: ubuntu-latest
     needs: [golang-ci, node-ci]
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+
+    name: API Tests - ${{matrix.shard}}
 
     services:
       postgres:
@@ -196,6 +201,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "^1.21"
+          cache-dependency-path: ./apps/backend/go.sum
 
       - name: Install go dependencies
         working-directory: ./apps/backend
@@ -242,7 +248,7 @@ jobs:
           ORY_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
           ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
 
-        run: go run main.go & pnpm turbo test:api
+        run: go run main.go & pnpm turbo test:api -- --shard ${{matrix.shard}}/2
 
   migrations-are-alone:
     name: Migrations are alone

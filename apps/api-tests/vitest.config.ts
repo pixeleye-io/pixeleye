@@ -5,6 +5,6 @@ export default defineConfig({
     globalSetup: ["./src/setup/account.ts"],
     globals: true,
     testTimeout: 20000,
-    maxConcurrency: 2,
+    maxConcurrency: 3,
   },
 });

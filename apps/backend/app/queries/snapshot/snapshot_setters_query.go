@@ -11,6 +11,7 @@ import (
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
+	"github.com/rs/zerolog/log"
 )
 
 // We shouldn't need to update name, variant, target, or viewport
@@ -133,8 +134,11 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		return nil, false, err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	build := models.Build{}
 

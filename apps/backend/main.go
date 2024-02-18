@@ -66,6 +66,7 @@ func main() {
 		e.Debug = true
 		utils.StartServer(e)
 	} else {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 		if os.Getenv("PIXELEYE_HOSTING") != "true" {
 			go ingest.StartIngestServerWithGracefulShutdown()
 		}

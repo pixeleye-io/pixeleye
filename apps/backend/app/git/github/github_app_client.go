@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/bradleyfalzon/ghinstallation/v2"
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v59/github"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 

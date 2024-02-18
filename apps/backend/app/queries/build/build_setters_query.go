@@ -4,25 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
-	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/rs/zerolog/log"
 )
 
 func (tx *BuildQueriesTx) UpdateBuildStatus(ctx context.Context, build *models.Build) error {
 	query := `UPDATE build SET status = :status, updated_at = :updated_at WHERE id = :id`
-
-	build.UpdatedAt = utils.CurrentTime()
-
-	_, err := tx.NamedExecContext(ctx, query, build)
-
-	return err
-}
-
-func (tx *BuildQueriesTx) UpdateBuild(ctx context.Context, build *models.Build) error {
-	query := `UPDATE build SET sha = :sha, branch = :branch, title = :title, message = :message, status = :status, errors = :errors, updated_at = :updated_at WHERE id = :id`
 
 	build.UpdatedAt = utils.CurrentTime()
 
@@ -46,8 +34,11 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msg("Rollback failed")
+		}
+	}()
 
 	project := models.Project{}
 	if err = tx.GetContext(ctx, &project, selectProjectQuery, build.ProjectID); err != nil {
@@ -126,123 +117,42 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 	return nil
 }
 
-func (q *BuildQueries) CompleteBuild(ctx context.Context, id string) (models.Build, error) {
+func (q *BuildQueries) GetAndFailStuckBuilds(ctx context.Context) ([]models.Build, error) {
+	selectQuery := `UPDATE build
+	SET status = 'failed', errors = '{"Build was idle for too long and has been failed."}'
+	WHERE 
+		(status IN ('uploading', 'queued-uploading') AND updated_at < NOW() - INTERVAL '120 minute')
+		OR 
+		(status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute')
+	ORDER BY created_at ASC
+	FOR UPDATE
+	RETURNING *`
 
-	tx, err := NewBuildTx(q.DB, ctx)
-
+	res, err := q.DB.QueryContext(ctx, selectQuery)
 	if err != nil {
-		return models.Build{}, err
+		return nil, err
 	}
-
-	// nolint:errcheck
-	defer tx.Rollback()
-
-	build, err := tx.GetBuildForUpdate(ctx, id)
-	if err != nil {
-		return build, err
-	}
-
-	if !models.IsBuildPreProcessing(build.Status) {
-		// Build has already been marked as complete
-		return build, fmt.Errorf("build has already been marked as complete")
-	}
-
-	var status string
-	if status == models.BUILD_STATUS_QUEUED_UPLOADING {
-		status = models.BUILD_STATUS_QUEUED_PROCESSING
-	} else {
-		build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
-		status, err = tx.CalculateBuildStatus(ctx, build)
-		if err != nil {
-			return build, err
-		}
-	}
-
-	build.Status = status
-
-	if err := tx.UpdateBuild(ctx, &build); err != nil {
-		return build, err
-	}
-
-	var snaps []models.Snapshot
-	if status == models.BUILD_STATUS_PROCESSING {
-		// Sometimes we have left over snaps that need to be processed
-
-		// Get all queued snaps and start processing them
-		snaps, err = tx.CheckAndProcessQueuedSnapshots(ctx, build)
-		if err != nil {
-			log.Error().Err(err).Msgf("Failed to check and process queued snapshots for build %s", build.ID)
-			return build, err
-		}
-
-	}
-
-	if err := tx.Commit(); err != nil {
-		return build, err
-	}
-
-	// Send our snaps to the rabbitmq queue and alert any listeners that our build status has changed
-	go func(build models.Build, snaps []models.Snapshot) {
-
-		broker, err := broker.GetBroker()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get broker")
-			return
-		}
-
-		notifier, err := events.GetNotifier(broker)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get notifier")
-			return
-		}
-
-		notifier.BuildStatusChange(build)
-
-		if len(snaps) > 0 {
-			// We need to queue the snapshots to be ingested
-			if err := broker.QueueSnapshotsIngest(snaps); err != nil {
-				log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
-			}
-		}
-	}(build, snaps)
-
-	return build, nil
-}
-
-func (q *BuildQueries) UpdateStuckBuilds(ctx context.Context) error {
-	selectQuery := `SELECT * FROM build WHERE (status IN ('uploading', 'queued-uploading') AND updated_at < NOW() - INTERVAL '120 minute') OR (status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute') ORDER BY created_at ASC FOR UPDATE`
-
-	tx, err := NewBuildTx(q.DB, ctx)
-
-	if err != nil {
-		return err
-	}
-
-	// nolint:errcheck
-	defer tx.Rollback()
 
 	builds := []models.Build{}
+	for res.Next() {
+		build := models.Build{}
 
-	if err := tx.SelectContext(ctx, &builds, selectQuery); err != nil {
-		return err
-	}
-
-	for _, build := range builds {
-		build.Status = models.BUILD_STATUS_FAILED
-		if err := tx.UpdateBuild(ctx, &build); err != nil {
-			return err
+		if err := res.Scan(&build); err != nil {
+			return nil, err
 		}
+
+		builds = append(builds, build)
 	}
 
-	if err := tx.Commit(); err != nil {
-		return err
-	}
+	return builds, nil
+}
 
-	for _, build := range builds {
-		if err := q.ProcessBuildDependents(ctx, build); err != nil {
-			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
-		}
-	}
+func (q *BuildQueries) UpdateBuildCheckRunID(ctx context.Context, build models.Build) error {
+	query := `UPDATE build SET check_run_id = :check_run_id WHERE id = :id`
 
-	return nil
+	build.UpdatedAt = utils.CurrentTime()
+
+	_, err := q.NamedExecContext(ctx, query, build)
+
+	return err
 }

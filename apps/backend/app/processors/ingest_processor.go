@@ -19,6 +19,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
+	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
 	"github.com/pixeleye-io/pixeleye/app/stores"
 	"github.com/pixeleye-io/pixeleye/pkg/imageDiff"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -408,8 +409,6 @@ func IngestSnapshots(snapshotIDs []string) error {
 		return err
 	}
 
-	fmt.Printf("Ingesting snapshots: %s\n", strings.Join(snapshotIDs, ", "))
-
 	snapshots, err := db.GetSnapshots(snapshotIDs)
 	if err != nil {
 		return err
@@ -449,6 +448,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 
 			log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set snapshots status to orphaned")
 
+			// It's unlikely this will also work but we can try
 			if err := db.SetSnapshotsStatus(ctx, snapshotIDs, models.BUILD_STATUS_FAILED); err != nil {
 				log.Error().Err(err).Str("BuildID", build.ID).Msg("Failed to set build status to failed")
 			}
@@ -470,7 +470,7 @@ func IngestSnapshots(snapshotIDs []string) error {
 		}
 	}
 
-	if _, err := db.CheckAndUpdateStatusAccordingly(ctx, build.ID); err != nil {
+	if err := statuses_build.SyncBuildStatus(ctx, &build); err != nil {
 		return err
 	}
 
