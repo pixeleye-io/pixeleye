@@ -59,7 +59,7 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	if err != nil {
 		return err
 	}
-	build = &curBuild
+	build.Status = curBuild.Status
 
 	defer func() {
 		if err := tx.Rollback(); err != nil {
