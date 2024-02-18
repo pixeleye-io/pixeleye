@@ -86,7 +86,11 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
 		build.Status = models.BUILD_STATUS_UPLOADING
 	} else if build.Status == models.BUILD_STATUS_QUEUED_PROCESSING {
-		build.Status = models.BUILD_STATUS_PROCESSING
+		build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
+		build.Status, err = tx.CalculateBuildStatusFromSnapshots(ctx, *build)
+		if err != nil {
+			return err
+		}
 	}
 
 	if !models.IsBuildQueued(build.Status) {
