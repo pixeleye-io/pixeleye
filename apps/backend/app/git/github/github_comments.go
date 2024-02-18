@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/google/go-github/v59/github"
+	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -179,8 +180,16 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 	}
 
 	if build.CheckRunID == "" {
-		return githubAppClient.createCheckRun(ctx, project, build)
+		err := githubAppClient.createCheckRun(ctx, project, build)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to create check run")
+		}
+		return err
 	}
 
-	return githubAppClient.updateCheckRun(ctx, project, build)
+	err = githubAppClient.updateCheckRun(ctx, project, build)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to update check run")
+	}
+	return err
 }
