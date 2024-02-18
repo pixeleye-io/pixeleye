@@ -22,6 +22,11 @@ type BuildStatusBody struct {
 }
 
 func (b *ProjectEvent) BuildStatusChange(build models.Build) {
+
+	// if err := git_github.SyncBuildStatusWithCheckRun(context.Background(), build); err != nil {
+	// 	log.Error().Err(err).Msg("Failed to sync build status with check run")
+	// }
+
 	log.Debug().Msgf("Build status changed to %v", build)
 	event := EventPayload{
 		Type: ProjectEvent_BuildStatus,

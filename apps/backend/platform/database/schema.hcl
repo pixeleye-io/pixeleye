@@ -548,6 +548,12 @@ table "build" {
     default = "uploading"
   }
 
+  column "check_run_id" {
+    type = varchar(255)
+    null = false
+    default = ""
+  }
+
   column "sha" {
     type = varchar(255)
     null = false

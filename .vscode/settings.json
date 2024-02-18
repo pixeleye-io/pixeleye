@@ -19,6 +19,7 @@
     "oneof",
     "pactum",
     "pixeleye",
+    "posthog",
     "Presign",
     "Presigner",
     "sqlx",

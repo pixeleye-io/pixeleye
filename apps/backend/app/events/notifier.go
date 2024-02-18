@@ -1,6 +1,10 @@
 package events
 
-import brokerPkg "github.com/pixeleye-io/pixeleye/platform/broker"
+import (
+	"github.com/pixeleye-io/pixeleye/app/models"
+	brokerPkg "github.com/pixeleye-io/pixeleye/platform/broker"
+	"github.com/rs/zerolog/log"
+)
 
 type Notifier struct {
 	*ProjectEvent
@@ -27,4 +31,15 @@ func GetNotifier(broker *brokerPkg.Queues) (*Notifier, error) {
 			Queues: broker,
 		},
 	}, nil
+}
+
+func HandleBuildStatusChange(build models.Build) {
+	go func(build models.Build) {
+		notifier, err := GetNotifier(nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get notifier")
+			return
+		}
+		notifier.BuildStatusChange(build)
+	}(build)
 }

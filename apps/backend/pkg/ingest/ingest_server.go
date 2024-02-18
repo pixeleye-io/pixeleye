@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/processors"
+	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -78,11 +80,12 @@ func startIngestServer(quit chan bool) {
 					return nil
 				}
 
-				// TODO - we should include a reason for the failure
-				if err := db.FailBuild(context.Background(), build); err != nil {
+				if err := statuses_build.FailBuild(context.Background(), &build); err != nil {
 					log.Fatal().Err(err).Msg("Error while failing build")
 					return nil
 				}
+
+				events.HandleBuildStatusChange(build)
 
 			}
 

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-github/v56/github"
+	"github.com/google/go-github/v59/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/app/queries"
 	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
@@ -867,3 +867,4 @@ func SyncNewGithubUserTeams(ctx context.Context, userID string, currentTeams []m
 
 	return nil
 }
+
