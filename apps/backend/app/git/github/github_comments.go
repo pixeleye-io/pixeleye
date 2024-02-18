@@ -44,7 +44,7 @@ func getConclusion(build models.Build) string {
 	return ""
 }
 
-func (c *GithubAppClient) CreateCheckRun(ctx context.Context, project models.Project, build models.Build) error {
+func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Project, build models.Build) error {
 
 	if project.Source != "github" {
 		return fmt.Errorf("project source is not from github")
@@ -108,7 +108,7 @@ func (c *GithubAppClient) CreateCheckRun(ctx context.Context, project models.Pro
 	return nil
 }
 
-func (c *GithubAppClient) UpdateCheckRun(ctx context.Context, project models.Project, build models.Build) error {
+func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Project, build models.Build) error {
 
 	if project.Source != "github" {
 		return fmt.Errorf("project source is not from github")
@@ -173,8 +173,8 @@ func SyncBuildStatusWithCheckRun(ctx context.Context, project models.Project, bu
 	}
 
 	if build.CheckRunID == "" {
-		return githubAppClient.CreateCheckRun(ctx, project, build)
+		return githubAppClient.createCheckRun(ctx, project, build)
 	}
 
-	return githubAppClient.UpdateCheckRun(ctx, project, build)
+	return githubAppClient.updateCheckRun(ctx, project, build)
 }
