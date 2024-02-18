@@ -162,6 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [golang-ci, node-ci]
     strategy:
+      fail-fast: false
       matrix:
         shard: [1, 2]
 
@@ -200,6 +201,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "^1.21"
+          cache-dependency-path: ./apps/backend/go.sum
 
       - name: Install go dependencies
         working-directory: ./apps/backend

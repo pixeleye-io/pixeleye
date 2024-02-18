@@ -11,8 +11,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// TODO - create something similar for tx (transaction) queries.
-
 // Queries struct for collect all app queries.
 type Queries struct {
 	*build_queries.BuildQueries
@@ -44,7 +42,7 @@ func OpenDBConnection() (*Queries, error) {
 
 	return &Queries{
 		// Set queries from models:
-		BuildQueries:        &build_queries.BuildQueries{DB: db},
+		BuildQueries:        &build_queries.BuildQueries{DB: db, DBx: db},
 		SnapshotQueries:     &snapshot_queries.SnapshotQueries{DB: db},
 		ProjectQueries:      &queries.ProjectQueries{DB: db},
 		SnapImageQueries:    &queries.SnapImageQueries{DB: db},

@@ -2,12 +2,9 @@ package build_queries
 
 import (
 	"context"
-	"slices"
 
-	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
-	"github.com/pixeleye-io/pixeleye/platform/broker"
-	"github.com/rs/zerolog/log"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 // Snapshot status to order map
@@ -24,8 +21,6 @@ var snapshotStatusMap = map[string]int{
 	models.SNAPSHOT_STATUS_ORPHANED:         8,
 	"unknown":                               9,
 }
-
-//
 
 // We assume that builds are past the preProcessing stage
 func getBuildStatusFromSnapshotStatuses(statuses []string) string {
@@ -61,68 +56,20 @@ func getBuildStatusFromSnapshotStatuses(statuses []string) string {
 	}
 }
 
-func (q *BuildQueries) ProcessBuildDependents(ctx context.Context, build models.Build) error {
+func (q *BuildQueries) UpdateBuildStatus(ctx context.Context, build *models.Build, status string) error {
 
-	dependents, err := q.GetBuildDependents(ctx, build)
-	if err != nil {
+	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
+
+	build.Status = status
+	build.UpdatedAt = utils.CurrentTime()
+
+	query := `UPDATE build SET status = :status, updated_at = :updated_at WHERE id = :id`
+
+	if _, err := q.NamedExecContext(ctx, query, build); err != nil {
 		return err
-	}
-
-	for _, dependent := range dependents {
-		if err := q.CheckAndProcessQueuedBuild(ctx, dependent); err != nil {
-			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", dependent.ID)
-		}
 	}
 
 	return nil
-}
-
-func (q *BuildQueries) AbortBuild(ctx context.Context, build models.Build) error {
-
-	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
-
-	query := `UPDATE build SET status = $1 WHERE id = $2`
-
-	if _, err := q.ExecContext(ctx, query, models.BUILD_STATUS_ABORTED, build.ID); err != nil {
-		return err
-	}
-
-	build.Status = models.BUILD_STATUS_ABORTED
-
-	go func(build models.Build) {
-		notifier, err := events.GetNotifier(nil)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get notifier")
-			return
-		}
-		notifier.BuildStatusChange(build)
-	}(build)
-
-	return q.ProcessBuildDependents(ctx, build)
-}
-
-func (q *BuildQueries) FailBuild(ctx context.Context, build models.Build) error {
-
-	// NOTE: We don't worry about updating the children here since we take care of that when we process the queued builds
-
-	query := `UPDATE build SET status = $1 WHERE id = $2`
-
-	if _, err := q.ExecContext(ctx, query, models.BUILD_STATUS_FAILED, build.ID); err != nil {
-		return err
-	}
-
-	build.Status = models.BUILD_STATUS_FAILED
-
-	go func(build models.Build) {
-		notifier, err := events.GetNotifier(nil)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get notifier")
-			return
-		}
-		notifier.BuildStatusChange(build)
-	}(build)
-
-	return q.ProcessBuildDependents(ctx, build)
 }
 
 func (q *BuildQueries) GetBuildDependents(ctx context.Context, build models.Build) ([]models.Build, error) {
@@ -171,135 +118,34 @@ func (q *BuildQueries) AreBuildDependenciesPostProcessing(ctx context.Context, b
 	return true, nil
 }
 
-func (tx *BuildQueriesTx) CalculateBuildStatus(ctx context.Context, build models.Build) (string, error) {
+// CalculateBuildStatus
+func (tx *BuildQueriesTx) CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx context.Context, build models.Build) (string, error) {
 	selectSnapshotsQuery := `SELECT status FROM snapshot WHERE build_id = $1 FOR UPDATE`
 
-	if models.IsBuildPreProcessing(build.Status) || build.Status == models.BUILD_STATUS_FAILED || build.Status == models.BUILD_STATUS_ABORTED {
+	if models.IsBuildPreProcessing(build.Status) || models.IsBuildFailedOrAborted(build.Status) || models.IsBuildQueued(build.Status) {
 		return build.Status, nil
 	}
 
 	snapshotStatus := []string{}
 
 	if err := tx.SelectContext(ctx, &snapshotStatus, selectSnapshotsQuery, build.ID); err != nil {
-		return "", err
+		return build.Status, err
 	}
 
-	db := BuildQueries{tx.DB}
-
-	targetBuilds, err := db.GetBuildTargets(ctx, build.ID, nil)
-	if err != nil {
-		return "", err
+	if len(snapshotStatus) == 0 {
+		return models.BUILD_STATUS_UNCHANGED, nil
 	}
 
-	if len(targetBuilds) == 0 {
-		return models.BUILD_STATUS_ORPHANED, nil
-	}
-
-	status := getBuildStatusFromSnapshotStatuses(snapshotStatus)
-
-	if slices.Contains([]string{models.BUILD_STATUS_PROCESSING, models.BUILD_STATUS_UPLOADING}, status) {
-		depsProcessing, err := db.AreBuildDependenciesPostProcessing(ctx, build)
-		if err != nil {
-			return "", err
-		}
-
-		if !depsProcessing {
-			if status == models.BUILD_STATUS_PROCESSING {
-				return models.BUILD_STATUS_QUEUED_PROCESSING, nil
-			} else if status == models.BUILD_STATUS_UPLOADING {
-				return models.BUILD_STATUS_QUEUED_UPLOADING, nil
-			}
+	filtered := []string{}
+	for _, status := range snapshotStatus {
+		if status != models.SNAPSHOT_STATUS_QUEUED {
+			filtered = append(filtered, status)
 		}
 	}
 
-	return status, nil
-}
-
-func (q *BuildQueries) CheckAndUpdateStatusAccordingly(ctx context.Context, buildID string) (*models.Build, error) {
-
-	log.Debug().Msgf("Checking build status for build %s", buildID)
-
-	tx, err := NewBuildTx(q.DB, ctx)
-
-	if err != nil {
-		return nil, err
+	if len(filtered) == 0 {
+		return models.BUILD_STATUS_PROCESSING, nil
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
-
-	build, err := tx.GetBuildForUpdate(ctx, buildID)
-	if err != nil {
-		return &build, err
-	}
-
-	if models.IsBuildPreProcessing(build.Status) {
-		log.Debug().Msgf("Build %s is still pre-processing", buildID)
-		return &build, tx.Commit()
-	}
-
-	status, err := tx.CalculateBuildStatus(ctx, build)
-	if err != nil {
-		return &build, err
-	}
-
-	if status == build.Status {
-		log.Debug().Msgf("Build %s status is still %s", buildID, status)
-		if err = tx.Commit(); err != nil {
-			return &build, err
-		}
-	} else {
-
-		build.Status = status
-
-		log.Debug().Msgf("Updating build %s status to %s", buildID, status)
-
-		if err := tx.UpdateBuild(ctx, &build); err != nil {
-			return &build, err
-		}
-
-		var snaps []models.Snapshot
-		if build.Status == models.BUILD_STATUS_PROCESSING {
-			// Get all queued snaps and start processing them
-			snaps, err = tx.CheckAndProcessQueuedSnapshots(ctx, build)
-			if err != nil {
-				log.Error().Err(err).Msgf("Failed to check and process queued snapshots for build %s", build.ID)
-				return &build, err
-			}
-		}
-
-		if err = tx.Commit(); err != nil {
-			return &build, err
-		}
-
-		go func(build models.Build, snaps []models.Snapshot) {
-			broker, err := broker.GetBroker()
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to get broker")
-				return
-			}
-
-			notifier, err := events.GetNotifier(broker)
-			if err != nil {
-				log.Error().Err(err).Msg("Failed to get notifier")
-				return
-			}
-
-			notifier.BuildStatusChange(build)
-			if len(snaps) > 0 {
-				// We need to queue the snapshots to be ingested
-				if err := broker.QueueSnapshotsIngest(snaps); err != nil {
-					log.Error().Err(err).Msgf("Failed to queue snapshots for build %s", build.ID)
-				}
-			}
-		}(build, snaps)
-	}
-
-	if models.IsBuildPostProcessing(build.Status) {
-		if err := q.ProcessBuildDependents(ctx, build); err != nil {
-			return &build, err
-		}
-	}
-
-	return &build, nil
+	return getBuildStatusFromSnapshotStatuses(filtered), nil
 }
