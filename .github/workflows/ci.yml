@@ -7,8 +7,9 @@ on:
     types: [opened, synchronize]
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read # This is required for actions/checkout@v2
+  id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
   paths-filter:
@@ -136,21 +137,35 @@ jobs:
         ports:
           - 5430:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: ariga/atlas-action@v1
+      - uses: ariga/setup-atlas@v0
         with:
-          dir: apps/backend/platform/migrations
-          dir-format: atlas
-          dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
           cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
+      - uses: ariga/atlas-action/migrate/lint@v1
+        with:
+          dir: "file://apps/backend/platform/migrations"
+          dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
+          dir-name: "pixeleye"
+      - uses: ariga/atlas-action/migrate/push@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          dir: "file://apps/backend/platform/migrations"
+          dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
+          dir-name: "pixeleye"
 
   api-tests:
-    name: API Tests
     runs-on: ubuntu-latest
     needs: [golang-ci, node-ci]
+    strategy:
+      matrix:
+        shard: [1, 2]
+
+    name: API Tests - ${{matrix.shard}}
 
     services:
       postgres:
@@ -232,7 +247,7 @@ jobs:
           ORY_ADMIN_URL: ${{ secrets.ORY_ENDPOINT }}
           ORY_API_KEY: ${{ secrets.ORY_API_KEY }}
 
-        run: go run main.go & pnpm turbo test:api
+        run: go run main.go & pnpm turbo test:api -- --shard ${{matrix.shard}}/2
 
   migrations-are-alone:
     name: Migrations are alone
