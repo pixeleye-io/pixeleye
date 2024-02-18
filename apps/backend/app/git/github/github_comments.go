@@ -99,7 +99,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 		return err
 	}
 
-	build.CheckRunID = strconv.Itoa(int(checkRun.GetID()))
+	build.CheckRunID = strconv.FormatInt(checkRun.GetID(), 10)
 
 	if err := db.UpdateBuildCheckRunID(ctx, build); err != nil {
 		return err
@@ -114,12 +114,12 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 		return fmt.Errorf("project source is not from github")
 	}
 
-	projectID, err := strconv.Atoi(build.CheckRunID)
+	repoID, err := strconv.ParseInt(project.SourceID, 10, 64)
 	if err != nil {
 		return err
 	}
 
-	repo, _, err := c.Repositories.GetByID(ctx, int64(projectID))
+	repo, _, err := c.Repositories.GetByID(ctx, repoID)
 	if err != nil {
 		return err
 	}

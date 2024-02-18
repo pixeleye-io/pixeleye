@@ -147,11 +147,11 @@ func (q *BuildQueries) GetAndFailStuckBuilds(ctx context.Context) ([]models.Buil
 }
 
 func (q *BuildQueries) UpdateBuildCheckRunID(ctx context.Context, build models.Build) error {
-	query := `UPDATE build SET check_run_id = :check_run_id WHERE id = :id`
+	query := `UPDATE build SET check_run_id = $1 WHERE id = $2`
 
 	build.UpdatedAt = utils.CurrentTime()
 
-	_, err := q.NamedExecContext(ctx, query, build)
+	_, err := q.ExecContext(ctx, query, build.CheckRunID, build.ID)
 
 	return err
 }
