@@ -154,7 +154,7 @@ jobs:
         with:
           dir: apps/backend/platform/migrations
           dir-name: "pixeleye"
-          dev-url: "mysql://root:pass@localhost:3306/dev" # Use the service name "mysql" as the hostname
+          dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
 
   api-tests:
     name: API Tests
