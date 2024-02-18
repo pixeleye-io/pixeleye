@@ -163,10 +163,6 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return nil
 	}
 
-	if build.CheckRunID == "" {
-		return fmt.Errorf("build check run id is empty")
-	}
-
 	githubAppClient, err := NewGithubAppClient()
 	if err != nil {
 		return err
