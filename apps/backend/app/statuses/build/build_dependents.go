@@ -68,34 +68,38 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	}()
 
 	if models.IsBuildPostProcessing(build.Status) {
-		return nil
-	}
-
-	// Make sure we have correct parents and targets. If they have failed/aborted we should use their parents/targets
-	if err := tx.SquashDependencies(ctx, build.ID); err != nil {
-		return err
-	}
-
-	// Lets check if all the builds dependencies are done
-	if fin, err := db.AreBuildDependenciesPostProcessing(ctx, *build); err != nil {
-		return err
-	} else if !fin {
-		return nil
-	}
-
-	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
-		build.Status = models.BUILD_STATUS_UPLOADING
-	} else if build.Status == models.BUILD_STATUS_QUEUED_PROCESSING {
-		build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
 		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
 		if err != nil {
 			return err
 		}
-	}
+	} else {
 
-	if !models.IsBuildQueued(build.Status) {
-		if err := queueSnapshots(tx, ctx, build); err != nil {
+		// Make sure we have correct parents and targets. If they have failed/aborted we should use their parents/targets
+		if err := tx.SquashDependencies(ctx, build.ID); err != nil {
 			return err
+		}
+
+		// Lets check if all the builds dependencies are done
+		if fin, err := db.AreBuildDependenciesPostProcessing(ctx, *build); err != nil {
+			return err
+		} else if !fin {
+			return nil
+		}
+
+		if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
+			build.Status = models.BUILD_STATUS_UPLOADING
+		} else if build.Status == models.BUILD_STATUS_QUEUED_PROCESSING {
+			build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
+			build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
+			if err != nil {
+				return err
+			}
+		}
+
+		if !models.IsBuildQueued(build.Status) {
+			if err := queueSnapshots(tx, ctx, build); err != nil {
+				return err
+			}
 		}
 	}
 
