@@ -58,3 +58,13 @@ func (q *GithubQueriesTx) GetGithubAppInstallationByTeamIDForUpdate(ctx context.
 
 	return installation, nil
 }
+
+func (q *GithubQueries) GetGitInstallationByTeamID(ctx context.Context, teamID string, gitType string) (models.GitInstallation, error) {
+	query := `SELECT * FROM git_installation WHERE team_id = $1 AND type = $2`
+
+	installation := models.GitInstallation{}
+
+	err := q.GetContext(ctx, &installation, query, teamID, gitType)
+
+	return installation, err
+}

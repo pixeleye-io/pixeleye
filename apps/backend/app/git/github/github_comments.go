@@ -163,7 +163,17 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return nil
 	}
 
-	githubAppClient, err := NewGithubAppClient()
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+
+	installation, err := db.GetGitInstallationByTeamID(ctx, project.TeamID, models.GIT_TYPE_GITHUB)
+	if err != nil {
+		return err
+	}
+
+	githubAppClient, err := NewGithubInstallClient(installation.ID)
 	if err != nil {
 		return err
 	}
