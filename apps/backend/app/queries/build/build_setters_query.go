@@ -124,7 +124,6 @@ func (q *BuildQueries) GetAndFailStuckBuilds(ctx context.Context) ([]models.Buil
 		(status IN ('uploading', 'queued-uploading') AND updated_at < NOW() - INTERVAL '120 minute')
 		OR 
 		(status = 'processing' AND updated_at < NOW() - INTERVAL '30 minute')
-	ORDER BY created_at ASC
 	FOR UPDATE
 	RETURNING *`
 
