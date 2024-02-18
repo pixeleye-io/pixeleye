@@ -148,7 +148,7 @@ jobs:
         with:
           dir: apps/backend/platform/migrations
           dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
-          cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
+          dir-name: "pixeleye"
       - uses: ariga/atlas-action/migrate/push@v1
         if: github.ref == 'refs/heads/main'
         with:
