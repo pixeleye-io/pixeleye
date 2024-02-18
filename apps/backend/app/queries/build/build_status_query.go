@@ -139,5 +139,5 @@ func (tx *BuildQueriesTx) CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx co
 		}
 	}
 
-	return getBuildStatusFromSnapshotStatuses(snapshotStatus), nil
+	return getBuildStatusFromSnapshotStatuses(filtered), nil
 }
