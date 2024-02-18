@@ -185,6 +185,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "^1.21"
+          cache-dependency-path: ./apps/backend/go.sum
 
       - name: Install go dependencies
         working-directory: ./apps/backend
