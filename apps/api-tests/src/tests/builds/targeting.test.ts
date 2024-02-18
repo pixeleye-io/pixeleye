@@ -62,10 +62,13 @@ describe.concurrent(
         },
       ];
 
+      const sha1 = nanoid(40);
+      const sha2 = nanoid(40);
+
       const build1 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test",
-        sha: "123",
+        sha: sha1,
         expectedBuildStatus: ["orphaned"],
         snapshots: snapshot1,
       }).catch((err) => {
@@ -75,7 +78,7 @@ describe.concurrent(
       const build2 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test2",
-        sha: "1234",
+        sha: sha2,
         expectedBuildStatus: ["orphaned"],
         snapshots: snapshot1,
       }).catch((err) => {
@@ -83,7 +86,7 @@ describe.concurrent(
       });
 
       await buildTokenAPI
-        .getLatestBuilds(["123", "1234"], jekyllsToken)
+        .getLatestBuilds([sha1, sha2], jekyllsToken)
         .returns(({ res }: any) => {
           expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
             [build1.id, build2.id].sort()
@@ -100,10 +103,14 @@ describe.concurrent(
         },
       ];
 
+      const sha1 = nanoid(40);
+      const sha2 = nanoid(40);
+      const sha3 = nanoid(40);
+
       const build1 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test",
-        sha: "123",
+        sha: sha1,
         expectedBuildStatus: ["orphaned"],
         snapshots: snapshot1,
       }).catch((err) => {
@@ -113,7 +120,7 @@ describe.concurrent(
       const build2 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test2",
-        sha: "1234",
+        sha: sha2,
         expectedBuildStatus: ["orphaned"],
         snapshots: snapshot1,
       }).catch((err) => {
@@ -123,7 +130,7 @@ describe.concurrent(
       const build3 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test2",
-        sha: "12344",
+        sha: sha3,
         expectedBuildStatus: ["unchanged"],
         snapshots: snapshot1,
         parentBuildIds: build2.id,
@@ -132,7 +139,7 @@ describe.concurrent(
       });
 
       await buildTokenAPI
-        .getLatestBuilds(["123", "1234", "12344"], jekyllsToken)
+        .getLatestBuilds([sha1, sha2, sha3], jekyllsToken)
         .returns(({ res }: any) => {
           expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
             [build1.id, build3.id].sort()
@@ -140,7 +147,7 @@ describe.concurrent(
         });
 
       await buildTokenAPI
-        .getLatestBuilds(["123", "1234"], jekyllsToken)
+        .getLatestBuilds([sha1, sha2], jekyllsToken)
         .returns(({ res }: any) => {
           expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
             [build1.id, build2.id].sort()
