@@ -174,7 +174,7 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return err
 	}
 
-	githubAppClient, err := NewGithubInstallClient(installation.ID)
+	githubAppClient, err := NewGithubInstallClient(installation.InstallationID)
 	if err != nil {
 		return err
 	}
