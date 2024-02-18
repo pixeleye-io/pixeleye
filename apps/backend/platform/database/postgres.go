@@ -50,5 +50,5 @@ func PostgreSQLConnection() (*sqlx.DB, error) {
 		return nil, fmt.Errorf("error, not sent ping to database, %w", err)
 	}
 
-	return db, nil
+	return db.Unsafe(), nil
 }
