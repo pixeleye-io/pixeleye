@@ -99,7 +99,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 		return err
 	}
 
-	build.CheckRunID = strconv.FormatInt(checkRun.GetID(), 10)
+	build.CheckRunID = strconv.Itoa(int(checkRun.GetID()))
 
 	if err := db.UpdateBuildCheckRunID(ctx, build); err != nil {
 		return err
