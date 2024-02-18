@@ -114,7 +114,7 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 		return fmt.Errorf("project source is not from github")
 	}
 
-	projectID, err := strconv.Atoi(project.SourceID)
+	projectID, err := strconv.Atoi(build.CheckRunID)
 	if err != nil {
 		return err
 	}
