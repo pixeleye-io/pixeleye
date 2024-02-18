@@ -596,8 +596,11 @@ func tryMakeOwnerGitMember(ctx context.Context, teamID string) error {
 		return err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msgf("Failed to rollback team tx")
+		}
+	}()
 
 	if err := tx.UpdateUserRoleOnTeam(ctx, teamID, owner.ID, models.TEAM_MEMBER_ROLE_ADMIN, false); err != nil {
 		return err
@@ -621,8 +624,11 @@ func LinkPersonalGithubTeam(ctx context.Context, user models.User, installationI
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msgf("Failed to rollback github tx")
+		}
+	}()
 
 	personalTeam, err := db.GetUsersPersonalTeam(ctx, user.ID)
 	if err != nil {
@@ -653,8 +659,11 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
-	// nolint:errcheck
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msgf("Failed to rollback github tx")
+		}
+	}()
 
 	team, err := db.GetTeamFromExternalID(ctx, strconv.Itoa(int(*app.Account.ID)))
 
@@ -867,4 +876,3 @@ func SyncNewGithubUserTeams(ctx context.Context, userID string, currentTeams []m
 
 	return nil
 }
-
