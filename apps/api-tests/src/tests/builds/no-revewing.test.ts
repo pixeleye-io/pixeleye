@@ -186,10 +186,14 @@ describe.concurrent(
         snapshot1[1],
       ];
 
+      const sha1 = nanoid(40);
+      const sha2 = nanoid(40);
+      const sha3 = nanoid(40);
+
       const build1 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test",
-        sha: "123",
+        sha: sha1,
         expectedBuildStatus: ["orphaned"],
         snapshots: snapshot1,
       }).catch((err) => {
@@ -199,7 +203,7 @@ describe.concurrent(
       const build2 = await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test",
-        sha: "1234",
+        sha: sha2,
         expectedBuildStatus: ["unreviewed"],
         parentBuildIds: build1.id,
         snapshots: snapshot2,
@@ -210,7 +214,7 @@ describe.concurrent(
       await createBuildWithSnapshots({
         token: jekyllsToken,
         branch: "test",
-        sha: "12345",
+        sha: sha3,
         expectedBuildStatus: ["unchanged"],
         parentBuildIds: build2.id,
         snapshots: snapshot1,
