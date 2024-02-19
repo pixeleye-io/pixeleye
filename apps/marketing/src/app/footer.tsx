@@ -10,9 +10,9 @@ const navigation = {
     { name: "Docs", href: "/docs/getting-started/introduction" },
     { name: "Pricing", href: "/pricing" },
     { name: "Playground", href: "/playground" },
-    { name: "Privacy", href: "/privacy" },
-    { name: "Terms", href: "/terms-of-service" },
-    { name: "Usage", href: "/acceptable-use-policy" },
+    { name: "Privacy", href: "/privacy.html" },
+    { name: "Terms", href: "/terms-of-service.html" },
+    { name: "Usage", href: "/acceptable-use-policy.html" },
   ],
   social: [
     {
@@ -74,18 +74,18 @@ export default function Footer() {
               <item.icon className="h-6 w-6" aria-hidden="true" />
             </a>
           ))}
-            <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
-              <SelectTrigger aria-label="Theme switcher" className="!w-24">
-                <SelectValue placeholder="Theme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+          <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
+            <SelectTrigger aria-label="Theme switcher" className="!w-24">
+              <SelectValue placeholder="Theme" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="system">System</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <p className="mt-10 text-center text-xs leading-5 text-on-surface-variant">
           &copy; {new Date().getUTCFullYear()} Pixeleye LTD, All rights
