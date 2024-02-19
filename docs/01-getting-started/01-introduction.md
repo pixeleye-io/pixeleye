@@ -1,6 +1,6 @@
 ---
-title: Get started with Pixeleye
-description: Welcome to the Pixeleye documentation. Learn how to use, setup and benefit from Pixeleye
+title: Get Started with Pixeleye
+description: Welcome to the Pixeleye documentation. Learn how to use, setup, and benefit from Pixeleye
 ---
 
 # Introduction
@@ -11,9 +11,9 @@ Welcome to the Pixeleye documentation!
 
 Pixeleye is an open-source, self-hostable, all-in-one visual test and review platform.
 
-Our platform allows you to effortlessly detect, track and review visual changes across different browsers and screen sizes. We have built Pixeleye with an emphasis on developer experience to ensure we integrate effortlessly into your pipeline whilst simultaneously speeding up development and increasing the reliability of your product.
+Our platform allows you to effortlessly detect, track, and review visual changes across different browsers and screen sizes. We have built Pixeleye with an emphasis on developer experience to ensure we integrate effortlessly into your pipeline whilst simultaneously speeding up development and increasing the reliability of your product.
 
-We're transparent and fully open-source. We welcome feedback or contributions and have a public roadmap. Checkout our code on [github](https://github.com/pixeleye-io/pixeleye) (and maybe star us 🙃).
+We're transparent and fully open-source. We welcome feedback or contributions and have a public roadmap. Check out our code on [github](https://github.com/pixeleye-io/pixeleye) (and maybe star us 🙃).
 
 Whether you're an individual developer or part of a larger team, Pixeleye can help you build and deliver awesome apps.
 

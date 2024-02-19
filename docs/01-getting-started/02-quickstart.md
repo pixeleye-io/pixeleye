@@ -9,17 +9,17 @@ Get started with Pixeleye in just a few minutes. This guide will walk you throug
 
 ## Register a new Pixeleye account
 
-Head over to [Pixeleye](https://pixeleye.io/registration) (or equivalent if self-hosting) and register a new account. You will receive an email with a confirmation code to verify your email address. Once you have verified your email address, you can log in to your Pixeleye account.
+Head over to [Pixeleye](https://pixeleye.io/registration) (or equivalent if self-hosting) and register a new account. You will receive an email with a confirmation code to verify your email address. Once you have confirmed your email address, you can log in to your Pixeleye account.
 
 > Note: If you signed up with a vcs provider like Github, you should see any teams with access to Pixeleye. Find out more about [teams and permissions](/docs/features/teams-and-permissions).
 
-### Install relevant vcs tools
+### Install relevant VCs tools
 
-If you want to use a vcs integration which wasn't installed automatically, you'll need to set it up first.
+If you want to use a VCs integration that wasn't installed automatically, you'll need to set it up first.
 
 #### Github
 
-For github, we just require that our app is installed in your organization/account and that you have given it access to the relevant repositories. You can do this by going to the [Github install page](https://github.com/apps/pixeleye-io/installations/new)
+For GitHub, we require that our app is installed in your organization/account and that you have given it access to the relevant repositories. You can do this by going to the [Github install page](https://github.com/apps/pixeleye-io/installations/new)
 
 #### Other
 
@@ -27,9 +27,9 @@ You can add any git repo even if we don't officially support it. You can do this
 
 ## Create a new project
 
-From the dashboard, click the `New project` button. Depending on the team you're currently in, you may be asked to select a type of project, github, custom etc.
+From the dashboard, click the `New Project` button. Depending on the team you're currently in, you may be asked to select a type of project, GitHub, custom, etc.
 
-After creating the project you'll be taken to the project page. From here you are given a project token. **Make sure to keep this token safe**. You will need it to authenticate your CI/CD with Pixeleye.
+After creating the project, you'll be redirected to the project page. From here, you are given a project token. **Make sure to keep this token safe**. You will need it to authenticate your CI/CD with Pixeleye.
 
 ## Integrate with your project
 
@@ -41,10 +41,10 @@ We currently support the following official integrations:
 - [cypress](/docs/integrations/cypress)
 - [puppeteer](/docs/integrations/puppeteer)
 - [playwright](/docs/integrations/playwright)
-- [any other platform](/docs/integrations/any-other-platform-(cli))
+- [any other platform](</docs/integrations/any-other-platform-(cli)>)
 
 > Note: If you want to use another tool, you can use our CLI tool directly.
 
 ## Start coding
 
-You're all set! Now you can start coding and Pixeleye will automatically run your tests and report back to you. You can view the results on the project page.
+You're all set! Now, you can start coding, and Pixeleye will automatically run your tests and report back to you. You can view the results on the project page.
