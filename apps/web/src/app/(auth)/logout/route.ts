@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       returnTo: return_to || undefined,
     })
     .catch(() => {
-      redirect("/login");
+      redirect(`/login?return_to=${return_to}`);
     });
 
   return Response.redirect(logoutFlow.logout_url, 302);

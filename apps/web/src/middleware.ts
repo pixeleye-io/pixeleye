@@ -26,6 +26,7 @@ export async function middleware(request: NextRequest) {
     }
 
     url.pathname = "/logout"; // Some cases people still have a session but are not logged in. This is a workaround.
+    url.searchParams.set("return_to", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
 
