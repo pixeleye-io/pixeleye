@@ -434,7 +434,7 @@ function NewsLetter() {
           </div>
           <p className="my-4 text-sm leading-6 text-on-surface">
             We care about your data. Read our{" "}
-            <Link size="sm" href="/privacy.html" className="!text-sm">
+            <Link size="sm" href="/privacy" className="!text-sm">
               privacy&nbsp;policy
             </Link>
             .
