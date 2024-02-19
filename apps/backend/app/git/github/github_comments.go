@@ -42,7 +42,7 @@ func getConclusion(build models.Build) string {
 		return "success"
 	}
 
-	return ""
+	return "neutral"
 }
 
 func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Project, build models.Build) error {
