@@ -33,7 +33,6 @@ func NewGithubInstallClient(installationID string) (*GithubAppClient, error) {
 	}
 
 	itr, err := ghinstallation.New(http.DefaultTransport, int64(appID), int64(installationIDInt), []byte(key))
-
 	if err != nil {
 		return nil, err
 	}
