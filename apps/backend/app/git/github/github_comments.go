@@ -131,7 +131,7 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 		conclusion = getConclusion(build)
 	}
 
-	title := "Pixeleye -" + project.Name
+	title := "Pixeleye - " + project.Name
 	summary := "Current build status is " + build.Status
 	text := "Some build details"
 

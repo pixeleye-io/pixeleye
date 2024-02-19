@@ -738,6 +738,11 @@ func SyncNewGithubUserTeams(ctx context.Context, userID string, currentTeams []m
 		return err
 	}
 
+	githubUser, _, err := userClient.Users.Get(ctx, "")
+	if err != nil {
+		return err
+	}
+
 	opts := &github.ListOptions{
 		PerPage: 100,
 	}
@@ -804,6 +809,10 @@ func SyncNewGithubUserTeams(ctx context.Context, userID string, currentTeams []m
 			}
 
 			if IsUserInstallation(*app) {
+				if app.Account.GetLogin() != githubUser.GetLogin() {
+					// Users may be able to see installations for other users, we should skip these
+					continue
+				}
 				team, _, err := LinkPersonalGithubTeam(ctx, models.User{
 					ID: userID,
 				}, installation)
