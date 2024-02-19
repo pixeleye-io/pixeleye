@@ -56,7 +56,7 @@ func startIngestServer(quit chan bool) {
 
 			log.Info().Msgf("Received a message: %s", string(msg))
 
-			time.Sleep(1 * time.Minute) 
+			time.Sleep(5 * time.Minute)
 
 			snapshotIDs := []string{}
 
