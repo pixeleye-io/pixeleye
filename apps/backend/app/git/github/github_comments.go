@@ -3,6 +3,7 @@ package git_github
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/google/go-github/v59/github"
@@ -60,36 +61,33 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 		return err
 	}
 
-	// detailsURL := os.Getenv("FRONTEND_URL") + "/projects/" + project.ID + "/builds/" + build.ID
+	detailsURL := os.Getenv("FRONTEND_URL") + "/projects/" + project.ID + "/builds/" + build.ID
 
-	// status := getStatus(build.Status)
-	// var conclusion string
-	// if status == "completed" {
-	// 	conclusion = getConclusion(build)
-	// }
+	status := getStatus(build.Status)
+	var conclusion string
+	if status == "completed" {
+		conclusion = getConclusion(build)
+	}
 
-	// title := "Pixeleye -" + project.Name
-	// summary := "Current build status is " + build.Status
-	// text := "Some build details"
+	title := "Pixeleye -" + project.Name
+	summary := "Current build status is " + build.Status
+	text := "Some build details"
 
-	// startedAt := github.Timestamp{Time: build.CreatedAt}
-
-	log.Info().Msg("Creating check run")
-	log.Info().Msg("Build sha: " + build.Sha)
+	startedAt := github.Timestamp{Time: build.CreatedAt}
 
 	opts := github.CreateCheckRunOptions{
-		Name:    "Pixeleye",
-		HeadSHA: build.Sha,
-		// DetailsURL: &detailsURL,
-		// ExternalID: &build.ID,
-		// Status:     &status,
-		// StartedAt:  &startedAt,
-		// Conclusion: &conclusion,
-		// Output: &github.CheckRunOutput{
-		// 	Title:   &title,
-		// 	Summary: &summary,
-		// 	Text:    &text,
-		// },
+		Name:       "Pixeleye",
+		HeadSHA:    build.Sha,
+		DetailsURL: &detailsURL,
+		ExternalID: &build.ID,
+		Status:     &status,
+		StartedAt:  &startedAt,
+		Conclusion: &conclusion,
+		Output: &github.CheckRunOutput{
+			Title:   &title,
+			Summary: &summary,
+			Text:    &text,
+		},
 	}
 
 	checkRun, _, err := c.Checks.CreateCheckRun(ctx, repo.Owner.GetLogin(), repo.GetName(), opts)

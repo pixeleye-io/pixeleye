@@ -27,8 +27,8 @@ export async function getEnvironment(): Promise<Environment> {
 
   return {
     name: name,
-    commit: process.env.PIXELEYE_COMMIT || commit || gitBranch,
-    branch: process.env.PIXELEYE_BRANCH || branch || gitCommit,
+    commit: (process.env.PIXELEYE_COMMIT || commit || gitCommit)?.trim(),
+    branch: process.env.PIXELEYE_BRANCH || branch || gitBranch,
     targetBranch: process.env.PIXELEYE_PR_BRANCH || prBranch,
     isCI: isCi,
     isPR: isPr,
