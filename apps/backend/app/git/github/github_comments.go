@@ -74,6 +74,9 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 
 	// startedAt := github.Timestamp{Time: build.CreatedAt}
 
+	log.Info().Msg("Creating check run")
+	log.Info().Msg("Build sha: " + build.Sha)
+
 	opts := github.CreateCheckRunOptions{
 		Name:    "Pixeleye",
 		HeadSHA: build.Sha,
@@ -168,7 +171,7 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return err
 	}
 
-	installation, err := db.GetGitInstallationByTeamID(ctx, project.TeamID, models.GIT_TYPE_GITHUB)
+	installation, err := db.GetGitInstallation(ctx, project.TeamID, models.TEAM_TYPE_GITHUB)
 	if err != nil {
 		return err
 	}

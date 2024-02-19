@@ -168,23 +168,11 @@ func (q *TeamQueries) GetGitInstallations(ctx context.Context, teamID string) ([
 }
 
 func (q *TeamQueries) GetGitInstallation(ctx context.Context, teamID string, gitType string) (models.GitInstallation, error) {
-	installations, err := q.GetGitInstallations(ctx, teamID)
+	query := `SELECT * FROM git_installation WHERE team_id = $1 AND type = $2`
 
-	if err != nil {
-		return models.GitInstallation{}, err
-	}
+	installation := models.GitInstallation{}
 
-	var installation models.GitInstallation
-	for _, i := range installations {
-		if i.Type == gitType {
-			installation = i
-			break
-		}
-	}
+	err := q.GetContext(ctx, &installation, query, teamID, gitType)
 
-	if installation.ID == "" {
-		return models.GitInstallation{}, fmt.Errorf("no git installation found for type %s", gitType)
-	}
-
-	return installation, nil
+	return installation, err
 }
