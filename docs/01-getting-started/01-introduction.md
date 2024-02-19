@@ -28,7 +28,7 @@ Some of the main Pixeleye features include:
 | [Self-hostable](/docs/self-hosting/getting-started)           | Whilst we offer a top notch cloud experience, you can self-host Pixeleye completely free of charge.                                                                       |
 | [Teams and permissions](/docs/features/teams-and-permissions) | Group your projects into teams where you can control what every member can do with our roles.                                                                             |
 | [VCS integration](/docs/features/vcs-integration)             | Pixeleye integrates into your vcs to provided awesome capabilities such as role-syncing, pull-request comments and many more                                              |
-| [Diff highlighting](/docs/features/diff-highlighting)             | We have an awesome editor experience which includes highlighting the difference in screenshots via a range of easy to use methods                                         |
+| [Diff highlighting](/docs/features/diff-highlighting)         | We have an awesome editor experience which includes highlighting the difference in screenshots via a range of easy to use methods                                         |
 | [Community built](/docs/features/community-built)             | We're completely open source and are therefore heavily invested in our community. We're constantly evolving Pixeleye to better meet the needs of our users                |
 
 ## Accessibility
@@ -37,4 +37,4 @@ For optimal accessibility when using a screen reader while reading the docs, we 
 
 ## Join our Community
 
-If you have questions about anything related to Pixeleye, you're always welcome to ask our community on [GitHub Discussions](https://github.com/pixeleye-io/pixeleye/discussions) and [Twitter](https://twitter.com/pixeleyeltd).
+If you have questions about anything related to Pixeleye, you're always welcome to ask our community on [GitHub Discussions](https://github.com/pixeleye-io/pixeleye/discussions) and [Twitter](https://twitter.com/pixeleye_io).
