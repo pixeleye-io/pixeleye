@@ -3,6 +3,7 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@pixeleye/ui";
 import { useTheme } from "next-themes";
 import NextLink from "next/link";
+import { useEffect, useState } from "react";
 
 const navigation = {
   main: [
@@ -42,7 +43,6 @@ const navigation = {
 
 export default function Footer() {
 
-  const { theme, setTheme } = useTheme();
 
   return (
     <footer className="bg-surface-container-low border-t border-outline-variant">
@@ -62,7 +62,7 @@ export default function Footer() {
             </div>
           ))}
         </nav>
-        <div className="mt-10 flex justify-center items-center space-x-10">
+        <div className="mt-10 flex justify-center items-center space-x-10 h-10">
 
           {navigation.social.map((item) => (
             <a
@@ -74,18 +74,7 @@ export default function Footer() {
               <item.icon className="h-6 w-6" aria-hidden="true" />
             </a>
           ))}
-          <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
-            <SelectTrigger aria-label="Theme switcher" className="!w-24">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <ThemeSwitcher />
         </div>
         <p className="mt-10 text-center text-xs leading-5 text-on-surface-variant">
           &copy; {new Date().getUTCFullYear()} Pixeleye LTD, All rights
@@ -94,4 +83,35 @@ export default function Footer() {
       </div>
     </footer>
   );
+}
+
+function ThemeSwitcher() {
+  const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme();
+
+
+  // Avoids hydration mismatch
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <span className="w-24" />
+  }
+
+  return (
+    <Select value={theme} onValueChange={(theme) => setTheme(theme)}>
+      <SelectTrigger aria-label="Theme switcher" className="!w-24">
+        <SelectValue placeholder="Theme" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectItem value="light">Light</SelectItem>
+          <SelectItem value="dark">Dark</SelectItem>
+          <SelectItem value="system">System</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
 }
