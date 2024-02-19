@@ -66,6 +66,11 @@ func (b *ProjectEvent) BuildStatusChange(build models.Build) {
 }
 
 func (b *ProjectEvent) NewBuild(build models.Build) {
+
+	if err := syncWithGithub(context.Background(), build); err != nil {
+		log.Error().Err(err).Msg("Failed to sync build status with github")
+	}
+
 	event := EventPayload{
 		Type: ProjectEvent_NewBuild,
 		Data: build,

@@ -138,6 +138,7 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 	opts := github.UpdateCheckRunOptions{
 		Status:     &status,
 		Conclusion: &conclusion,
+		ExternalID: &build.ID,
 		Output: &github.CheckRunOutput{
 			Title:   &title,
 			Summary: &summary,
