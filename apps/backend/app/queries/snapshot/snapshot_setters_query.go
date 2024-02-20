@@ -146,7 +146,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	}()
 
 	if !models.IsBuildPreProcessing(build.Status) {
-		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has already been marked as completed. You cannot continue to add snapshots to it", buildId)
+		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has already been marked as completed. You cannot continue to add snapshots to it", build.ID)
 	}
 
 	existingSnapshots := []models.Snapshot{}
