@@ -1,5 +1,5 @@
 # Build the application from source
-FROM golang:1.21 AS builder
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
@@ -11,19 +11,20 @@ COPY ./app ./app
 COPY ./pkg ./pkg
 COPY ./platform ./platform
 
+ARG TARGETOS
+ARG TARGETARCH
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-pixeleye-api
+
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -o /docker-pixeleye-api
 
 # Deploy the application binary into a lean image
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
+FROM alpine:3 AS build-release-stage
 
 WORKDIR /
 
 COPY --from=builder /docker-pixeleye-api /docker-pixeleye-api
 
 EXPOSE 5000
-
-
-USER nonroot:nonroot
 
 ENTRYPOINT ["/docker-pixeleye-api"]

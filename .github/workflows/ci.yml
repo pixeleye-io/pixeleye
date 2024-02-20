@@ -339,7 +339,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: apps/backend
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           file: apps/backend/Dockerfile.api
           push: true
           tags: ${{ steps.meta.outputs.tags }}
