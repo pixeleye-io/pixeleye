@@ -91,11 +91,15 @@ func getQueue(channelRabbitMQ *amqp.Channel, name string, queueType brokerTypes.
 	args := make(amqp.Table)
 	args["x-queue-type"] = "quorum"
 
+	if getQueueAutoDelete(queueType) {
+		args["x-expires"] = 1000
+	}
+
 	// Create a new queue.
 	queue, err := channelRabbitMQ.QueueDeclare(
 		queueName,                     // queue name
 		getQueueDurability(queueType), // durable
-		getQueueAutoDelete(queueType), // delete when unused
+		false,                         // delete when unused
 		false,                         // exclusive
 		false,                         // no-wait
 		args,                          // arguments
