@@ -29,7 +29,7 @@ func generateToken() (string, error) {
 }
 
 func hashToken(token string) (string, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(token), 10)
+	hashed, err := bcrypt.GenerateFromPassword([]byte(token), 8)
 	if err != nil {
 		return "", err
 	}
