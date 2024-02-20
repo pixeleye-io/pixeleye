@@ -27,9 +27,9 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@types/eventsource": "^1.1.15",
     "@types/graceful-fs": "^4.1.9",
-    "@types/node": "20.11.10",
+    "@types/node": "20.11.19",
     "@types/require-relative": "^0.8.2",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.20.1",
     "rimraf": "^5.0.5"
   },
   "dependencies": {
@@ -39,7 +39,7 @@
     "@pixeleye/cli-env": "workspace:*",
     "@pixeleye/storybook": "workspace:*",
     "chalk": "^5.3.0",
-    "commander": "^11.1.0",
+    "commander": "^12.0.0",
     "dedent": "^1.5.1",
     "eventsource": "^2.0.2",
     "graceful-fs": "^4.2.11",

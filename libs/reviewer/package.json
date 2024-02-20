@@ -11,7 +11,7 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/react": "18.2.48"
+    "@types/react": "18.2.57"
   },
   "peerDependencies": {
     "next": "^14",
@@ -24,15 +24,15 @@
     "@pixeleye/device-logos": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.5",
-    "@types/react-dom": "18.2.18",
+    "@types/react-dom": "18.2.19",
     "class-variance-authority": "^0.7.0",
-    "framer-motion": "^11.0.3",
+    "framer-motion": "^11.0.5",
     "next": "14.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-hotkeys-hook": "^4.4.4",
-    "reactflow": "^11.10.3",
-    "usehooks-ts": "^2.10.0",
-    "zustand": "^4.5.0"
+    "react-hotkeys-hook": "^4.5.0",
+    "reactflow": "^11.10.4",
+    "usehooks-ts": "^2.14.0",
+    "zustand": "^4.5.1"
   }
 }

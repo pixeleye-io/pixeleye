@@ -8,12 +8,12 @@
   "dependencies": {
     "@pixeleye/playwright": "0.0.1",
     "pixeleye": "workspace:*",
-    "playwright": "^1.41.1"
+    "playwright": "^1.41.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.41.1",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.11.10",
+    "@playwright/test": "^1.41.2",
+    "@types/node": "20.11.19",
     "typescript": "^5.3.3"
   }
 }

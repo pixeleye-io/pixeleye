@@ -29,6 +29,6 @@
     "@pixeleye/cli-env": "workspace:*",
     "@pixeleye/cli-image": "workspace:*",
     "api-typify": "^0.3.2",
-    "undici": "^6.5.0"
+    "undici": "^6.6.2"
   }
 }

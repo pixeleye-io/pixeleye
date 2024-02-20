@@ -11,10 +11,10 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.11.10"
+    "@types/node": "20.11.19"
   },
   "dependencies": {
-    "@ory/client": "^1.5.1",
+    "@ory/client": "^1.6.2",
     "zod": "^3.22.4"
   }
 }

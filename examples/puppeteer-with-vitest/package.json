@@ -8,10 +8,10 @@
   "dependencies": {
     "@pixeleye/puppeteer": "workspace:*",
     "pixeleye": "workspace:*",
-    "playwright": "^1.41.1",
-    "puppeteer": "^21.10.0",
-    "puppeteer-core": "^21.10.0",
-    "vitest": "^1.2.2"
+    "playwright": "^1.41.2",
+    "puppeteer": "^22.1.0",
+    "puppeteer-core": "^22.1.0",
+    "vitest": "^1.3.1"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

@@ -17,15 +17,15 @@
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/puppeteer": "workspace:*",
     "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
-    "@storybook/addons": "^7.6.10",
-    "puppeteer": "^21.10.0",
-    "puppeteer-core": "^21.10.0"
+    "@storybook/addons": "^7.6.17",
+    "puppeteer": "^22.1.0",
+    "puppeteer-core": "^22.1.0"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.11.10",
+    "@types/node": "20.11.19",
     "rimraf": "^5.0.5",
     "typescript": "5.3.3"
   }
