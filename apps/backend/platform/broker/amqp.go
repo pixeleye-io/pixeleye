@@ -16,7 +16,9 @@ func ConnectAMPQ(url string) (*amqp.Connection, error) {
 	// Define RabbitMQ server URL.
 
 	// Create a new RabbitMQ connection.
-	connectRabbitMQ, err := amqp.Dial(url)
+	connectRabbitMQ, err := amqp.DialConfig(url, amqp.Config{
+		Heartbeat: 0,
+	})
 
 	if err != nil {
 		return nil, err
