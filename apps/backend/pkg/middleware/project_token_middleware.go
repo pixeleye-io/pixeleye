@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,8 +21,6 @@ func SetProject(c echo.Context, project *models.Project) {
 }
 
 func validateToken(r *http.Request) (*models.Project, error) {
-
-	defer utils.LogTimeTaken(time.Now(), "validateToken")
 
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -62,14 +58,9 @@ func validateToken(r *http.Request) (*models.Project, error) {
 		return nil, err
 	}
 
-	currTime := time.Now()
-
 	if (bcrypt.CompareHashAndPassword([]byte(project.Token), []byte(values[0]))) != nil {
 		return nil, fmt.Errorf("authorization header is invalid")
 	}
-
-	timeTaken := time.Since(currTime)
-	log.Info().Msgf("Time taken to validate hash token: %v", timeTaken)
 
 	if project.TeamStatus == models.TEAM_STATUS_SUSPENDED {
 		return nil, fmt.Errorf("team is currently suspended")

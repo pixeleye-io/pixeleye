@@ -217,11 +217,14 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 		return err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			log.Error().Err(err).Msg("Failed to rollback transaction")
+	completed := false
+	defer func(completed *bool) {
+		if *completed {
+			if err := tx.Rollback(); err != nil {
+				log.Error().Err(err).Msg("Failed to rollback transaction")
+			}
 		}
-	}()
+	}(&completed)
 
 	// We want to lock the build and make sure we have the latest data
 	curBuild, err := tx.GetBuildForUpdate(ctx, build.ID)
@@ -258,6 +261,8 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
+	completed = true
 
 	events.HandleBuildStatusChange(*build)
 

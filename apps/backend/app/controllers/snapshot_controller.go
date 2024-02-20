@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"net/http"
 	"os"
-	"time"
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/labstack/echo/v4"
@@ -35,8 +34,6 @@ type UploadSnapBody struct {
 }
 
 func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string) (*UploadSnapReturn, error) {
-	defer utils.LogTimeTaken(time.Now(), "createSnapImage")
-
 	s3, err := storage.GetClient()
 	if err != nil {
 		return nil, err
@@ -97,9 +94,6 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 // @Success 200 {object} UploadSnapReturn
 // @Router /v1/snapshots/upload [post]
 func CreateUploadURL(c echo.Context) error {
-
-	defer utils.LogTimeTaken(time.Now(), "CreateUploadURL")
-
 	body := UploadSnapBody{}
 
 	if err := c.Bind(&body); err != nil {
@@ -132,8 +126,6 @@ func CreateUploadURL(c echo.Context) error {
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
-
-	currTime := utils.CurrentTime()
 
 	uploadMap := map[string]*UploadSnapReturn{}
 	for _, snap := range body.SnapshotUploads {
@@ -170,9 +162,6 @@ func CreateUploadURL(c echo.Context) error {
 			uploadMap[snap.Hash] = snapReturn
 		}
 	}
-
-	elapsed := utils.CurrentTime().Sub(currTime)
-	log.Info().Msgf("Elapsed time: %v", elapsed)
 
 	return c.JSON(http.StatusOK, uploadMap)
 }

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"time"
 
 	"slices"
 
@@ -25,8 +24,6 @@ func NewProjectPermissionsRequired(roles []string, teamRoles []string) *ProjectP
 
 func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		defer utils.LogTimeTaken(time.Now(), "ProjectRoleAccess")
 
 		build, _ := GetBuild(c)
 

@@ -91,8 +91,6 @@ type ProjectWithTeamStatus struct {
 func (q *ProjectQueries) GetProjectWithTeamStatus(ctx context.Context, id string) (ProjectWithTeamStatus, error) {
 	project := ProjectWithTeamStatus{}
 
-	defer utils.LogTimeTaken(time.Now(), "GetProjectWithTeamStatus")
-
 	query := `SELECT project.*, team.status AS team_status FROM project JOIN team ON project.team_id = team.id WHERE project.id = $1`
 
 	err := q.Get(&project, query, id)
@@ -102,8 +100,6 @@ func (q *ProjectQueries) GetProjectWithTeamStatus(ctx context.Context, id string
 
 func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, userID string, role string, email string) (models.ProjectInviteCode, error) {
 	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role, email, invited_by_id) VALUES (:id, :project_id, :created_at, :expires_at, :role, :email, :invited_by_id)`
-
-	defer utils.LogTimeTaken(time.Now(), "GetProjectWithTeamStatus")
 
 	id, err := nanoid.New()
 	if err != nil {
