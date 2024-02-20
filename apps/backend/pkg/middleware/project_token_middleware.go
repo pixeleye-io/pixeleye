@@ -22,6 +22,8 @@ func SetProject(c echo.Context, project *models.Project) {
 
 func validateToken(r *http.Request) (*models.Project, error) {
 
+	defer utils.LogTimeTaken(utils.CurrentTime(), "validateToken")
+
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return nil, err

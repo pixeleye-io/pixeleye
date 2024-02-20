@@ -59,11 +59,15 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	}
 	build.Status = curBuild.Status
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			log.Error().Err(err).Msg("Failed to rollback transaction")
+	completed := false
+
+	defer func(completed *bool) {
+		if *completed {
+			if err := tx.Rollback(); err != nil {
+				log.Error().Err(err).Msg("Failed to rollback transaction")
+			}
 		}
-	}()
+	}(&completed)
 
 	if models.IsBuildPostProcessing(build.Status) {
 		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
@@ -110,6 +114,8 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
+	completed = true
 
 	if prevBuildStatus != build.Status {
 		events.HandleBuildStatusChange(*build)

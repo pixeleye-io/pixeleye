@@ -34,6 +34,7 @@ type UploadSnapBody struct {
 }
 
 func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string) (*UploadSnapReturn, error) {
+	defer utils.LogTimeTaken(utils.CurrentTime(), "createSnapImage")
 
 	s3, err := storage.GetClient()
 	if err != nil {
@@ -96,6 +97,8 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 // @Router /v1/snapshots/upload [post]
 func CreateUploadURL(c echo.Context) error {
 
+	defer utils.LogTimeTaken(utils.CurrentTime(), "CreateUploadURL")
+
 	body := UploadSnapBody{}
 
 	if err := c.Bind(&body); err != nil {
@@ -129,8 +132,9 @@ func CreateUploadURL(c echo.Context) error {
 		return err
 	}
 
-	uploadMap := map[string]*UploadSnapReturn{}
+	currTime := utils.CurrentTime()
 
+	uploadMap := map[string]*UploadSnapReturn{}
 	for _, snap := range body.SnapshotUploads {
 		var existingSnap *models.SnapImage = nil
 
@@ -165,6 +169,9 @@ func CreateUploadURL(c echo.Context) error {
 			uploadMap[snap.Hash] = snapReturn
 		}
 	}
+
+	elapsed := utils.CurrentTime().Sub(currTime)
+	log.Info().Msgf("Elapsed time: %v", elapsed)
 
 	return c.JSON(http.StatusOK, uploadMap)
 }

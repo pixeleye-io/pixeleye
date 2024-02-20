@@ -24,6 +24,8 @@ func GetBuild(c echo.Context) (*models.Build, error) {
 func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
+		defer utils.LogTimeTaken(utils.CurrentTime(), "LoadBuild")
+
 		buildID := c.Param("build_id")
 
 		if buildID == "" {

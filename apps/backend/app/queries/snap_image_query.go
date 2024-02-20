@@ -24,6 +24,9 @@ func (q *SnapImageQueries) GetSnapImageByHash(ctx context.Context, hash string, 
 }
 
 func (q *SnapImageQueries) GetSnapImagesByHashes(ctx context.Context, hashes []string, projectID string) ([]models.SnapImage, error) {
+
+	defer utils.LogTimeTaken(utils.CurrentTime(), "GetSnapImagesByHashes")
+
 	snapImages := []models.SnapImage{}
 
 	query, args, err := sqlx.In(`SELECT * FROM snap_image WHERE project_id = ? AND hash IN (?)`, projectID, hashes)

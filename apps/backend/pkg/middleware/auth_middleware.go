@@ -139,7 +139,7 @@ func (k *oryMiddleware) validateSession(r *http.Request) (*ory.Session, error) {
 
 	cookies := r.Header.Get("Cookie")
 
-	decoded, err := url.QueryUnescape(cookies);
+	decoded, err := url.QueryUnescape(cookies)
 	if err != nil {
 		return nil, err
 	}
