@@ -8,6 +8,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
@@ -116,11 +117,11 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 // If connection is lost, then we mark the build as failed
 
 // Assumes we have no duplicate snapshots passed in
-func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buildId string) ([]models.Snapshot, bool, error) {
-	selectBuildQuery := `SELECT * FROM build WHERE id = $1 FOR UPDATE`
+func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, build models.Build) ([]models.Snapshot, bool, error) {
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
 	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, target_icon, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :target_icon, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error)`
-	buildQuery := `UPDATE build SET status = :status, errors = :errors WHERE id = :id`
+
+	buildQueryAppend := `UPDATE build SET errors = array_append(errors, $1), status = 'failed', updated_at = $2 WHERE id = $3`
 
 	if len(snapshots) == 0 {
 		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "no snapshots to create")
@@ -144,26 +145,19 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		}
 	}()
 
-	build := models.Build{}
-
-	if err = tx.GetContext(ctx, &build, selectBuildQuery, buildId); err != nil {
-		return nil, false, echo.NewHTTPError(http.StatusNotFound, "build with id %s not found", buildId)
-	}
-
 	if !models.IsBuildPreProcessing(build.Status) {
 		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "build with id %s has already been marked as completed. You cannot continue to add snapshots to it", buildId)
 	}
 
 	existingSnapshots := []models.Snapshot{}
 
-	if err = tx.SelectContext(ctx, &existingSnapshots, selectExistingSnapshotsQuery, buildId); err != nil {
+	if err = tx.SelectContext(ctx, &existingSnapshots, selectExistingSnapshotsQuery, build.ID); err != nil {
 		return nil, false, err
 	}
 
 	newSnapshots := []models.Snapshot{}
 
-	// flag to check if there are duplicate snapshots
-	updateBuild := false
+	errors := pq.StringArray{}
 
 	// TODO move this to a separate function, so we can test it
 	for i, snap := range snapshots {
@@ -175,11 +169,9 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 			if models.CompareSnaps(snap, snapAfter) {
 				isDup = true
 				errorTxt := getDuplicateSnapError(snap)
-				if !utils.ContainsString(build.Errors, errorTxt) {
+				if !utils.ContainsString(build.Errors, errorTxt) || !utils.ContainsString(errors, errorTxt) {
 					// No need to update build if the error for this snapshot already exists.
-					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_FAILED
-					updateBuild = true
+					errors = append(errors, errorTxt)
 				}
 				break // No need to check for anymore duplicates of this snapshot.
 			}
@@ -194,11 +186,9 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 			if models.CompareSnaps(snap, existingSnapshot) {
 				isDup = true
 				errorTxt := getDuplicateSnapError(snap)
-				if !utils.ContainsString(build.Errors, errorTxt) {
+				if !utils.ContainsString(build.Errors, errorTxt) || !utils.ContainsString(errors, errorTxt) {
 					// No need to update build if the error for this snapshot already exists.
-					build.Errors = append(build.Errors, errorTxt)
-					build.Status = models.BUILD_STATUS_FAILED
-					updateBuild = true
+					errors = append(errors, errorTxt)
 				}
 			}
 		}
@@ -238,9 +228,10 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		return nil, false, echo.NewHTTPError(http.StatusBadRequest, string(msg))
 	}
 
-	if updateBuild {
+	if len(errors) > 0 {
 		build.UpdatedAt = utils.CurrentTime()
-		if _, err := tx.NamedExecContext(ctx, buildQuery, build); err != nil {
+		build.Errors = append(build.Errors, errors...)
+		if _, err := tx.ExecContext(ctx, buildQueryAppend, errors, build.UpdatedAt, build.ID); err != nil {
 			return nil, false, err
 		}
 	}
@@ -255,5 +246,5 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 
 	committed = true
 
-	return newSnapshots, updateBuild, nil
+	return newSnapshots, len(errors) > 0, nil
 }
