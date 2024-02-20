@@ -32,7 +32,7 @@
     "@pixeleye/ui": "workspace:*",
     "@stripe/react-stripe-js": "^2.5.0",
     "@stripe/stripe-js": "^3.0.3",
-    "@t3-oss/env-nextjs": "^0.9.2",
+    "@t3-oss/env-nextjs": "0.9.1",
     "@tanstack/react-query": "5.22.2",
     "@tanstack/react-table": "^8.12.0",
     "api-typify": "^0.3.2",
