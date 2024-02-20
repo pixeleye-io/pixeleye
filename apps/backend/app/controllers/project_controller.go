@@ -29,7 +29,7 @@ func generateToken() (string, error) {
 }
 
 func hashToken(token string) (string, error) {
-	hashed, err := bcrypt.GenerateFromPassword([]byte(token), 14)
+	hashed, err := bcrypt.GenerateFromPassword([]byte(token), 10)
 	if err != nil {
 		return "", err
 	}
@@ -219,13 +219,11 @@ func RegenerateToken(c echo.Context) error {
 	project := middleware.GetProject(c)
 
 	token, err := generateToken()
-
 	if err != nil {
 		return err
 	}
 
 	hashedToken, err := hashToken(token)
-
 	if err != nil {
 		return err
 	}
@@ -233,7 +231,6 @@ func RegenerateToken(c echo.Context) error {
 	project.Token = hashedToken
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
