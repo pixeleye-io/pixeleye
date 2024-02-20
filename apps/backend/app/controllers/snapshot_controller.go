@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"os"
+	"time"
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/labstack/echo/v4"
@@ -34,7 +35,7 @@ type UploadSnapBody struct {
 }
 
 func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string) (*UploadSnapReturn, error) {
-	defer utils.LogTimeTaken(utils.CurrentTime(), "createSnapImage")
+	defer utils.LogTimeTaken(time.Now(), "createSnapImage")
 
 	s3, err := storage.GetClient()
 	if err != nil {
@@ -97,7 +98,7 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 // @Router /v1/snapshots/upload [post]
 func CreateUploadURL(c echo.Context) error {
 
-	defer utils.LogTimeTaken(utils.CurrentTime(), "CreateUploadURL")
+	defer utils.LogTimeTaken(time.Now(), "CreateUploadURL")
 
 	body := UploadSnapBody{}
 

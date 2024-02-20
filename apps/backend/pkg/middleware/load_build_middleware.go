@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -24,7 +25,7 @@ func GetBuild(c echo.Context) (*models.Build, error) {
 func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		defer utils.LogTimeTaken(utils.CurrentTime(), "LoadBuild")
+		defer utils.LogTimeTaken(time.Now(), "LoadBuild")
 
 		buildID := c.Param("build_id")
 

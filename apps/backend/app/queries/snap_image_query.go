@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	nanoid "github.com/matoous/go-nanoid/v2"
@@ -25,7 +26,7 @@ func (q *SnapImageQueries) GetSnapImageByHash(ctx context.Context, hash string, 
 
 func (q *SnapImageQueries) GetSnapImagesByHashes(ctx context.Context, hashes []string, projectID string) ([]models.SnapImage, error) {
 
-	defer utils.LogTimeTaken(utils.CurrentTime(), "GetSnapImagesByHashes")
+	defer utils.LogTimeTaken(time.Now(), "GetSnapImagesByHashes")
 
 	snapImages := []models.SnapImage{}
 

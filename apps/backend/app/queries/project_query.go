@@ -91,6 +91,8 @@ type ProjectWithTeamStatus struct {
 func (q *ProjectQueries) GetProjectWithTeamStatus(ctx context.Context, id string) (ProjectWithTeamStatus, error) {
 	project := ProjectWithTeamStatus{}
 
+	defer utils.LogTimeTaken(time.Now(), "GetProjectWithTeamStatus")
+
 	query := `SELECT project.*, team.status AS team_status FROM project JOIN team ON project.team_id = team.id WHERE project.id = $1`
 
 	err := q.Get(&project, query, id)
