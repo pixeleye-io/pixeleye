@@ -5,7 +5,7 @@ import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 async function openBrowser() {
   const browser = await launch({
-    headless: "new",
+    headless: true,
   });
   const page = await browser.newPage();
   return { browser, page };
