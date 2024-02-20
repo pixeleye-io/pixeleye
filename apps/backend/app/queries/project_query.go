@@ -103,6 +103,8 @@ func (q *ProjectQueries) GetProjectWithTeamStatus(ctx context.Context, id string
 func (q *ProjectQueries) CreateProjectInvite(ctx context.Context, projectID string, userID string, role string, email string) (models.ProjectInviteCode, error) {
 	query := `INSERT INTO project_invite_code (id, project_id, created_at, expires_at, role, email, invited_by_id) VALUES (:id, :project_id, :created_at, :expires_at, :role, :email, :invited_by_id)`
 
+	defer utils.LogTimeTaken(time.Now(), "GetProjectWithTeamStatus")
+
 	id, err := nanoid.New()
 	if err != nil {
 		return models.ProjectInviteCode{}, err
