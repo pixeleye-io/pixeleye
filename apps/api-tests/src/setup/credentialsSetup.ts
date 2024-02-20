@@ -138,7 +138,7 @@ export async function createAllSessions() {
       sessions[id] = {...session, session: {
         ...session.session,
         identity: {
-          ...session.session.identity,
+          ...session.session.identity as any,
           userID: user.id,
         }
       }};
