@@ -116,7 +116,7 @@ func getDuplicateSnapError(snap models.Snapshot) string {
 // If connection is lost, then we mark the build as failed
 
 // Assumes we have no duplicate snapshots passed in
-func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []models.Snapshot, build models.Build) ([]models.Snapshot, bool, error) {
+func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []models.Snapshot, build *models.Build) ([]models.Snapshot, bool, error) {
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
 	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, target_icon, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :target_icon, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error)`
 

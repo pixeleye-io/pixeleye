@@ -475,7 +475,7 @@ func UploadPartial(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "no snapshots to upload")
 	}
 
-	snapshots, buildUpdated, err := db.CreateBatchSnapshots(partial.Snapshots, build.ID)
+	snapshots, buildUpdated, err := db.CreateBatchSnapshots(c.Request().Context(), partial.Snapshots, build)
 	if err != nil {
 		return err
 	}
