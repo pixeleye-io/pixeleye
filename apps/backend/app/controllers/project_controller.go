@@ -29,6 +29,7 @@ func generateToken() (string, error) {
 }
 
 func hashToken(token string) (string, error) {
+	// We can justify using a lower cost as this is not a user password.
 	hashed, err := bcrypt.GenerateFromPassword([]byte(token), 8)
 	if err != nil {
 		return "", err
