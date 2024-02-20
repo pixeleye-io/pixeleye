@@ -3,10 +3,12 @@ package statuses_build
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	build_queries "github.com/pixeleye-io/pixeleye/app/queries/build"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
@@ -39,6 +41,8 @@ func queueSnapshots(tx *build_queries.BuildQueriesTx, ctx context.Context, build
 
 // Checks to see if we can update the build status based on snapshots and parent builds
 func SyncBuildStatus(ctx context.Context, build *models.Build) error {
+
+	defer utils.LogTimeTaken(time.Now(), "SyncBuildStatus")
 
 	prevBuildStatus := build.Status
 
@@ -206,7 +210,6 @@ func FailBuild(ctx context.Context, build *models.Build) error {
 }
 
 func CompleteBuild(ctx context.Context, build *models.Build) error {
-
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
