@@ -33,7 +33,7 @@ type UploadSnapBody struct {
 	SnapshotUploads []SnapshotUpload `json:"snapshots" validate:"required,dive"`
 }
 
-func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string, exists bool) (*UploadSnapReturn, error) {
+func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, snap *models.SnapImage, projectID string) (*UploadSnapReturn, error) {
 
 	s3, err := storage.GetClient()
 	if err != nil {
@@ -52,9 +52,10 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 		return nil, err
 	}
 
-	if !exists {
+	if snap != nil {
 
-		if err := db.SetSnapImageExists(c.Request().Context(), id, true); err != nil {
+		snap.Exists = true
+		if err := db.SetSnapImageExists(c.Request().Context(), snap.ID, true); err != nil {
 			return nil, err
 		}
 
@@ -144,9 +145,9 @@ func CreateUploadURL(c echo.Context) error {
 			}
 		}
 
-		exists := true
-		if existingSnap != nil && !existingSnap.Exists {
-			exists = false
+		exists := false
+		if existingSnap != nil && existingSnap.Exists {
+			exists = true
 		}
 
 		log.Debug().Msgf("Snap %v exists: %v", snap.Hash, exists)
@@ -156,7 +157,7 @@ func CreateUploadURL(c echo.Context) error {
 				SnapImage: existingSnap,
 			}
 		} else {
-			snapReturn, err := createSnapImage(c, db, snap, existingSnap, project.ID, exists)
+			snapReturn, err := createSnapImage(c, db, snap, existingSnap, project.ID)
 			if err != nil {
 				return err
 			}

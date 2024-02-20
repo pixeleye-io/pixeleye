@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/processors"
 	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
@@ -55,8 +54,6 @@ func startIngestServer(quit chan bool) {
 		err := broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
 
 			log.Info().Msgf("Received a message: %s", string(msg))
-
-			time.Sleep(5 * time.Minute)
 
 			snapshotIDs := []string{}
 

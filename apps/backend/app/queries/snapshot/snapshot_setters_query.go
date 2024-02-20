@@ -134,9 +134,13 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 		return nil, false, err
 	}
 
+	committed := false
+
 	defer func() {
-		if err := tx.Rollback(); err != nil {
-			log.Error().Err(err).Msg("Rollback failed")
+		if !committed {
+			if err := tx.Rollback(); err != nil {
+				log.Error().Err(err).Msg("Rollback failed")
+			}
 		}
 	}()
 
@@ -248,6 +252,8 @@ func (q *SnapshotQueries) CreateBatchSnapshots(snapshots []models.Snapshot, buil
 	if err := tx.Commit(); err != nil {
 		return nil, false, err
 	}
+
+	committed = true
 
 	return newSnapshots, updateBuild, nil
 }
