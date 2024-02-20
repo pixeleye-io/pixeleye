@@ -17,17 +17,35 @@ type Queues struct {
 }
 
 // nolint:gochecknoglobals
-var globalConnection *amqp.Connection
+var globalConsumeConnection *amqp.Connection
 
-func Close() {
-	if globalConnection != nil {
-		globalConnection.Close()
-		globalConnection = nil
+// nolint:gochecknoglobals
+var globalPublishConnection *amqp.Connection
+
+func CloseConsume() {
+	if globalConsumeConnection != nil {
+		globalConsumeConnection.Close()
+		globalConsumeConnection = nil
 	}
 }
 
-func GetChannel() (*amqp.Channel, error) {
-	connection, err := GetConnection()
+func ClosePublish() {
+	if globalPublishConnection != nil {
+		globalPublishConnection.Close()
+		globalPublishConnection = nil
+	}
+}
+
+func Close(channelType string) {
+	if channelType == "consume" {
+		CloseConsume()
+	} else {
+		ClosePublish()
+	}
+}
+
+func GetChannel(channelType string) (*amqp.Channel, error) {
+	connection, err := GetConnection(channelType)
 	if err != nil {
 		return nil, err
 	}
@@ -35,10 +53,9 @@ func GetChannel() (*amqp.Channel, error) {
 	channel, err := connection.Channel()
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to open a channel")
-		globalConnection.Close()
-		globalConnection = nil
+		Close(channelType)
 
-		connection, err := GetConnection()
+		connection, err := GetConnection(channelType)
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +71,16 @@ func GetChannel() (*amqp.Channel, error) {
 	return channel, err
 }
 
-func GetConnection() (*amqp.Connection, error) {
+func GetConnection(channelType string) (*amqp.Connection, error) {
+
+	var globalConnection *amqp.Connection
+
+	if channelType == "consume" {
+		globalConnection = globalConsumeConnection
+	} else {
+		globalConnection = globalPublishConnection
+	}
+
 	if globalConnection == nil || globalConnection.IsClosed() {
 		userName := os.Getenv("AMQP_USER")
 		password := os.Getenv("AMQP_PASSWORD")
@@ -79,6 +105,12 @@ func GetConnection() (*amqp.Connection, error) {
 			log.Fatal().Err(err).Msg("Failed to connect to RabbitMQ")
 			return nil, err
 		}
+
+		if channelType == "consume" {
+			globalConsumeConnection = globalConnection
+		} else {
+			globalPublishConnection = globalConnection
+		}
 	}
 
 	return globalConnection, nil
@@ -86,7 +118,7 @@ func GetConnection() (*amqp.Connection, error) {
 
 func GetBroker() (*Queues, error) {
 
-	channel, err := GetChannel()
+	channel, err := GetChannel("publish")
 	if err != nil {
 		return nil, err
 	}

@@ -26,8 +26,7 @@ func SubscribeToProject(c echo.Context) error {
 
 	c.Response().WriteHeader(http.StatusOK)
 
-	connection, err := broker.GetConnection()
-
+	connection, err := broker.GetConnection("consume")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get connection")
 	}
@@ -50,7 +49,7 @@ func SubscribeToProject(c echo.Context) error {
 			c.Response().Flush()
 
 			return nil
-		}, 1, quit)
+		}, 10, quit)
 
 		if err != nil {
 			log.Error().Err(err)
@@ -83,7 +82,7 @@ func SubscribeToBuild(c echo.Context) error {
 
 	c.Response().WriteHeader(http.StatusOK)
 
-	connection, err := broker.GetConnection()
+	connection, err := broker.GetConnection("consume")
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get connection")
@@ -142,7 +141,7 @@ func SubscribeToBuild(c echo.Context) error {
 			}
 
 			return nil
-		}, 1, quit)
+		}, 10, quit)
 
 		if err != nil {
 			log.Error().Err(err)

@@ -154,6 +154,9 @@ func getExchangeName(queueType brokerTypes.QueueType, queueName string) (string,
 		return "", nil
 	case brokerTypes.ProjectUpdate:
 		str, err := queueType.String()
+		if queueName == "" {
+			return str, err
+		}
 		return str + ":" + queueName, err
 	default:
 		return "", fmt.Errorf("queue type '%v' is not supported", queueType)
@@ -205,7 +208,7 @@ func getAutoAck(queueType brokerTypes.QueueType) bool {
 func SubscribeToQueue(connection *amqp.Connection, name string, queueType brokerTypes.QueueType, callback func([]byte) error, maxGoroutines int, quit chan bool) error {
 
 	// Create a new channel.
-	channel, err := GetChannel()
+	channel, err := GetChannel("consume")
 
 	if err != nil {
 		return err
@@ -245,6 +248,10 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 
 	autoAck := getAutoAck(queueType)
 
+	if err := channel.Qos(maxGoroutines, 0, false); err != nil {
+		return err
+	}
+
 	// Create a new consumer.
 	messages, err := channel.Consume(
 		queue.Name, // queue
@@ -260,11 +267,9 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 		return err
 	}
 
-	go func(messages <-chan amqp.Delivery, maxGoroutines int) {
-		maxChannel := make(chan struct{}, maxGoroutines)
+	go func(messages <-chan amqp.Delivery) {
 
 		for message := range messages {
-			maxChannel <- struct{}{}
 			go func(message amqp.Delivery) {
 
 				if err := callback(message.Body); err != nil {
@@ -276,10 +281,9 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 					}
 				}
 
-				<-maxChannel
 			}(message)
 		}
-	}(messages, maxGoroutines)
+	}(messages)
 
 	<-quit
 

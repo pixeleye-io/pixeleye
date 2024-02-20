@@ -42,11 +42,11 @@ func StartIngestServer() {
 // StartIngestServer starts the ingest server.
 func startIngestServer(quit chan bool) {
 	// Create rabbitmq
-	connection, err := broker.GetConnection()
+	connection, err := broker.GetConnection("consume")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error while connecting to broker")
 	}
-	defer broker.Close()
+	defer broker.Close("consume")
 
 	// TODO avoid shutting down if we get an error
 

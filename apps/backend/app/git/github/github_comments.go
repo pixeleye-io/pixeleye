@@ -64,11 +64,6 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 	detailsURL := os.Getenv("FRONTEND_URL") + "/projects/" + project.ID + "/builds/" + build.ID
 
 	status := getStatus(build.Status)
-	var conclusion string
-	if status == "completed" {
-		conclusion = getConclusion(build)
-	}
-
 	title := "Pixeleye -" + project.Name
 	summary := "Current build status is " + build.Status
 	text := "Some build details"
@@ -82,12 +77,17 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 		ExternalID: &build.ID,
 		Status:     &status,
 		StartedAt:  &startedAt,
-		Conclusion: &conclusion,
 		Output: &github.CheckRunOutput{
 			Title:   &title,
 			Summary: &summary,
 			Text:    &text,
 		},
+	}
+
+	if status == "completed" {
+		conclusion := getConclusion(build)
+
+		opts.Conclusion = &conclusion
 	}
 
 	checkRun, _, err := c.Checks.CreateCheckRun(ctx, repo.Owner.GetLogin(), repo.GetName(), opts)
@@ -126,10 +126,6 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 	}
 
 	status := getStatus(build.Status)
-	var conclusion string
-	if status == "completed" {
-		conclusion = getConclusion(build)
-	}
 
 	title := "Pixeleye - " + project.Name
 	summary := "Current build status is " + build.Status
@@ -137,13 +133,17 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 
 	opts := github.UpdateCheckRunOptions{
 		Status:     &status,
-		Conclusion: &conclusion,
 		ExternalID: &build.ID,
 		Output: &github.CheckRunOutput{
 			Title:   &title,
 			Summary: &summary,
 			Text:    &text,
 		},
+	}
+
+	if status == "completed" {
+		conclusion := getConclusion(build)
+		opts.Conclusion = &conclusion
 	}
 
 	checkRunID, err := strconv.ParseInt(build.CheckRunID, 10, 64)
