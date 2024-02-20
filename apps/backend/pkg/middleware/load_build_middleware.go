@@ -43,13 +43,11 @@ func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		db, err := database.OpenDBConnection()
-
 		if err != nil {
 			return err
 		}
 
 		build, err := db.GetBuild(c.Request().Context(), buildID)
-
 		if err != nil {
 			log.Error().Err(err).Msg("error getting build")
 			return err

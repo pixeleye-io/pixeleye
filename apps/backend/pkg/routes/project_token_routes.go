@@ -11,20 +11,21 @@ func ProjectTokenRoutes(e *echo.Echo) {
 
 	v1 := e.Group("/v1/client")
 	buildIDV1 := v1.Group("/builds/:build_id")
+	baseV1 := v1.Group("")
 
-	v1.Use(middleware.ProjectTokenMiddleware)
+	baseV1.Use(middleware.ProjectTokenMiddleware)
 	buildIDV1.Use(middleware.LoadBuild)
 	buildIDV1.Use(middleware.ProjectTokenMiddleware)
 
-	v1.POST("/builds/create", controllers.CreateBuild)
+	baseV1.POST("/builds/create", controllers.CreateBuild)
 	buildIDV1.POST("/upload", controllers.UploadPartial)
 	buildIDV1.POST("/complete", controllers.UploadComplete)
 	buildIDV1.POST("/abort", controllers.AbortBuild)
 	buildIDV1.GET("/events", controllers.SubscribeToBuild)
-	v1.POST("/snapshots/upload", controllers.CreateUploadURL)
-	v1.POST("/builds", controllers.SearchBuilds)
-	v1.POST("/latestBuilds", controllers.GetLatestBuildsFromShas)
+	baseV1.POST("/snapshots/upload", controllers.CreateUploadURL)
+	baseV1.POST("/builds", controllers.SearchBuilds)
+	baseV1.POST("/latestBuilds", controllers.GetLatestBuildsFromShas)
 
 	buildIDV1.GET("", controllers.GetBuild)
-	v1.GET("/snapshots/:hash", controllers.GetSnapURL) //TODO move this out of project token routes
+	baseV1.GET("/snapshots/:hash", controllers.GetSnapURL) //TODO move this out of project token routes
 }

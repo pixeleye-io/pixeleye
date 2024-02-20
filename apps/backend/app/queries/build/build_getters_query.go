@@ -2,9 +2,11 @@ package build_queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 )
 
 // You should always check that the builds commit sha is in the history of head
@@ -43,6 +45,9 @@ func (q *BuildQueries) GetBuildsFromCommits(ctx context.Context, projectID strin
 }
 
 func (q *BuildQueries) GetBuild(ctx context.Context, id string) (models.Build, error) {
+
+	defer utils.LogTimeTaken(time.Now(), "GetBuild")
+
 	build := models.Build{}
 
 	query := `SELECT build.*, NOT EXISTS(SELECT * FROM build_history WHERE parent_id = $1) AS is_latest FROM build WHERE id = $1`
