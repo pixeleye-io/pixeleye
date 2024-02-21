@@ -78,7 +78,7 @@ const tiers = [
     priceMonthly: "Custom",
     cta: "Contact us",
     description: "Dedicated support and discounted pricing.",
-    features: ["Large volume discounts", "Dedicated support", "Custom contracts"],
+    features: ["SSO (coming soon)", "Dedicated support", "Custom contracts"],
     awesomeValue: false,
   },
 ];
