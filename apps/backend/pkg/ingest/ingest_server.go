@@ -50,8 +50,10 @@ func startIngestServer(quit chan bool) {
 
 	// TODO avoid shutting down if we get an error
 
+	ctx, cancelContext := context.WithCancel(context.Background())
+
 	// Start server
-	go func(quit chan bool) {
+	go func(quit chan bool, ctx context.Context) {
 		err := broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
 
 			log.Info().Msgf("Received a message: %s", string(msg))
@@ -65,7 +67,7 @@ func startIngestServer(quit chan bool) {
 				return nil
 			}
 
-			if err := processors.IngestSnapshots(snapshotIDs); err != nil {
+			if err := processors.IngestSnapshots(ctx, snapshotIDs); err != nil {
 				log.Error().Err(err).Msg("Error while ingesting snapshots")
 
 				// we want to blanket fail the build
@@ -96,8 +98,11 @@ func startIngestServer(quit chan bool) {
 			panic(err)
 		}
 
-	}(quit)
+	}(quit, ctx)
 
 	// Wait for quit
 	<-quit
+
+	cancelContext()
+
 }

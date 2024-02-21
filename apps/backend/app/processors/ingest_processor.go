@@ -396,9 +396,7 @@ func compareBuilds(ctx context.Context, project models.Project, snapshots []mode
 // 3.2 If it has not been reviewed, then mark it as unreviewed
 
 // We assume all the snapshots belong to the same build
-func IngestSnapshots(snapshotIDs []string) error {
-
-	ctx := context.TODO()
+func IngestSnapshots(ctx context.Context, snapshotIDs []string) error {
 
 	if len(snapshotIDs) == 0 {
 		return fmt.Errorf("no snapshot IDs provided")
