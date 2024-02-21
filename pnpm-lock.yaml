@@ -915,9 +915,6 @@ importers:
       '@pixeleye/puppeteer':
         specifier: workspace:*
         version: link:../puppeteer
-      '@pixeleye/rrweb-snapshot':
-        specifier: 2.0.0-alpha.11
-        version: 2.0.0-alpha.11
       '@storybook/addons':
         specifier: ^7.6.17
         version: 7.6.17(react-dom@18.2.0)(react@18.2.0)
@@ -927,6 +924,9 @@ importers:
       puppeteer-core:
         specifier: ^22.1.0
         version: 22.1.0
+      rrweb-snapshot:
+        specifier: 2.0.0-alpha.11
+        version: 2.0.0-alpha.11
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -5800,10 +5800,6 @@ packages:
     dependencies:
       detect-libc: 1.0.3
     dev: true
-
-  /@pixeleye/rrweb-snapshot@2.0.0-alpha.11:
-    resolution: {integrity: sha512-VTVPoAsr9IfkVGUWty7H4k+Lm9OQur4IPUMHIcQ8LFkM/B0x9AtTrCwdKyUYWaOEDul3gNNh8XLEkEb3wXEloQ==}
-    dev: false
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}

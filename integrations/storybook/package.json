@@ -16,7 +16,7 @@
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/puppeteer": "workspace:*",
-    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.11",
+    "rrweb-snapshot": "2.0.0-alpha.11",
     "@storybook/addons": "^7.6.17",
     "puppeteer": "^22.1.0",
     "puppeteer-core": "^22.1.0"
