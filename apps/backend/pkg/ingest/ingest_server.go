@@ -94,7 +94,7 @@ func startIngestServer(quit chan bool) {
 			}
 
 			return nil
-		}, 100, quit)
+		}, 50, quit)
 
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error while subscribing to queue, shutting down")
