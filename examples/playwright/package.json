@@ -1,12 +1,12 @@
 {
   "name": "@pixeleye/playwright-example",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "test:e2e": "pixeleye exec -- npx playwright test"
   },
   "dependencies": {
-    "@pixeleye/playwright": "0.0.1",
+    "@pixeleye/playwright": "0.0.2",
     "pixeleye": "workspace:*",
     "playwright": "^1.41.2"
   },
