@@ -596,17 +596,17 @@ func tryMakeOwnerGitMember(ctx context.Context, teamID string) error {
 		return err
 	}
 
-	defer func() {
+	if err := tx.UpdateUserRoleOnTeam(ctx, teamID, owner.ID, models.TEAM_MEMBER_ROLE_ADMIN, false); err != nil {
 		if err := tx.Rollback(); err != nil {
 			log.Error().Err(err).Msgf("Failed to rollback team tx")
 		}
-	}()
-
-	if err := tx.UpdateUserRoleOnTeam(ctx, teamID, owner.ID, models.TEAM_MEMBER_ROLE_ADMIN, false); err != nil {
 		return err
 	}
 
 	if err := tx.UpdateUserRoleOnTeam(ctx, teamID, firstAdmin.ID, models.TEAM_MEMBER_ROLE_OWNER, false); err != nil {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msgf("Failed to rollback team tx")
+		}
 		return err
 	}
 
@@ -624,12 +624,6 @@ func LinkPersonalGithubTeam(ctx context.Context, user models.User, installationI
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			log.Error().Err(err).Msgf("Failed to rollback github tx")
-		}
-	}()
-
 	personalTeam, err := db.GetUsersPersonalTeam(ctx, user.ID)
 	if err != nil {
 		return models.Team{}, models.GitInstallation{}, err
@@ -639,6 +633,9 @@ func LinkPersonalGithubTeam(ctx context.Context, user models.User, installationI
 
 	installation, err := tx.CreateGithubAppInstallation(ctx, installationID, personalTeam.ID)
 	if err != nil {
+		if err := tx.Rollback(); err != nil {
+			log.Error().Err(err).Msgf("Failed to rollback github tx")
+		}
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
@@ -659,11 +656,15 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
-			log.Error().Err(err).Msgf("Failed to rollback github tx")
+	completed := false
+
+	defer func(completed *bool) {
+		if !*completed {
+			if err := tx.Rollback(); err != nil {
+				log.Error().Err(err).Msgf("Failed to rollback github tx")
+			}
 		}
-	}()
+	}(&completed)
 
 	team, err := db.GetTeamFromExternalID(ctx, strconv.Itoa(int(*app.Account.ID)))
 
@@ -727,6 +728,8 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 	if err := tx.Commit(); err != nil {
 		return team, installation, err
 	}
+
+	completed = true
 
 	return team, installation, nil
 }

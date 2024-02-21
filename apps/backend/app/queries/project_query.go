@@ -212,11 +212,13 @@ func (q *ProjectQueries) CreateProject(ctx context.Context, project *models.Proj
 		return err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
+	completed := false
+
+	defer func(completed *bool) {
+		if !*completed {
 			log.Error().Err(err).Msg("Rollback failed")
 		}
-	}()
+	}(&completed)
 
 	if _, err = tx.NamedExecContext(ctx, query, project); err != nil {
 		return err
@@ -229,6 +231,8 @@ func (q *ProjectQueries) CreateProject(ctx context.Context, project *models.Proj
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
+	completed = true
 
 	analytics.Track(posthog.Capture{
 		DistinctId: project.TeamID,
@@ -332,11 +336,12 @@ func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, pr
 		return err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
+	completed := false
+	defer func(completed *bool) {
+		if !*completed {
 			log.Error().Err(err).Msg("Rollback failed")
 		}
-	}()
+	}(&completed)
 
 	if _, err = tx.ExecContext(ctx, queryProject, projectID, userID, role); err != nil {
 		return err
@@ -355,6 +360,8 @@ func (q *ProjectQueries) AddUserToProject(ctx context.Context, teamID string, pr
 		Event:      "User Invited to Project",
 		Properties: posthog.NewProperties().Set("team_id", teamID).Set("user_id", userID).Set("role", role).Set("type", "invited"),
 	})
+
+	completed = true
 
 	return nil
 }

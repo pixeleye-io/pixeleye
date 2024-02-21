@@ -83,11 +83,12 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 		return err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
+	completed := false
+	defer func(completed *bool) {
+		if !*completed {
 			log.Error().Err(err).Msg("Rollback failed")
 		}
-	}()
+	}(&completed)
 
 	query, args, err := sqlx.In(query, teamID, memberIDs)
 	if err != nil {
@@ -113,7 +114,13 @@ func (q *TeamQueries) RemoveTeamMembers(ctx context.Context, teamID string, memb
 		return err
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	completed = true
+
+	return nil
 }
 
 func (q *TeamQueries) AddTeamMembers(ctx context.Context, members []models.TeamMember) error {

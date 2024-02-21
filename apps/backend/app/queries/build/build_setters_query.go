@@ -34,11 +34,12 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 		return err
 	}
 
-	defer func() {
-		if err := tx.Rollback(); err != nil {
+	completed := false
+	defer func(completed *bool) {
+		if !*completed {
 			log.Error().Err(err).Msg("Rollback failed")
 		}
-	}()
+	}(&completed)
 
 	project := models.Project{}
 	if err = tx.GetContext(ctx, &project, selectProjectQuery, build.ProjectID); err != nil {
@@ -113,6 +114,8 @@ func (q *BuildQueries) CreateBuild(ctx context.Context, build *models.Build) err
 	if err := tx.Commit(); err != nil {
 		return err
 	}
+
+	completed = true
 
 	return nil
 }

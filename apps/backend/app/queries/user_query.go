@@ -266,12 +266,12 @@ func (q *UserQueries) deleteUser(id string) error {
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		if err := tx.Rollback(); err != nil {
+	completed := false
+	defer func(completed *bool) {
+		if !*completed {
 			log.Error().Err(err).Msg("Rollback failed")
 		}
-	}()
+	}(&completed)
 
 	if _, err = tx.ExecContext(ctx, deleteUsersTeamQuery, id); err != nil {
 		return err
@@ -289,7 +289,14 @@ func (q *UserQueries) deleteUser(id string) error {
 		return err
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	completed = true
+
+	return nil
 }
 
 func (q *UserQueries) DeleteUsers() error {
