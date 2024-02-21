@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v3
         with:
@@ -39,6 +39,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
+          version: pnpm version:npm
           publish: pnpm publish:npm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
