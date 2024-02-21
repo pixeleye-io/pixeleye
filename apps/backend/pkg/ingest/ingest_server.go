@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/processors"
@@ -52,9 +53,14 @@ func startIngestServer(quit chan bool) {
 
 	ctx, cancelContext := context.WithCancel(context.Background())
 
+	var wg sync.WaitGroup
+
 	// Start server
 	go func(quit chan bool, ctx context.Context) {
 		err := broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
+
+			wg.Add(1)
+			defer wg.Done()
 
 			log.Info().Msgf("Received a message: %s", string(msg))
 
@@ -103,6 +109,7 @@ func startIngestServer(quit chan bool) {
 	// Wait for quit
 	<-quit
 
+	wg.Wait()
 	cancelContext()
 
 }
