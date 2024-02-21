@@ -1,7 +1,8 @@
 {
   "name": "pixeleye",
   "scripts": {
-    "publish:npm": "pnpm turbo build --filter=pixeleye --filter=puppeteer --filter=playwright --filter=cypress --filter=storybook && pnpm changeset publish"
+    "version:npm": "changeset version && pnpm install --no-frozen-lockfile",
+    "publish:npm": "turbo build --filter=pixeleye --filter=puppeteer --filter=playwright --filter=cypress --filter=storybook && changeset publish"
   },
   "license": "AGPL-3.0",
   "devDependencies": {
