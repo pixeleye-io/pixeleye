@@ -81,6 +81,10 @@ func getQueueName(queueType brokerTypes.QueueType, name string) string {
 		log.Fatal().Err(err).Msg("Failed to get queue name")
 	}
 
+	if name == "" {
+		return queueName
+	}
+
 	return fmt.Sprintf("%s:%s", queueName, name)
 }
 
