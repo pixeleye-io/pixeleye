@@ -1,6 +1,8 @@
 {
   "name": "pixeleye",
-  "scripts": {},
+  "scripts": {
+    "publish:npm": "pnpm turbo build --filter=pixeleye --filter=puppeteer --filter=playwright --filter=cypress --filter=storybook && pnpm changeset publish"
+  },
   "license": "AGPL-3.0",
   "devDependencies": {
     "eslint": "^8.56.0",
