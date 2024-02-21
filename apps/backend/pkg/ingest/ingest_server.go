@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/processors"
 	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
@@ -64,8 +63,6 @@ func startIngestServer(quit chan bool) {
 
 			log.Info().Msgf("Received a message: %s", string(msg))
 
-			time.Sleep(10 * time.Minute)
-
 			snapshotIDs := []string{}
 
 			if err := json.Unmarshal(msg, &snapshotIDs); err != nil {
@@ -97,7 +94,7 @@ func startIngestServer(quit chan bool) {
 			}
 
 			return nil
-		}, 5, quit)
+		}, 100, quit)
 
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error while subscribing to queue, shutting down")
