@@ -12,5 +12,3 @@ export const queries = mergeQueryKeys(
   buildKeys,
   inviteKeys
 );
-
-export * from "./getQueryClient";

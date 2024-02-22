@@ -2,8 +2,8 @@ import { Divider } from "@pixeleye/ui";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { API } from "@/libs/api";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { queries, getQueryClient } from "@/queries";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
+import { queries } from "@/queries";
 import { BuildSegments } from "./segments";
 
 export default async function Layout({
@@ -33,19 +33,18 @@ export default async function Layout({
     },
   });
 
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient()
 
   await Promise.all([
     queryClient.prefetchQuery(queries.user.get(cookies().toString())),
     queryClient.prefetchQuery(queries.teams.list(cookies().toString())),
   ]);
 
-  const dehydratedState = dehydrate(queryClient);
 
   if (!build) notFound();
 
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <BuildSegments buildID={build.id} projectID={project.id} />
       <Divider />
       {children}

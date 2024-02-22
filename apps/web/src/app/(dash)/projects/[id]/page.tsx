@@ -3,8 +3,8 @@ import { Template } from "@/components/template";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { BuildList } from "./buildList";
-import { getQueryClient, queries } from "@/queries";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import {  queries } from "@/queries";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 
 export default async function ProjectOverviewPage({
   params,
@@ -17,7 +17,7 @@ export default async function ProjectOverviewPage({
 
   const cookie = cookies().toString();
 
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient()
 
   const [project] = await Promise.all([
     API.get("/v1/projects/{id}", {
@@ -37,11 +37,9 @@ export default async function ProjectOverviewPage({
 
   if (!project) return notFound();
 
-  const dehydratedState = dehydrate(queryClient);
-
   return (
     <Template>
-      <HydrationBoundary state={dehydratedState}>
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <BuildList projectID={projectID} />
       </HydrationBoundary>
     </Template>

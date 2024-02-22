@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { getTeam } from "@/serverLibs";
 import { DashboardProjects } from "./projects";
-import { getQueryClient, queries } from "@/queries";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { queries } from "@/queries";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 
 export default async function DashboardPage({
   searchParams,
@@ -11,7 +11,7 @@ export default async function DashboardPage({
 }) {
   const team = await getTeam(searchParams);
 
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient()
 
   const cookie = cookies().toString();
 
@@ -19,10 +19,8 @@ export default async function DashboardPage({
     queries.teams.detail(team.id, cookie)._ctx.listProjects()
   );
 
-  const dehydratedState = dehydrate(queryClient);
-
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <DashboardProjects team={team} />
     </HydrationBoundary>
   );

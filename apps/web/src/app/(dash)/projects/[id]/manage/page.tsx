@@ -9,10 +9,8 @@ import {
 } from "./sections";
 import { API } from "@/libs";
 import { cookies } from "next/headers";
-import { getTeam } from "@/serverLibs";
-import { UserOnProject } from "@pixeleye/api";
-import { getQueryClient, queries } from "@/queries";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { queries } from "@/queries";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 
 function Section({
   children,
@@ -62,7 +60,7 @@ export default async function Page({
 
   const cookie = cookies().toString();
 
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient()
 
   const [project] = await Promise.all([
     API.get("/v1/projects/{id}", {
@@ -84,17 +82,15 @@ export default async function Page({
     ),
   ]);
 
-  const dehydratedState = dehydrate(queryClient);
-
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="space-y-10 mt-12">
         <Section
           title="General"
           description="General project settings"
-          >
-            <UpdateProjectSection project={project} />
-          </Section>
+        >
+          <UpdateProjectSection project={project} />
+        </Section>
         <Section
           title="Security"
           description="The API token is used by our clients to upload the snapshot. Keep this safe"

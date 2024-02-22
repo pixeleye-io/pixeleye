@@ -1,8 +1,8 @@
 import { API } from "@/libs";
 import { cookies } from "next/headers";
 import { Review } from "./review";
-import { getQueryClient, queries } from "@/queries";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { queries } from "@/queries";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { WaitingPage } from "./waiting";
 import { Button, Link } from "@pixeleye/ui";
 import NextLink from "next/link";
@@ -16,7 +16,7 @@ export default async function ProjectOverviewPage({
 }) {
   const buildID = params.id;
 
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient()
 
   const cookie = cookies().toString();
 
@@ -49,11 +49,10 @@ export default async function ProjectOverviewPage({
     .catch(() => undefined),
   ]);
 
-  const dehydratedState = dehydrate(queryClient);
 
   if (["uploading", "queued-uploading", "processing", "queued-processing"].includes(build.status)) {
     return (
-      <HydrationBoundary state={dehydratedState}>
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <WaitingPage buildID={build.id} />
       </HydrationBoundary>
     );

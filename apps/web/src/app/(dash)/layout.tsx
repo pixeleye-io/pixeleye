@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { Navbar } from "./navbar";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { queries, getQueryClient } from "@/queries";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
+import { queries } from "@/queries";
 import { Logo } from "@pixeleye/ui";
 
 const navigation = [
@@ -39,8 +39,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const queryClient = getQueryClient();
-
+  const queryClient = new QueryClient()
   const cookie = cookies().toString();
 
   await Promise.all([
@@ -48,10 +47,8 @@ export default async function DashboardLayout({
     queryClient.prefetchQuery(queries.teams.list(cookie)),
   ]);
 
-  const dehydratedState = dehydrate(queryClient);
-
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="min-h-screen">
         <Navbar />
         {children}

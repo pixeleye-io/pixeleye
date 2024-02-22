@@ -1,10 +1,9 @@
-import { API } from "@/libs";
 import { SettingsTemplate } from "../../settingsTemplate";
 import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { getQueryClient, queries } from "@/queries";
-import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { queries } from "@/queries";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { MemberSection } from "./sections";
 
 export default async function OrgMemberSettings({
@@ -14,7 +13,7 @@ export default async function OrgMemberSettings({
 }) {
   const team = await getTeam(searchParams);
 
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient()
 
   const cookie = cookies().toString();
 
@@ -31,10 +30,8 @@ export default async function OrgMemberSettings({
     ),
   ]);
 
-  const dehydratedState = dehydrate(queryClient);
-
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <SettingsTemplate
         title={"Git members"}
         description="List of team members synced from your VCS provider."

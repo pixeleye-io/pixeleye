@@ -110,7 +110,6 @@ func processSnapshot(ctx context.Context, project models.Project, build models.B
 	snapshot.BaselineID = &baselineSnapshot.ID
 
 	lastApprovedSnapshot, err := db.GetLastApprovedInHistory(snapshot.ID)
-
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
