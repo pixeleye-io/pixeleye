@@ -62,7 +62,7 @@ export const startBooth = ({
     env: process.env,
   });
 
-  execFile(
+  return execFile(
     "node",
     [
       "booth.js",
