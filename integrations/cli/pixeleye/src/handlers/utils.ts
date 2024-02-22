@@ -6,6 +6,7 @@ import { execFile, execFileSync, execSync } from "node:child_process";
 import { finished, ping } from "@pixeleye/cli-booth";
 import { Build } from "@pixeleye/api";
 import EventSource from "eventsource";
+import { installBrowsers } from "@pixeleye/cli-install";
 
 export const getExitBuild =
   (api: APIType, buildID: string) => async (err: any) => {
@@ -46,7 +47,7 @@ export function watchExit(callback: () => Promise<void>) {
   }); // `kill` command
 }
 
-export const startBooth = ({
+export const startBooth = async ({
   buildID,
   token,
   endpoint,
@@ -57,6 +58,8 @@ export const startBooth = ({
   endpoint?: string;
   boothPort?: string;
 }) => {
+  await installBrowsers();
+
   return execFile(
     "node",
     [

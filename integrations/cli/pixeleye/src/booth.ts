@@ -1,9 +1,6 @@
 import { startServer } from "@pixeleye/cli-booth";
 import { defaultConfig } from "@pixeleye/cli-config";
 import { Command } from "commander";
-import { execSync } from "node:child_process";
-// @ts-ignore
-import { installBrowsersForNpmInstall } from "playwright-core/lib/install/installBrowsers";
 
 export const program = new Command();
 
@@ -23,13 +20,6 @@ program
   .argument("<buildID>", "Build ID to start the booth server for")
   .argument("<token>", "Pixeleye project token")
   .action(async (buildID, token, options) => {
-    // execSync("npx playwright install --with-deps", {
-    //   cwd: __dirname,
-    //   env: process.env,
-    // });
-
-    // await registry.installDeps(registry.defaultExecutables());
-
     await startServer({
       port: Number(options.port),
       endpoint: options.endpoint,

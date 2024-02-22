@@ -707,6 +707,9 @@ importers:
       '@pixeleye/cli-env':
         specifier: workspace:*
         version: link:../cli-env
+      '@pixeleye/cli-install':
+        specifier: workspace:*
+        version: link:../cli-install
       '@pixeleye/storybook':
         specifier: workspace:*
         version: link:../../storybook
@@ -939,9 +942,6 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
-      '@pixeleye/cli-install':
-        specifier: workspace:*
-        version: link:../cli/cli-install
       '@pixeleye/playwright':
         specifier: workspace:*
         version: link:../playwright
