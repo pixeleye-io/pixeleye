@@ -16,7 +16,7 @@
     "bin",
     "LICENSE"
   ],
-  "types": "./bin/index.d.ts",
+  "types": "./bin/src/index.d.ts",
   "peerDependencies": {
     "playwright": "^1"
   },

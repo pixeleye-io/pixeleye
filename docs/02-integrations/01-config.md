@@ -17,9 +17,9 @@ This file should export a `Config` object. It can be a function that returns a `
 import { Config } from "pixeleye";
 
 const config: Config = {
-  projectToken: "YOUR_PROJECT_TOKEN",
+  token: "YOUR_PROJECT_TOKEN",
   // or
-  // projectToken: process.env.PIXELEYE_PROJECT_TOKEN,
+  // token: process.env.PIXELEYE_PROJECT_TOKEN!,
   // ...
 };
 
@@ -32,9 +32,9 @@ export default config;
 
 ```pixeleye.config.js
 const config = {
-  projectToken: "YOUR_PROJECT_TOKEN",
+  token: "YOUR_PROJECT_TOKEN",
   // or
-  // projectToken: process.env.PIXELEYE_PROJECT_TOKEN,
+  // token: process.env.PIXELEYE_PROJECT_TOKEN,
   // ...
 };
 

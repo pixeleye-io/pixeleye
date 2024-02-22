@@ -59,9 +59,9 @@ See [Getting Started](/docs/01-getting-started/02-setup.md) for more information
 import { Config } from "pixeleye";
 
 const config: Config = {
-  projectToken: "YOUR_PROJECT_TOKEN",
+  token: "YOUR_PROJECT_TOKEN",
   // or
-  // projectToken: process.env.PIXELEYE_PROJECT_TOKEN,
+  // token: process.env.PIXELEYE_PROJECT_TOKEN!,
   // ...
 };
 
@@ -75,9 +75,9 @@ export default config;
 ```pixeleye.config.js
 /** @type {import('pixeleye').Config} */
 const config = {
-  projectToken: "YOUR_PROJECT_TOKEN",
+  token: "YOUR_PROJECT_TOKEN",
   // or
-  // projectToken: process.env.PIXELEYE_PROJECT_TOKEN,
+  // token: process.env.PIXELEYE_PROJECT_TOKEN,
   // ...
 };
 

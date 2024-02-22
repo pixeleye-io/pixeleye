@@ -11,7 +11,7 @@
   },
   "publishConfig": {
     "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts"
+    "typings": "./dist/src/index.d.ts"
   },
   "main": "src/index.ts",
   "typings": "src/index.ts",
