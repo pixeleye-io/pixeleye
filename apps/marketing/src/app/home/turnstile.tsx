@@ -12,6 +12,7 @@ export function Widget() {
         theme: theme.resolvedTheme === "dark" ? "dark" : "light",
         size: "invisible",
       }}
+      suppressHydrationWarning
       siteKey="0x4AAAAAAAKZvsZET2JzmpMq"
     />
   );
