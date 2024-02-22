@@ -74,7 +74,7 @@ const tiers = [
   {
     name: "Enterprise",
     id: "tier-enterprise",
-    href: "#",
+    href: "mailto:enquiries@pixeleye.io",
     priceMonthly: "Custom",
     cta: "Contact us",
     description: "Dedicated support and discounted pricing.",
@@ -204,6 +204,32 @@ export default function PricingPage() {
             </Button>
           </div>
         ))}
+      </div>
+
+      <div className="relative mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:mt-5 lg:px-8">
+        <div className="mx-auto max-w-md lg:max-w-5xl">
+          <div className="rounded-lg border border-outline-variant px-6 py-8 sm:p-10 lg:flex lg:items-center">
+            <div className="flex-1">
+              <div>
+                <h3 className="inline-flex rounded-full text-lg py-1 font-semibold text-on-surface">
+                  Free for open source
+                </h3>
+              </div>
+              <div className="mt-4 text-lg text-on-surface-variant">
+                As open source maintainers ourselves, we understand the difficulty of maintaining a project.
+                Email us describing your project and at our discretion, we&apos;ll cover your usage.
+              </div>
+            </div>
+            <div className="mt-6 rounded-md shadow lg:ml-10 lg:mt-0 lg:flex-shrink-0">
+              <Button variant="secondary" asChild>
+                <a
+                  href="mailto:enquiries@pixeleye.io">
+                  Contact us
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-32 mx-auto max-w-3xl sm:text-center">

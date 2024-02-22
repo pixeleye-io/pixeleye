@@ -3,7 +3,7 @@ import { Template } from "@/components/template";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { BuildList } from "./buildList";
-import {  queries } from "@/queries";
+import { queries } from "@/queries";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 
 export default async function ProjectOverviewPage({
