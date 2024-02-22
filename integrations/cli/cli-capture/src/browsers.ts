@@ -1,4 +1,4 @@
-import { chromium, firefox, webkit, BrowserContext } from "playwright";
+import { chromium, firefox, webkit, BrowserContext } from "playwright-core";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import hash from "object-hash";
 

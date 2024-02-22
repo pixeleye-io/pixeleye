@@ -15,11 +15,26 @@ import {
   watchExit,
 } from "./utils";
 
+import {
+  installBrowsersForNpmInstall,
+  registry,
+  // @ts-ignore
+} from "playwright-core/lib/server";
+
 export async function storybook(url: string, options: Config) {
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
   });
+
+  await registry.installDeps(registry.defaultExecutables());
+
+  await installBrowsersForNpmInstall([
+    "chromium",
+    "ffmpeg",
+    "firefox",
+    "webkit",
+  ]);
 
   // set boothPort env variable for booth server
   // eslint-disable-next-line turbo/no-undeclared-env-vars

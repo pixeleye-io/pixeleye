@@ -1,10 +1,10 @@
-import { pixeleyeSnapshot } from "@pixeleye/puppeteer";
+import { pixeleyeSnapshot } from "@pixeleye/playwright";
 import { SBWindow } from "./browser";
-import { launch } from "puppeteer";
+import { chromium } from "playwright-core";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 async function openBrowser() {
-  const browser = await launch({
+  const browser = await chromium.launch({
     headless: true,
   });
   const page = await browser.newPage();

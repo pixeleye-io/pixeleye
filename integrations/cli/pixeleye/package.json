@@ -1,6 +1,6 @@
 {
   "name": "pixeleye",
-  "version": "0.0.20",
+  "version": "0.1.26",
   "private": false,
   "license": "AGPL-3.0",
   "scripts": {
@@ -45,6 +45,7 @@
     "graceful-fs": "^4.2.11",
     "jimp": "^0.22.10",
     "ora": "^8.0.1",
+    "playwright-core": "^1.41.2",
     "rrweb-snapshot": "2.0.0-alpha.11"
   }
 }

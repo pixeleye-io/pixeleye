@@ -551,7 +551,7 @@ importers:
       object-hash:
         specifier: ^3.0.0
         version: 3.0.0
-      playwright:
+      playwright-core:
         specifier: ^1.41.2
         version: 1.41.2
       rrweb-snapshot:
@@ -607,7 +607,7 @@ importers:
 
   integrations/cli/cli-devices:
     dependencies:
-      playwright:
+      playwright-core:
         specifier: ^1.41.2
         version: 1.41.2
     devDependencies:
@@ -671,6 +671,28 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
 
+  integrations/cli/cli-install:
+    dependencies:
+      playwright-core:
+        specifier: ^1.41.2
+        version: 1.41.2
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/node':
+        specifier: 20.11.19
+        version: 20.11.19
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
   integrations/cli/pixeleye:
     dependencies:
       '@pixeleye/cli-api':
@@ -711,7 +733,10 @@ importers:
         version: 8.0.1
       playwright:
         specifier: ^1
-        version: 1.40.1
+        version: 1.41.2
+      playwright-core:
+        specifier: ^1.41.2
+        version: 1.41.2
       rrweb-snapshot:
         specifier: 2.0.0-alpha.11
         version: 2.0.0-alpha.11
@@ -804,7 +829,7 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
-      playwright:
+      playwright-core:
         specifier: ^1.41.2
         version: 1.41.2
       rrweb-snapshot:
@@ -914,12 +939,18 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
-      '@pixeleye/puppeteer':
+      '@pixeleye/cli-install':
         specifier: workspace:*
-        version: link:../puppeteer
+        version: link:../cli/cli-install
+      '@pixeleye/playwright':
+        specifier: workspace:*
+        version: link:../playwright
       '@storybook/addons':
         specifier: ^7.6.17
         version: 7.6.17(react-dom@18.2.0)(react@18.2.0)
+      playwright-core:
+        specifier: ^1.41.2
+        version: 1.41.2
       puppeteer:
         specifier: ^22.1.0
         version: 22.1.0(typescript@5.3.3)
@@ -9148,7 +9179,7 @@ packages:
   /@types/node-fetch@2.6.11:
     resolution: {integrity: sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==}
     dependencies:
-      '@types/node': 18.19.17
+      '@types/node': 20.11.19
       form-data: 4.0.0
     dev: true
 
@@ -15738,26 +15769,10 @@ packages:
       mlly: 1.5.0
       pathe: 1.1.2
 
-  /playwright-core@1.40.1:
-    resolution: {integrity: sha512-+hkOycxPiV534c4HhpfX6yrlawqVUzITRKwHAmYfmsVreltEl6fAZJ3DPfLMOODw0H3s1Itd6MDCWmP1fl/QvQ==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: false
-
   /playwright-core@1.41.2:
     resolution: {integrity: sha512-VaTvwCA4Y8kxEe+kfm2+uUUw5Lubf38RxF7FpBxLPmGe5sdNkSg5e3ChEigaGrX7qdqT3pt2m/98LiyvU2x6CA==}
     engines: {node: '>=16'}
     hasBin: true
-
-  /playwright@1.40.1:
-    resolution: {integrity: sha512-2eHI7IioIpQ0bS1Ovg/HszsN/XKNwEG1kbzSDDmADpclKc7CyqkHw7Mg2JCz/bbCxg25QUPcjksoMW7JcIFQmw==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dependencies:
-      playwright-core: 1.40.1
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: false
 
   /playwright@1.41.2:
     resolution: {integrity: sha512-v0bOa6H2GJChDL8pAeLa/LZC4feoAMbSQm1/jF/ySsWWoaNItvrMP7GEkvEEFyCTUYKMxjQKaTSg5up7nR6/8A==}

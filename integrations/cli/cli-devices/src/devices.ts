@@ -1,4 +1,4 @@
-import { devices as playwrightDevices } from "playwright";
+import { devices as playwrightDevices } from "playwright-core";
 
 type PlaywrightDeviceDescriptor = (typeof playwrightDevices)["Desktop Chrome"];
 

@@ -15,11 +15,13 @@
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
-    "@pixeleye/puppeteer": "workspace:*",
-    "rrweb-snapshot": "2.0.0-alpha.11",
+    "@pixeleye/cli-install": "workspace:*",
+    "@pixeleye/playwright": "workspace:*",
     "@storybook/addons": "^7.6.17",
+    "playwright-core": "^1.41.2",
     "puppeteer": "^22.1.0",
-    "puppeteer-core": "^22.1.0"
+    "puppeteer-core": "^22.1.0",
+    "rrweb-snapshot": "2.0.0-alpha.11"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
