@@ -60,7 +60,7 @@ export default async function ProjectOverviewPage({
 
   if (["aborted"].includes(build.status)) {
     return (
-      <HydrationBoundary state={dehydratedState}>
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <div className="text-center py-12">
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-on-surface">Build was aborted</h1>
           <p className="mt-4 text-base leading-7 text-on-surface-variant">Either manually or during the ci/cd pipeline, this build was canceled</p>
@@ -85,7 +85,7 @@ export default async function ProjectOverviewPage({
 
 
   return (
-    <HydrationBoundary state={dehydratedState}>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <Review buildID={build.id} project={project} />
     </HydrationBoundary>
   );
