@@ -20,7 +20,7 @@ Our CLI supports the following methods:
 {% tab label="NPM" %}
 
 ```bash
-npm install pixeleye --save-dev
+npm install pixeleye playwright --save-dev
 ```
 
 {% /tab %}
@@ -28,7 +28,7 @@ npm install pixeleye --save-dev
 {% tab label="Yarn" %}
 
 ```bash
-yarn add pixeleye --dev
+yarn add pixeleye playwright --dev
 ```
 
 {% /tab %}
@@ -36,7 +36,7 @@ yarn add pixeleye --dev
 {% tab label="PNPM" %}
 
 ```bash
-pnpm add pixeleye --save-dev
+pnpm add pixeleye playwright --save-dev
 ```
 
 {% /tab %}

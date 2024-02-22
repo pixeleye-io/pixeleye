@@ -18,7 +18,7 @@ We require the Pixeleye cli tool and Puppeteer tool
 {% tab label="NPM" %}
 
 ```bash
-npm install pixeleye @pixeleye/puppeteer --save-dev
+npm install pixeleye playwright @pixeleye/puppeteer --save-dev
 ```
 
 {% /tab %}
@@ -26,7 +26,7 @@ npm install pixeleye @pixeleye/puppeteer --save-dev
 {% tab label="Yarn" %}
 
 ```bash
-yarn add pixeleye @pixeleye/puppeteer --dev
+yarn add pixeleye playwright @pixeleye/puppeteer --dev
 ```
 
 {% /tab %}
@@ -34,7 +34,7 @@ yarn add pixeleye @pixeleye/puppeteer --dev
 {% tab label="PNPM" %}
 
 ```bash
-pnpm add pixeleye @pixeleye/puppeteer --save-dev
+pnpm add pixeleye playwright @pixeleye/puppeteer --save-dev
 ```
 
 {% /tab %}

@@ -18,7 +18,7 @@ We require the Pixeleye cli tool and Cypress tool
 {% tab label="NPM" %}
 
 ```bash
-npm install pixeleye @pixeleye/cypress --save-dev
+npm install pixeleye playwright @pixeleye/cypress --save-dev
 ```
 
 {% /tab %}
@@ -26,7 +26,7 @@ npm install pixeleye @pixeleye/cypress --save-dev
 {% tab label="Yarn" %}
 
 ```bash
-yarn add pixeleye @pixeleye/cypress --dev
+yarn add pixeleye playwright @pixeleye/cypress --dev
 ```
 
 {% /tab %}
@@ -34,7 +34,7 @@ yarn add pixeleye @pixeleye/cypress --dev
 {% tab label="PNPM" %}
 
 ```bash
-pnpm add pixeleye @pixeleye/cypress --save-dev
+pnpm add pixeleye playwright @pixeleye/cypress --save-dev
 ```
 
 {% /tab %}

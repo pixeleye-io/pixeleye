@@ -2,7 +2,7 @@ import { APIType } from "@pixeleye/cli-api";
 import { program } from "commander";
 import ora from "ora";
 import { errStr } from "../messages/ui/theme";
-import { execFile, execFileSync } from "node:child_process";
+import { execFile, execFileSync, execSync } from "node:child_process";
 import { finished, ping } from "@pixeleye/cli-booth";
 import { Build } from "@pixeleye/api";
 import EventSource from "eventsource";
@@ -57,7 +57,7 @@ export const startBooth = ({
   endpoint?: string;
   boothPort?: string;
 }) => {
-  execFileSync("node", ["npx playwright install --with-deps"], {
+  execSync("npx playwright install --with-deps", {
     cwd: __dirname,
     env: process.env,
   });
