@@ -549,8 +549,8 @@ table "build" {
   }
 
   column "check_run_id" {
-    type = varchar(255)
-    null = false
+    type    = varchar(255)
+    null    = false
     default = ""
   }
 
@@ -621,6 +621,10 @@ table "build_history" {
   primary_key {
     columns = [column.child_id, column.parent_id]
   }
+
+  check "child_id_not_parent_id" {
+    expr = "child_id != parent_id"
+  }
 }
 
 table "build_targets" {
@@ -647,6 +651,10 @@ table "build_targets" {
 
   primary_key {
     columns = [column.build_id, column.target_id]
+  }
+
+  check "build_id_not_target_id" {
+    expr = "build_id != target_id"
   }
 }
 
