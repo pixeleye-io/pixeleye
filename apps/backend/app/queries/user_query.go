@@ -262,14 +262,16 @@ func (q *UserQueries) deleteUser(id string) error {
 	ctx := context.Background()
 
 	tx, err := q.BeginTxx(ctx, nil)
-
 	if err != nil {
 		return err
 	}
+
 	completed := false
 	defer func(completed *bool) {
 		if !*completed {
-			log.Error().Err(err).Msg("Rollback failed")
+			if err := tx.Rollback(); err != nil {
+				log.Error().Err(err).Msg("failed to rollback transaction")
+			}
 		}
 	}(&completed)
 

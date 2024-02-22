@@ -657,7 +657,6 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 	}
 
 	completed := false
-
 	defer func(completed *bool) {
 		if !*completed {
 			if err := tx.Rollback(); err != nil {

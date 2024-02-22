@@ -64,11 +64,10 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	build.Status = curBuild.Status
 
 	completed := false
-
 	defer func(completed *bool) {
-		if *completed {
+		if !*completed {
 			if err := tx.Rollback(); err != nil {
-				log.Error().Err(err).Msg("Failed to rollback transaction")
+				log.Error().Err(err).Msg("failed to rollback transaction")
 			}
 		}
 	}(&completed)
@@ -175,7 +174,9 @@ func FailBuild(ctx context.Context, build *models.Build) error {
 	completed := false
 	defer func(completed *bool) {
 		if !*completed {
-			log.Error().Err(err).Msg("Failed to rollback transaction")
+			if err := tx.Rollback(); err != nil {
+				log.Error().Err(err).Msg("failed to rollback transaction")
+			}
 		}
 	}(&completed)
 
