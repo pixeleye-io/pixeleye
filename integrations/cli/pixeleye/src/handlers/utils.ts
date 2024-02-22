@@ -74,11 +74,13 @@ export const startBooth = async ({
       cwd: __dirname,
       env: process.env,
     },
-    (error, stdout, _) => {
-      if (error) {
-        throw error;
-      }
-      console.log(stdout);
+    (error, stdout, stderr) => {
+      // if (error) {
+      //   throw error;
+      // }
+      console.log("err", error);
+      console.log("stdout", stdout);
+      console.log("stderr", stderr);
     }
   );
 };

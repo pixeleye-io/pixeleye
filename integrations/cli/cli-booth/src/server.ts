@@ -36,7 +36,6 @@ export function startServer(options: BoothServerOptions) {
       })
     );
 
-
     // pre load the browsers we know we will use
     warmUpBrowsers();
 
@@ -47,7 +46,9 @@ export function startServer(options: BoothServerOptions) {
     app.post("/snapshot", (req, res) => {
       const body = req.body as SnapshotRequest;
 
-      queue.add(async () => handleQueue({ ...options, body }));
+      queue.add(async () =>
+        handleQueue({ ...options, body }).catch((err) => console.error(err))
+      );
 
       res.end("ok");
     });
