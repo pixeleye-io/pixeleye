@@ -6,9 +6,11 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/pixeleye-io/pixeleye/app/processors"
 	statuses_build "github.com/pixeleye-io/pixeleye/app/statuses/build"
+	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/broker"
 	"github.com/pixeleye-io/pixeleye/platform/brokerTypes"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -58,6 +60,8 @@ func startIngestServer(quit chan bool) {
 	go func(quit chan bool, ctx context.Context) {
 		err := broker.SubscribeToQueue(connection, "", brokerTypes.BuildProcess, func(msg []byte) error {
 
+			defer utils.LogTimeTaken(time.Now(), "ingest_queue")
+
 			wg.Add(1)
 			defer wg.Done()
 
@@ -94,7 +98,7 @@ func startIngestServer(quit chan bool) {
 			}
 
 			return nil
-		}, 100, quit)
+		}, 50, quit)
 
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error while subscribing to queue, shutting down")
