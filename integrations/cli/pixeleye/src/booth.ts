@@ -1,6 +1,7 @@
 import { startServer } from "@pixeleye/cli-booth";
 import { defaultConfig } from "@pixeleye/cli-config";
 import { Command } from "commander";
+import { execSync } from "node:child_process";
 
 export const program = new Command();
 
@@ -22,6 +23,10 @@ program
   .action(async (buildID, token, options) => {
     console.log("token", token);
     console.log("buildID", buildID);
+    execSync("npx playwright install --with-deps", {
+      cwd: __dirname,
+      env: process.env,
+    });
     await startServer({
       port: Number(options.port),
       endpoint: options.endpoint,

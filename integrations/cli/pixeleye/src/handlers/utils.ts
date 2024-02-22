@@ -57,11 +57,6 @@ export const startBooth = ({
   endpoint?: string;
   boothPort?: string;
 }) => {
-  execSync("npx playwright install --with-deps", {
-    cwd: __dirname,
-    env: process.env,
-  });
-
   return execFile(
     "node",
     [
