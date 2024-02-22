@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/puppeteer-with-vitest",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "test:e2e": "pixeleye exec -- vitest run"
