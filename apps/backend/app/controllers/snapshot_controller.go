@@ -7,6 +7,7 @@ import (
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/app/stores"
@@ -52,7 +53,6 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 	}
 
 	if snap != nil {
-
 		snap.Exists = true
 		if err := db.SetSnapImageExists(c.Request().Context(), snap.ID, true); err != nil {
 			return nil, err
@@ -76,7 +76,20 @@ func createSnapImage(c echo.Context, db *database.Queries, data SnapshotUpload, 
 	}
 
 	if err := db.CreateSnapImage(snapImage); err != nil {
-		return nil, err
+		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
+			// We've already created this snap, probably in this request
+			existingSnap, err := db.GetSnapImageByHash(c.Request().Context(), data.Hash, projectID)
+			if err != nil {
+				return nil, err
+			}
+
+			return &UploadSnapReturn{
+				SnapImage: &existingSnap,
+			}, nil
+
+		} else if err != nil {
+			return nil, err
+		}
 	}
 
 	return &UploadSnapReturn{
