@@ -1,4 +1,4 @@
-import type { Page } from "playwright";
+import type { Page } from "playwright-core";
 import { loadConfig } from "@pixeleye/cli-config";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import {

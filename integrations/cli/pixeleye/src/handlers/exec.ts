@@ -44,7 +44,7 @@ export async function execHandler(command: string[], options: Config) {
 
   const fileSpinner = ora("Starting local snapshot server").start();
 
-  const child = startBooth({
+  const child = await startBooth({
     buildID: build.id,
     token: options.token,
     endpoint: options.endpoint,

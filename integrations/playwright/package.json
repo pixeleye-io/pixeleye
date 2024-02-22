@@ -20,12 +20,9 @@
     "dist",
     "LICENSE"
   ],
-  "peerDependencies": {
-    "playwright": "^1"
-  },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
-    "playwright": "^1.41.2",
+    "playwright-core": "^1.41.2",
     "rrweb-snapshot": "2.0.0-alpha.11",
     "undici": "^6.6.2"
   },

@@ -20,8 +20,6 @@ program
   .argument("<buildID>", "Build ID to start the booth server for")
   .argument("<token>", "Pixeleye project token")
   .action(async (buildID, token, options) => {
-    console.log("token", token);
-    console.log("buildID", buildID);
     await startServer({
       port: Number(options.port),
       endpoint: options.endpoint,
