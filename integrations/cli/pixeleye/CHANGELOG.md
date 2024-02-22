@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.1.1
+
+### Patch Changes
+
+- [#167](https://github.com/pixeleye-io/pixeleye/pull/167) [`f794267`](https://github.com/pixeleye-io/pixeleye/commit/f794267263e520618073cd6ba2d315ecd4c1841c) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Fixing deps install
+
 ## 0.1.0
 
 ### Minor Changes
