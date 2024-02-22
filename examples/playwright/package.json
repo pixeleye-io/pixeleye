@@ -1,6 +1,5 @@
 {
   "name": "@pixeleye/playwright-example",
-  "version": "0.1.2",
   "private": true,
   "scripts": {
     "test:e2e": "pixeleye exec -- npx playwright test"
