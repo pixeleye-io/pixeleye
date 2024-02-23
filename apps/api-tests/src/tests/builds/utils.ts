@@ -42,13 +42,10 @@ async function waitForBuildStatus(
       if (data.type === "build_status") {
         const newStatus = data.data.status;
 
-        if (
-          nextStatus === newStatus ||
-          (newStatus === "processing" && !didProcess)
-        ) {
-          if (newStatus === "processing" && !didProcess) {
-            didProcess = true;
-          } else if (statuses.length === 0) {
+        if (newStatus === "processing") return;
+
+        if (nextStatus === newStatus) {
+          if (statuses.length === 0) {
             es.close();
             resolve();
           } else {
@@ -153,8 +150,6 @@ export async function createBuildWithSnapshots({
       await buildTokenAPI.completeBuild(build!.id, token);
     })(),
   ]);
-  
 
   return build!;
 }
-
