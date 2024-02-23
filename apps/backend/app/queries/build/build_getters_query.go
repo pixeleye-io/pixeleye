@@ -154,7 +154,7 @@ func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts
 	return builds, err
 }
 
-func (q *BuildQueries) GetBuildChildren(ctx context.Context, buildID string) ([]models.Build, error) {
+func (q *BuildQueries) GetDirectBuildChildren(ctx context.Context, buildID string) ([]models.Build, error) {
 	builds := []models.Build{}
 
 	query := `SELECT build.* FROM build JOIN build_history ON build_history.child_id = build.id WHERE build_history.parent_id = $1`
@@ -240,7 +240,7 @@ func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts
 	return builds, err
 }
 
-func (q *BuildQueries) GetBuildTargeters(ctx context.Context, buildID string) ([]models.Build, error) {
+func (q *BuildQueries) GetDirectBuildTargeters(ctx context.Context, buildID string) ([]models.Build, error) {
 	builds := []models.Build{}
 
 	query := `SELECT build.* FROM build JOIN build_targets ON build_targets.build_id = build.id WHERE build_targets.target_id = $1`

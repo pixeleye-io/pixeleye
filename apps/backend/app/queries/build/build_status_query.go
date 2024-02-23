@@ -72,14 +72,14 @@ func (q *BuildQueries) UpdateBuildStatus(ctx context.Context, build *models.Buil
 	return nil
 }
 
-func (q *BuildQueries) GetBuildDependents(ctx context.Context, build models.Build) ([]models.Build, error) {
+func (q *BuildQueries) GetBuildDirectDependents(ctx context.Context, build models.Build) ([]models.Build, error) {
 
-	childrenBuilds, err := q.GetBuildChildren(ctx, build.ID)
+	childrenBuilds, err := q.GetDirectBuildChildren(ctx, build.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	targeterBuilds, err := q.GetBuildTargeters(ctx, build.ID)
+	targeterBuilds, err := q.GetDirectBuildTargeters(ctx, build.ID)
 	if err != nil {
 		return nil, err
 	}

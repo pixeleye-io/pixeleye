@@ -145,7 +145,7 @@ func ProcessBuildDependents(ctx context.Context, build models.Build) error {
 		return err
 	}
 
-	dependents, err := db.GetBuildDependents(ctx, build)
+	dependents, err := db.GetBuildDirectDependents(ctx, build)
 	if err != nil {
 		return err
 	}
