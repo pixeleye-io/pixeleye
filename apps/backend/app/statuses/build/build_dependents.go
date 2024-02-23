@@ -80,9 +80,9 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 	} else {
 
 		// Make sure we have correct parents and targets. If they have failed/aborted we should use their parents/targets
-		if err := tx.SquashDependencies(ctx, build.ID); err != nil {
-			return err
-		}
+		// if err := tx.SquashDependencies(ctx, build.ID); err != nil {
+		// 	return err
+		// }
 
 		// Lets check if all the builds dependencies are done
 		if fin, err := db.AreBuildDependenciesPostProcessing(ctx, *build); err != nil {

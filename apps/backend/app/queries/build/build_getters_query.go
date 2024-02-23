@@ -111,6 +111,11 @@ type GetBuildParentsOpts struct {
 	IncludeFailed  bool
 }
 
+// SELECT b.* FROM build b
+// INNER JOIN build_history bh on bh.child_id = b.id
+// INNER JOIN find_parents ON bh.parent_id = find_parents.id
+// WHERE b.status in ('failed', 'aborted')
+
 func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts *GetBuildParentsOpts) ([]models.Build, error) {
 
 	if opts == nil {
@@ -119,7 +124,22 @@ func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts
 
 	builds := []models.Build{}
 
-	query := `SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1`
+	// query := `SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1`
+
+	// recursive query to get all parents of a build, in the case where a parent has a status of failed or aborted, we'll find the parent of that build to replace it
+	query := `
+	WITH RECURSIVE find_parents AS (
+		SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1
+
+		UNION ALL
+
+		SELECT b.* FROM build b
+		INNER JOIN build_history bh on bh.parent_id = b.id
+		INNER JOIN find_parents ON bh.child_id = find_parents.id
+		WHERE find_parents.status IN ('failed', 'aborted')
+	)
+	SELECT * FROM find_parents WHERE status NOT IN ('failed', 'aborted')
+	`
 
 	if !opts.IncludeAborted {
 		query += ` AND build.status != 'aborted'`
