@@ -131,7 +131,7 @@ describe.concurrent(
         .expectJsonMatch({
           id: rawBuild2!.id,
           status: "uploading",
-          parentIDs: [rawBuild1!.id],
+          parentIDs: [],
         });
     });
 
@@ -192,12 +192,8 @@ describe.concurrent(
           status: "uploading",
         })
         .returns(({ res }: any) => {
-          expect(res.json.targetBuildIDs.sort()).toEqual(
-            [build1.id, rawBuild2!.id].sort()
-          );
-          expect(res.json.parentIDs.sort()).toEqual(
-            [build1.id, rawBuild2!.id].sort()
-          );
+          expect(res.json.targetBuildIDs.sort()).toEqual([build1.id].sort());
+          expect(res.json.parentIDs.sort()).toEqual([build1.id].sort());
         });
     });
 
@@ -272,10 +268,10 @@ describe.concurrent(
         })
         .returns(({ res }: any) => {
           expect(res.json.parentIDs.sort()).toEqual(
-            [build1.id, build2.id, rawBuild3!.id].sort()
+            [build1.id, build2.id].sort()
           );
           expect(res.json.targetBuildIDs.sort()).toEqual(
-            [build1.id, build2.id, rawBuild3!.id].sort()
+            [build1.id, build2.id].sort()
           );
         });
     });
