@@ -81,7 +81,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		or status = 'missing_baseline' 
 	  ORDER BY 
 		depth ASC,
-		updatedAt DESC 
+		updated_at DESC 
 	  LIMIT 
 		1
 	  `
