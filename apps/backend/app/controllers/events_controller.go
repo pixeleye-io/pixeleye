@@ -131,6 +131,9 @@ func SubscribeToBuild(c echo.Context) error {
 			}
 
 			if event.Type == events.ProjectEvent_BuildStatus {
+				if event.Data == nil {
+					return nil
+				}
 				if event.Data.(map[string]interface{})["buildID"] == build.ID {
 					log.Debug().Msgf("Sending message to build events subscribers:%s", msg)
 					if _, err := fmt.Fprintf(res.Writer, "data: %s\n\n", msg); err != nil {
