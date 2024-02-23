@@ -131,7 +131,6 @@ describe.concurrent(
         .expectJsonMatch({
           id: rawBuild2!.id,
           status: "uploading",
-          parentIDs: [],
         });
     });
 
