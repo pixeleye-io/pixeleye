@@ -54,7 +54,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.viewport, 
 		  s.status, 
 		  s.snap_image_id,
-		  s.updatedAt,
+		  s.updated_at,
 		  f.depth + 1 
 		FROM 
 		  snapshot s
