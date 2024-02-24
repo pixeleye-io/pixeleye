@@ -63,7 +63,7 @@ export const startBooth = async ({
   return execFile(
     "node",
     [
-      "booth.js",
+      "booth.cjs",
       "start",
       `"${buildID}"`,
       `"${token}"`,

@@ -46,9 +46,7 @@ export function startServer(options: BoothServerOptions) {
     app.post("/snapshot", (req, res) => {
       const body = req.body as SnapshotRequest;
 
-      queue.add(async () =>
-        handleQueue({ ...options, body }).catch((err) => console.error(err))
-      );
+      queue.add(async () => handleQueue({ ...options, body }));
 
       res.end("ok");
     });

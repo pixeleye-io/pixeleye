@@ -9,6 +9,11 @@
   },
   "main": "src/index.ts",
   "typings": "src/index.ts",
+  "publishConfig": {
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "typings": "./dist/src/index.d.ts"
+  },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/playwright": "workspace:*",

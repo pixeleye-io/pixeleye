@@ -5,6 +5,17 @@ import { execHandler, ping, storybook, uploadHandler } from "./handlers";
 
 export const program = new Command();
 
+let verbose = false;
+console = new Proxy(console, {
+  get(target, prop, receiver) {
+    console.log(prop, receiver);
+    if (verbose) {
+      return Reflect.get(target, prop, receiver);
+    }
+    return () => {};
+  },
+});
+
 program.configureOutput({
   writeErr: (str) => process.stderr.write(chalk.red(str)),
   writeOut: (str) => process.stdout.write(chalk.green(str)),
@@ -15,6 +26,7 @@ export const optionMap = {
   e: "endpoint",
   p: "boothPort",
   w: "wait",
+  v: "verbose",
 } as const;
 
 const configOption = (name: string) =>
@@ -25,8 +37,15 @@ const configOption = (name: string) =>
       "Path to config file, e.g. ./config/pixeleye.config.js"
     );
 
-const apiOptions = (name: string) =>
+const verboseOption = (name: string) =>
   configOption(name)
+    .option("-v, --verbose", "Verbose output")
+    .hook("preAction", () => {
+      verbose = true;
+    });
+
+const apiOptions = (name: string) =>
+  verboseOption(name)
     .option("-t, --token <token>", "Pixeleye project token")
     .option(
       "-e, --endpoint [endpoint]",

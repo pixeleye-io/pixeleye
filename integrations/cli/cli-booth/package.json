@@ -11,7 +11,8 @@
     "build": "rimraf ./bin && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
   },
   "publishConfig": {
-    "main": "./dist/index.js",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
     "typings": "./dist/index.d.ts"
   },
   "files": [
