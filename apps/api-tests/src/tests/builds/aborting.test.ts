@@ -7,7 +7,6 @@ import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { sleep } from "pactum";
-import exp from "constants";
 
 const projectData: ProjectBody = {
   name: "Some project for testing",
