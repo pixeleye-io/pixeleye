@@ -7,6 +7,7 @@ import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
 import { sleep } from "pactum";
+import exp from "constants";
 
 const projectData: ProjectBody = {
   name: "Some project for testing",
@@ -338,6 +339,7 @@ describe.concurrent(
         })
         .returns(({ res }: any) => {
           rawBuild5 = res.json;
+          expect(rawBuild5!.status).toEqual("queued-uploading");
         });
 
       await buildTokenAPI.abortBuild(rawBuild3!.id);
@@ -352,7 +354,7 @@ describe.concurrent(
         .getBuild(rawBuild4!.id, jekyllsToken)
         .expectJsonMatch({
           id: rawBuild4!.id,
-          status: "queued-uploading",
+          status: "uploading",
         })
         .returns(({ res }: any) => {
           expect(res.json.parentIDs.sort()).toEqual(
