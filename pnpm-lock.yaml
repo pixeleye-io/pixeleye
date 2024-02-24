@@ -696,6 +696,24 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
 
+  integrations/cli/cli-logger:
+    devDependencies:
+      '@pixeleye/esbuild':
+        specifier: workspace:*
+        version: link:../../../configs/esbuild
+      '@pixeleye/eslint-config':
+        specifier: workspace:*
+        version: link:../../../configs/eslint-config
+      '@pixeleye/tsconfig':
+        specifier: workspace:*
+        version: link:../../../configs/tsconfig
+      '@types/node':
+        specifier: 20.11.19
+        version: 20.11.19
+      rimraf:
+        specifier: ^5.0.5
+        version: 5.0.5
+
   integrations/cli/pixeleye:
     dependencies:
       '@pixeleye/cli-api':
@@ -713,12 +731,15 @@ importers:
       '@pixeleye/cli-install':
         specifier: workspace:*
         version: link:../cli-install
+      '@pixeleye/cli-logger':
+        specifier: workspace:*
+        version: link:../cli-logger
       '@pixeleye/storybook':
         specifier: workspace:*
         version: link:../../storybook
       chalk:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: 4.1.2
+        version: 4.1.2
       commander:
         specifier: ^12.0.0
         version: 12.0.0
@@ -17776,7 +17797,7 @@ packages:
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
-      terser: 5.27.2
+      terser: 5.27.0
       webpack: 5.90.3(@swc/core@1.4.2)(esbuild@0.18.20)
     dev: true
 
@@ -17813,7 +17834,6 @@ packages:
       acorn: 8.11.3
       commander: 2.20.3
       source-map-support: 0.5.21
-    dev: false
 
   /terser@5.27.2:
     resolution: {integrity: sha512-sHXmLSkImesJ4p5apTeT63DsV4Obe1s37qT8qvwHRmVxKTBH7Rv9Wr26VcAMmLbmk9UliiwK8z+657NyJHHy/w==}

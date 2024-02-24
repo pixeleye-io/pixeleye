@@ -9,28 +9,53 @@
   ],
   "pipeline": {
     "deploy": {
-      "dependsOn": ["^build", "sitemap"]
+      "dependsOn": [
+        "^build",
+        "sitemap"
+      ]
     },
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "sitemap": {
-      "dependsOn": ["build"],
-      "outputs": ["public/robots.txt", "public/sitemap*.xml"]
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": [
+        "public/robots.txt",
+        "public/sitemap*.xml"
+      ]
     },
     "storybook": {},
     "build:types": {},
+    "build:dev": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
     "lint": {},
     "types": {},
     "setup:test": {},
     "test": {
-      "dependsOn": ["setup:test"]
+      "dependsOn": [
+        "setup:test"
+      ]
     },
     "test:api": {},
     "start": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ]
     },
     "dev": {
       "cache": false,

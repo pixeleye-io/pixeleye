@@ -2,7 +2,8 @@ import { APIType } from "@pixeleye/cli-api";
 import { program } from "commander";
 import ora from "ora";
 import { errStr } from "../messages/ui/theme";
-import { execFile, execFileSync, execSync } from "node:child_process";
+import { execFile } from "node:child_process";
+import { debugLog } from "@pixeleye/cli-logger";
 import { finished, ping } from "@pixeleye/cli-booth";
 import { Build } from "@pixeleye/api";
 import EventSource from "eventsource";
@@ -75,12 +76,9 @@ export const startBooth = async ({
       env: process.env,
     },
     (error, stdout, stderr) => {
-      // if (error) {
-      //   throw error;
-      // }
-      console.log("err", error);
-      console.log("stdout", stdout);
-      console.log("stderr", stderr);
+      if (error) console.error(error);
+      if (stdout) debugLog(stdout);
+      if (stderr) console.error(stderr);
     }
   );
 };

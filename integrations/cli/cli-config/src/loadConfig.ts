@@ -59,22 +59,17 @@ function readConfig(path: string): Config | (() => Promise<Config>) {
   return config.default ?? config;
 }
 
-const toUpperCamelCase = (str: string) => str.replace(/[A-Z]/g, letter => `_${letter}`).toUpperCase();
+const toUpperCamelCase = (str: string) =>
+  str.replace(/[A-Z]/g, (letter) => `_${letter}`).toUpperCase();
 
 export async function loadConfig(path?: string): Promise<Config> {
-  if (path) {
-    // We store the path in an env variable so that we can access the config via other integrations. E.g Puppeteer.
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
-    path = process.env.PIXELEYE_CONFIG_PATH;
-  }
-
   if (!path) {
     const endings = ["ts", "js", "cjs", "mjs"];
-    path = "pixeleye.config";
+    const fileName = "pixeleye.config";
 
     for (const ending of endings) {
-      if (existsSync(join(process.cwd(), `${path}.${ending}`))) {
-        path = `${path}.${ending}`;
+      if (existsSync(join(process.cwd(), `${fileName}.${ending}`))) {
+        path = `${fileName}.${ending}`;
         break;
       }
     }

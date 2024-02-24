@@ -5,17 +5,6 @@ import { execHandler, ping, storybook, uploadHandler } from "./handlers";
 
 export const program = new Command();
 
-let verbose = false;
-console = new Proxy(console, {
-  get(target, prop, receiver) {
-    console.log(prop, receiver);
-    if (verbose) {
-      return Reflect.get(target, prop, receiver);
-    }
-    return () => {};
-  },
-});
-
 program.configureOutput({
   writeErr: (str) => process.stderr.write(chalk.red(str)),
   writeOut: (str) => process.stdout.write(chalk.green(str)),
@@ -41,7 +30,8 @@ const verboseOption = (name: string) =>
   configOption(name)
     .option("-v, --verbose", "Verbose output")
     .hook("preAction", () => {
-      verbose = true;
+      // eslint-disable-next-line turbo/no-undeclared-env-vars
+      process.env.PIXELEYE_VERBOSE = "true";
     });
 
 const apiOptions = (name: string) =>

@@ -1,5 +1,5 @@
 import type { Page } from "playwright-core";
-import { loadConfig } from "@pixeleye/cli-config";
+import { getEnvConfig } from "@pixeleye/cli-config";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import {
   snapshot,
@@ -26,7 +26,7 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     throw new Error("No name provided");
   }
 
-  const config = await loadConfig();
+  const config = await getEnvConfig();
 
   const opts: ServerOptions = {
     endpoint: `http://localhost:${
