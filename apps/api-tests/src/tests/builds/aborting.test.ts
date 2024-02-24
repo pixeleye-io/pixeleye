@@ -352,7 +352,7 @@ describe.concurrent(
         .getBuild(rawBuild4!.id, jekyllsToken)
         .expectJsonMatch({
           id: rawBuild4!.id,
-          status: "uploading",
+          status: "queued-uploading",
         })
         .returns(({ res }: any) => {
           expect(res.json.parentIDs.sort()).toEqual(
