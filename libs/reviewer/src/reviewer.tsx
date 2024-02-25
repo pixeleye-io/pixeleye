@@ -10,7 +10,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { PanelMobile, PanelDesktop } from "./panel";
 import { Sidebar } from "./sidebar";
 import { BuildAPI, SnapshotTargetGroup, StoreContext, createStore } from "./store";
-import { useContext, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
@@ -66,7 +66,6 @@ const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
 function ReviewerInternal({
   build,
   snapshots,
-  optimize = false,
   className = "h-[calc(100vh-3rem-1px)]",
   buildAPI,
   userRole,
@@ -214,7 +213,7 @@ export function Reviewer(props: ReviewerProps) {
     optimize: props.optimize,
     snapshots: snapshotTargetGroups,
     build: props.build,
-    userRole: props.userRole,
+    userRole: props.userRole
   })).current
 
   return (
