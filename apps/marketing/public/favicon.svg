@@ -4,6 +4,11 @@
     aria-hidden="true"
     aria-label="Pixeleye logo"
 >
+  <style>
+    @media (prefers-color-scheme: dark) {
+      #logo { fill: #EFB8C7; }
+    }
+  </style>
     <defs>
         <mask id="mask">
             <rect width="24" height="24" fill="#fff" />
@@ -11,6 +16,7 @@
         </mask>
     </defs>
     <path
+        id="logo"
         mask="url(#mask)"
         d="M2 22V15Q2 2 15 2L14 5.5Q5.5 5.5 5.5 15V22ZM22 2Q22 17 9 17L10 13.5Q18.5 13.5 18.5 2ZM9.5 9.5A1 1 0 0014.5 9.5 1 1 0 009.5 9.5"
         fill="#E67997"
