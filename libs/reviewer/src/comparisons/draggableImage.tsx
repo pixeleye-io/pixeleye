@@ -118,8 +118,8 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     useEffect(() => {
 
-      setNodes([
-        { id: id, position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }
+      setNodes((curr) => [
+        { id: id, position: { x: 0, y: 0 }, width: curr.find(n => n.type === 'image')?.width, height: curr.find(n => n.type === 'image')?.height, data: { base, overlay, secondBase }, type: 'image' }
       ])
 
       updateImages.current = true;

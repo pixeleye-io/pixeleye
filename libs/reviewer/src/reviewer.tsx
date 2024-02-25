@@ -203,12 +203,13 @@ function ReviewerInternal({
       <PanelMobile />
       <PanelGroup onLayout={onLayout} direction="horizontal">
         {
-          showSidebar && (
+          showSidebar && (<>
             <Panel className="hidden lg:block" order={1} defaultSize={defaultSidebarWidth} minSize={15} maxSize={30}>
               <PanelDesktop />
             </Panel>
+            <PanelResizeHandle className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5" />
+          </>
           )}
-        <PanelResizeHandle className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5" />
         <Panel defaultSize={showSidebar ? 100 - defaultSidebarWidth : 100} order={2} className="w-full">
           <Compare />
         </Panel>

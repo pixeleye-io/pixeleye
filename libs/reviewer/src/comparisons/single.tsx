@@ -67,8 +67,8 @@ export function Single({ draggableImageRef }: SingleProps) {
               ref={draggableImageRef}
               id={snapshot.id}
               base={base}
-              secondBase={overlay}
-              overlay={secondBase}
+              secondBase={secondBase}
+              overlay={overlay}
             />
           </div>
         </ReactFlowProvider>

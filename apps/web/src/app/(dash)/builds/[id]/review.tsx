@@ -14,9 +14,11 @@ import {
 export interface ReviewProps {
   project: Project;
   buildID: string;
+  defaultSidebarWidth?: number;
+  defaultSidebarOpen?: boolean;
 }
 
-export function Review({ buildID, project }: ReviewProps) {
+export function Review({ buildID, project, ...rest }: ReviewProps) {
   const { data: build } = useQuery(queries.builds.detail(buildID));
 
   const { data: snapshots } = useQuery(
@@ -304,6 +306,7 @@ export function Review({ buildID, project }: ReviewProps) {
       userRole={project.role}
       buildAPI={buildAPI}
       isUpdatingSnapshotStatus={isUpdatingSnapshotStatus}
+      {...rest}
     />
   );
 }
