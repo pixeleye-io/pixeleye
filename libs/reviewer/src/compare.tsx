@@ -141,6 +141,7 @@ function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
     <div className="flex">
       <Toggle pressed={showDiff} onPressedChange={setShowDiff}>
         <EyeIcon className="w-6 h-6" />
+        <span className="sr-only">Toggle diff</span>
       </Toggle>
       <Button
         variant="ghost"
@@ -148,6 +149,7 @@ function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
         onClick={() => resetAlignment(activeTab)}
       >
         <ArrowsPointingInIcon className="w-6 h-6" />
+        <span className="sr-only">Reset alignment</span>
       </Button>
     </div>
   );
@@ -320,7 +322,7 @@ function TargetTabs({
           return (
             <li key={snap.id}>
 
-              <Button variant="ghost" aria-selected={isActive} className={
+              <Button variant="ghost" role="tab" aria-selected={isActive} className={
                 isActive ? "text-on-surface" : "text-on-surface-variant"
               } onClick={() => setCurrentSnapshot(snap)} tooltip={snap.target}>
                 {
