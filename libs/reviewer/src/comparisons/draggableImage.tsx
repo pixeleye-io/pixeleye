@@ -2,16 +2,15 @@ import 'reactflow/dist/style.css';
 
 import { StaticImageData } from "next/image";
 import {
-  forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState,
+  forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState,
 } from "react";
 import ReactFlow, { OnNodesChange, applyNodeChanges, Node, useReactFlow, OnMove, Viewport } from 'reactflow';
-import { store } from "../store";
 import { useStore } from "zustand";
 import Background from "./background";
 import { ImageNode } from './imageNode';
 import { ChatNode } from './chatNode';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuPortal, ContextMenuTrigger } from '@pixeleye/ui';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { StoreContext } from '../store';
 
 
 interface ImageProps {
@@ -57,9 +56,9 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     },
     ref
   ) {
+    const store = useContext(StoreContext)!
 
-
-    const [nodes, setNodes] = useState<Node[]>([]);
+    const [nodes, setNodes] = useState<Node[]>([{ id: id, position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }]);
 
 
     const updateImages = useRef(false);
@@ -80,7 +79,6 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
           return !((change.type === 'select' && change.id === "1"))
 
         });
-
 
         setNodes((nds) => applyNodeChanges(changes, nds))
 
@@ -103,13 +101,18 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
       center
     }), [center]);
 
+
     useEffect(() => {
       if (viewport) {
         setViewport(viewport)
       }
     }, [setViewport, viewport]);
 
-    const onClick = useCallback(() => secondBase && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head"), [secondBase, setSingleSnapshot, singleSnapshot]);
+    const onClick = useCallback((e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      Boolean(secondBase) && setSingleSnapshot(singleSnapshot === "head" ? "baseline" : "head")
+    }, [secondBase, setSingleSnapshot, singleSnapshot]);
 
     const contextMenuCoords = useRef({ x: 0, y: 0 })
 
@@ -124,6 +127,10 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     }, [base, id, overlay, secondBase]);
 
+    useEffect(() => {
+      center();
+    }, [center]);
+
     return (
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
         <ContextMenu>
@@ -132,7 +139,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               proOptions={{
                 hideAttribution: true
               }}
-              onPaneClick={onClick}
+              onPaneClick={onClick as any}
               minZoom={0.1}
               onWheelCapture={(e) => {
                 if (e.shiftKey) {
@@ -152,7 +159,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
               nodesDraggable={false}
               nodes={nodes}
               nodeTypes={nodeTypes}
-              onNodeClick={onClick}
+              onNodeClick={onClick as any}
               onContextMenu={(e) => {
                 contextMenuCoords.current = { x: e.clientX, y: e.clientY };
               }}

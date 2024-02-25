@@ -1,4 +1,4 @@
-import { RefObject, useContext } from "react";
+import { RefObject, useContext, useMemo } from "react";
 import { DraggableImage, DraggableImageRef } from "./draggableImage";
 import { useStore } from "zustand";
 import { StoreContext } from "../store";
@@ -11,7 +11,7 @@ interface SingleProps {
 }
 
 export function Single({ draggableImageRef }: SingleProps) {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
 
   const snapshot = useStore(store, (state) => state.currentSnapshot)!;
   const singleSnapshot = useStore(store, (state) => state.singleSnapshot)!;
@@ -24,6 +24,30 @@ export function Single({ draggableImageRef }: SingleProps) {
   const validBaselineSnapshot = Boolean(
     snapshot.baselineURL && snapshot.baselineWidth && snapshot.baselineHeight
   );
+
+  const base = useMemo(() => ({
+    src: snapshot.snapURL!,
+    width: snapshot.snapWidth!,
+    height: snapshot.snapHeight!,
+    alt: "Head snapshot",
+  }), [snapshot.snapURL, snapshot.snapWidth, snapshot.snapHeight])
+
+  const overlay = useMemo(() => validDiff
+    ? {
+      src: snapshot.diffURL!,
+      width: snapshot.diffWidth!,
+      height: snapshot.diffHeight!,
+      alt: "Highlighted difference",
+    }
+    : undefined, [snapshot.diffURL, snapshot.diffWidth, snapshot.diffHeight, validDiff])
+
+  const secondBase = useMemo(() => validBaselineSnapshot
+    ? {
+      src: snapshot.baselineURL!,
+      width: snapshot.baselineWidth!,
+      height: snapshot.baselineHeight!,
+      alt: "Baseline snapshot",
+    } : undefined, [snapshot.baselineURL, snapshot.baselineWidth, snapshot.baselineHeight, validBaselineSnapshot])
 
   return (
     <div className="overflow-hidden w-full h-full">
@@ -42,31 +66,9 @@ export function Single({ draggableImageRef }: SingleProps) {
             <DraggableImage
               ref={draggableImageRef}
               id={snapshot.id}
-              base={{
-                src: snapshot.snapURL!,
-                width: snapshot.snapWidth!,
-                height: snapshot.snapHeight!,
-                alt: "Head snapshot",
-              }}
-              secondBase={
-                validBaselineSnapshot
-                  ? {
-                    src: snapshot.baselineURL!,
-                    width: snapshot.baselineWidth!,
-                    height: snapshot.baselineHeight!,
-                    alt: "Baseline snapshot",
-                  } : undefined
-              }
-              overlay={
-                validDiff
-                  ? {
-                    src: snapshot.diffURL!,
-                    width: snapshot.diffWidth!,
-                    height: snapshot.diffHeight!,
-                    alt: "Highlighted difference",
-                  }
-                  : undefined
-              }
+              base={base}
+              secondBase={overlay}
+              overlay={secondBase}
             />
           </div>
         </ReactFlowProvider>

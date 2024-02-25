@@ -1,5 +1,5 @@
 import { DraggableImage, DraggableImageRef } from "./draggableImage";
-import { RefObject, useContext, useState } from "react";
+import { RefObject, useContext, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { StoreContext } from "../store";
 import { ReactFlowProvider, Viewport } from "reactflow";
@@ -9,7 +9,7 @@ interface DoubleProps {
 }
 
 export function Double({ draggableImageRef }: DoubleProps) {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
 
   const snapshot = useStore(store, (state) => state.currentSnapshot)!;
 
@@ -26,6 +26,28 @@ export function Double({ draggableImageRef }: DoubleProps) {
   );
 
   const [viewport, setViewport] = useState<Viewport | undefined>(undefined)
+
+  const newBase = useMemo(() => ({
+    src: snapshot.snapURL!,
+    alt: "New snapshot",
+    width: snapshot.snapWidth!,
+    height: snapshot.snapHeight!,
+  }), [snapshot.snapURL, snapshot.snapWidth, snapshot.snapHeight])
+
+  const newOverlay = useMemo(() => validDiff ? {
+    src: snapshot.diffURL!,
+    alt: "Highlighted difference between snapshots",
+    width: snapshot.diffWidth!,
+    height: snapshot.diffHeight!,
+  } : undefined, [snapshot.diffURL, snapshot.diffWidth, snapshot.diffHeight, validDiff])
+
+
+  const oldBase = useMemo(() => ({
+    src: snapshot.baselineURL!,
+    alt: "Baseline snapshot",
+    width: snapshot.baselineWidth!,
+    height: snapshot.baselineHeight!,
+  }), [snapshot.baselineURL, snapshot.baselineWidth, snapshot.baselineHeight])
 
 
   return (
@@ -44,22 +66,8 @@ export function Double({ draggableImageRef }: DoubleProps) {
                 onMove={(_, view) => setViewport(view)}
                 viewport={viewport}
                 id={snapshot.id}
-                base={{
-                  src: snapshot.snapURL!,
-                  width: snapshot.snapWidth!,
-                  height: snapshot.snapHeight!,
-                  alt: "New snapshot",
-                }}
-                overlay={
-                  validDiff
-                    ? {
-                      src: snapshot.diffURL!,
-                      width: snapshot.diffWidth!,
-                      height: snapshot.diffHeight!,
-                      alt: "Highlighted difference between snapshots",
-                    }
-                    : undefined
-                }
+                base={newBase}
+                overlay={newOverlay}
               />
             </div>
 
@@ -84,12 +92,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
                 onMove={(_, view) => setViewport(view)}
                 viewport={viewport}
                 id={snapshot.id}
-                base={{
-                  src: snapshot.baselineURL!,
-                  width: snapshot.baselineWidth!,
-                  height: snapshot.baselineHeight!,
-                  alt: "Baseline snapshot",
-                }}
+                base={oldBase}
               />
             </div>
           )}
