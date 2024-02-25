@@ -265,10 +265,7 @@ export function Compare() {
                 <TabSwitcher />
                 <DisplayOptions resetAlignment={resetAlignment} />
               </div>
-              {/* <div className="flex space-x-4 items-center justify-center"> */}
-              {/* <SnapStatus status={snapshot.status} /> */}
               <TargetTabs snapshot={snapshot} />
-              {/* </div> */}
             </div>
           </div>
         </header>

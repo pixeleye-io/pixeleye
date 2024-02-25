@@ -213,6 +213,8 @@ export function Reviewer(props: ReviewerProps) {
     currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].snapshots[0],
     optimize: props.optimize,
     snapshots: snapshotTargetGroups,
+    build: props.build,
+    userRole: props.userRole,
   })).current
 
   return (
