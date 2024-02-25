@@ -20,20 +20,9 @@ const panelRepo: Record<Panel, FC> = {
   feed: FeedPanel,
 };
 
-function initialWidth() {
-  if (typeof window === "undefined") return 250;
-  const width = localStorage.getItem("panelWidth");
-
-  if (width && !isNaN(Number(width))) {
-    return Number(width);
-  }
-
-  return 250;
-}
-
 
 export function PanelMobile() {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
 
   const panelOpen = useStore(store, (state) => state.panelOpen);
   const setPanelOpen = useStore(store, (state) => state.setPanelOpen);
@@ -41,22 +30,9 @@ export function PanelMobile() {
 
   const PanelComponent = panelRepo[panel];
 
-  const [enabled, setEnabled] = useState(false);
-
-  useEffect(() => {
-    function updateEnabled() {
-      setEnabled(window.innerWidth < 1024);
-    }
-    window.addEventListener('resize', updateEnabled);
-    updateEnabled();
-    return () => window.removeEventListener('resize', updateEnabled);
-  }, []);
-
-
-  if (!enabled) return null;
 
   return (
-    <Dialog.Root modal={false} open={panelOpen} onOpenChange={(open) => setPanelOpen(() => open)}>
+    <Dialog.Root modal={false} open={panelOpen} onOpenChange={(open) => window.innerWidth < 1024 && setPanelOpen(() => open)}>
       <Dialog.Portal>
         <Dialog.Content className={cx("lg:hidden absolute left-0 z-10 top-16 bottom-0 w-full max-w-xs bg-surface-container-low shadow border-r border-b border-outline-variant rounded-r-xl z-10 mt-px top-[calc(4rem-1px)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0")} >
           <div className="flex w-full h-full">
@@ -73,47 +49,15 @@ export function PanelMobile() {
 }
 
 export function PanelDesktop() {
-  const width = useMotionValue(initialWidth());
-  const store = useContext(StoreContext)
-  const panelOpen = useStore(store, (state) => state.panelOpen);
-
-
+  const store = useContext(StoreContext)!
   const panel = useStore(store, (state) => state.panel);
-
   const PanelComponent = panelRepo[panel];
 
-  useMotionValueEvent(width, "change", (value) => {
-    localStorage.setItem("panelWidth", value.toString());
-  });
-
-  if (!panelOpen) return null;
-
   return (
-    <m.aside style={{ width: width }} className="relative z-10 shrink-0 hidden lg:flex">
-      <OverlayScrollbar className="flex grow z-10 overflow-y-auto [&>*:nth-child(2)]:flex">
+    <aside className="relative z-10 shrink-0 hidden lg:flex h-full w-full">
+      <OverlayScrollbar className="flex grow z-10 overflow-y-auto [&>*:nth-child(2)]:flex w-full">
         <PanelComponent />
       </OverlayScrollbar>
-      <span className="absolute inset-0 flex">
-        <m.span
-          drag="x"
-          dragElastic={0.025}
-          dragMomentum={false}
-          dragConstraints={{
-            left: 150,
-            right: 450,
-          }}
-          whileDrag={{
-            backgroundColor: "rgb(var(--color-outline-variant))",
-          }}
-          whileHover={{
-            backgroundColor: "rgb(var(--color-outline-variant))",
-          }}
-          style={{ x: width }}
-          className="w-1.5 relative inset-y-0 justify-center items-center group flex flex-col cursor-col-resize transition-colors"
-        >
-          <span className=" h-full w-px bg-outline-variant transition-colors" />
-        </m.span>
-      </span>
-    </m.aside>
+    </aside>
   );
 }

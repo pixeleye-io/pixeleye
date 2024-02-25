@@ -49,6 +49,9 @@ export default async function ProjectOverviewPage({
     .catch(() => undefined),
   ]);
 
+  const defaultSidebarWidth = Number(cookies().get("reviewer-sidebar-width")?.value) || undefined
+  const defaultSidebarOpen = cookies().get("reviewer-sidebar-open")?.value !== "false"
+
 
   if (["uploading", "queued-uploading", "processing", "queued-processing"].includes(build.status)) {
     return (
@@ -86,7 +89,7 @@ export default async function ProjectOverviewPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Review buildID={build.id} project={project} />
+      <Review defaultSidebarWidth={defaultSidebarWidth} defaultSidebarOpen={defaultSidebarOpen} buildID={build.id} project={project} />
     </HydrationBoundary>
   );
 }

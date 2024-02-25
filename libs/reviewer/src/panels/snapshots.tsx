@@ -91,7 +91,7 @@ function SnapButton({
   active,
 }: SnapButtonProps) {
   const ref = useRef<HTMLButtonElement>(null);
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
 
 
   const optimize = useStore(store, (state) => state.optimize);
@@ -154,7 +154,7 @@ function ShortcutHint() {
 }
 
 export default function SnapshotsPanel() {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
   const groupedSnapshots = useStore(store, (state) => state.snapshots);
   const currentSnapshot = useStore(store, (state) => state.currentSnapshot);
 
@@ -212,9 +212,9 @@ export default function SnapshotsPanel() {
 
 
   return (
-    <div className="pl-0.5 pt-4 flex flex-col grow">
+    <div className="pl-0.5 pt-4 flex flex-col w-full">
       <PanelHeader className="px-4" title="Snapshots" />
-      <nav className="grow mt-4 flex pb-12 border-t border-outline-variant">
+      <nav className="grow mt-4 flex pb-12 border-t border-outline-variant w-full">
         <Accordion
           type="single"
           value={accordionValue}

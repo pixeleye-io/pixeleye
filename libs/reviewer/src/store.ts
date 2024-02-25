@@ -1,6 +1,6 @@
 "use client";
 
-import { create, createStore } from "zustand";
+import { create, createStore as createZustandStore } from "zustand";
 import { Panel } from "./panel";
 import { Build, UserOnProjectRole } from "@pixeleye/api";
 import { ExtendedSnapshotPair } from "./reviewer";
@@ -59,8 +59,6 @@ interface ReviewerState {
   setIsUpdatingStatus: (isUpdatingStatus: boolean) => void;
 }
 
-const isBrowser = typeof window !== "undefined";
-
 const defaultBuild: Build = {
   id: "",
   branch: "",
@@ -73,46 +71,52 @@ const defaultBuild: Build = {
   status: "uploading",
 };
 
-export const store = createStore<ReviewerState>()((set) => ({
-  panel: "snapshots",
-  setPanel: (panel) => set({ panel }),
-  optimize: false,
-  setOptimize: (optimize) => set({ optimize }),
-  build: defaultBuild,
-  setBuild: (build) => set({ build }),
-  snapshots: [],
-  setSnapshots: (snapshots) => set({ snapshots }),
-  currentSnapshot: undefined,
-  setCurrentSnapshot: (currentSnapshot) => set({ currentSnapshot }),
-  showDiff: true,
-  setShowDiff: (showDiff) => set({ showDiff }),
-  panelOpen: isBrowser && window?.innerWidth > 768,
-  setPanelOpen: (panelOpen) =>
-    set((state) => ({
-      panelOpen: panelOpen(state.panelOpen),
-    })),
-  activeCompareTab: "double",
-  setActiveCompareTab: (activeCompareTab) => set({ activeCompareTab }),
-  framerLoaded: false,
-  setFramerLoaded: () => set({ framerLoaded: true }),
-  singleSnapshot: "head",
-  setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
+export const createStore = (initProps?: Partial<ReviewerState>) =>
+  createZustandStore<ReviewerState>()((set, get) => ({
+    panel: "snapshots",
+    setPanel: (panel) => set({ panel }),
+    optimize: false,
+    setOptimize: (optimize) => set({ optimize }),
+    build: defaultBuild,
+    setBuild: (build) => set({ build }),
+    snapshots: [],
+    setSnapshots: (snapshots) => set({ snapshots }),
+    currentSnapshot: undefined,
+    setCurrentSnapshot: (currentSnapshot) => set({ currentSnapshot }),
+    showDiff: true,
+    setShowDiff: (showDiff) => set({ showDiff }),
+    panelOpen: true,
+    setPanelOpen: (panelOpen) => {
+      set((state) => ({
+        panelOpen: panelOpen(state.panelOpen),
+      }));
+      document.cookie = `reviewer-sidebar-open=${get().panelOpen}`;
+    },
+    activeCompareTab: "double",
+    setActiveCompareTab: (activeCompareTab) => set({ activeCompareTab }),
+    framerLoaded: false,
+    setFramerLoaded: () => set({ framerLoaded: true }),
+    singleSnapshot: "head",
+    setSingleSnapshot: (singleSnapshot) => set({ singleSnapshot }),
 
-  buildAPI: {
-    approveSnapshots: () => {},
-    rejectSnapshots: () => {},
-    approveAllSnapshots: () => {},
-    rejectAllSnapshots: () => {},
-    approveRemainingSnapshots: () => {},
-    rejectRemainingSnapshots: () => {},
-  },
-  setBuildAPI: (buildAPI) => set({ buildAPI }),
+    buildAPI: {
+      approveSnapshots: () => {},
+      rejectSnapshots: () => {},
+      approveAllSnapshots: () => {},
+      rejectAllSnapshots: () => {},
+      approveRemainingSnapshots: () => {},
+      rejectRemainingSnapshots: () => {},
+    },
+    setBuildAPI: (buildAPI) => set({ buildAPI }),
 
-  userRole: "viewer",
-  setUserRole: (userRole) => set({ userRole }),
+    userRole: "viewer",
+    setUserRole: (userRole) => set({ userRole }),
 
-  isUpdatingStatus: false,
-  setIsUpdatingStatus: (isUpdatingStatus) => set({ isUpdatingStatus }),
-}));
+    isUpdatingStatus: false,
+    setIsUpdatingStatus: (isUpdatingStatus) => set({ isUpdatingStatus }),
+    ...initProps,
+  }));
 
-export const StoreContext = createContext(store);
+type ReviewStore = ReturnType<typeof createStore>;
+
+export const StoreContext = createContext<ReviewStore | null>(null);

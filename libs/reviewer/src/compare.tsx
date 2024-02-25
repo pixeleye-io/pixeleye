@@ -11,7 +11,7 @@ import {
   TabsTrigger,
   Toggle,
 } from "@pixeleye/ui";
-import { CompareTab, SnapshotTargetGroup, StoreContext, store } from "./store";
+import { CompareTab, SnapshotTargetGroup, StoreContext } from "./store";
 import { FC, useCallback, useContext, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, ChevronDownIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
@@ -129,7 +129,7 @@ interface DisplayOptionsProps {
   resetAlignment: (type?: "single" | "double") => void;
 }
 function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
 
   const setShowDiff = useStore(store, (state) => state.setShowDiff);
   const showDiff = useStore(store, (state) => state.showDiff);
@@ -191,6 +191,8 @@ const targetIconRepo = {
 } as const;
 
 export function Compare() {
+  const store = useContext(StoreContext)!
+
   const snapshot = useStore(store, (state) => state.currentSnapshot);
   const build = useStore(store, (state) => state.build);
 
@@ -292,6 +294,8 @@ function TargetTabs({
 }: {
   snapshot: ExtendedSnapshotPair
 }) {
+
+  const store = useContext(StoreContext)!
 
   const groupedSnapshots = useStore(store, (state) => state.snapshots);
 

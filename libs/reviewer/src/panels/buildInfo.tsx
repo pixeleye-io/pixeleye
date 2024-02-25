@@ -19,7 +19,7 @@ function InfoLine({ label, children }: { label: string; children: ReactNode }) {
 // TODO - add pull request url for build
 // TODO - add child builds
 export default function BuildInfoPanel() {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!
 
   const build = useStore(store, (state) => state.build);
 

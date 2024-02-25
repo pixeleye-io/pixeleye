@@ -9,13 +9,14 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { PanelMobile, PanelDesktop } from "./panel";
 import { Sidebar } from "./sidebar";
-import { BuildAPI, SnapshotTargetGroup, StoreContext, store } from "./store";
-import { useContext, useEffect, useMemo, useTransition } from "react";
+import { BuildAPI, SnapshotTargetGroup, StoreContext, createStore } from "./store";
+import { useContext, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
 import { StaticImageData } from "next/image";
 import { useStore } from "zustand";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
 
 export type ExtendedSnapshotPair = Omit<
@@ -41,6 +42,8 @@ export const snapshotSortMap: Record<Snapshot["status"], number> = {
 
 export interface ReviewerProps {
   build: Build;
+  defaultSidebarWidth?: number;
+  defaultSidebarOpen?: boolean;
   snapshots: Omit<ExtendedSnapshotPair, "otherTargets">[];
   optimize?: boolean;
   className?: string;
@@ -67,9 +70,11 @@ function ReviewerInternal({
   className = "h-[calc(100vh-3rem-1px)]",
   buildAPI,
   userRole,
+  defaultSidebarWidth = 20,
+  defaultSidebarOpen = true,
   isUpdatingSnapshotStatus,
 }: ReviewerProps) {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!!
 
   const setBuild = useStore(store, (state) => state.setBuild);
   const setSnapshots = useStore(store, (state) => state.setSnapshots);
@@ -83,6 +88,11 @@ function ReviewerInternal({
   const setIsUpdatingSnapshotStatus = useStore(store,
     (state) => state.setIsUpdatingStatus
   );
+  const setPanelOpen = useStore(store, (state) => state.setPanelOpen);
+
+  useEffect(() => {
+    setPanelOpen(() => defaultSidebarOpen);
+  }, [defaultSidebarOpen, setPanelOpen]);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -179,18 +189,41 @@ function ReviewerInternal({
     isUpdatingSnapshotStatus,
   ]);
 
+  const showSidebar = useStore(store, (state) => state.panelOpen);
+
+  const onLayout = (sizes: number[]) => {
+    if (sizes.length > 1)
+      document.cookie = `reviewer-sidebar-width=${sizes[0]}`;
+  };
+
+
   return (
     <div className={cx("w-full flex", className)}>
       <Sidebar />
       <PanelMobile />
-      <PanelDesktop />
-      <Compare />
+      <PanelGroup onLayout={onLayout} direction="horizontal">
+        {
+          showSidebar && (
+            <Panel className="hidden lg:block" order={1} defaultSize={defaultSidebarWidth} minSize={15} maxSize={30}>
+              <PanelDesktop />
+            </Panel>
+          )}
+        <PanelResizeHandle className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5" />
+        <Panel defaultSize={showSidebar ? 100 - defaultSidebarWidth : 100} order={2} className="w-full">
+          <Compare />
+        </Panel>
+        <PanelResizeHandle />
+      </PanelGroup>
     </div>
   );
 }
 
 
 export function Reviewer(props: ReviewerProps) {
+  const store = useRef(createStore({
+    panelOpen: props.defaultSidebarOpen,
+  })).current
+
   return (
     <StoreContext.Provider value={store}>
       <ReviewerInternal {...props} />

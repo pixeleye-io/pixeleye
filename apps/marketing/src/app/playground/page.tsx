@@ -13,6 +13,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { s } from "@markdoc/markdoc/dist/src/schema";
 import InteractiveReviewer from "./interactiveReviewer";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Playground | Pixeleye",
@@ -184,9 +185,13 @@ const simulatedBrowsers = dummySnapshots.flatMap((snapshot) => ["chrome", "edge"
 
 export default function PlaygroundPage() {
 
+  const defaultSidebarWidth = Number(cookies().get("reviewer-sidebar-width")?.value) || undefined
+  const defaultSidebarOpen = cookies().get("reviewer-sidebar-open")?.value !== "false"
+
+
   return (
     <Suspense>
-      <InteractiveReviewer build={dummyBuild} initialSnaps={simulatedBrowsers} />
+      <InteractiveReviewer build={dummyBuild} initialSnaps={simulatedBrowsers} defaultSidebarWidth={defaultSidebarWidth} defaultSidebarOpen={defaultSidebarOpen} />
     </Suspense>
   );
 }

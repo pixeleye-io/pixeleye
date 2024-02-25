@@ -7,10 +7,14 @@ import { useState } from "react"
 
 export default function InteractiveReviewer({
     build,
-    initialSnaps
+    initialSnaps,
+    defaultSidebarWidth,
+    defaultSidebarOpen
 }: {
     build: Build
     initialSnaps: ExtendedSnapshotPair[]
+    defaultSidebarWidth?: number
+    defaultSidebarOpen?: boolean
 }) {
 
     const [snapshots, setSnapshots] = useState(initialSnaps)
@@ -73,10 +77,12 @@ export default function InteractiveReviewer({
 
     return (
         <Reviewer
+            defaultSidebarWidth={defaultSidebarWidth}
             userRole="admin"
             className="h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
             build={build}
             snapshots={snapshots}
+            defaultSidebarOpen={defaultSidebarOpen}
             buildAPI={buildAPI}
             optimize
         />

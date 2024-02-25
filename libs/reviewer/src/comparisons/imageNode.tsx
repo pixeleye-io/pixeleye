@@ -33,7 +33,7 @@ export function ImageNode({ data: {
     secondBase
 } }: NodeProps<ImageNodeData>) {
 
-    const store = useContext(StoreContext)
+    const store = useContext(StoreContext)!
 
     const optimize = useStore(store, (state) => state.optimize);
     const showOverlay = useStore(store, (state) => state.showDiff);

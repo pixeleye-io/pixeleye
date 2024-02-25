@@ -1078,6 +1078,9 @@ importers:
       react-hotkeys-hook:
         specifier: ^4.5.0
         version: 4.5.0(react-dom@18.2.0)(react@18.2.0)
+      react-resizable-panels:
+        specifier: ^2.0.11
+        version: 2.0.11(react-dom@18.2.0)(react@18.2.0)
       reactflow:
         specifier: 11.10.3
         version: 11.10.3(@types/react@18.2.57)(react-dom@18.2.0)(react@18.2.0)
@@ -16497,6 +16500,16 @@ packages:
       tslib: 2.6.2
       use-callback-ref: 1.3.0(@types/react@18.2.57)(react@18.2.0)
       use-sidecar: 1.1.2(@types/react@18.2.57)(react@18.2.0)
+
+  /react-resizable-panels@2.0.11(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-tA3OvGFEK/U9rKuEg6TpXcr+i+cN5X8B4UIvs7jqr5lby629pDTGvqRjo1EJLhBpRZfkg0Zz1INJlSYigaS99g==}
+    peerDependencies:
+      react: ^16.14.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react-style-singleton@2.2.1(@types/react@18.2.57)(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}

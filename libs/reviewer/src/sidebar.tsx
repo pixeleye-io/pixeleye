@@ -29,7 +29,7 @@ import { Panel } from "./panel";
 import { cx } from "class-variance-authority";
 import { useContext } from "react";
 import { useStore } from "zustand";
-import { store, StoreContext } from "./store";
+import { StoreContext } from "./store";
 
 interface SidebarItem {
   name: string;
@@ -60,6 +60,7 @@ const SidebarNav: SidebarItem[] = [
 ];
 
 function BatchApprove() {
+  const store = useContext(StoreContext)!
   const buildAPI = useStore(store, (state) => state.buildAPI);
 
   return (
@@ -149,7 +150,7 @@ export function Sidebar({
 }: {
   className?: string;
 }) {
-  const store = useContext(StoreContext)
+  const store = useContext(StoreContext)!!
 
   const setPanel = useStore(store, (state) => state.setPanel);
   const panel = useStore(store, (state) => state.panel);
