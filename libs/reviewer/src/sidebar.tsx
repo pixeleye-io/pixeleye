@@ -150,7 +150,7 @@ export function Sidebar({
 }: {
   className?: string;
 }) {
-  const store = useContext(StoreContext)!!
+  const store = useContext(StoreContext)!
 
   const setPanel = useStore(store, (state) => state.setPanel);
   const panel = useStore(store, (state) => state.panel);

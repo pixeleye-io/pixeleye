@@ -73,12 +73,14 @@ function ReviewerInternal({
   defaultSidebarWidth = 20,
   defaultSidebarOpen = true,
   isUpdatingSnapshotStatus,
-}: ReviewerProps) {
-  const store = useContext(StoreContext)!!
+  snapshotTargetGroups
+}: ReviewerProps & {
+  snapshotTargetGroups: SnapshotTargetGroup[];
+}) {
+  const store = useContext(StoreContext)!
 
   const setBuild = useStore(store, (state) => state.setBuild);
   const setSnapshots = useStore(store, (state) => state.setSnapshots);
-  const setOptimize = useStore(store, (state) => state.setOptimize);
   const setCurrentSnapshot = useStore(store,
     (state) => state.setCurrentSnapshot
   );
@@ -97,33 +99,6 @@ function ReviewerInternal({
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
-  const getGroupID = (snapshot: Snapshot) => `${snapshot.name}:${snapshot.variant}:${snapshot.viewport}`
-
-  const snapshotTargetGroups = useMemo(
-    () => Object.values(groupBy(snapshots, getGroupID)).flatMap((group) => {
-
-      const groupedByStatus = groupBy(group, (snapshot) => snapshot.status);
-
-      return Object.values(groupedByStatus).map((group) => ({
-        name: group[0].name,
-        variant: group[0].variant,
-        viewport: group[0].viewport,
-        snapshots: group.sort((a, b) => (a.target || "").localeCompare(b.target || "")),
-        status: group[0].status
-      } as SnapshotTargetGroup)
-      )
-    }).sort((a, b) => snapshotSortMap[a.status] - snapshotSortMap[b.status]),
-    [snapshots]
-  );
-
-  useEffect(() => {
-    if (snapshotTargetGroups.length > 0 && !currentSnapshot) {
-      const snapshotId = searchParams.get("s");
-      const group = snapshotTargetGroups.find((group) => group.snapshots.some((snapshot) => snapshot.id === snapshotId));
-      setCurrentSnapshot(group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].snapshots[0]);
-    }
-  }, [currentSnapshot, searchParams, setCurrentSnapshot, snapshotTargetGroups]);
 
   useEffect(() => {
     const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -170,24 +145,10 @@ function ReviewerInternal({
   useEffect(() => {
     setBuild(build);
     setSnapshots(snapshotTargetGroups);
-    setOptimize(optimize);
     if (buildAPI) setBuildAPI(buildAPI);
     if (userRole) setUserRole(userRole);
     setIsUpdatingSnapshotStatus(isUpdatingSnapshotStatus || false);
-  }, [
-    build,
-    setBuild,
-    setSnapshots,
-    snapshotTargetGroups,
-    setOptimize,
-    optimize,
-    buildAPI,
-    setBuildAPI,
-    userRole,
-    setUserRole,
-    setIsUpdatingSnapshotStatus,
-    isUpdatingSnapshotStatus,
-  ]);
+  }, [build, buildAPI, isUpdatingSnapshotStatus, setBuild, setBuildAPI, setIsUpdatingSnapshotStatus, setSnapshots, setUserRole, snapshotTargetGroups, userRole]);
 
   const showSidebar = useStore(store, (state) => state.panelOpen);
 
@@ -221,13 +182,42 @@ function ReviewerInternal({
 
 
 export function Reviewer(props: ReviewerProps) {
+
+  const getGroupID = (snapshot: Snapshot) => `${snapshot.name}:${snapshot.variant}:${snapshot.viewport}`
+
+
+  const searchParams = useSearchParams();
+
+  const snapshotTargetGroups = useMemo(
+    () => Object.values(groupBy(props.snapshots, getGroupID)).flatMap((group) => {
+
+      const groupedByStatus = groupBy(group, (snapshot) => snapshot.status);
+
+      return Object.values(groupedByStatus).map((group) => ({
+        name: group[0].name,
+        variant: group[0].variant,
+        viewport: group[0].viewport,
+        snapshots: group.sort((a, b) => (a.target || "").localeCompare(b.target || "")),
+        status: group[0].status
+      } as SnapshotTargetGroup)
+      )
+    }).sort((a, b) => snapshotSortMap[a.status] - snapshotSortMap[b.status]),
+    [props.snapshots]
+  );
+
+  const snapshotId = searchParams.get("s");
+  const group = snapshotTargetGroups.find((group) => group.snapshots.some((snapshot) => snapshot.id === snapshotId));
+
   const store = useRef(createStore({
     panelOpen: props.defaultSidebarOpen,
+    currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].snapshots[0],
+    optimize: props.optimize,
+    snapshots: snapshotTargetGroups,
   })).current
 
   return (
     <StoreContext.Provider value={store}>
-      <ReviewerInternal {...props} />
+      <ReviewerInternal snapshotTargetGroups={snapshotTargetGroups} {...props} />
     </StoreContext.Provider>
   )
 }

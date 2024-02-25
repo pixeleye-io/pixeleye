@@ -31,7 +31,6 @@ interface ReviewerState {
   panel: Panel;
   setPanel: (panel: Panel) => void;
   optimize: boolean;
-  setOptimize: (optimize: boolean) => void;
   build: Build;
   setBuild: (build: Build) => void;
   snapshots: SnapshotTargetGroup[];
@@ -76,7 +75,6 @@ export const createStore = (initProps?: Partial<ReviewerState>) =>
     panel: "snapshots",
     setPanel: (panel) => set({ panel }),
     optimize: false,
-    setOptimize: (optimize) => set({ optimize }),
     build: defaultBuild,
     setBuild: (build) => set({ build }),
     snapshots: [],

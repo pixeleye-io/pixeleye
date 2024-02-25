@@ -219,6 +219,7 @@ export default function SnapshotsPanel() {
           type="single"
           value={accordionValue}
           onValueChange={setAccordionValue}
+          defaultValue={currentSnapshot?.status}
           collapsible
           className="w-full"
         >
