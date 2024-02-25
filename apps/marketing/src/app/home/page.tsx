@@ -27,7 +27,7 @@ import { HighlightedDiff } from "./highlightedDiff";
 export const metadata: Metadata = {
   title: "Open-source Visual Regression Testing Platform | Pixeleye",
   description:
-    "Pixeleye is an open-source, self-hostable platform for visual regression testing. Deliver pixel perfect UIs with confidence, effortlessly catching visual bugs before they reach production.",
+    "The all-batteries-included platform for visually testing and reviewing  your ui's; plus it's Self-hostable. Integrate your codebase with our many integrations and start testing your UIs. Deliver pixel-perfect UIs confidently, effortlessly catching visual bugs and reviewing intended changes before they reach production.",
   alternates: {
     canonical: "https://pixeleye.io/",
   },
@@ -94,12 +94,12 @@ function Hero() {
             </NextLink>
           </div>
           <h1 className="mt-10 text-5xl font-bold tracking-tight pb-2 text-tertiary sm:text-6xl">
-            Open-source visual testing
+            Open-source visual testing platform
           </h1>
           <p className="mt-4 text-lg leading-8 text-on-surface-variant">
-            Pixeleye is an open-source, self-hostable platform for visual
-            regression testing. Deliver pixel perfect UIs with confidence,
-            effortlessly catching visual bugs before they reach production.
+            The all-batteries-included platform for visually testing and reviewing your ui&apos;s; it&apos;s even Self-hostable.
+            Integrate your codebase with our many integrations and start testing your UIs.
+            Deliver pixel-perfect UIs confidently, effortlessly catching visual bugs and reviewing intended changes before they reach production.
           </p>
           <div className="mt-10 flex items-center gap-x-6">
             <Button>Sign up for free</Button>
