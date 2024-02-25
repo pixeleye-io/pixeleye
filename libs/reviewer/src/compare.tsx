@@ -228,7 +228,7 @@ export function Compare() {
   const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
 
   return (
-    <main className="w-full ml-1 z-0 h-full grow-0 flex relative">
+    <main className="w-full z-0 h-full grow-0 flex relative">
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab as (value: string) => void}
