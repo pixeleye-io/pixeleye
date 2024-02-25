@@ -31,8 +31,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://pixeleye.io/",
   },
+  robots: {
+    "max-image-preview": "none"
+  }
 };
-
 function Hero() {
   return (
     <div className="relative isolate overflow-hidden bg-surface">
@@ -97,9 +99,9 @@ function Hero() {
             Open-source visual testing platform
           </h1>
           <p className="mt-4 text-lg leading-8 text-on-surface-variant">
-          The all-batteries-included platform for visually testing and reviewing your UI; it&apos;s even self-hostable!
-          Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.
-          Deliver pixel-perfect UIs confidently, effortlessly catching visual bugs and reviewing intended changes before they reach production.
+            The all-batteries-included platform for visually testing and reviewing your UI; it&apos;s even self-hostable!
+            Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.
+            Deliver pixel-perfect UIs confidently, effortlessly catching visual bugs and reviewing intended changes before they reach production.
           </p>
           <div className="mt-10 flex items-center gap-x-6">
             <Button>Sign up for free</Button>
