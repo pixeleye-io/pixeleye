@@ -105,6 +105,7 @@ function TabSwitcher() {
             strokeWidth="4"
             d="M24 4v40"
           />
+          <span className="sr-only">Double comparison</span>
         </svg>
       </TabsTrigger>
       <TabsTrigger value="single">
@@ -120,6 +121,7 @@ function TabSwitcher() {
             d="M41 4H7a3 3 0 0 0-3 3v34a3 3 0 0 0 3 3h34a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Z"
           />
         </svg>
+        <span className="sr-only">Single comparison</span>
       </TabsTrigger>
     </TabsList>
   );
@@ -275,9 +277,11 @@ export function Compare() {
           )}
           <TabsContent className="w-full h-full !mt-0 grow-0" value="single">
             <Single draggableImageRef={singleRef} />
+            <span className="sr-only">Single comparison</span>
           </TabsContent>
           <TabsContent className="w-full h-full !mt-0 grow-0" value="double">
             <Double draggableImageRef={doubleRef} />
+            <span className="sr-only">Double comparison</span>
           </TabsContent>
         </div>
       </Tabs>
@@ -320,8 +324,10 @@ function TargetTabs({
                 isActive ? "text-on-surface" : "text-on-surface-variant"
               } onClick={() => setCurrentSnapshot(snap)} tooltip={snap.target}>
                 {
-                  TargetLogo ? (
+                  TargetLogo ? (<>
                     <TargetLogo className="w-6 h-6" />
+                    <span className="sr-only">{snap.target}</span>
+                  </>
                   ) : (
                     <span className="capitalize text-xs">{snap.target}</span>
                   )
