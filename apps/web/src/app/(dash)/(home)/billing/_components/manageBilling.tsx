@@ -45,7 +45,9 @@ export function ManageBillingAccount(
     console.log(team)
 
 
-    const [snapshotsLimited, setSnapshotsLimited] = useState((team.snapshotLimit || 0) >= 5000)
+    const freeSnaps = 5_000 + (1_250 * (team.referrals || 0))
+
+    const [snapshotsLimited, setSnapshotsLimited] = useState((team.snapshotLimit || 0) >= freeSnaps)
 
     const queryClient = useQueryClient()
 
@@ -63,7 +65,7 @@ export function ManageBillingAccount(
         }).then(() => snapshotsLimited ? limit * 1000 : 0),
         onSuccess: (limit) => {
             queryClient.invalidateQueries(queries.teams.detail(team.id))
-            setSnapshotsLimited(limit * 1000 >= 5000)
+            setSnapshotsLimited(limit * 1000 >= freeSnaps)
             setLimitSnapsOpen(false)
         }
     })
@@ -71,7 +73,7 @@ export function ManageBillingAccount(
 
     const { register, handleSubmit } = useForm<{ limit: number }>({
         defaultValues: {
-            limit: !team.snapshotLimit || team.snapshotLimit < 5000 ? 100 : team.snapshotLimit / 1000
+            limit: !team.snapshotLimit || team.snapshotLimit < freeSnaps ? 100 : team.snapshotLimit / 1000
         }
     })
 
@@ -87,7 +89,7 @@ export function ManageBillingAccount(
                             />
                             <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Free</h3>
                             <p className="mt-1 text-sm text-on-surface-variant">
-                                You are currently using Pixeleye for free. This means you are limited to 5000 snapshots per month.
+                                You are currently using Pixeleye for free. This means you are limited to {freeSnaps} snapshots per month.
                             </p>
                             <Link target="_blank" href="https://pixeleye.io/pricing">
                                 Pricing
@@ -118,7 +120,7 @@ export function ManageBillingAccount(
                             />
                             <h3 className="mt-2 text-sm font-semibold text-on-surface">Current plan: Pro {Boolean(subscription?.cancelAt) && (<span className="text-xs text-error">Canceled</span>)}</h3>
                             <p className="mt-1 text-sm text-on-surface-variant">
-                                <span className="text-primary text-lg">Thank you for supporting open-source!</span> <br /> Pro tier gives you unlimited snapshots per month, with the first 5000 snapshots being free.
+                                <span className="text-primary text-lg">Thank you for supporting open-source!</span> <br /> Pro tier gives you unlimited snapshots per month, with the first {freeSnaps} snapshots being free.
                             </p>
                             <div className="mt-6 flex flex-col space-y-8">
 
@@ -154,14 +156,14 @@ export function ManageBillingAccount(
                                                                 <span>Enable limit</span>
                                                                 <Switch checked={snapshotsLimited} onCheckedChange={setSnapshotsLimited} />
                                                             </label>
-                                                            <Input step="0.001" suffix="/k" label="Limit (thousand)" defaultValue={100} type="number" min={5} disabled={!snapshotsLimited} {...register("limit", {
-                                                                min: 5
+                                                            <Input step="0.001" suffix="/k" label="Limit (thousand)" defaultValue={100} type="number" min={freeSnaps / 1000} disabled={!snapshotsLimited} {...register("limit", {
+                                                                min: freeSnaps / 1000
                                                             })} />
 
                                                         </div>
 
                                                         <p className="text-on-surface-variant">
-                                                            Your first 5k snapshots are free.
+                                                            Your first {freeSnaps / 1000}k snapshots are free.
                                                         </p>
                                                     </div>
 

@@ -21,3 +21,8 @@ type UserTraits struct {
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
 }
+
+type UserReferrer struct {
+	TeamID     string `db:"team_id" json:"teamID"`
+	ReferrerID string `db:"referrer_id" json:"referrerID"`
+}

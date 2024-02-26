@@ -132,6 +132,36 @@ table "account" {
   }
 }
 
+table "user_referral" {
+  schema = schema.public
+
+  column "referrer_team_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "referrer_team_id" {
+    columns     = [column.referrer_team_id]
+    ref_columns = [table.team.column.id]
+    on_delete   = CASCADE
+  }
+
+  column "team_id" {
+    type = varchar(21)
+    null = false
+  }
+
+  foreign_key "team_id" {
+    columns     = [column.team_id]
+    ref_columns = [table.team.column.id]
+    on_delete   = CASCADE
+  }
+
+  primary_key {
+    columns = [column.team_id, column.referrer_team_id]
+  }
+}
+
 table "oauth_account_refresh" {
   schema = schema.public
   column "id" {
@@ -190,7 +220,6 @@ table "team" {
     null    = false
     default = "active"
   }
-
 
   column "snapshot_limit" {
     type    = integer

@@ -8,6 +8,8 @@ export const TeamZod = z.object({
 
   type: z.enum(["github", "gitlab", "bitbucket", "user"]),
 
+  referrals: z.number().optional(),
+
   name: z.string(),
   url: z.string().url().optional(),
   avatarURL: z.string().url().optional(),

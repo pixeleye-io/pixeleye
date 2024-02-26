@@ -42,6 +42,8 @@ type Team struct {
 
 	SnapshotLimit int `db:"snapshot_limit" json:"snapshotLimit" validate:"min=0,required"`
 
+	Referrals int `db:"referrals" json:"referrals,omitempty"`
+
 	SubscriptionID string `db:"subscription_id" json:"subscriptionID,omitempty" validate:"omitempty"`
 	CustomerID     string `db:"customer_id" json:"customerID,omitempty" validate:"omitempty"`
 

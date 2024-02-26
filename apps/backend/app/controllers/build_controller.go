@@ -97,8 +97,10 @@ func CreateBuild(c echo.Context) error {
 				return err
 			}
 
-			if snapshotCount > 5_000 {
-				return echo.NewHTTPError(http.StatusBadRequest, "free accounts are limited to 5,000 snapshots per month (rolling)")
+			maxSnaps := 5_000 + team.Referrals*1_250
+
+			if snapshotCount > maxSnaps {
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("You're free account is limited to %d snapshots per month (rolling)", maxSnaps))
 			}
 		}
 

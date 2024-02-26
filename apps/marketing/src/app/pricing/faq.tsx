@@ -35,7 +35,7 @@ const faqs = [
     id: 6,
     question: "Can I sign up without a credit card?",
     answer:
-      "Yes, you can capture up to 5000 snapshots a month with our free plan.",
+      "Yes, you can capture up to 7,500 snapshots a month with our free plan.",
   },
 ];
 
