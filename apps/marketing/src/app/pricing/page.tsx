@@ -14,6 +14,9 @@ import {
   DialogPortal,
   DialogTitle,
   Link,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@pixeleye/ui";
 import { cx } from "class-variance-authority";
 import NextLink from "next/link";
@@ -21,6 +24,7 @@ import { Calculator } from "./calculator";
 import { FAQ } from "./faq";
 import { Examples } from "./examples";
 import { Metadata } from "next";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 
 // TODO - get this from stripe
 const volumePricing = {
@@ -38,6 +42,15 @@ export const metadata: Metadata = {
   description: "Want to avoid the hassle of setting up and maintaining your own instance? We offer a hosted solution for you.",
 };
 
+function SnapshotsMoreInfoContext() {
+
+  return (
+    <p>
+      Every team gets 5,000 free snapshots. Users can earn an additional 1,250 snapshots by referring a friend for a total of 7,500 snapshots.
+    </p>
+  )
+}
+
 const tiers = [
   {
     name: "Hobby",
@@ -48,7 +61,10 @@ const tiers = [
     description:
       "More than enough for side projects or evaluating the platform.",
     features: [
-      "5000 monthly snapshots",
+      {
+        text: "Up to 7,500 free monthly snapshots",
+        moreInfo: SnapshotsMoreInfoContext
+      },
       "Unlimited projects",
       "Unlimited collaborators",
     ],
@@ -64,7 +80,10 @@ const tiers = [
     cta: "Buy plan",
     priceModalIndex: 1,
     features: [
-      "5000 free monthly snapshots",
+      {
+        text: "Up to 7,500 free monthly snapshots",
+        moreInfo: SnapshotsMoreInfoContext
+      },
       "Volume pricing starting at $0.003",
       "Unlimited projects",
       "Unlimited collaborators",
@@ -165,28 +184,48 @@ export default function PricingPage() {
                 role="list"
                 className="mt-8 space-y-3 text-sm leading-6 text-on-surface-variant"
               >
-                {tier.features.map((feature, i) => (
-                  <li key={feature} className="flex gap-x-3">
-                    {
-                      tier.priceModalIndex === i ? (
-                        <PricingModal>
-                          <CheckIcon
-                            className="h-6 w-5 flex-none text-tertiary"
-                            aria-hidden="true"
-                          />
-                          {feature}
-                        </PricingModal>
-                      )
-                        : <>
-                          <CheckIcon
-                            className="h-6 w-5 flex-none text-tertiary"
-                            aria-hidden="true"
-                          />
-                          {feature}
-                        </>
-                    }
-                  </li>
-                ))}
+                {tier.features.map((feature, i) => {
+
+                  const MoreInfoContent = typeof feature === "object" && feature.moreInfo
+
+
+                  return (
+                    <li key={typeof feature === "string" ? feature : feature.text} className="flex gap-x-3 items-center">
+                      {
+                        tier.priceModalIndex === i ? (
+                          <PricingModal>
+                            <CheckIcon
+                              className="h-6 w-5 flex-none text-tertiary"
+                              aria-hidden="true"
+                            />
+                            {typeof feature === "string" ? feature : feature.text}
+                          </PricingModal>
+                        )
+                          : <>
+                            <CheckIcon
+                              className="h-6 w-5 flex-none text-tertiary"
+                              aria-hidden="true"
+                            />
+                            {typeof feature === "string" ? feature : feature.text}
+                            {
+                              MoreInfoContent && (
+                                <>
+                                  <Popover>
+                                    <PopoverTrigger>
+                                      <QuestionMarkCircleIcon className="h-4 w-4 hover:text-on-surface" />
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                      <MoreInfoContent />
+                                    </PopoverContent>
+                                  </Popover>
+                                </>
+                              )
+                            }
+                          </>
+                      }
+                    </li>
+                  )
+                })}
               </ul>
             </div>
             <Button
