@@ -184,7 +184,7 @@ export function Navbar() {
         </Breadcrumbs.Item>
         {segments.map((segment) => {
           return (
-            <Breadcrumbs.Item key={segment.value} asChild>
+            <Breadcrumbs.Item key={segment.name} asChild>
               <Link
                 href={segment.value}
                 className="flex items-center space-x-2 text-sm"

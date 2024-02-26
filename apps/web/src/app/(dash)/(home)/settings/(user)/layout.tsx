@@ -7,6 +7,10 @@ const items: SidebarNavLink[] = [
     title: "Profile",
   },
   {
+    href: "/settings/referrals",
+    title: "Referrals",
+  },
+  {
     href: "/settings/account",
     title: "Account",
   },

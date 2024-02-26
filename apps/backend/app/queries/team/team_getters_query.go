@@ -20,7 +20,7 @@ func (q *TeamQueries) GetTeamsProjects(ctx context.Context, teamID string) ([]mo
 }
 
 func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string) (models.Team, error) {
-	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1 AND team_users.user_id = $2`
+	query := `SELECT team.*, team_users.Role, (SELECT COUNT(*) FROM user_referral WHERE user_referral.referrer_team_id = $1 OR user_referral.team_id = $1) AS referrals FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1 AND team_users.user_id = $2`
 
 	team := models.Team{}
 
@@ -35,7 +35,7 @@ func (q *TeamQueries) GetTeam(ctx context.Context, teamID string, userID string)
 }
 
 func (q *TeamQueries) GetTeamByID(ctx context.Context, teamID string) (models.Team, error) {
-	query := `SELECT team.*, team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1`
+	query := `SELECT team.*, (SELECT COUNT(*) FROM user_referral WHERE user_referral.referrer_team_id = $1 OR user_referral.team_id = $1) AS referrals team_users.Role FROM team JOIN team_users ON team.id = team_users.team_id WHERE team.id = $1`
 
 	team := models.Team{}
 

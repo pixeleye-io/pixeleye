@@ -24,4 +24,6 @@ func UserRoutes(e *echo.Echo) {
 
 	v1.PATCH("/user/me", controllers.UpdateUser)
 
+	v1.POST("/user/refer", controllers.ReferUser)
+
 }
