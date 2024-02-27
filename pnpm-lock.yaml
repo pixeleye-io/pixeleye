@@ -758,9 +758,6 @@ importers:
       ora:
         specifier: ^8.0.1
         version: 8.0.1
-      playwright:
-        specifier: ^1
-        version: 1.41.2
       playwright-core:
         specifier: ^1.41.2
         version: 1.41.2
