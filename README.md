@@ -17,6 +17,8 @@
 </div>
 </div>
 
+![Pixeleye reviewer](https://raw.githubusercontent.com/pixeleye-io/pixeleye/main/.assets/playground.svg)
+
 ## About
 
 Pixeleye aims to provide a seamless experience for visually testing and reviewing your UI. Unlike other code, UI's should be primarily reviewed visually. We built pixeleye to allow developers, designers, and product managers to review UI changes effectively and efficiently; plus we'll detect any unintended visual side effects.
