@@ -282,7 +282,11 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 				defer func() {
 					if err := recover(); err != nil {
 						log.Error().Msgf("Recovered from panic in consumer: %v", message)
-						if err := message.Reject(true); err != nil {
+						requeue := false
+						if queueType == brokerTypes.BuildProcess {
+							requeue = true
+						}
+						if err := message.Reject(requeue); err != nil {
 							log.Error().Err(err).Msg("Failed to reject message")
 						}
 					}
