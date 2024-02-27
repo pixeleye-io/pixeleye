@@ -24,7 +24,7 @@ export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]
       outdir,
       format,
       outExtension: {
-        ".js": format === "cjs" ? formats.length == 0 ? ".js" : ".cjs" : ".js",
+        ".js": format === "cjs" ? formats.length == 1 ? ".js" : ".cjs" : ".js",
       },
       plugins: devBuild || includeFiles ? [] : [makeAllPackagesExternalPlugin],
     })
