@@ -3,7 +3,6 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -89,15 +88,13 @@ func ReferUser(c echo.Context) error {
 		return err
 	}
 
-	if os.Getenv("PIXELEYE_HOSTING") != "true" {
-		paymentClient := payments.NewPaymentClient()
-		if err := paymentClient.UpdateTeamPlan(c.Request().Context(), userTeam); err != nil {
-			return err
-		}
+	paymentClient := payments.NewPaymentClient()
+	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), userTeam); err != nil {
+		return err
+	}
 
-		if err := paymentClient.UpdateTeamPlan(c.Request().Context(), referralTeam); err != nil {
-			return err
-		}
+	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), referralTeam); err != nil {
+		return err
 	}
 
 	return c.NoContent(http.StatusAccepted)

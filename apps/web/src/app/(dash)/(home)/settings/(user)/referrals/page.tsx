@@ -1,15 +1,18 @@
-import { API, useTeam } from "@/libs"
+import { API, useTeam, } from "@/libs"
 import { queries } from "@/queries"
 import { getTeam } from "@/serverLibs"
 import { Input } from "@pixeleye/ui"
 import { useQueries } from "@tanstack/react-query"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { Code } from "./code"
+import { env } from "@/env"
 
 export default async function ReferralPage({ searchParams }: {
     searchParams: Record<string, string>;
 }) {
+
+    if (env.NEXT_PUBLIC_PIXELEYE_HOSTING !== "true") notFound()
 
     if (searchParams.team) redirect("/settings/referrals")
 
