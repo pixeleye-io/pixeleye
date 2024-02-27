@@ -1,5 +1,17 @@
 # @pixeleye/cypress
 
+## 0.2.0
+
+### Minor Changes
+
+- [#174](https://github.com/pixeleye-io/pixeleye/pull/174) [`e7b6b43`](https://github.com/pixeleye-io/pixeleye/commit/e7b6b43bf36d804145c6570232156f93eefa998d) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Exporting esm and cjs
+
+### Patch Changes
+
+- Updated dependencies [[`e7b6b43`](https://github.com/pixeleye-io/pixeleye/commit/e7b6b43bf36d804145c6570232156f93eefa998d)]:
+  - @pixeleye/cli-devices@0.3.0
+  - @pixeleye/cli-api@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes
