@@ -17,7 +17,7 @@
   },
   "publishConfig": {
     "main": "./dist/index.cjs",
-    "module": "./dist/index.mjs",
+    "module": "./dist/index.js",
     "typings": "./dist/src/index.d.ts"
   },
   "devDependencies": {
