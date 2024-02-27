@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-capture",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",

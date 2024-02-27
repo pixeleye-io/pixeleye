@@ -1,5 +1,16 @@
 # @pixeleye/cli-booth
 
+## 0.3.2
+
+### Patch Changes
+
+- [#184](https://github.com/pixeleye-io/pixeleye/pull/184) [`06541df`](https://github.com/pixeleye-io/pixeleye/commit/06541df7a7baaa09712174aa8116a6d52f9249f5) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating
+
+- Updated dependencies [[`06541df`](https://github.com/pixeleye-io/pixeleye/commit/06541df7a7baaa09712174aa8116a6d52f9249f5)]:
+  - @pixeleye/cli-capture@0.3.2
+  - @pixeleye/cli-config@0.3.2
+  - @pixeleye/cli-api@0.2.2
+
 ## 0.3.1
 
 ### Patch Changes
