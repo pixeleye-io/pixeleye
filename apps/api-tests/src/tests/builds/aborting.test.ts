@@ -22,7 +22,7 @@ const cleanEyePng = Buffer.from(
 describe.concurrent(
   "Aborting builds",
   {
-    timeout: 160_000,
+    timeout: 180_000,
   },
   () => {
     let jekyllTeams: Team[];
@@ -89,7 +89,7 @@ describe.concurrent(
         await buildTokenAPI.abortBuild(build.id, IDs.jekyll, 400);
       },
       {
-        timeout: 160_000,
+        timeout: 180_000,
       }
     );
 

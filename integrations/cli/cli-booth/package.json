@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-booth",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -13,7 +13,13 @@
   "publishConfig": {
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
-    "typings": "./dist/index.d.ts"
+    "types": "./dist/index.d.ts"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
   "files": [
     "dist",

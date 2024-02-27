@@ -1,7 +1,8 @@
+import { env } from "@/env";
 import { SidebarNav, SidebarNavLink } from "@pixeleye/ui";
 import { ReactNode } from "react";
 
-const items: SidebarNavLink[] = [
+let items: SidebarNavLink[] = [
   {
     href: "/settings",
     title: "Profile",
@@ -11,6 +12,17 @@ const items: SidebarNavLink[] = [
     title: "Account",
   },
 ];
+
+if (env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true") {
+  items = [
+    ...items.slice(0, 1),
+    {
+      href: "/settings/referrals",
+      title: "Referrals",
+    },
+    ...items.slice(1),
+  ]
+}
 
 export default function RootSettingsLayout({
   children,

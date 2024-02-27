@@ -25,6 +25,12 @@ type POST = Method<{
     res: undefined;
     req: undefined;
   };
+  "/v1/user/refer": {
+    res: undefined;
+    req: {
+      userID: string;
+    };
+  };
 }>;
 
 type PATCH = Method<{

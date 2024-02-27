@@ -229,6 +229,14 @@ func (q *UserQueries) GetUserByEmail(ctx context.Context, email string) (models.
 	return user, nil
 }
 
+func (q *UserQueries) AddUserReferral(ctx context.Context, teamID, referralTeamID string) error {
+	query := `INSERT INTO user_referral (referrer_team_id, team_id) VALUES ($1, $2)`
+
+	_, err := q.ExecContext(ctx, query, referralTeamID, teamID)
+
+	return err
+}
+
 func (q *UserQueries) GetUsersPersonalTeam(ctx context.Context, id string) (models.Team, error) {
 	teams, err := q.GetUsersTeams(ctx, id)
 

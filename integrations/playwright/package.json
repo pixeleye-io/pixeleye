@@ -1,7 +1,7 @@
 {
   "name": "@pixeleye/playwright",
   "private": false,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
@@ -12,10 +12,16 @@
   "publishConfig": {
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
-    "typings": "./dist/src/index.d.ts"
+    "types": "./dist/src/index.d.ts"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
   "main": "src/index.ts",
-  "typings": "src/index.ts",
+  "types": "src/index.ts",
   "files": [
     "README.md",
     "dist",

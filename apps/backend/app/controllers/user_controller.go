@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	"github.com/pixeleye-io/pixeleye/app/git"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/jobs"
@@ -14,6 +15,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/identity"
+	"github.com/pixeleye-io/pixeleye/platform/payments"
 )
 
 func GetAuthenticatedUser(c echo.Context) error {
@@ -26,6 +28,76 @@ func GetAuthenticatedUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, user)
+}
+
+type ReferUserRequest struct {
+	UserID string `json:"userID" validate:"required"`
+}
+
+func ReferUser(c echo.Context) error {
+
+	user, err := middleware.GetUser(c)
+	if err != nil {
+		return err
+	}
+
+	body := ReferUserRequest{}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	validator := utils.NewValidator()
+	if err := validator.Struct(body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, utils.ValidatorErrors(err))
+	}
+
+	if user.ID == body.UserID {
+		return echo.NewHTTPError(http.StatusBadRequest, "Cheeky, you can't use your own code!")
+	}
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return err
+	}
+	userTeam, err := db.GetUsersPersonalTeam(c.Request().Context(), user.ID)
+	if err != nil {
+		return err
+	}
+
+	if userTeam.Referrals >= 2 {
+		return echo.NewHTTPError(http.StatusBadRequest, "You already have the max number of referrals")
+	}
+
+	referralTeam, err := db.GetUsersPersonalTeam(c.Request().Context(), body.UserID)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid code")
+	}
+
+	if userTeam.Referrals >= 2 {
+		return echo.NewHTTPError(http.StatusBadRequest, "The user's whose code you used has already maxed out their referrals")
+	}
+
+	if err := db.AddUserReferral(c.Request().Context(), userTeam.ID, referralTeam.ID); err != nil {
+		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") {
+			return echo.NewHTTPError(http.StatusBadRequest, "You've already used this code")
+		}
+		return err
+	}
+
+	paymentClient := payments.NewPaymentClient()
+	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), userTeam); err != nil {
+		return err
+	}
+
+	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), referralTeam); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusAccepted)
 }
 
 type DeleteUserRequest struct {
@@ -45,7 +117,6 @@ func DeleteUser(c echo.Context) error {
 
 	// Get user from session.
 	user, err := middleware.GetUser(c)
-
 	if err != nil {
 		return err
 	}
