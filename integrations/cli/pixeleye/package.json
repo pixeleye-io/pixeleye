@@ -18,7 +18,6 @@
     "LICENSE"
   ],
   "types": "./bin/src/index.d.ts",
-  "type": "module",
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
