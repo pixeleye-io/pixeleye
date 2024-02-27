@@ -1,4 +1,3 @@
-
 > [!Important]
 > This project is currently under development and working towards a public release
 
@@ -7,9 +6,29 @@
 <!-- PROJECT LOGO -->
 <br />
 <h1>Pixeleye</h1>
-<p>Pixeleye is an open-source, self-hostable platform for visual regression testing. Deliver pixel perfect UIs with confidence, effortlessly catching visual bugs before they reach production.</p>  
+<p>The all-batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.</p>  
 </p>
-<h2>
-  <a href="https://pixeleye.io">Full documentation</a>
-</h2>
+<div align="center">
+  <a href="https://pixeleye.io/home">Homepage</a>
+  .
+  <a href="https://pixeleye.io/docs">Documentation</a>
+  .
+  <a href="https://pixeleye.io/playground">Playground</a>
 </div>
+</div>
+
+## About
+
+Pixeleye aims to provide a seamless experience for visually testing and reviewing your UI. Unlike other code, UI's should be primarily reviewed visually. We built pixeleye to allow developers, designers, and product managers to review UI changes effectively and efficiently; plus we'll detect any unintended visual side effects.
+
+### Features
+
+- **Multi-Browser Testing**: We support all major browsers. When capturing screenshots, we run a background process which will render and capture across all browsers.
+
+- **Self-Hostable**: You can host pixeleye on your own infrastructure. We provide a docker compose file to get you started.
+
+- **Responsive Testing**: Along with different browsers, we also support different device sizes. You can capture screenshots for mobile, tablet, and desktop.
+
+- **Permission syncing**: Already setup your permissions in Github? We'll sync and match them in pixeleye.
+
+- **Integration with your codebase**: We provide many official integrations to connect your codebase with pixeleye.
