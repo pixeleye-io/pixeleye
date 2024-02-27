@@ -431,7 +431,7 @@ func IngestSnapshots(ctx context.Context, snapshotIDs []string) error {
 
 	log.Debug().Interface("Build", build).Msg("Build snapshots are from")
 
-	targetBuilds, err := db.GetBuildTargets(ctx, build.ID, nil)
+	targetBuilds, err := db.GetBuildTargets(ctx, build.ID)
 	if err != nil {
 		return err
 	}

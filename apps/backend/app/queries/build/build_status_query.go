@@ -89,12 +89,12 @@ func (q *BuildQueries) GetBuildDirectDependents(ctx context.Context, build model
 
 func (q *BuildQueries) GetBuildDependencies(ctx context.Context, build models.Build) ([]models.Build, error) {
 
-	parentBuilds, err := q.GetBuildParents(ctx, build.ID, nil)
+	parentBuilds, err := q.GetBuildParents(ctx, build.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	targetBuilds, err := q.GetBuildTargets(ctx, build.ID, nil)
+	targetBuilds, err := q.GetBuildTargets(ctx, build.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -59,18 +59,12 @@ func (q *BuildQueries) GetBuildWithDependencies(ctx context.Context, id string) 
 		return build, err
 	}
 
-	parents, err := q.GetBuildParents(ctx, id, &GetBuildParentsOpts{
-		IncludeAborted: true,
-		IncludeFailed:  true,
-	})
+	parents, err := q.GetBuildParents(ctx, id)
 	if err != nil {
 		return build, err
 	}
 
-	targets, err := q.GetBuildTargets(ctx, id, &GetBuildTargetsOpts{
-		IncludeAborted: true,
-		IncludeFailed:  true,
-	})
+	targets, err := q.GetBuildTargets(ctx, id)
 	if err != nil {
 		return build, err
 	}
@@ -106,25 +100,9 @@ func (q *BuildQueries) CountBuildSnapshots(ctx context.Context, buildID string) 
 	return count, err
 }
 
-type GetBuildParentsOpts struct {
-	IncludeAborted bool
-	IncludeFailed  bool
-}
-
-// SELECT b.* FROM build b
-// INNER JOIN build_history bh on bh.child_id = b.id
-// INNER JOIN find_parents ON bh.parent_id = find_parents.id
-// WHERE b.status in ('failed', 'aborted')
-
-func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts *GetBuildParentsOpts) ([]models.Build, error) {
-
-	// if opts == nil {
-	// 	opts = &GetBuildParentsOpts{}
-	// }
+func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string) ([]models.Build, error) {
 
 	builds := []models.Build{}
-
-	// query := `SELECT build.* FROM build JOIN build_history ON build_history.parent_id = build.id WHERE build_history.child_id = $1`
 
 	// recursive query to get all parents of a build, in the case where a parent has a status of failed or aborted, we'll find the parent of that build to replace it
 	query := `
@@ -140,14 +118,6 @@ func (q *BuildQueries) GetBuildParents(ctx context.Context, buildID string, opts
 	)
 	SELECT * FROM find_parents WHERE status NOT IN ('failed', 'aborted')
 	`
-
-	// if !opts.IncludeAborted {
-	// 	query += ` AND build.status != 'aborted'`
-	// }
-
-	// if !opts.IncludeFailed {
-	// 	query += ` AND build.status != 'failed'`
-	// }
 
 	err := q.SelectContext(ctx, &builds, query, buildID)
 
@@ -197,20 +167,10 @@ func (q *BuildQueriesTx) SquashDependencies(ctx context.Context, buildID string)
 	return nil
 }
 
-type GetBuildTargetsOpts struct {
-	IncludeAborted bool
-	IncludeFailed  bool
-}
-
-func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts *GetBuildTargetsOpts) ([]models.Build, error) {
-
-	// if opts == nil {
-	// 	opts = &GetBuildTargetsOpts{}
-	// }
+func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string) ([]models.Build, error) {
 
 	builds := []models.Build{}
 
-	// query := `SELECT build.* FROM build JOIN build_targets ON build_targets.target_id = build.id WHERE build_targets.build_id = $1`
 	// recursive query to get all targets of a build, in the case where a target has a status of failed or aborted, we'll find the target of that build to replace it
 	query := `
 	WITH RECURSIVE find_targets AS (
@@ -226,14 +186,6 @@ func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string, opts
 
 	SELECT * FROM find_targets WHERE status NOT IN ('failed', 'aborted')
 	`
-
-	// if !opts.IncludeAborted {
-	// 	query += ` AND build.status != 'aborted'`
-	// }
-
-	// if !opts.IncludeFailed {
-	// 	query += ` AND build.status != 'failed'`
-	// }
 
 	err := q.SelectContext(ctx, &builds, query, buildID)
 
