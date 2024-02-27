@@ -16,8 +16,9 @@
   <a href="https://pixeleye.io/playground">Playground</a>
 </div>
 </div>
+<br />
 
-![Pixeleye reviewer](https://raw.githubusercontent.com/pixeleye-io/pixeleye/main/.assets/playground.svg)
+![Pixeleye reviewer](https://raw.githubusercontent.com/pixeleye-io/pixeleye/main/.assets/playground.png)
 
 ## About
 
