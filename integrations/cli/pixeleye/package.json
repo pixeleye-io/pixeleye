@@ -10,7 +10,7 @@
     "build:dev": "pnpm rimraf ./bin && node ./build.mjs --dev & tsc --emitDeclarationOnly --outDir ./bin"
   },
   "bin": {
-    "pixeleye": "./bin/index.cjs"
+    "pixeleye": "./bin/index.js"
   },
   "files": [
     "README.md",
