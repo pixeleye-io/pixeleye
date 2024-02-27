@@ -20,7 +20,7 @@ export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]
       minify: !devBuild,
       platform: "node",
       target: "node20",
-      external: devBuild ? ["jsdom", "playwright-core", "rrweb-snapshot/dist/rrweb-snapshot.min.js"] : [],
+      external: devBuild || includeFiles ? ["jsdom", "playwright-core", "rrweb-snapshot/dist/rrweb-snapshot.min.js"] : [],
       outdir,
       format,
       outExtension: {
