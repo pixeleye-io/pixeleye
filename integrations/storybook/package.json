@@ -15,10 +15,8 @@
     "types": "./dist/src/index.d.ts"
   },
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
