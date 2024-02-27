@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.3.12
+
+### Patch Changes
+
+- [#198](https://github.com/pixeleye-io/pixeleye/pull/198) [`a7fd633`](https://github.com/pixeleye-io/pixeleye/commit/a7fd63334f580f183afc4cee95b8ac434b834f9b) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating
+
 ## 0.3.11
 
 ### Patch Changes
