@@ -21,6 +21,7 @@
   "peerDependencies": {
     "playwright": "^1"
   },
+  "type": "module",
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
