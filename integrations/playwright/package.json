@@ -10,7 +10,8 @@
     "test:e2e": "vitest"
   },
   "publishConfig": {
-    "main": "./dist/index.js",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
     "typings": "./dist/src/index.d.ts"
   },
   "main": "src/index.ts",

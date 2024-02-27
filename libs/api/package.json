@@ -16,8 +16,9 @@
     "build": "node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
   },
   "publishConfig": {
-    "main": "./dist/index.js",
-    "typings": "./dist/index.d.ts"
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "typings": "./dist/src/index.d.ts"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",

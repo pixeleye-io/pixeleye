@@ -15,6 +15,7 @@ export const optionMap = {
   e: "endpoint",
   p: "boothPort",
   w: "wait",
+  v: "verbose",
 } as const;
 
 const configOption = (name: string) =>
@@ -25,8 +26,16 @@ const configOption = (name: string) =>
       "Path to config file, e.g. ./config/pixeleye.config.js"
     );
 
-const apiOptions = (name: string) =>
+const verboseOption = (name: string) =>
   configOption(name)
+    .option("-v, --verbose", "Verbose output")
+    .hook("preAction", () => {
+      // eslint-disable-next-line turbo/no-undeclared-env-vars
+      process.env.PIXELEYE_VERBOSE = "true";
+    });
+
+const apiOptions = (name: string) =>
+  verboseOption(name)
     .option("-t, --token <token>", "Pixeleye project token")
     .option(
       "-e, --endpoint [endpoint]",

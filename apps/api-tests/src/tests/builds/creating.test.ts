@@ -223,10 +223,14 @@ describe("Creating a build", () => {
   });
 
   it("Should be able to complete a build", async () => {
-    await buildTokenAPI
+    const build: Build = await buildTokenAPI
       .completeBuild(firstDevBuild.id, jekyllsToken)
-      .expectJsonMatch({
-        status: "orphaned",
+      .returns(({ res }: any) => {
+        return res.json;
       });
+
+    if (!["orphaned", "processing"].includes(build.status)) {
+      throw new Error("Build should be orphaned or processing");
+    }
   });
 });

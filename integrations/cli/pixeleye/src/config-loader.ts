@@ -7,7 +7,7 @@ export async function loadAndMergeConfig(
   subCommand: Command
 ) {
   const commands = hookedCommand.opts();
-  const configPath = commands.config;
+  const configPath = commands.config || commands.c;
 
   const config = await loadConfig(configPath);
 

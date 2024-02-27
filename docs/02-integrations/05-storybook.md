@@ -94,7 +94,7 @@ We recommend adding the following to your `package.json` file:
 ```package.json
 {
   "scripts": {
-    "pixeleye": "storybook dev & pixeleye storybook --url http://localhost:6006"
+    "pixeleye": "storybook dev & pixeleye storybook http://localhost:6006"
   }
 }
 ```
