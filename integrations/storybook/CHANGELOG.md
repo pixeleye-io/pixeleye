@@ -1,5 +1,11 @@
 # @pixeleye/storybook
 
+## 0.4.0
+
+### Minor Changes
+
+- [#188](https://github.com/pixeleye-io/pixeleye/pull/188) [`75ca01c`](https://github.com/pixeleye-io/pixeleye/commit/75ca01c959c318881a04144bcb6777b4c7e0e1a1) Thanks [@AlfieJones](https://github.com/AlfieJones)! - exporting files
+
 ## 0.3.2
 
 ### Patch Changes
