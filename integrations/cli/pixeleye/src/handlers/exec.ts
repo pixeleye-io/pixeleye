@@ -1,9 +1,8 @@
 import ora from "ora";
-import { finished, ping } from "@pixeleye/cli-booth";
+import { ping } from "@pixeleye/cli-booth";
 import { program } from "commander";
-import { noParentBuildFound } from "../messages/builds";
 import { errStr } from "../messages/ui/theme";
-import { exec, execFile } from "child_process";
+import { exec } from "child_process";
 import { API, createBuild } from "@pixeleye/cli-api";
 import { Config } from "@pixeleye/cli-config";
 import {

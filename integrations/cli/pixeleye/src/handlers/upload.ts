@@ -1,6 +1,5 @@
 import ora from "ora";
 import { program } from "commander";
-import { noParentBuildFound } from "../messages/builds";
 import { errStr } from "../messages/ui/theme";
 import { API, createBuild, uploadSnapshots } from "@pixeleye/cli-api";
 import { PartialSnapshot } from "@pixeleye/api";
