@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.3.5
+
+### Patch Changes
+
+- [#182](https://github.com/pixeleye-io/pixeleye/pull/182) [`73e6050`](https://github.com/pixeleye-io/pixeleye/commit/73e605062e04fecc98c65652930e0f8828a88fa6) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding type module
+
 ## 0.3.4
 
 ### Patch Changes
