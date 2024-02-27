@@ -6,10 +6,7 @@ import { nanoid } from "nanoid";
 import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
-import { like } from "pactum-matchers";
 import { sleep } from "pactum";
-
-// TODO - I should add checks to ensure each snapshot has the correct status, not just the build
 
 const projectData: ProjectBody = {
   name: "Some project for testing",
@@ -24,6 +21,9 @@ const cleanEyePng = Buffer.from(
 
 describe.concurrent(
   "Aborting builds",
+  {
+    timeout: 160_000,
+  },
   () => {
     let jekyllTeams: Team[];
 
@@ -131,7 +131,6 @@ describe.concurrent(
         .expectJsonMatch({
           id: rawBuild2!.id,
           status: "uploading",
-          parentIDs: [rawBuild1!.id],
         });
     });
 
@@ -192,12 +191,8 @@ describe.concurrent(
           status: "uploading",
         })
         .returns(({ res }: any) => {
-          expect(res.json.targetBuildIDs.sort()).toEqual(
-            [build1.id, rawBuild2!.id].sort()
-          );
-          expect(res.json.parentIDs.sort()).toEqual(
-            [build1.id, rawBuild2!.id].sort()
-          );
+          expect(res.json.targetBuildIDs.sort()).toEqual([build1.id].sort());
+          expect(res.json.parentIDs.sort()).toEqual([build1.id].sort());
         });
     });
 
@@ -272,17 +267,127 @@ describe.concurrent(
         })
         .returns(({ res }: any) => {
           expect(res.json.parentIDs.sort()).toEqual(
-            [build1.id, build2.id, rawBuild3!.id].sort()
+            [build1.id, build2.id].sort()
           );
           expect(res.json.targetBuildIDs.sort()).toEqual(
-            [build1.id, build2.id, rawBuild3!.id].sort()
+            [build1.id, build2.id].sort()
+          );
+        });
+    });
+
+    it("aborting multiple builds should pass their parents down as depedencies", async () => {
+      const snapshots: CreateBuildOptions["snapshots"] = [
+        {
+          hash: nanoid(40),
+          img: cleanEyePng,
+          name: "button",
+        },
+      ];
+
+      const build1 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "main",
+        sha: nanoid(40),
+        expectedBuildStatus: ["orphaned"],
+        snapshots,
+      }).catch((err) => {
+        throw err;
+      });
+
+      const build2 = await createBuildWithSnapshots({
+        token: jekyllsToken,
+        branch: "dev",
+        sha: nanoid(40),
+        expectedBuildStatus: ["orphaned"],
+        snapshots,
+      }).catch((err) => {
+        throw err;
+      });
+
+      let rawBuild3: Build | undefined;
+      await buildTokenAPI
+        .createBuild(jekyllsToken, {
+          branch: "dev asap",
+          sha: nanoid(40),
+          parentIDs: [build1.id, build2.id],
+        })
+        .returns(({ res }: any) => {
+          rawBuild3 = res.json;
+          expect(res.json.parentIDs.sort()).toEqual(
+            [build1.id, build2.id].sort()
+          );
+        });
+
+      let rawBuild4: Build | undefined;
+      await buildTokenAPI
+        .createBuild(jekyllsToken, {
+          branch: "dev asap",
+          sha: nanoid(40),
+          parentIDs: [rawBuild3!.id],
+        })
+        .returns(({ res }: any) => {
+          rawBuild4 = res.json;
+        });
+
+      let rawBuild5: Build | undefined;
+      await buildTokenAPI
+        .createBuild(jekyllsToken, {
+          branch: "dev asap",
+          sha: nanoid(40),
+          parentIDs: [rawBuild4!.id],
+        })
+        .returns(({ res }: any) => {
+          rawBuild5 = res.json;
+          expect(rawBuild5!.status).toEqual("queued-uploading");
+        });
+
+      await buildTokenAPI.abortBuild(rawBuild3!.id);
+      await buildTokenAPI
+        .getBuild(rawBuild3!.id, jekyllsToken)
+        .expectJsonMatch({
+          id: rawBuild3!.id,
+          status: "aborted",
+        });
+
+      await buildTokenAPI
+        .getBuild(rawBuild4!.id, jekyllsToken)
+        .expectJsonMatch({
+          id: rawBuild4!.id,
+          status: "uploading",
+        })
+        .returns(({ res }: any) => {
+          expect(res.json.parentIDs.sort()).toEqual(
+            [build1.id, build2.id].sort()
+          );
+          expect(res.json.targetBuildIDs.sort()).toEqual(
+            [build1.id, build2.id].sort()
+          );
+        });
+
+      await buildTokenAPI.abortBuild(rawBuild4!.id);
+      await buildTokenAPI
+        .getBuild(rawBuild4!.id, jekyllsToken)
+        .expectJsonMatch({
+          id: rawBuild4!.id,
+          status: "aborted",
+        });
+
+      await buildTokenAPI
+        .getBuild(rawBuild5!.id, jekyllsToken)
+        .expectJsonMatch({
+          id: rawBuild5!.id,
+          status: "uploading",
+        })
+        .returns(({ res }: any) => {
+          expect(res.json.parentIDs.sort()).toEqual(
+            [build1.id, build2.id].sort()
+          );
+          expect(res.json.targetBuildIDs.sort()).toEqual(
+            [build1.id, build2.id].sort()
           );
         });
     });
 
     // TODO - add tests for updating an aborted builds targets
-  },
-  {
-    timeout: 160_000,
   }
 );

@@ -27,6 +27,9 @@ const dirtyEyePng = Buffer.from(
 
 describe.concurrent(
   "Build queueing",
+  {
+    timeout: 160_000,
+  },
   () => {
     let jekyllTeams: Team[];
 
@@ -98,11 +101,7 @@ describe.concurrent(
           token: jekyllsToken,
           branch: "dev asap",
           sha: "1234",
-          expectedBuildStatus: [
-            "queued-processing",
-            "processing",
-            "unreviewed",
-          ],
+          expectedBuildStatus: ["queued-processing", "unreviewed"],
           parentBuildIds: [rawBuild1!.id],
           snapshots: snapshot2,
         }).catch((err) => {
@@ -112,11 +111,7 @@ describe.concurrent(
           token: jekyllsToken,
           branch: "dev asap",
           sha: "12345",
-          expectedBuildStatus: [
-            "queued-processing",
-            "processing",
-            "unreviewed",
-          ],
+          expectedBuildStatus: ["queued-processing", "unreviewed"],
           parentBuildIds: [rawBuild2!.id],
           snapshots: snapshot2,
         }).catch((err) => {
@@ -185,11 +180,7 @@ describe.concurrent(
           token: jekyllsToken,
           branch: "dev asap",
           sha: "1234",
-          expectedBuildStatus: [
-            "queued-processing",
-            "processing",
-            "unreviewed",
-          ],
+          expectedBuildStatus: ["queued-processing", "unreviewed"],
           parentBuildIds: [rawBuild1!.id],
           snapshots: snapshot2,
         }).catch((err) => {
@@ -199,7 +190,7 @@ describe.concurrent(
           token: jekyllsToken,
           branch: "dev asap",
           sha: "12345",
-          expectedBuildStatus: ["queued-processing", "processing", "unchanged"],
+          expectedBuildStatus: ["queued-processing", "unchanged"],
           parentBuildIds: rawBuild2!.id,
           snapshots: snapshot1,
         }).catch((err) => {
@@ -223,8 +214,5 @@ describe.concurrent(
         throw err;
       });
     });
-  },
-  {
-    timeout: 160_000,
   }
 );

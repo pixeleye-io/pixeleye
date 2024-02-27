@@ -37,7 +37,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  snap.viewport, 
 		  snap.status, 
 		  snap.snap_image_id,
-		  snap.updatedAt,
+		  snap.updated_at,
 		  0 AS depth 
 		FROM 
 		  snapshot snap 
@@ -54,7 +54,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.viewport, 
 		  s.status, 
 		  s.snap_image_id,
-		  s.updatedAt,
+		  s.updated_at,
 		  f.depth + 1 
 		FROM 
 		  snapshot s
@@ -81,7 +81,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		or status = 'missing_baseline' 
 	  ORDER BY 
 		depth ASC,
-		updatedAt DESC 
+		updated_at DESC 
 	  LIMIT 
 		1
 	  `

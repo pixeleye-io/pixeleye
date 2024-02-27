@@ -36,7 +36,6 @@ export function startServer(options: BoothServerOptions) {
       })
     );
 
-
     // pre load the browsers we know we will use
     warmUpBrowsers();
 

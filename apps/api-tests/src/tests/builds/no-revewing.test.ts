@@ -28,6 +28,9 @@ const dirtyEyePng = Buffer.from(
 
 describe.concurrent(
   "No reviewing",
+  {
+    timeout: 180_000,
+  },
   () => {
     let jekyllTeams: Team[];
 
@@ -469,8 +472,5 @@ describe.concurrent(
         throw err;
       });
     });
-  },
-  {
-    timeout: 160_000,
   }
 );

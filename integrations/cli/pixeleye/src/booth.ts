@@ -26,6 +26,8 @@ program
       token: token.substring(1, token.length - 1),
       buildID: buildID.substring(1, buildID.length - 1),
       domEnvironment: options.domEnvironment,
+    }).catch((err) => {
+      program.error(err);
     });
   });
 

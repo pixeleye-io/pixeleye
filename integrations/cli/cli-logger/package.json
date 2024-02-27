@@ -1,6 +1,6 @@
 {
-  "name": "@pixeleye/cli-api",
-  "version": "0.0.2",
+  "name": "@pixeleye/cli-logger",
+  "version": "0.0.0",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -24,13 +24,8 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
+    "@types/node": "20.11.19",
     "rimraf": "^5.0.5"
   },
-  "dependencies": {
-    "@pixeleye/api": "workspace:*",
-    "@pixeleye/cli-env": "workspace:*",
-    "@pixeleye/cli-image": "workspace:*",
-    "api-typify": "^0.3.2",
-    "undici": "^6.6.2"
-  }
+  "dependencies": {}
 }
