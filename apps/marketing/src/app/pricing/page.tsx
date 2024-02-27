@@ -28,7 +28,7 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/24/solid";
 
 // TODO - get this from stripe
 const volumePricing = {
-  "For the first 0 to 5,000~7,500": "Free",
+  "First 5,000~7,500": "Free",
   "For the first billable 100,000": "$0.003",
   "For the next 100,001 to 250,000": "$0.0025",
   "For the next 250,001 to 600,000": "$0.0022",
