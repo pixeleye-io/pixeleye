@@ -136,10 +136,12 @@ func SubscribeToBuild(c echo.Context) error {
 				}
 				if event.Data.(map[string]interface{})["buildID"] == build.ID {
 					log.Debug().Msgf("Sending message to build events subscribers:%s", msg)
-					if _, err := fmt.Fprintf(res.Writer, "data: %s\n\n", msg); err != nil {
-						return err
+					if res != nil {
+						if _, err := fmt.Fprintf(res.Writer, "data: %s\n\n", msg); err != nil {
+							return err
+						}
+						res.Flush()
 					}
-					res.Flush()
 				}
 			}
 
