@@ -10,7 +10,7 @@ const makeAllPackagesExternalPlugin = {
 
 const devBuild = process.argv.includes("--dev");
 
-export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]) {
+export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"], includeFiles = false) {
   if (devBuild) formats = ["cjs"];
   formats.map((format) => {
     esbuild.build({
@@ -26,7 +26,7 @@ export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]
       outExtension: {
         ".js": format === "cjs" ? formats.length == 0 ? ".js" : ".cjs" : ".js",
       },
-      plugins: devBuild ? [] : [makeAllPackagesExternalPlugin],
+      plugins: devBuild || includeFiles ? [] : [makeAllPackagesExternalPlugin],
     })
   });
 }
