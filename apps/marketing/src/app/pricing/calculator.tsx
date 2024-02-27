@@ -11,7 +11,7 @@ export function Calculator() {
         <div>
           <p className="mb-4 text-xl">
             {snapshots[0]}K snapshots - $
-            {Math.max(snapshots[0] - 5, 0) * 1000 * 0.003} per month
+            {Math.max(snapshots[0] - 7.5, 0) * 1000 * 0.003} per month
           </p>
         </div>
         <Slider

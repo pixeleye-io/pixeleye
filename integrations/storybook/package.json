@@ -12,13 +12,12 @@
   "publishConfig": {
     "main": "./dist/index.cjs",
     "module": "./dist/index.js",
-    "types": "./dist/src/index.d.ts"
+    "types": "./dist/index.d.ts"
   },
+  "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
