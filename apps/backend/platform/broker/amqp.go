@@ -279,6 +279,11 @@ func SubscribeToQueue(connection *amqp.Connection, name string, queueType broker
 
 		for message := range messages {
 			go func(message amqp.Delivery) {
+				defer func() {
+					if err := recover(); err != nil {
+						log.Error().Msgf("Recovered from panic in consumer: %v", message)
+					}
+				}()
 
 				if err := callback(message.Body); err != nil {
 					log.Error().Err(err).Msg("Failed to process message")
