@@ -1,4 +1,4 @@
-# @pixeleye/cypress
+# @pixeleye/cli-api
 
 ## 0.1.0
 
@@ -9,12 +9,6 @@
 ### Patch Changes
 
 - Updated dependencies [[`88f845a`](https://github.com/pixeleye-io/pixeleye/commit/88f845ab67a84a5fa9f1920a5b9d706133158a9f)]:
-  - @pixeleye/cli-devices@0.2.0
-  - @pixeleye/cli-api@0.1.0
-
-## 0.0.4
-
-### Patch Changes
-
-- Updated dependencies [[`f5a71ac`](https://github.com/pixeleye-io/pixeleye/commit/f5a71acc3500a187b4a39566f0bf82402cd6f90b)]:
-  - @pixeleye/cli-devices@0.1.0
+  - @pixeleye/cli-image@0.1.0
+  - @pixeleye/cli-env@0.1.0
+  - @pixeleye/api@0.1.0
