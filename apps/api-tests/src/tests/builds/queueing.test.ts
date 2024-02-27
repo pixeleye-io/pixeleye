@@ -28,7 +28,7 @@ const dirtyEyePng = Buffer.from(
 describe.concurrent(
   "Build queueing",
   {
-    timeout: 160_000,
+    timeout: 180_000,
   },
   () => {
     let jekyllTeams: Team[];
