@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.3.11
+
+### Patch Changes
+
+- [#196](https://github.com/pixeleye-io/pixeleye/pull/196) [`e92323a`](https://github.com/pixeleye-io/pixeleye/commit/e92323a82df3fdac8ebb62d50c80c95a02026705) Thanks [@AlfieJones](https://github.com/AlfieJones)! - rebuild
+
 ## 0.3.10
 
 ### Patch Changes
