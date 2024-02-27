@@ -89,7 +89,12 @@ func (c *CustomerBilling) getLatestSubscription(team models.Team) (*stripe.Subsc
 		return nil, fmt.Errorf("team does not have a customer id")
 	}
 
-	price := os.Getenv("STRIPE_PRICE_ID")
+	price := os.Getenv("STRIPE_PRICE_ID_5000")
+	if team.Referrals == 1 {
+		price = os.Getenv("STRIPE_PRICE_ID_6250")
+	} else if team.Referrals == 2 {
+		price = os.Getenv("STRIPE_PRICE_ID_7500")
+	}
 
 	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
 		Customer: &team.CustomerID,
@@ -129,6 +134,33 @@ func (c *CustomerBilling) CanCreateNewSubscription(team models.Team) (bool, int,
 	}
 
 	return true, 0, nil
+}
+
+func (c *CustomerBilling) UpdateTeamPlan(ctx context.Context, team models.Team) error {
+	price := os.Getenv("STRIPE_PRICE_ID_5000")
+	if team.Referrals == 1 {
+		price = os.Getenv("STRIPE_PRICE_ID_6250")
+	} else if team.Referrals == 2 {
+		price = os.Getenv("STRIPE_PRICE_ID_7500")
+	}
+
+	sub, err := c.GetCurrentSubscription(ctx, team)
+	if err != nil {
+		return err
+	} else if sub == nil {
+		return nil
+	}
+
+	_, err = c.API.Subscriptions.Update(sub.ID, &stripe.SubscriptionParams{
+		Items: []*stripe.SubscriptionItemsParams{
+			{
+				ID:    &sub.Items.Data[0].ID,
+				Price: &price,
+			},
+		},
+	})
+
+	return err
 }
 
 func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team models.Team) (*stripe.Subscription, error) {
@@ -193,8 +225,12 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 		return nil, err
 	}
 
-	price := os.Getenv("STRIPE_PRICE_ID")
-
+	price := os.Getenv("STRIPE_PRICE_ID_5000")
+	if team.Referrals == 1 {
+		price = os.Getenv("STRIPE_PRICE_ID_6250")
+	} else if team.Referrals == 2 {
+		price = os.Getenv("STRIPE_PRICE_ID_7500")
+	}
 	return c.API.CheckoutSessions.New(&stripe.CheckoutSessionParams{
 		SuccessURL: stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
 		CancelURL:  stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),

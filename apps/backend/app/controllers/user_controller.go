@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -15,6 +16,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/pkg/utils"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/pixeleye-io/pixeleye/platform/identity"
+	"github.com/pixeleye-io/pixeleye/platform/payments"
 )
 
 func GetAuthenticatedUser(c echo.Context) error {
@@ -85,6 +87,17 @@ func ReferUser(c echo.Context) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "You've already used this code")
 		}
 		return err
+	}
+
+	if os.Getenv("PIXELEYE_HOSTING") != "true" {
+		paymentClient := payments.NewPaymentClient()
+		if err := paymentClient.UpdateTeamPlan(c.Request().Context(), userTeam); err != nil {
+			return err
+		}
+
+		if err := paymentClient.UpdateTeamPlan(c.Request().Context(), referralTeam); err != nil {
+			return err
+		}
 	}
 
 	return c.NoContent(http.StatusAccepted)
