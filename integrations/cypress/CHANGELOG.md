@@ -1,5 +1,12 @@
 # @pixeleye/cypress
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/cli-api@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes

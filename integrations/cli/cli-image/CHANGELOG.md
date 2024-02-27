@@ -1,5 +1,11 @@
 # @pixeleye/cli-image
 
+## 0.2.3
+
+### Patch Changes
+
+- [#192](https://github.com/pixeleye-io/pixeleye/pull/192) [`61215e1`](https://github.com/pixeleye-io/pixeleye/commit/61215e176f0040d581d8c454ce9dd7de4952d936) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating
+
 ## 0.2.2
 
 ### Patch Changes

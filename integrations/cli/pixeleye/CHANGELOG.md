@@ -1,5 +1,15 @@
 # pixeleye
 
+## 0.3.9
+
+### Patch Changes
+
+- [#192](https://github.com/pixeleye-io/pixeleye/pull/192) [`61215e1`](https://github.com/pixeleye-io/pixeleye/commit/61215e176f0040d581d8c454ce9dd7de4952d936) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating
+
+- Updated dependencies []:
+  - @pixeleye/cli-api@0.2.3
+  - @pixeleye/cli-booth@0.3.4
+
 ## 0.3.8
 
 ### Patch Changes

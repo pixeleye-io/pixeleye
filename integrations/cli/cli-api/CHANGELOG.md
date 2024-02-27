@@ -1,5 +1,12 @@
 # @pixeleye/cli-api
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [[`61215e1`](https://github.com/pixeleye-io/pixeleye/commit/61215e176f0040d581d8c454ce9dd7de4952d936)]:
+  - @pixeleye/cli-image@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
