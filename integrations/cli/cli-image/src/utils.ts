@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { read, MIME_PNG } from "jimp";
+import { read } from "jimp";
 
 export function generateHash(img: string | Buffer) {
   const hash = createHash("sha1");
@@ -14,4 +14,4 @@ export const getDimensions = (img: Buffer) =>
   }));
 
 export const convertImage = (img: Buffer) =>
-  read(img).then((image) => image.getBufferAsync(MIME_PNG));
+  read(img).then((image) => image.getBufferAsync("image/png"));
