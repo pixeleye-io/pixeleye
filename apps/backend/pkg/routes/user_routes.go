@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"os"
+
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/controllers"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -24,4 +26,7 @@ func UserRoutes(e *echo.Echo) {
 
 	v1.PATCH("/user/me", controllers.UpdateUser)
 
+	if os.Getenv("PIXELEYE_HOSTING") != "true" {
+		v1.POST("/user/refer", controllers.ReferUser)
+	}
 }

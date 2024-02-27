@@ -3,8 +3,8 @@ const plans = [
     name: "Solo dev",
     developers: "1 dev",
     pushes: "5 daily pushes",
-    snapshots: "50 snaps",
-    count: "1 * 5 * 50 * 20 = 5,000 monthly snapshots",
+    snapshots: "75 snaps",
+    count: "1 * 5 * 75 * 20 = 7,500 monthly snapshots",
     price: "$0",
   },
   {
@@ -13,7 +13,7 @@ const plans = [
     pushes: "5 daily pushes",
     snapshots: "100 snaps",
     count: "3 * 5 * 100 * 20 = 30,000 monthly snapshots",
-    price: "$0.003 * 25k = $75",
+    price: "$0.003 * 22.5k = $67.50",
   },
   {
     name: "Medium team",
@@ -21,7 +21,7 @@ const plans = [
     pushes: "5 daily pushes",
     snapshots: "200 snaps",
     count: "6 * 5 * 200 * 20 = 120,000 monthly snapshots",
-    price: "$0.003 * 115k = $345",
+    price: "$0.003 * 100k + 12.5k * 0.0025 = $331.25",
   },
 ];
 

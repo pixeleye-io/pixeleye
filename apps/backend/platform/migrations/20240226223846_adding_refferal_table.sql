@@ -1,0 +1,2 @@
+-- Create "user_referral" table
+CREATE TABLE "public"."user_referral" ("referrer_team_id" character varying(21) NOT NULL, "team_id" character varying(21) NOT NULL, PRIMARY KEY ("team_id", "referrer_team_id"), CONSTRAINT "referrer_team_id" FOREIGN KEY ("referrer_team_id") REFERENCES "public"."team" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, CONSTRAINT "team_id" FOREIGN KEY ("team_id") REFERENCES "public"."team" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
