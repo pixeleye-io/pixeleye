@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.3.3
+
+### Patch Changes
+
+- [#178](https://github.com/pixeleye-io/pixeleye/pull/178) [`fd6b97f`](https://github.com/pixeleye-io/pixeleye/commit/fd6b97f6669c5fca00a333c7b75111610017c16c) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Moving to esm only
+
 ## 0.3.2
 
 ### Patch Changes
