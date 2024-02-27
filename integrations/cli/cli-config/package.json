@@ -13,7 +13,13 @@
   "publishConfig": {
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
-    "typings": "./dist/index.d.ts"
+    "types": "./dist/index.d.ts"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
   "files": [
     "dist",

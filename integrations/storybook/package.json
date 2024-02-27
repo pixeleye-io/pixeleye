@@ -8,11 +8,17 @@
     "build": "pnpm rimraf ./dist && node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
   },
   "main": "src/index.ts",
-  "typings": "src/index.ts",
+  "types": "src/index.ts",
   "publishConfig": {
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
-    "typings": "./dist/src/index.d.ts"
+    "types": "./dist/src/index.d.ts"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
