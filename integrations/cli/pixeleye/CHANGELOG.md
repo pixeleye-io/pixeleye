@@ -1,5 +1,15 @@
 # pixeleye
 
+## 0.3.10
+
+### Patch Changes
+
+- [#194](https://github.com/pixeleye-io/pixeleye/pull/194) [`dcd1bef`](https://github.com/pixeleye-io/pixeleye/commit/dcd1befed1854a7977af13148503058c6ca95465) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Removing jimp
+
+- Updated dependencies [[`dcd1bef`](https://github.com/pixeleye-io/pixeleye/commit/dcd1befed1854a7977af13148503058c6ca95465)]:
+  - @pixeleye/cli-booth@0.3.5
+  - @pixeleye/cli-api@0.2.4
+
 ## 0.3.9
 
 ### Patch Changes

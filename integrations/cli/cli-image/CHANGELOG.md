@@ -1,5 +1,11 @@
 # @pixeleye/cli-image
 
+## 0.2.4
+
+### Patch Changes
+
+- [#194](https://github.com/pixeleye-io/pixeleye/pull/194) [`dcd1bef`](https://github.com/pixeleye-io/pixeleye/commit/dcd1befed1854a7977af13148503058c6ca95465) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Removing jimp
+
 ## 0.2.3
 
 ### Patch Changes
