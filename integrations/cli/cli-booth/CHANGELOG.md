@@ -1,5 +1,16 @@
 # @pixeleye/cli-booth
 
+## 0.3.1
+
+### Patch Changes
+
+- [#176](https://github.com/pixeleye-io/pixeleye/pull/176) [`6f081a8`](https://github.com/pixeleye-io/pixeleye/commit/6f081a8025f4a12a76e4e8c7067c8dc20a545256) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding module type
+
+- Updated dependencies [[`6f081a8`](https://github.com/pixeleye-io/pixeleye/commit/6f081a8025f4a12a76e4e8c7067c8dc20a545256)]:
+  - @pixeleye/cli-capture@0.3.1
+  - @pixeleye/cli-config@0.3.1
+  - @pixeleye/cli-api@0.2.1
+
 ## 0.3.0
 
 ### Minor Changes
