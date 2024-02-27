@@ -3,7 +3,7 @@ import { json } from "body-parser";
 import { Build } from "@pixeleye/api";
 import { DomEnvironment, getEnvConfig } from "@pixeleye/cli-config";
 import { SnapshotRequest, handleQueue, queue } from "./snapshotQueue";
-import { getBrowser } from "@pixeleye/cli-capture/src/browsers";
+import { getBrowser } from "@pixeleye/cli-capture";
 
 export interface BoothServerOptions {
   port: number;
