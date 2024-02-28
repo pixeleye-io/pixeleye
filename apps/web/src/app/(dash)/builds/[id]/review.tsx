@@ -305,7 +305,7 @@ export function Review({ buildID, project, ...rest }: ReviewProps) {
       snapshots={snapshots}
       userRole={project.role}
       buildAPI={buildAPI}
-      className="overflow-hidden"
+      className="overflow-hidden grow"
       isUpdatingSnapshotStatus={isUpdatingSnapshotStatus}
       {...rest}
     />
