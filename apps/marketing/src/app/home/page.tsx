@@ -25,7 +25,7 @@ import { Widget } from "./turnstile";
 import { HighlightedDiff } from "./highlightedDiff";
 
 export const metadata: Metadata = {
-  title: "Open-source Visual Regression Testing Platform | Pixeleye",
+  title: "Open-source Visual Testing & Reviewing Platform | Pixeleye",
   description:
     "The all-batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.",
   alternates: {

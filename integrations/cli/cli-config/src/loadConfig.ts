@@ -5,6 +5,10 @@ import { transform } from "sucrase";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
 import { Config } from "./types";
+import { fileURLToPath } from "node:url";
+
+const _filename =
+  typeof __dirname !== "undefined" ? __filename : fileURLToPath(import.meta.url);
 
 let jiti: ReturnType<typeof jitiFactory> | null = null;
 
@@ -36,7 +40,7 @@ function mergeObjects<T extends Record<string, unknown>>(
 function lazyJiti() {
   return (
     jiti ??
-    (jiti = jitiFactory(__filename, {
+    (jiti = jitiFactory(_filename, {
       interopDefault: true,
       transform: (opts) => {
         return transform(opts.source, {

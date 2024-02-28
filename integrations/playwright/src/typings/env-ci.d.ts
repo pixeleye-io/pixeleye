@@ -24,3 +24,4 @@ declare module "env-ci" {
 
   export default function envCi(options?: Options): CiEnv;
 }
+

@@ -1,5 +1,5 @@
 import polka from "polka";
-import { json } from "body-parser";
+import bodyParser from "body-parser";
 import { Build } from "@pixeleye/api";
 import { DomEnvironment, getEnvConfig } from "@pixeleye/cli-config";
 import { SnapshotRequest, handleQueue, queue } from "./snapshotQueue";
@@ -31,7 +31,7 @@ export function startServer(options: BoothServerOptions) {
     close: () => void;
   }>((resolve, _) => {
     const app = polka().use(
-      json({
+      bodyParser.json({
         limit: "100mb",
       })
     );
