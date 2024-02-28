@@ -35,7 +35,6 @@ export function PanelMobile() {
       setPanelOpen(() => false);
       setOpen(false);
     } else {
-      console.log(panelOpen)
       setOpen(panelOpen);
     }
   }, [open, panelOpen, setPanelOpen])
