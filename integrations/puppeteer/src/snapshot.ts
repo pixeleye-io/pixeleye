@@ -7,6 +7,7 @@ import {
   Options as ServerOptions,
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
+import { createRequire } from "node:module";
 
 export interface Options {
   fullPage?: boolean;
@@ -17,6 +18,14 @@ export interface Options {
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
+}
+
+let rrwebSnapshot: string | undefined;
+try {
+  rrwebSnapshot = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+} catch {
+  const require = createRequire(import.meta.url);
+  rrwebSnapshot = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
 }
 
 export async function pixeleyeSnapshot(
@@ -45,7 +54,7 @@ export async function pixeleyeSnapshot(
       : undefined;
 
   await (page as Page).addScriptTag({
-    path: require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js"),
+    path: rrwebSnapshot,
   });
 
   const domSnapshot = await (page as Page).evaluate(() => {
