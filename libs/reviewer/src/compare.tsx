@@ -237,7 +237,7 @@ export function Compare() {
         value={activeTab}
         onValueChange={setActiveTab as (value: string) => void}
         defaultValue={activeTab}
-        className=" w-full h-full grow-0 relative max-h-full"
+        className="flex flex-col grow relative"
       >
         <header className="w-full border-b border-outline-variant">
           <div className="flex px-4 py-2 flex-col">
@@ -273,7 +273,7 @@ export function Compare() {
             </div>
           </div>
         </header>
-        <div className="p-4 w-full h-[calc(100%-6.25rem-1px)]">
+        <div className="p-4 w-full grow">
           {snapshot.error && (
             <p className="text-error">{snapshot.error}</p>
           )}

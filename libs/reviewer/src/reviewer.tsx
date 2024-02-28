@@ -10,7 +10,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { PanelMobile, PanelDesktop } from "./panel";
 import { Sidebar } from "./sidebar";
 import { BuildAPI, SnapshotTargetGroup, StoreContext, createStore } from "./store";
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
@@ -66,7 +66,7 @@ const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
 function ReviewerInternal({
   build,
   snapshots,
-  className = "h-[calc(100vh-3rem-1px)]",
+  className,
   buildAPI,
   userRole,
   defaultSidebarWidth = 20,
@@ -151,6 +151,8 @@ function ReviewerInternal({
 
   const showSidebar = useStore(store, (state) => state.panelOpen);
 
+  const [collapsed, setCollapsed] = useState(false)
+
   const onLayout = (sizes: number[]) => {
     if (sizes.length > 1)
       document.cookie = `reviewer-sidebar-width=${sizes[0]}`;
@@ -164,10 +166,10 @@ function ReviewerInternal({
       <PanelGroup onLayout={onLayout} direction="horizontal">
         {
           showSidebar && (<>
-            <Panel className="hidden lg:block" order={1} defaultSize={defaultSidebarWidth} minSize={15} maxSize={30}>
+            <Panel collapsible={true} onResize={(size) => { setCollapsed(size === 0); console.log(size) }} collapsedSize={0} className="hidden lg:block" order={1} defaultSize={defaultSidebarWidth} minSize={15} maxSize={30}>
               <PanelDesktop />
             </Panel>
-            <PanelResizeHandle className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5" />
+            <PanelResizeHandle onDragging={(dragging) => !dragging && collapsed && setPanelOpen(() => false)} className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5" />
           </>
           )}
         <Panel defaultSize={showSidebar ? 100 - defaultSidebarWidth : 100} order={2} className="w-full">

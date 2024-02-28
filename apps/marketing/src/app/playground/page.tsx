@@ -11,7 +11,6 @@ import InstallationPageIphoneDark from "./assets/installation-page--iphone--dark
 
 import { Metadata } from "next";
 import { Suspense } from "react";
-import { s } from "@markdoc/markdoc/dist/src/schema";
 import InteractiveReviewer from "./interactiveReviewer";
 import { cookies } from "next/headers";
 

@@ -156,6 +156,7 @@ export function Sidebar({
   const panel = useStore(store, (state) => state.panel);
 
   const setPanelOpen = useStore(store, (state) => state.setPanelOpen);
+  const panelOpen = useStore(store, (state) => state.panelOpen);
 
   const optimize = useStore(store, (state) => state.optimize);
 
@@ -179,8 +180,8 @@ export function Sidebar({
                       variant="ghost"
                       className={cx(
                         "hover:text-on-surface",
-                        panel === item.id
-                          ? "text-on-surface"
+                        panel === item.id && panelOpen
+                          ? "text-tertiary"
                           : "text-on-surface-variant"
                       )}
                     >

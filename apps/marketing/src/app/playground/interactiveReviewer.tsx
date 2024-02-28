@@ -79,7 +79,7 @@ export default function InteractiveReviewer({
         <Reviewer
             defaultSidebarWidth={defaultSidebarWidth}
             userRole="admin"
-            className="h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)]"
+            className="h-[calc(100vh-4rem-1px)] lg:h-[calc(100vh-4.5rem-1px)] mt-px"
             build={build}
             snapshots={snapshots}
             defaultSidebarOpen={defaultSidebarOpen}
