@@ -44,7 +44,7 @@ export function ImageNode({ data: {
         <div className="active:cursor-grabbing">
             <NextImage
                 key={`base - ${base.src.toString()}`}
-                quality={100}
+                quality={optimize ? 75 : 100}
                 priority
                 width={base.width}
                 height={base.height}
@@ -62,7 +62,7 @@ export function ImageNode({ data: {
             {secondBase && (
                 <NextImage
                     key={`second - base - ${secondBase.src.toString()}`}
-                    quality={100}
+                    quality={optimize ? 75 : 100}
                     priority
                     className={cx(
                         "pointer-events-none select-none",
@@ -81,7 +81,7 @@ export function ImageNode({ data: {
                 <NextImage
                     key={`overlay - ${overlay.src.toString()}`}
                     priority
-                    quality={100}
+                    quality={optimize ? 75 : 100}
                     className={cx(
                         (!showOverlay || singleSnapshot !== "head") && "opacity-0",
                         "pointer-events-none select-none absolute inset-0",
