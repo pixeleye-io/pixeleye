@@ -105,8 +105,8 @@ function TabSwitcher() {
             strokeWidth="4"
             d="M24 4v40"
           />
-          <span className="sr-only">Double comparison</span>
         </svg>
+        <span className="sr-only">Double comparison</span>
       </TabsTrigger>
       <TabsTrigger value="single">
         <svg
@@ -236,7 +236,7 @@ export function Compare() {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab as (value: string) => void}
-        defaultValue={activeTab}
+        defaultValue={"double"}
         className="flex flex-col grow relative"
       >
         <header className="w-full border-b border-outline-variant">
