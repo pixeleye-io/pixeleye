@@ -129,7 +129,7 @@ func syncBuildStatusInternal(ctx context.Context, build *models.Build, processed
 	}
 
 	if models.IsBuildPostProcessing(build.Status) {
-		if err := ProcessBuildDependents(ctx, *build, processed); err != nil {
+		if err := processBuildDependentsInternal(ctx, *build, processed); err != nil {
 			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
 		}
 	}
@@ -137,7 +137,11 @@ func syncBuildStatusInternal(ctx context.Context, build *models.Build, processed
 	return nil
 }
 
-func ProcessBuildDependents(ctx context.Context, build models.Build, processed map[string]bool) error {
+func ProcessBuildDependents(ctx context.Context, build models.Build) error {
+	return processBuildDependentsInternal(ctx, build, make(map[string]bool))
+}
+
+func processBuildDependentsInternal(ctx context.Context, build models.Build, processed map[string]bool) error {
 
 	// Child builds will only have updates if their parents have finished processing
 	if !models.IsBuildPostProcessing(build.Status) {
@@ -210,7 +214,7 @@ func FailBuild(ctx context.Context, build *models.Build) error {
 
 	events.HandleBuildStatusChange(*build)
 
-	if err := ProcessBuildDependents(ctx, *build, make(map[string]bool)); err != nil {
+	if err := ProcessBuildDependents(ctx, *build); err != nil {
 		log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
 	}
 
@@ -277,7 +281,7 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 	events.HandleBuildStatusChange(*build)
 
 	if models.IsBuildPostProcessing(build.Status) {
-		if err := ProcessBuildDependents(ctx, *build, make(map[string]bool)); err != nil {
+		if err := ProcessBuildDependents(ctx, *build); err != nil {
 			log.Debug().Err(err).Msgf("Failed to process queued builds for build %s", build.ID)
 		}
 	}
