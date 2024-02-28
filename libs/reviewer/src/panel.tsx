@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useContext, useEffect, useRef, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import BuildInfoPanel from "./panels/buildInfo";
 import SnapshotsPanel from "./panels/snapshots";
 import FeedPanel from "./panels/feed";
@@ -31,8 +31,14 @@ export function PanelMobile() {
   const PanelComponent = panelRepo[panel];
 
   useEffect(() => {
-    setOpen(panelOpen);
-  }, [panelOpen])
+    if (open === undefined && window.innerWidth < 1024) {
+      setPanelOpen(() => false);
+      setOpen(false);
+    } else {
+      console.log(panelOpen)
+      setOpen(panelOpen);
+    }
+  }, [open, panelOpen, setPanelOpen])
 
 
   return (

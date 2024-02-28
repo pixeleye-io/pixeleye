@@ -70,7 +70,6 @@ function ReviewerInternal({
   buildAPI,
   userRole,
   defaultSidebarWidth = 20,
-  defaultSidebarOpen = true,
   isUpdatingSnapshotStatus,
   snapshotTargetGroups
 }: ReviewerProps & {
@@ -91,9 +90,6 @@ function ReviewerInternal({
   );
   const setPanelOpen = useStore(store, (state) => state.setPanelOpen);
 
-  useEffect(() => {
-    setPanelOpen(() => defaultSidebarOpen);
-  }, [defaultSidebarOpen, setPanelOpen]);
 
   const searchParams = useSearchParams();
   const router = useRouter();

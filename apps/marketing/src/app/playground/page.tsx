@@ -1,4 +1,4 @@
-import { ExtendedSnapshotPair, Reviewer } from "@pixeleye/reviewer";
+import { ExtendedSnapshotPair } from "@pixeleye/reviewer";
 import { Build } from "@pixeleye/api";
 import HomeBase from "./assets/home-baseline.png";
 import HomeChanged from "./assets/home-changed.png";
