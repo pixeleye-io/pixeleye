@@ -46,7 +46,7 @@ export default async function Layout({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <BuildSegments buildID={build.id} projectID={project.id} />
-      <div className="h-[calc(100vh-3rem)]">
+      <div className="h-[calc(100vh-3rem)] flex flex-col">
         <Divider />
         {children}
       </div>
