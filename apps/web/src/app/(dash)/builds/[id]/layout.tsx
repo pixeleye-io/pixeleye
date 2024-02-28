@@ -46,8 +46,10 @@ export default async function Layout({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <BuildSegments buildID={build.id} projectID={project.id} />
-      <Divider />
-      {children}
+      <div className="h-[calc(100vh-3rem)]">
+        <Divider />
+        {children}
+      </div>
     </HydrationBoundary>
   );
 }
