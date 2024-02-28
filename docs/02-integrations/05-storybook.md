@@ -89,12 +89,42 @@ export default config;
 
 ### Running the Pixeleye CLI
 
-We recommend adding the following to your `package.json` file:
+{% tabs %}
+
+{% tab label="NPM" %}
+
+```bash
+npm run storybook & pixeleye storybook --url http://localhost:6006
+```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn storybook & pixeleye storybook --url http://localhost:6006
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm run storybook & pixeleye storybook --url http://localhost:6006
+```
+
+{% /tab %}
+
+{% /tabs %}
+
+
+We recommend adding the something like this to your `package.json` file:
 
 ```package.json
 {
   "scripts": {
-    "pixeleye": "storybook dev & pixeleye storybook http://localhost:6006"
+    "storybook": "start-storybook -p 6006",
+    "pixeleye": "npm run storybook & pixeleye storybook --url http://localhost:6006"
   }
 }
 ```
