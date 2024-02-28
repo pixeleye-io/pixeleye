@@ -1,5 +1,11 @@
 # @pixeleye/cli-install
 
+## 0.4.0
+
+### Minor Changes
+
+- [`6e810e7`](https://github.com/pixeleye-io/pixeleye/commit/6e810e7e2d52dbce4b296941926658763843256a) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating package builds
+
 ## 0.3.2
 
 ### Patch Changes
