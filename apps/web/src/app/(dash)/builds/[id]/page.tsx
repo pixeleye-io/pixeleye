@@ -75,10 +75,6 @@ export default async function ProjectOverviewPage({
                 Back to builds
               </NextLink>
             </Button>
-
-            <Link href="#">
-              More information <span aria-hidden="true">&rarr;</span>
-            </Link>
           </div>
         </div>
       </HydrationBoundary>
