@@ -165,7 +165,7 @@ function ReviewerInternal({
             <Panel collapsible={true} onResize={(size) => setCollapsed(size === 0)} collapsedSize={0} className="hidden lg:block" order={1} defaultSize={defaultSidebarWidth} minSize={15} maxSize={30}>
               <PanelDesktop />
             </Panel>
-            <PanelResizeHandle onDragging={(dragging) => !dragging && collapsed && setPanelOpen(() => false)} className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5" />
+            <PanelResizeHandle onDragging={(dragging) => !dragging && collapsed && setPanelOpen(() => false)} className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5 hidden lg:block" />
           </>
           )}
         <Panel defaultSize={showSidebar ? 100 - defaultSidebarWidth : 100} order={2} className="w-full">
