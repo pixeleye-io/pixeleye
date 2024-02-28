@@ -320,7 +320,7 @@ function TargetTabs({
           const isActive = snap.id === snapshot.id;
 
           return (
-            <li key={snap.id}>
+            <li key={snap.id} role="tablist">
 
               <Button variant="ghost" role="tab" aria-selected={isActive} className={
                 isActive ? "text-on-surface" : "text-on-surface-variant"

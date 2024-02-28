@@ -39,19 +39,26 @@ export function ImageNode({ data: {
     const showOverlay = useStore(store, (state) => state.showDiff);
     const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
 
+    const style = singleSnapshot === "head" ? {
+        width: base.width,
+        height: base.height
+    } : {
+        width: secondBase?.width,
+        height: secondBase?.height
+    }
+
 
     return (
-        <div className="active:cursor-grabbing">
+        <div className="active:cursor-grabbing relative" style={style}>
             <NextImage
                 key={`base - ${base.src.toString()}`}
                 quality={optimize ? 75 : 100}
+                fill
                 priority
-                width={base.width}
-                height={base.height}
                 className={cx(
                     "pointer-events-none select-none",
                     singleSnapshot !== "head" && "hidden",
-                    showOverlay && overlay && "brightness-[50%]"
+                    showOverlay && overlay && "brightness-[50%]",
                 )}
                 draggable={false}
                 alt={base.alt}
@@ -64,12 +71,11 @@ export function ImageNode({ data: {
                     key={`second - base - ${secondBase.src.toString()}`}
                     quality={optimize ? 75 : 100}
                     priority
+                    fill
                     className={cx(
                         "pointer-events-none select-none",
                         singleSnapshot === "head" && "hidden",
                     )}
-                    width={secondBase.width}
-                    height={secondBase.height}
                     draggable={false}
                     alt={secondBase.alt}
                     src={secondBase.src}
@@ -81,13 +87,12 @@ export function ImageNode({ data: {
                 <NextImage
                     key={`overlay - ${overlay.src.toString()}`}
                     priority
+                    fill
                     quality={optimize ? 75 : 100}
                     className={cx(
                         (!showOverlay || singleSnapshot !== "head") && "opacity-0",
-                        "pointer-events-none select-none absolute inset-0",
+                        "pointer-events-none select-none",
                     )}
-                    width={overlay.width}
-                    height={overlay.height}
                     draggable={false}
                     alt={overlay.alt}
                     src={overlay.src}
