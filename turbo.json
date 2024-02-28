@@ -25,7 +25,7 @@
     },
     "sitemap": {
       "dependsOn": [
-        "build"
+        "^build"
       ],
       "outputs": [
         "public/robots.txt",
