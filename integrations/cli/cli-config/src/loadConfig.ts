@@ -8,7 +8,7 @@ import { Config } from "./types";
 import { fileURLToPath } from "node:url";
 
 const _filename =
-  typeof __dirname !== "undefined" ? __filename : fileURLToPath(import.meta.url);
+  typeof __filename !== "undefined" ? __filename : fileURLToPath(import.meta.url);
 
 let jiti: ReturnType<typeof jitiFactory> | null = null;
 

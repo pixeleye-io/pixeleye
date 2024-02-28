@@ -8,6 +8,12 @@ import { finished, ping } from "@pixeleye/cli-booth";
 import { Build } from "@pixeleye/api";
 import EventSource from "eventsource";
 import { installBrowsers } from "@pixeleye/cli-install";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+
+const _dirname =
+  typeof __dirname !== "undefined" ? __dirname : dirname(fileURLToPath(import.meta.url));
 
 export const getExitBuild =
   (api: APIType, buildID: string) => async (err: any) => {
@@ -64,7 +70,7 @@ export const startBooth = async ({
   return execFile(
     "node",
     [
-      "booth.cjs",
+      "booth.js",
       "start",
       `"${buildID}"`,
       `"${token}"`,
@@ -72,7 +78,7 @@ export const startBooth = async ({
       boothPort ? `-p ${boothPort}` : "",
     ],
     {
-      cwd: __dirname,
+      cwd: _dirname,
       env: process.env,
     },
     (error, stdout, stderr) => {
