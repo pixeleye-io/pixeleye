@@ -16,10 +16,14 @@
     "build": "node ./build.mjs & tsc --emitDeclarationOnly --outDir ./dist"
   },
   "publishConfig": {
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.js",
-    "typings": "./dist/src/index.d.ts"
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "type": "module",
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",

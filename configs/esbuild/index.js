@@ -10,7 +10,7 @@ const makeAllPackagesExternalPlugin = {
 
 const devBuild = process.argv.includes("--dev");
 
-export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"], includeFiles = false) {
+export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]) {
   if (devBuild) formats = ["cjs"];
   formats.map((format) => {
     esbuild.build({
@@ -20,13 +20,13 @@ export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]
       minify: !devBuild,
       platform: "node",
       target: "node20",
-      external: devBuild || includeFiles ? ["jsdom", "playwright-core", "rrweb-snapshot/dist/rrweb-snapshot.min.js"] : [],
+      external: devBuild ? ["jsdom", "playwright-core", "rrweb-snapshot/dist/rrweb-snapshot.min.js"] : [],
       outdir,
       format,
       outExtension: {
-        ".js": format === "cjs" ? formats.length == 1 ? ".js" : ".cjs" : ".js",
+        ".js": format === "cjs" ? ".cjs" : ".js",
       },
-      plugins: devBuild || includeFiles ? [] : [makeAllPackagesExternalPlugin],
+      plugins: devBuild ? [] : [makeAllPackagesExternalPlugin],
     })
   });
 }
