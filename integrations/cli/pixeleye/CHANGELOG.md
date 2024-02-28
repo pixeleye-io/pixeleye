@@ -1,5 +1,22 @@
 # pixeleye
 
+## 0.4.0
+
+### Minor Changes
+
+- [`6e810e7`](https://github.com/pixeleye-io/pixeleye/commit/6e810e7e2d52dbce4b296941926658763843256a) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating package builds
+
+### Patch Changes
+
+- Updated dependencies [[`6e810e7`](https://github.com/pixeleye-io/pixeleye/commit/6e810e7e2d52dbce4b296941926658763843256a)]:
+  - @pixeleye/cli-api@0.3.0
+  - @pixeleye/cli-booth@0.4.0
+  - @pixeleye/cli-config@0.4.0
+  - @pixeleye/cli-env@0.3.0
+  - @pixeleye/cli-install@0.4.0
+  - @pixeleye/cli-logger@0.2.0
+  - @pixeleye/storybook@0.5.0
+
 ## 0.3.13
 
 ### Patch Changes
