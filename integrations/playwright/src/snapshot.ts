@@ -6,6 +6,15 @@ import {
   Options as ServerOptions,
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
+import { createRequire } from "node:module";
+
+let rrwebSnapshot: string | undefined;
+try {
+  rrwebSnapshot = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+} catch {
+  const require = createRequire(import.meta.url);
+  rrwebSnapshot = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+}
 
 export interface Options {
   name: string;
@@ -41,7 +50,7 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
       : undefined;
 
   await (page as Page).addScriptTag({
-    path: require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js"),
+    path: rrwebSnapshot,
   });
 
   const domSnapshot = await (page as Page).evaluate(() => {
