@@ -60,6 +60,7 @@ export function ImageNode({ data: {
                     singleSnapshot !== "head" && "hidden",
                     showOverlay && overlay && "brightness-[50%]",
                 )}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 draggable={false}
                 alt={base.alt}
                 src={base.src}
@@ -72,6 +73,7 @@ export function ImageNode({ data: {
                     quality={optimize ? 75 : 100}
                     priority
                     fill
+                    sizes="(min-width: 640px) 50vw, 100vw"
                     className={cx(
                         "pointer-events-none select-none",
                         singleSnapshot === "head" && "hidden",
@@ -88,6 +90,7 @@ export function ImageNode({ data: {
                     key={`overlay - ${overlay.src.toString()}`}
                     priority
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     quality={optimize ? 75 : 100}
                     className={cx(
                         (!showOverlay || singleSnapshot !== "head") && "opacity-0",
