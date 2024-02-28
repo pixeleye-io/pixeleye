@@ -1,5 +1,16 @@
 # @pixeleye/cli-booth
 
+## 0.4.1
+
+### Patch Changes
+
+- [`4d51ffc`](https://github.com/pixeleye-io/pixeleye/commit/4d51ffc5ae4d7a2e07036bed07b0815334aada2f) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Un minifying
+
+- Updated dependencies [[`4d51ffc`](https://github.com/pixeleye-io/pixeleye/commit/4d51ffc5ae4d7a2e07036bed07b0815334aada2f)]:
+  - @pixeleye/cli-api@0.3.1
+  - @pixeleye/cli-capture@0.4.1
+  - @pixeleye/cli-config@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
