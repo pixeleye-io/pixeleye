@@ -311,7 +311,7 @@ function TargetTabs({
   }
 
   return (
-    <ul className="flex justify-center mt-4">
+    <ul className="flex justify-center mt-4" role="listbox">
       {
         targetGroup.snapshots.sort((a, b) => (a.target || "").localeCompare(b.target || "")).map((snap) => {
 
@@ -320,9 +320,9 @@ function TargetTabs({
           const isActive = snap.id === snapshot.id;
 
           return (
-            <li key={snap.id} role="tablist">
+            <li key={snap.id}>
 
-              <Button variant="ghost" role="tab" aria-selected={isActive} className={
+              <Button variant="ghost" role="option" aria-selected={isActive} className={
                 isActive ? "text-on-surface" : "text-on-surface-variant"
               } onClick={() => setCurrentSnapshot(snap)} tooltip={snap.target}>
                 {
