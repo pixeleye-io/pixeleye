@@ -81,10 +81,10 @@ export default function TeamSwitcher({
           role="combobox"
           aria-expanded={open}
           aria-label="Select a team"
-          className={"max-w-[12rem] overflow-hidden"}
+          className={"max-w-[12rem] overflow-hidden group"}
           innerClassName={"justify-between overflow-hidden"}
           outerClassName="flex-1 overflow-hidden">
-          <ChevronUpDownIcon className="h-4 w-4 shrink-0 text-on-surface-variant" />
+          <ChevronUpDownIcon className="h-4 w-4 shrink-0 text-on-surface-variant group-hover:text-on-surface" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] !p-0">

@@ -166,7 +166,7 @@ export function Navbar() {
           </Link>
         </Breadcrumbs.Item>
         <Breadcrumbs.Item asChild>
-          <div className="flex items-center ">
+          <div className="flex items-center hover:text-on-surface-variant">
             {groupTeams && selectedTeam && personalTeam && (
               <TeamSwitcher
                 user={user}
