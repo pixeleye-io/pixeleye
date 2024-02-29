@@ -1,5 +1,11 @@
 # @pixeleye/playwright
 
+## 0.4.7
+
+### Patch Changes
+
+- [#221](https://github.com/pixeleye-io/pixeleye/pull/221) [`2485637`](https://github.com/pixeleye-io/pixeleye/commit/2485637aee67bc3b4d9da2ff160df5396b021c75) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating
+
 ## 0.4.6
 
 ### Patch Changes
