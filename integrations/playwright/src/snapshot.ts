@@ -54,14 +54,10 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     path: rrwebSnapshot,
   });
 
-  const domSnapshot = await (page as Page)
-    .evaluate(() => {
-      // @ts-ignore
-      return rrwebSnapshot.snapshot(document);
-    })
-    .catch(() => {
-      logger.error("Error taking DOM snapshot");
-    });
+  const domSnapshot = await (page as Page).evaluate(() => {
+    // @ts-ignore
+    return rrwebSnapshot.snapshot(document);
+  });
 
   if (!domSnapshot) {
     throw new Error("No DOM snapshot available");
