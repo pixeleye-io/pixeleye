@@ -1,8 +1,5 @@
 import { createHash } from "node:crypto";
-import { promisify } from "node:util";
-import sizeOf from "image-size";
-
-const sizeOfPromise = promisify(sizeOf);
+import jimp from "jimp";
 
 export function generateHash(img: string | Buffer) {
   const hash = createHash("sha1");
@@ -11,7 +8,7 @@ export function generateHash(img: string | Buffer) {
 }
 
 export const getDimensions = (img: Buffer) =>
-  sizeOfPromise(img.toString()).then((image) => ({
-    width: image?.width!,
-    height: image?.height!,
+  jimp.read(img).then((image) => ({
+    width: image.getWidth(),
+    height: image.getHeight(),
   }));

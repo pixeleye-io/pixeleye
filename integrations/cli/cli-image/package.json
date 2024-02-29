@@ -32,6 +32,7 @@
     "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "image-size": "^1.1.1"
+    "image-size": "^1.1.1",
+    "jimp": "^0.22.12"
   }
 }
