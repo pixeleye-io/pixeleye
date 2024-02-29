@@ -1,5 +1,14 @@
 # @pixeleye/storybook
 
+## 0.5.11
+
+### Patch Changes
+
+- [`4cb6b5e`](https://github.com/pixeleye-io/pixeleye/commit/4cb6b5e849ae9118a29705e9e1b3f5ee4d6d62d2) Thanks [@AlfieJones](https://github.com/AlfieJones)! - waiting for network
+
+- Updated dependencies [[`4cb6b5e`](https://github.com/pixeleye-io/pixeleye/commit/4cb6b5e849ae9118a29705e9e1b3f5ee4d6d62d2)]:
+  - @pixeleye/playwright@0.4.9
+
 ## 0.5.10
 
 ### Patch Changes
