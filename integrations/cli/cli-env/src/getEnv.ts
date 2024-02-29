@@ -1,6 +1,7 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 import envCi from "env-ci";
 import { getBranch, getCommit } from "./git";
+import { logger } from "@pixeleye/cli-logger";
 
 export interface Environment {
   name?: string;
@@ -15,10 +16,13 @@ export interface Environment {
 
 export async function getEnvironment(): Promise<Environment> {
   // TODO Add my own handlers for common services
-  const { name, commit, isPr, branch, isCi, prBranch, pr, tag } = envCi({
+  const env = envCi({
     env: process.env,
     root: process.cwd(),
   });
+
+  logger.debug(`Detected CI: ${JSON.stringify(env)}`);
+  const { name, isCi, pr, branch, commit, tag, prBranch, isPr } = env;
 
   // TODO - I should add some warning if we're not on a CI/CD or an officially supported one
 

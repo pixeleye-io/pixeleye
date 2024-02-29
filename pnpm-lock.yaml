@@ -639,6 +639,9 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
     devDependencies:
+      '@pixeleye/cli-logger':
+        specifier: workspace:*
+        version: link:../cli-logger
       '@pixeleye/esbuild':
         specifier: workspace:*
         version: link:../../../configs/esbuild
