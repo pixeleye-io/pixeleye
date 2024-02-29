@@ -972,6 +972,9 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
+      '@pixeleye/cli-logger':
+        specifier: workspace:*
+        version: link:../cli/cli-logger
       '@pixeleye/playwright':
         specifier: workspace:*
         version: link:../playwright

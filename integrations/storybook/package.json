@@ -27,6 +27,7 @@
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/playwright": "workspace:*",
     "@storybook/addons": "^7.6.17",
+    "@pixeleye/cli-logger": "workspace:*",
     "playwright-core": "^1.41.2",
     "rrweb-snapshot": "2.0.0-alpha.11"
   },
