@@ -84,8 +84,8 @@ export async function createBuild(api: APIType) {
         shas: mergeBase ? [mergeBase] : undefined,
       },
       queries: {
-        branch: env.targetBranch,
-        limit: 1,
+        limit: 10,
+        branch: mergeBase ? undefined : env.targetBranch,
       },
     });
 

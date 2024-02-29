@@ -424,7 +424,7 @@ func SearchBuilds(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			builds = append(builds, commitBuilds...)
+			builds = commitBuilds
 		}
 	} else if len(shas) > 0 {
 		commitBuilds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, shas)
@@ -432,7 +432,7 @@ func SearchBuilds(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			builds = append(builds, commitBuilds...)
+			builds = commitBuilds
 		}
 	}
 
