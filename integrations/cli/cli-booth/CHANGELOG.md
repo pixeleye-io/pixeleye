@@ -1,5 +1,16 @@
 # @pixeleye/cli-booth
 
+## 0.4.6
+
+### Patch Changes
+
+- [`50bdd94`](https://github.com/pixeleye-io/pixeleye/commit/50bdd941127153dc086d6f376c40af83da481340) Thanks [@AlfieJones](https://github.com/AlfieJones)! - fixing verbose
+
+- Updated dependencies [[`50bdd94`](https://github.com/pixeleye-io/pixeleye/commit/50bdd941127153dc086d6f376c40af83da481340)]:
+  - @pixeleye/cli-capture@0.4.5
+  - @pixeleye/cli-config@0.4.6
+  - @pixeleye/cli-api@0.3.6
+
 ## 0.4.5
 
 ### Patch Changes
