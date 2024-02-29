@@ -142,7 +142,7 @@ export function RepoList({ repos, team, source }: RepoListProps) {
           url: repo.url,
           autoApprove: repo.defaultBranch ? `^${repo.defaultBranch}$` : undefined,
           snapshotBlur: false,
-          snapshotThreshold: 0.01,
+          snapshotThreshold: 0.05,
         },
         params: {
           teamID: team?.id ?? "",
