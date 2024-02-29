@@ -155,7 +155,7 @@ export function Navbar() {
   else if (selectedTeam) params.set("team", selectedTeam.id);
 
   return (
-    <nav className="flex justify-between px-4 pt-2 pb-1 bg-surface-container-lowest">
+    <nav className="flex justify-between px-4 pt-1 pb-1 bg-surface-container-lowest">
       <Breadcrumbs>
         <Breadcrumbs.Item hideLeadingSlash asChild>
           <Link
@@ -198,7 +198,7 @@ export function Navbar() {
       </Breadcrumbs>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Button variant="ghost" size="none" className="relative !p-1 !rounded-full">
             <Avatar>
               <Avatar.Image alt="profile picture" src={user?.avatar ?? ""} />
               <Avatar.Fallback>
