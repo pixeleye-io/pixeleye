@@ -24,7 +24,7 @@ export function WaitingPage({ buildID }: WaitingProps) {
 
     const router = useRouter()
 
-    const notReady = ["uploading", "processing", "queued-uploading", "queued-processing"].includes(build?.status || "")
+    const notReady = ["uploading", "processing", "queued-uploading", "queued-processing"].includes(build?.status || "uploading") // We want to default to disabled
 
 
     return (<div className="flex items-center flex-col">
