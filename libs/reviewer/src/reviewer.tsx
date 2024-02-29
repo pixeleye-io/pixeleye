@@ -146,12 +146,14 @@ function ReviewerInternal({
   }, [build, buildAPI, isUpdatingSnapshotStatus, setBuild, setBuildAPI, setIsUpdatingSnapshotStatus, setSnapshots, setUserRole, snapshotTargetGroups, userRole]);
 
   const showSidebar = useStore(store, (state) => state.panelOpen);
-
   const [collapsed, setCollapsed] = useState(false)
+  const [width, setWidth] = useState(defaultSidebarWidth)
 
   const onLayout = (sizes: number[]) => {
-    if (sizes.length > 1)
-      document.cookie = `reviewer-sidebar-width=${sizes[0]}; path=/`;
+    if (sizes.length > 1) {
+      document.cookie = `reviewer-sidebar-width=${sizes[0]}; path=/; max-age=31536000`;
+      setWidth(sizes[0])
+    }
   };
 
 
@@ -162,7 +164,7 @@ function ReviewerInternal({
       <PanelGroup onLayout={onLayout} direction="horizontal">
         {
           showSidebar && (<>
-            <Panel collapsible={true} onResize={(size) => setCollapsed(size === 0)} collapsedSize={0} className="hidden lg:block" order={1} defaultSize={defaultSidebarWidth} minSize={15} maxSize={30}>
+            <Panel collapsible={true} onResize={(size) => setCollapsed(size === 0)} collapsedSize={0} className="hidden lg:block" order={1} defaultSize={width} minSize={15} maxSize={30}>
               <PanelDesktop />
             </Panel>
             <PanelResizeHandle onDragging={(dragging) => !dragging && collapsed && setPanelOpen(() => false)} className="bg-outline-variant data-[resize-handle-state=drag]:bg-outline data-[resize-handle-state=hover]:bg-outline w-0.5 hidden lg:block" />
