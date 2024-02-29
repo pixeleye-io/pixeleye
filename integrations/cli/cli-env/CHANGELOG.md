@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.3.6
+
+### Patch Changes
+
+- [`50bdd94`](https://github.com/pixeleye-io/pixeleye/commit/50bdd941127153dc086d6f376c40af83da481340) Thanks [@AlfieJones](https://github.com/AlfieJones)! - fixing verbose
+
 ## 0.3.5
 
 ### Patch Changes
