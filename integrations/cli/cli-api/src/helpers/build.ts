@@ -116,7 +116,7 @@ export async function createBuild(api: APIType) {
       targetBuildIDs,
       parentIDs: parentBuilds?.map((build) => build.id),
       targetBranch: env.targetBranch,
-      prID: env.prID,
+      prID: env.prID?.toString(),
       title: env.title,
     },
   });
