@@ -28,6 +28,7 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
+    "@pixeleye/cli-logger": "workspace:*",
     "@types/node": "20.11.19",
     "rimraf": "^5.0.5"
   },
