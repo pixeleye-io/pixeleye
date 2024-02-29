@@ -11,13 +11,12 @@ import {
   DropdownMenuItem,
   Status
 } from "@pixeleye/ui";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import NextLink from "next/link";
 import { SecuritySection } from "./manage/sections";
 import { ChevronRightIcon, EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 import { Build } from "@pixeleye/api";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { cx } from "class-variance-authority";
 import { CalendarDaysIcon } from "@heroicons/react/16/solid";
 import React from "react";
 
