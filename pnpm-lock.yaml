@@ -875,6 +875,9 @@ importers:
       '@pixeleye/cli-config':
         specifier: workspace:*
         version: link:../cli/cli-config
+      '@pixeleye/cli-logger':
+        specifier: workspace:*
+        version: link:../cli/cli-logger
       '@pixeleye/esbuild':
         specifier: workspace:*
         version: link:../../configs/esbuild

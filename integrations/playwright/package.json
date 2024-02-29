@@ -36,6 +36,7 @@
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@swc-node/register": "^1.8.0",
     "@types/node": "20.11.19",
