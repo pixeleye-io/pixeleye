@@ -30,8 +30,9 @@ const configOption = (name: string) =>
 const verboseOption = (name: string) =>
   configOption(name)
     .option("-v, --verbose", "Verbose output")
-    .hook("preAction", () => {
-      setLogLevel("verbose");
+    .hook("preAction", (hookedCommand) => {
+      const commands = hookedCommand.opts();
+      if (commands.verbose || commands.v) setLogLevel("verbose");
     });
 
 const apiOptions = (name: string) =>
