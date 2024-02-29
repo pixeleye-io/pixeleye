@@ -1,5 +1,11 @@
 # @pixeleye/cli-api
 
+## 0.3.9
+
+### Patch Changes
+
+- [`46cceb7`](https://github.com/pixeleye-io/pixeleye/commit/46cceb7e5f232ff1691d6b387a8e3b123552dcd4) Thanks [@AlfieJones](https://github.com/AlfieJones)! - addingToString
+
 ## 0.3.8
 
 ### Patch Changes
