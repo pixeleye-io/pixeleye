@@ -113,14 +113,12 @@ export function RepoList({ repos, team, source }: RepoListProps) {
 
   const setKey = useKeyStore((state) => state.setKey);
 
-  const deferredSearch = useDeferredValue(search);
-
   const filteredRepos = useMemo(() => {
-    if (!deferredSearch) return repos;
+    if (!search) return repos;
     return repos.filter((repo) =>
-      repo.name.toLowerCase().includes(deferredSearch.toLowerCase())
+      repo.name.toLowerCase().includes(search.toLowerCase())
     );
-  }, [deferredSearch, repos]);
+  }, [repos, search]);
 
   const sortedRepos = useMemo(() => {
     if (sort === "name") {

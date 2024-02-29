@@ -100,6 +100,37 @@ test("Some test", async ({ page }) => {
 });
 ```
 
+### Running the Pixeleye CLI
+
+
+{% tabs %}
+
+{% tab label="NPM" %}
+
+```bash
+npm run pixeleye exec -- <your test command>
+```
+
+{% /tab %}
+
+{% tab label="Yarn" %}
+
+```bash
+yarn pixeleye exec -- <your test command>
+```
+
+{% /tab %}
+
+{% tab label="PNPM" %}
+
+```bash
+pnpm pixeleye exec -- <your test command>
+```
+
+{% /tab %}
+
+{% /tabs %}
+
 ## API Reference
 
 ### `fn pixeleyeSnapshot(page, options)`
