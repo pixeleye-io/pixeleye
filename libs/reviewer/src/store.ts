@@ -88,7 +88,7 @@ export const createStore = (initProps?: Partial<ReviewerState>) =>
       set((state) => ({
         panelOpen: panelOpen(state.panelOpen),
       }));
-      document.cookie = `reviewer-sidebar-open=${get().panelOpen}; path=/`;
+      document.cookie = `reviewer-sidebar-open=${get().panelOpen}; path=/; max-age=31536000`;
     },
     activeCompareTab: "double",
     setActiveCompareTab: (activeCompareTab) => set({ activeCompareTab }),
