@@ -1,6 +1,7 @@
 import type { Page } from "playwright-core";
 import { getEnvConfig } from "@pixeleye/cli-config";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
+import { logger } from "@pixeleye/cli-logger";
 import {
   snapshot,
   Options as ServerOptions,
@@ -53,10 +54,14 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     path: rrwebSnapshot,
   });
 
-  const domSnapshot = await (page as Page).evaluate(() => {
-    // @ts-ignore
-    return rrwebSnapshot.snapshot(document);
-  });
+  const domSnapshot = await (page as Page)
+    .evaluate(() => {
+      // @ts-ignore
+      return rrwebSnapshot.snapshot(document);
+    })
+    .catch(() => {
+      logger.error("Error taking DOM snapshot");
+    });
 
   if (!domSnapshot) {
     throw new Error("No DOM snapshot available");
