@@ -1,0 +1,73 @@
+version: "3.7"
+services:
+  postgres-ory:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - postgres-ory:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=kratos
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=kratos
+      - PGPORT=5431
+    ports:
+      - "5431:5431"
+    networks:
+      - intranet
+  postgres-pixeleye:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=kratos
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=kratos
+      - PGPORT=5431
+    volumes:
+      - postgres-pixeleye:/var/lib/postgresql/data
+    ports:
+      - "5431:5431"
+    networks:
+      - intranet
+  kratos-migrate:
+    image: oryd/kratos:v1.0.0
+    environment:
+      - DSN=postgres://kratos:secret@postgres-ory:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+    volumes:
+      - type: bind
+        source: ./kratos
+        target: /etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
+    restart: on-failure
+    networks:
+      - intranet
+  kratos:
+    depends_on:
+      - kratos-migrate
+    image: "oryd/kratos:v1.0.0"
+    ports:
+      - "4433:4433" # public
+      - "4434:4434" # admin
+    restart: unless-stopped
+    environment:
+      - DSN=postgres://kratos:secret@postgres-ory:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - LOG_LEVEL=trace
+    command: serve -c /etc/config/kratos/kratos.yml --watch-courier
+    volumes:
+      - type: bind
+        source: ./kratos
+        target: /etc/config/kratos
+    networks:
+      - intranet
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    ports:
+      - "4436:4436"
+      - "4437:4437"
+    networks:
+      - intranet
+networks:
+  intranet:
+
+volumes:
+  postgres-ory:
+  postgres-pixeleye:
