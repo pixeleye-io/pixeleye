@@ -34,6 +34,7 @@
     "@pixeleye/api": "workspace:*",
     "@pixeleye/cli-env": "workspace:*",
     "@pixeleye/cli-image": "workspace:*",
+    "@pixeleye/cli-logger": "workspace:*",
     "api-typify": "^0.3.2",
     "undici": "^6.6.2"
   }

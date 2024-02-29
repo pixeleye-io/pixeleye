@@ -465,6 +465,9 @@ importers:
       '@pixeleye/cli-image':
         specifier: workspace:*
         version: link:../cli-image
+      '@pixeleye/cli-logger':
+        specifier: workspace:*
+        version: link:../cli-logger
       api-typify:
         specifier: ^0.3.2
         version: 0.3.2

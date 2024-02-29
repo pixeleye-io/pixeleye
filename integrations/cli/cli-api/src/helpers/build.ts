@@ -1,21 +1,6 @@
-import {
-  getEnvironment,
-  getMergeBase,
-  getParentShas,
-  isAncestor,
-} from "@pixeleye/cli-env";
+import { getEnvironment, getMergeBase, getParentShas } from "@pixeleye/cli-env";
+import { logger } from "@pixeleye/cli-logger";
 import { APIType } from "../api";
-
-import { Build } from "@pixeleye/api";
-
-async function noAncestors(build: Build, builds: Build[]) {
-  for (const ancestor of builds) {
-    if (await isAncestor(build.sha, ancestor.sha)) {
-      return false;
-    }
-  }
-  return true;
-}
 
 /**
  * Get the parent builds of the current build
@@ -26,11 +11,13 @@ async function noAncestors(build: Build, builds: Build[]) {
  * 3. No match found, user needs to intervene and create a patch build
  */
 export async function getParentBuilds(api: APIType) {
-  // TODO - this should return an array of builds
   const env = await getEnvironment();
 
   const shas = await getParentShas(128);
   const branch = env.branch;
+
+  logger.debug(`Checking for parent builds for ${branch}`);
+  logger.debug(`Parent SHAs: ${shas.join(", ")}`);
 
   const builds = await api
     .post("/v1/client/latestBuilds", {
@@ -44,7 +31,7 @@ export async function getParentBuilds(api: APIType) {
       }
     });
 
-  if (builds) {
+  if (builds && builds.length > 0) {
     return builds;
   }
 

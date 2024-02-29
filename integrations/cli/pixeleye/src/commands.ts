@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { Command } from "commander";
 import { loadAndMergeConfig } from "./config-loader";
 import { execHandler, ping, storybook, uploadHandler } from "./handlers";
+import { setLogLevel } from "@pixeleye/cli-logger";
 
 export const program = new Command();
 
@@ -30,8 +31,7 @@ const verboseOption = (name: string) =>
   configOption(name)
     .option("-v, --verbose", "Verbose output")
     .hook("preAction", () => {
-      // eslint-disable-next-line turbo/no-undeclared-env-vars
-      process.env.PIXELEYE_VERBOSE = "true";
+      setLogLevel("verbose");
     });
 
 const apiOptions = (name: string) =>
