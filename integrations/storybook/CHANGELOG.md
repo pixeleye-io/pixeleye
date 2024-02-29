@@ -1,5 +1,11 @@
 # @pixeleye/storybook
 
+## 0.5.8
+
+### Patch Changes
+
+- [`3e3f702`](https://github.com/pixeleye-io/pixeleye/commit/3e3f702e314945a98012afbc21286fbbc18fe86f) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improving
+
 ## 0.5.7
 
 ### Patch Changes
