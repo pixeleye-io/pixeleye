@@ -1,5 +1,17 @@
 # pixeleye
 
+## 0.4.4
+
+### Patch Changes
+
+- [`fd09794`](https://github.com/pixeleye-io/pixeleye/commit/fd097947189b1d1a50e841195c23129c758df90c) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improving parent-selection
+
+- Updated dependencies [[`fd09794`](https://github.com/pixeleye-io/pixeleye/commit/fd097947189b1d1a50e841195c23129c758df90c)]:
+  - @pixeleye/cli-api@0.3.4
+  - @pixeleye/cli-env@0.3.4
+  - @pixeleye/cli-booth@0.4.4
+  - @pixeleye/cli-config@0.4.4
+
 ## 0.4.3
 
 ### Patch Changes
