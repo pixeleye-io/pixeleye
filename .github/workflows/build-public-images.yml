@@ -58,7 +58,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: pixeleye/pixeleye-api
+          images: pixeleye/pixeleye
           tags: |
             latest
             type=semver,pattern={{version}},prefix=v
