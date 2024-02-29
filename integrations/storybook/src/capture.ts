@@ -83,21 +83,12 @@ export async function captureStories({
           variant.params ? variant.params : ""
         }`,
         {
-          waitUntil: "domcontentloaded",
+          waitUntil: "networkidle",
         }
       );
 
-      await page.waitForFunction(
-        () => (window as SBWindow).__STORYBOOK_CLIENT_API__,
-        {
-          timeout: 60_000,
-        }
-      );
-
-      let selector = "body";
-      await page.waitForSelector(selector).catch(() => {
-        selector = "body";
-      });
+      const selector = "body";
+      await page.waitForSelector(selector);
 
       await pixeleyeSnapshot(page, {
         name: story.id,
