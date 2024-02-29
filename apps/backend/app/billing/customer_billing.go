@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"slices"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/stripe/stripe-go/v76/form"
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/client"
 )
@@ -260,17 +262,25 @@ func (c *CustomerBilling) GetCustomer(customerID string) (*stripe.Customer, erro
 	return c.API.Customers.Get(customerID, nil)
 }
 
-func (c *CustomerBilling) ReportSnapshotUsage(subscriptionID string, buildID string, snapshotCount int64) error {
+func (c *CustomerBilling) ReportSnapshotUsage(customerID string, buildID string, snapshotCount int64) error {
 
-	params := &stripe.UsageRecordParams{
-		Quantity:         stripe.Int64(snapshotCount),
-		SubscriptionItem: stripe.String(subscriptionID),
-		Action:           stripe.String("increment"),
+	params := map[string]interface{}{
+		"event_name": "snapshots",
+		"payload": map[string]interface{}{
+			"stripe_customer_id": customerID,
+			"value":              snapshotCount,
+		},
+		"timestamp":  time.Now().Unix(),
+		"identifier": buildID,
 	}
 
-	params.SetIdempotencyKey(buildID)
+	formValues := &form.Values{}
+	form.AppendTo(formValues, params)
+	content := formValues.Encode()
 
-	_, err := c.API.UsageRecords.New(params)
+	stripe.Key = os.Getenv("STRIPE_ACCESS_TOKEN")
+
+	_, err := stripe.RawRequest("POST", "/v1/billing/meter_events", content, nil)
 
 	return err
 }
