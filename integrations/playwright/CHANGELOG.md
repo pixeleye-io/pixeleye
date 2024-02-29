@@ -1,5 +1,14 @@
 # @pixeleye/playwright
 
+## 0.4.4
+
+### Patch Changes
+
+- [#210](https://github.com/pixeleye-io/pixeleye/pull/210) [`f494ed6`](https://github.com/pixeleye-io/pixeleye/commit/f494ed683c635245702b3c8e97e334b5d7c8b1af) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating logger
+
+- Updated dependencies [[`f494ed6`](https://github.com/pixeleye-io/pixeleye/commit/f494ed683c635245702b3c8e97e334b5d7c8b1af)]:
+  - @pixeleye/cli-devices@0.4.4
+
 ## 0.4.3
 
 ### Patch Changes

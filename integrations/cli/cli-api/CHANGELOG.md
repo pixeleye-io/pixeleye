@@ -1,5 +1,16 @@
 # @pixeleye/cli-api
 
+## 0.3.5
+
+### Patch Changes
+
+- [#210](https://github.com/pixeleye-io/pixeleye/pull/210) [`f494ed6`](https://github.com/pixeleye-io/pixeleye/commit/f494ed683c635245702b3c8e97e334b5d7c8b1af) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating logger
+
+- Updated dependencies [[`f494ed6`](https://github.com/pixeleye-io/pixeleye/commit/f494ed683c635245702b3c8e97e334b5d7c8b1af)]:
+  - @pixeleye/cli-env@0.3.5
+  - @pixeleye/cli-image@0.3.4
+  - @pixeleye/cli-logger@0.2.4
+
 ## 0.3.4
 
 ### Patch Changes
