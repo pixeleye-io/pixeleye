@@ -15,17 +15,6 @@ import (
 )
 
 // We shouldn't need to update name, variant, target, or viewport
-func (tx *SnapshotQueriesTx) UpdateSnapshot(ctx context.Context, snapshot *models.Snapshot) error {
-	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at, error = :error WHERE id = :id`
-
-	snapshot.UpdatedAt = utils.CurrentTime()
-
-	_, err := tx.NamedExecContext(ctx, query, snapshot)
-
-	return err
-}
-
-// We shouldn't need to update name, variant, target, or viewport
 func (q *SnapshotQueries) UpdateSnapshot(snapshot models.Snapshot) error {
 	query := `UPDATE snapshot SET status = :status, baseline_snapshot_id = :baseline_snapshot_id, diff_image_id = :diff_image_id, reviewer_id = :reviewer_id, reviewed_at = :reviewed_at, updated_at = :updated_at, error = :error WHERE id = :id`
 

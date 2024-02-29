@@ -81,15 +81,28 @@ export async function captureStories({
       await page.goto(
         `${storybookURL}/iframe.html?id=${story.id}&viewMode=story${
           variant.params ? variant.params : ""
-        }`
+        }`,
+        {
+          waitUntil: "domcontentloaded",
+        }
       );
 
-      await page.waitForSelector("#storybook-root > *");
+      await page.waitForFunction(
+        () => (window as SBWindow).__STORYBOOK_CLIENT_API__,
+        {
+          timeout: 60_000,
+        }
+      );
+
+      let selector = "body";
+      await page.waitForSelector(selector).catch(() => {
+        selector = "body";
+      });
 
       await pixeleyeSnapshot(page, {
         name: story.id,
         variant: variant.name,
-        selector: "#storybook-root > *",
+        selector,
         devices,
       });
 

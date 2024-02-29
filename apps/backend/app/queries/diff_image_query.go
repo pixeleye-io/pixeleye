@@ -27,16 +27,11 @@ func (q *DiffImageQueries) CreateDiffImage(diffImage *models.DiffImage) error {
 	diffImage.CreatedAt = utils.CurrentTime()
 
 	id, err := nanoid.New()
-
 	if err != nil {
 		return err
 	}
 
 	diffImage.ID = id
-
-	if diffImage.ID, err = nanoid.New(); err != nil {
-		return err
-	}
 
 	_, err = q.NamedExec(query, diffImage)
 
