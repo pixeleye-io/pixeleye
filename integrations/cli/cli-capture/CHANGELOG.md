@@ -1,5 +1,14 @@
 # @pixeleye/cli-capture
 
+## 0.4.6
+
+### Patch Changes
+
+- [`50ba7c8`](https://github.com/pixeleye-io/pixeleye/commit/50ba7c8a61dcb495f25c1af25199408c346c0246) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding custo env
+
+- Updated dependencies [[`50ba7c8`](https://github.com/pixeleye-io/pixeleye/commit/50ba7c8a61dcb495f25c1af25199408c346c0246)]:
+  - @pixeleye/cli-devices@0.4.6
+
 ## 0.4.5
 
 ### Patch Changes
