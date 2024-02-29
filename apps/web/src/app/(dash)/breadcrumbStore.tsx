@@ -19,6 +19,7 @@ export interface Segment {
   name: string;
   value: string;
   status?: StatusType;
+  suffix?: React.ReactNode;
 }
 
 interface BreadcrumbStore {

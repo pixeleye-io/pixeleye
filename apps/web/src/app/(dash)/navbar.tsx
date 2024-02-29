@@ -191,6 +191,7 @@ export function Navbar() {
               >
                 {segment.status && <Status status={segment.status} />}
                 <span>{segment.name}</span>
+                {segment.suffix}
               </Link>
             </Breadcrumbs.Item>
           );
