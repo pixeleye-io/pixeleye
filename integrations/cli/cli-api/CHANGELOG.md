@@ -1,5 +1,16 @@
 # @pixeleye/cli-api
 
+## 0.3.8
+
+### Patch Changes
+
+- [`50ba7c8`](https://github.com/pixeleye-io/pixeleye/commit/50ba7c8a61dcb495f25c1af25199408c346c0246) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding custo env
+
+- Updated dependencies [[`50ba7c8`](https://github.com/pixeleye-io/pixeleye/commit/50ba7c8a61dcb495f25c1af25199408c346c0246)]:
+  - @pixeleye/cli-env@0.3.8
+  - @pixeleye/cli-image@0.3.6
+  - @pixeleye/cli-logger@0.2.6
+
 ## 0.3.7
 
 ### Patch Changes
