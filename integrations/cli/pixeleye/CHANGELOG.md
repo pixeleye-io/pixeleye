@@ -1,5 +1,14 @@
 # pixeleye
 
+## 0.4.13
+
+### Patch Changes
+
+- [#223](https://github.com/pixeleye-io/pixeleye/pull/223) [`e1b9dbe`](https://github.com/pixeleye-io/pixeleye/commit/e1b9dbea713ba3b6477ca05492362eed97be768f) Thanks [@AlfieJones](https://github.com/AlfieJones)! - updating
+
+- Updated dependencies [[`e1b9dbe`](https://github.com/pixeleye-io/pixeleye/commit/e1b9dbea713ba3b6477ca05492362eed97be768f)]:
+  - @pixeleye/storybook@0.5.10
+
 ## 0.4.12
 
 ### Patch Changes
