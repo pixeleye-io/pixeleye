@@ -1,5 +1,13 @@
 # @pixeleye/cypress
 
+## 0.3.8
+
+### Patch Changes
+
+- Updated dependencies [[`50ba7c8`](https://github.com/pixeleye-io/pixeleye/commit/50ba7c8a61dcb495f25c1af25199408c346c0246)]:
+  - @pixeleye/cli-api@0.3.8
+  - @pixeleye/cli-devices@0.4.6
+
 ## 0.3.7
 
 ### Patch Changes
