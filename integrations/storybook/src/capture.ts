@@ -2,6 +2,7 @@ import { pixeleyeSnapshot } from "@pixeleye/playwright";
 import { SBWindow } from "./browser";
 import { chromium } from "playwright-core";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
+import { logger } from "@pixeleye/cli-logger";
 
 async function openBrowser() {
   const browser = await chromium.launch({
@@ -42,21 +43,28 @@ export async function captureStories({
     }
   );
 
-  const result = await page.evaluate(async () => {
-    const { __STORYBOOK_CLIENT_API__: api } = window as SBWindow;
+  const result = await page
+    .evaluate(async () => {
+      const { __STORYBOOK_CLIENT_API__: api } = window as SBWindow;
 
-    await api._storyStore?.cacheAllCSFFiles();
+      await api._storyStore?.cacheAllCSFFiles();
 
-    return {
-      stories: Object.values(api._storyStore?.extract() || {}).map(
-        ({ id, story, kind }) => ({
-          id,
-          story,
-          kind,
-        })
-      )!,
-    };
-  });
+      return {
+        stories: Object.values(api._storyStore?.extract() || {}).map(
+          ({ id, story, kind }) => ({
+            id,
+            story,
+            kind,
+          })
+        )!,
+      };
+    })
+    .catch((err) => {
+      logger.error(err);
+      return {
+        stories: [],
+      };
+    });
 
   if (variants === undefined || variants.length === 0) {
     variants = [
