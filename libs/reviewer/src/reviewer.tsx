@@ -151,7 +151,7 @@ function ReviewerInternal({
 
   const onLayout = (sizes: number[]) => {
     if (sizes.length > 1)
-      document.cookie = `reviewer-sidebar-width=${sizes[0]}; path=/`;
+      document.cookie = `reviewer-sidebar-width=${sizes[0]}; path=/; max-age=31536000`;
   };
 
 
