@@ -3,7 +3,7 @@ import { program } from "commander";
 import ora from "ora";
 import { errStr } from "../messages/ui/theme";
 import { execFile } from "node:child_process";
-import { debugLog } from "@pixeleye/cli-logger";
+import { logger } from "@pixeleye/cli-logger";
 import { finished, ping } from "@pixeleye/cli-booth";
 import { Build } from "@pixeleye/api";
 import EventSource from "eventsource";
@@ -11,9 +11,10 @@ import { installBrowsers } from "@pixeleye/cli-install";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
-
 const _dirname =
-  typeof __dirname !== "undefined" ? __dirname : dirname(fileURLToPath(import.meta.url));
+  typeof __dirname !== "undefined"
+    ? __dirname
+    : dirname(fileURLToPath(import.meta.url));
 
 export const getExitBuild =
   (api: APIType, buildID: string) => async (err: any) => {
@@ -83,7 +84,7 @@ export const startBooth = async ({
     },
     (error, stdout, stderr) => {
       if (error) console.error(error);
-      if (stdout) debugLog(stdout);
+      if (stdout) logger.verbose(stdout);
       if (stderr) console.error(stderr);
     }
   );
