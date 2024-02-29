@@ -19,6 +19,30 @@ func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (mode
 	return build, err
 }
 
+func (q *BuildQueries) GetBuildsFromCommitsWithBranch(ctx context.Context, projectID string, shas []string, branch string) ([]models.Build, error) {
+	builds := []models.Build{}
+
+	arg := map[string]interface{}{
+		"project_id": projectID,
+		"shas":       shas,
+		"branch":     branch,
+	}
+
+	query, args, err := sqlx.Named(`SELECT * FROM build WHERE project_id=:project_id AND status != 'aborted' AND status != 'failed' AND sha IN (:shas) AND branch=:branch ORDER BY build_number DESC`, arg)
+	if err != nil {
+		return builds, err
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return builds, err
+	}
+	query = q.Rebind(query)
+
+	err = q.SelectContext(ctx, &builds, query, args...)
+
+	return builds, err
+}
+
 func (q *BuildQueries) GetBuildsFromCommits(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
 	builds := []models.Build{}
 

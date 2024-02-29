@@ -391,16 +391,6 @@ func SearchBuilds(c echo.Context) error {
 	branch := c.QueryParam("branch")
 	limit := c.QueryParam("limit") // TODO - we should parse this to the sql query to limit there too
 
-	if branch != "" {
-		build, err := db.GetBuildFromBranch(project.ID, branch)
-		if err != sql.ErrNoRows {
-			if err != nil {
-				return err
-			}
-			builds = append(builds, build)
-		}
-	}
-
 	type Body struct {
 		Shas              []string `json:"shas"`
 		ExcludeDependents bool     `json:"excludeDependents"`
@@ -418,7 +408,25 @@ func SearchBuilds(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "too many shas")
 	}
 
-	if len(shas) > 0 {
+	if branch != "" && len(shas) == 0 {
+		build, err := db.GetBuildFromBranch(project.ID, branch)
+		if err != sql.ErrNoRows {
+			if err != nil {
+				return err
+			}
+			builds = append(builds, build)
+		}
+	}
+
+	if len(shas) > 0 && branch != "" {
+		commitBuilds, err := db.GetBuildsFromCommitsWithBranch(c.Request().Context(), project.ID, shas, branch)
+		if err != sql.ErrNoRows {
+			if err != nil {
+				return err
+			}
+			builds = append(builds, commitBuilds...)
+		}
+	} else if len(shas) > 0 {
 		commitBuilds, err := db.GetBuildsFromCommits(c.Request().Context(), project.ID, shas)
 		if err != sql.ErrNoRows {
 			if err != nil {
