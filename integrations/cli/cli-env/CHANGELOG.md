@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.3.7
+
+### Patch Changes
+
+- [#214](https://github.com/pixeleye-io/pixeleye/pull/214) [`16f48d7`](https://github.com/pixeleye-io/pixeleye/commit/16f48d746816cbe27b5d0ff81ee66a7779404808) Thanks [@AlfieJones](https://github.com/AlfieJones)! - adding logger
+
 ## 0.3.6
 
 ### Patch Changes
