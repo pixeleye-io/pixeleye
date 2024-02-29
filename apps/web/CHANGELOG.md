@@ -1,5 +1,14 @@
 # @pixeleye/web
 
+## 0.1.4
+
+### Patch Changes
+
+- [#207](https://github.com/pixeleye-io/pixeleye/pull/207) [`256f766`](https://github.com/pixeleye-io/pixeleye/commit/256f7661a03d3d2e8f97987abe9bb0892542af16) Thanks [@AlfieJones](https://github.com/AlfieJones)! - moving to jimp
+
+- Updated dependencies []:
+  - @pixeleye/ui@0.0.3
+
 ## 0.1.3
 
 ### Patch Changes
