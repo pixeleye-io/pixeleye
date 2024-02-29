@@ -1,5 +1,16 @@
 # @pixeleye/cli-booth
 
+## 0.4.3
+
+### Patch Changes
+
+- [#207](https://github.com/pixeleye-io/pixeleye/pull/207) [`256f766`](https://github.com/pixeleye-io/pixeleye/commit/256f7661a03d3d2e8f97987abe9bb0892542af16) Thanks [@AlfieJones](https://github.com/AlfieJones)! - moving to jimp
+
+- Updated dependencies [[`256f766`](https://github.com/pixeleye-io/pixeleye/commit/256f7661a03d3d2e8f97987abe9bb0892542af16)]:
+  - @pixeleye/cli-capture@0.4.3
+  - @pixeleye/cli-config@0.4.3
+  - @pixeleye/cli-api@0.3.3
+
 ## 0.4.2
 
 ### Patch Changes

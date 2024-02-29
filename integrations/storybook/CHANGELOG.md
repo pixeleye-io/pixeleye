@@ -1,5 +1,15 @@
 # @pixeleye/storybook
 
+## 0.5.3
+
+### Patch Changes
+
+- [#207](https://github.com/pixeleye-io/pixeleye/pull/207) [`256f766`](https://github.com/pixeleye-io/pixeleye/commit/256f7661a03d3d2e8f97987abe9bb0892542af16) Thanks [@AlfieJones](https://github.com/AlfieJones)! - moving to jimp
+
+- Updated dependencies [[`256f766`](https://github.com/pixeleye-io/pixeleye/commit/256f7661a03d3d2e8f97987abe9bb0892542af16)]:
+  - @pixeleye/cli-devices@0.4.3
+  - @pixeleye/playwright@0.4.3
+
 ## 0.5.2
 
 ### Patch Changes
