@@ -1,7 +1,7 @@
 {
   "name": "@pixeleye/storybook",
   "private": false,
-  "version": "0.5.3",
+  "version": "0.5.4",
   "scripts": {
     "lint": "eslint",
     "types": "tsc --noEmit",
