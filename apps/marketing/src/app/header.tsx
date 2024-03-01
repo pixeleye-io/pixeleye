@@ -80,8 +80,8 @@ export default function Header() {
 
           <DocSearch />
 
-          <Button variant="outline" className="hidden lg:block">
-            <NextLink href={isSuccess ? "/dashboard" : "/registration"} className="w-28">
+          <Button variant="outline" asChild>
+            <NextLink className="hidden lg:block w-28" href={isSuccess ? "/dashboard" : "/registration"}>
               {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
             </NextLink>
           </Button>
