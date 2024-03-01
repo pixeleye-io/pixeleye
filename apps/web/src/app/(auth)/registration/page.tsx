@@ -49,6 +49,12 @@ export default async function RegistrationPage({
     );
   }
 
+  const oidcNodes = filterNodesByGroups({
+    nodes: loginFlow.ui.nodes,
+    withoutDefaultGroup: true,
+    groups: ["oidc"],
+  })
+
   return (
     <>
       <div>
@@ -63,30 +69,29 @@ export default async function RegistrationPage({
 
       <ErrorsList className="mt-4" messages={loginFlow.ui.messages} />
 
-      <form
-        className="mt-10"
-        action={loginFlow.ui.action}
-        method={loginFlow.ui.method}
-      >
-        {filterNodesByGroups({
-          nodes: loginFlow.ui.nodes,
-          withoutDefaultGroup: true,
-          groups: ["oidc"],
-        }).map((node, i) => (
-          <AuthNode node={node} key={i} />
-        ))}
-      </form>
+      {oidcNodes.length > 0 && (<>
+        <form
+          className="mt-10"
+          action={loginFlow.ui.action}
+          method={loginFlow.ui.method}
+        >
+          {oidcNodes.map((node, i) => (
+            <AuthNode node={node} key={i} />
+          ))}
+        </form>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <div className="w-full border-t border-border" />
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center" aria-hidden="true">
+            <div className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-sm font-medium leading-6">
+            <span className="px-6 bg-surface text-on-surface">
+              Or continue with
+            </span>
+          </div>
         </div>
-        <div className="relative flex justify-center text-sm font-medium leading-6">
-          <span className="px-6 bg-surface text-on-surface">
-            Or continue with
-          </span>
-        </div>
-      </div>
+      </>)}
+
 
       <form
         action={loginFlow.ui.action}

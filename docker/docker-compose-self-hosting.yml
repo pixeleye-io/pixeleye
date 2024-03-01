@@ -17,11 +17,11 @@ services:
         target: /docker-entrypoint-initdb.d/init-user-db.sh
 
     environment:
-      - POSTGRES_USER=kratos
+      - POSTGRES_USER=guest
       - POSTGRES_PASSWORD=CHANGEME
-      - POSTGRES_DB=kratos
+      - POSTGRES_DB=guest
       - PGPORT=5431
-      - POSTGRES_MULTIPLE_DATABASES=pixeleye
+      - POSTGRES_MULTIPLE_DATABASES=pixeleye,kratos
     ports:
       - "5431:5431"
     networks:
@@ -45,7 +45,7 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5431
       - DB_NAME=pixeleye
-      - DB_USERNAME=pixeleye
+      - DB_USERNAME=guest
       - DB_PASSWORD=CHANGEME
       - DB_PARAMS=sslmode=disable
     restart: on-failure
@@ -65,7 +65,7 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5431
       - DB_NAME=pixeleye
-      - DB_USERNAME=pixeleye
+      - DB_USERNAME=guest
       - DB_PASSWORD=CHANGEME
       - DB_SSL_MODE=disable
       - DB_MAX_CONNECTIONS=20
@@ -99,6 +99,7 @@ services:
     environment:
       - NEXT_PUBLIC_ORY_URL=http://kratos:4433
       - ORY_URL=http://kratos:4433
+      - NEXT_PUBLIC_ORY_URL=http://localhost:4433
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
       # - GITHUB_APP_NAME= # optional if you want to use the github login
     networks:
@@ -109,7 +110,7 @@ services:
   kratos-migrate:
     image: oryd/kratos:v1.0.0
     environment:
-      - DSN=postgres://kratos:CHANGEME@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://guest:CHANGEME@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
       - type: bind
         source: ./config
@@ -127,7 +128,7 @@ services:
       - "4434:4434" # admin
     restart: unless-stopped
     environment:
-      - DSN=postgres://kratos:CHANGEME@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://guest:CHANGEME@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
       - LOG_LEVEL=trace
     command: serve -c /etc/config/kratos/kratos.yml --watch-courier
     volumes:

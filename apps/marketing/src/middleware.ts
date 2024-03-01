@@ -12,7 +12,6 @@ export async function middleware(request: NextRequest) {
     },
   }).catch(() => undefined);
 
-
   const url = request.nextUrl.clone();
 
   if (data?.status !== 200) {
