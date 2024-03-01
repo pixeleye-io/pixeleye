@@ -103,7 +103,7 @@ function Hero() {
             Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.
           </p>
           <div className="mt-10 flex items-center gap-x-6">
-            <Button>Sign up for free</Button>
+            <Button asChild><NextLink href="/registration">Sign up for free</NextLink></Button>
             <Link
               asChild
               size="sm"
