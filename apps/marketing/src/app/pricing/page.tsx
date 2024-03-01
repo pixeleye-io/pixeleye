@@ -55,7 +55,7 @@ const tiers = [
   {
     name: "Hobby",
     id: "tier-hobby",
-    href: "#",
+    href: "/registration",
     priceMonthly: "Free",
     cta: "Get started",
     description:
@@ -73,11 +73,11 @@ const tiers = [
   {
     name: "Pro",
     id: "tier-pro",
-    href: "#",
+    href: "/registration",
     priceMonthly: "From $0",
     perMonth: true,
     description: "A usage-based plan mostly for small to medium teams.",
-    cta: "Buy plan",
+    cta: "Get started",
     priceModalIndex: 1,
     features: [
       {

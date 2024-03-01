@@ -335,7 +335,7 @@ function CTA() {
             our playground to see if Pixeleye is right for you.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Button>Get started for free</Button>
+            <Button><NextLink href="/registration">Get started for free</NextLink></Button>
             <Link
               asChild
               size="sm"
