@@ -6,7 +6,7 @@ import { Configuration, FrontendApi } from "@ory/client";
 export const oryEndpoint =
   (typeof window !== "undefined"
     ? process.env.NEXT_PUBLIC_ORY_URL!
-    : process.env.ORY_URL!) || process.env.NEXT_PUBLIC_ORY_URL!;
+    : process.env.ORY_URL!) || process.env.ORY_URL!;
 
 export type { Session } from "@ory/client";
 
