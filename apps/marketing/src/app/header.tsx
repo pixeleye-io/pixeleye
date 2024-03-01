@@ -30,7 +30,9 @@ export default function Header() {
 
   const { isSuccess, isPending } = useQuery({
     queryKey: ["user"],
-    queryFn: () => fetch(oryEndpoint + "/sessions/whoami")
+    queryFn: () => fetch(oryEndpoint + "/sessions/whoami", {
+      credentials: "include",
+    })
   })
 
   return (
