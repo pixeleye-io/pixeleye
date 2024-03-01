@@ -8,7 +8,6 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { cx } from "class-variance-authority";
 import { DocSearch } from "./docs/search";
-import { cookies } from "next/headers";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -26,7 +25,7 @@ export default function Header() {
 
   const pathname = usePathname();
 
-  const oryCookie = cookies().get("ory_session_unruffledhugle52nxttb8hg")
+  const oryCookie = document.cookie.split(";").find((c) => c.startsWith("ory_session_unruffledhugle52nxttb8hg"));
 
   return (
     <header className="bg-surface/90 backdrop-blur-sm fixed z-30 w-full border-b border-b-outline-variant">
@@ -139,7 +138,7 @@ export default function Header() {
                     Star us on Github
                   </NextLink>
                   {
-                    Boolean(oryCookie?.value) ? (
+                    Boolean(oryCookie) ? (
                       <NextLink
                         href="/dashboard"
                         className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
