@@ -12,7 +12,7 @@ export interface CustomProps {
 }
 
 export const createAPI = (extraHeaders: Record<string, string> = {}) =>
-  getAPI<Services, CustomProps>(BACKEND_URL, (url, options) =>
+  getAPI<Services, CustomProps>(BACKEND_URL!, (url, options) =>
     fetch(url, {
       ...options,
       headers: {
