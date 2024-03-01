@@ -98,6 +98,7 @@ services:
     restart: unless-stopped
     environment:
       - NEXT_PUBLIC_ORY_URL=http://kratos:4433
+      - ORY_URL=http://kratos:4433
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
       # - GITHUB_APP_NAME= # optional if you want to use the github login
     networks:
