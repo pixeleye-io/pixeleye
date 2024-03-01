@@ -66,7 +66,7 @@ function Inner({
       <div
         className={cx(
           loading && "opacity-0",
-          "flex items-center flex-1",
+          "flex items-center flex-1 justify-center",
           innerClassName
         )}
       >
