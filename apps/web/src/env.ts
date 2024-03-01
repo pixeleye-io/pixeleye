@@ -4,7 +4,6 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     GITHUB_APP_NAME: z.string(),
-    ORY_URL: z.string(),
   },
   client: {
     NEXT_PUBLIC_BACKEND_URL: z.string(),
