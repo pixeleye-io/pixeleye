@@ -32,7 +32,7 @@ export default function Header() {
     queryKey: ["user"],
     queryFn: () => fetch(oryEndpoint + "/sessions/whoami", {
       credentials: "include",
-    })
+    }).then((res) => (res.ok) ? res.json() : Promise.reject(res)),
   })
 
   return (
