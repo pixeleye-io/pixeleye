@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
-    GITHUB_APP_NAME: z.string(),
+    GITHUB_APP_NAME: z.string().optional(),
     BACKEND_URL: z.string().optional(),
   },
   client: {

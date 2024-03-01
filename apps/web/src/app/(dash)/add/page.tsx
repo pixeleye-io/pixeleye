@@ -19,17 +19,8 @@ interface ImportCardProps {
   };
 }
 
-const defaultSources: ImportCardProps[] = [
-  {
-    name: "Github",
-    type: "github",
-    installUrl: `https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`,
-    connected: false,
-    imageUrl: {
-      light: "/github-mark.svg",
-      dark: "/github-mark-white.svg",
-    },
-  },
+let defaultSources: ImportCardProps[] = [
+
   {
     name: "Generic git",
     type: "custom",
@@ -40,6 +31,19 @@ const defaultSources: ImportCardProps[] = [
     },
   },
 ];
+
+if (env.GITHUB_APP_NAME)
+  defaultSources = [{
+    name: "Github",
+    type: "github",
+    installUrl: `https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`,
+    connected: false,
+    imageUrl: {
+      light: "/github-mark.svg",
+      dark: "/github-mark-white.svg",
+    },
+  }, ...defaultSources];
+
 
 export default async function AddProjectPage({
   searchParams,

@@ -70,6 +70,7 @@ export default async function AddGithubProjectPage({
   searchParams: Record<string, string>;
 }) {
 
+  if (!env.GITHUB_APP_NAME) return redirect("/add");
 
   const installation_id = searchParams.installation_id;
 
