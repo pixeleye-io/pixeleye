@@ -62,7 +62,7 @@ const tiers = [
       "More than enough for side projects or evaluating the platform.",
     features: [
       {
-        text: "Up to 7,500 free monthly snapshots",
+        text: "Up to 7,500* free monthly snapshots",
         moreInfo: SnapshotsMoreInfoContext
       },
       "Unlimited projects",
@@ -81,7 +81,7 @@ const tiers = [
     priceModalIndex: 1,
     features: [
       {
-        text: "Up to 7,500 free monthly snapshots",
+        text: "Up to 7,500* free monthly snapshots",
         moreInfo: SnapshotsMoreInfoContext
       },
       "Volume pricing starting at $0.003",
@@ -244,6 +244,9 @@ export default function PricingPage() {
           </div>
         ))}
       </div>
+      <p className="text-on-surface-variant mx-auto text-center text-sm py-2 px-8">
+        * All teams get 5,000 free snapshots. You can earn additional snapshots by referring a friend (1,250 each) for a total of 7,500 snapshots.
+      </p>
 
       <div className="relative mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:mt-5 lg:px-8">
         <div className="mx-auto max-w-md lg:max-w-5xl">
@@ -349,8 +352,10 @@ function PricingModal({
           </div>
 
           <DialogFooter>
-            <Button>
-              Get started with Pro
+            <Button asChild>
+              <NextLink href="/registration">
+                Get started with Pro
+              </NextLink>
             </Button>
           </DialogFooter>
         </DialogContent>

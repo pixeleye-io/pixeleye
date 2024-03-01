@@ -81,14 +81,14 @@ export function Swiper() {
           x.set(clientX - left - 32);
         }}
       >
-        <div className="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
+        <div className="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
           <Example offset />
         </div>
         <m.div
           className="absolute inset-0 will-change-[clip] z-10"
           style={{ clipPath }}
         >
-          <div className="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl  pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
+          <div className="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl  [&>*]:pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10">
             <Example />
           </div>
         </m.div>

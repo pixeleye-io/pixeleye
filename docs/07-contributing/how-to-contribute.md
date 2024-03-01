@@ -33,4 +33,4 @@ We actively encourage people to write blog posts, tutorials or examples which sh
 
 ## Rewarding contributions
 
-We want to be able to build a sustainable open-source project which can be worked on full-time, part-time or in spare time. Part of this is rewarding those who contribute to the project. Whilst we don't have a formal rewards program in place, we will do our best to reward those who make a significant contribution to the project once we are in a financial position to do so.
+We want to be able to build a sustainable open-source project which can be worked on full-time, part-time or in spare time. Part of this is rewarding those who contribute to the project. Whilst we don't have a formal rewards program in place, once we are financially stable, we will look at ways to reward those who contribute to the project.
