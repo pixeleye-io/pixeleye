@@ -28,7 +28,7 @@ export default function Header() {
 
   const pathname = usePathname();
 
-  const { isError, isPending } = useQuery({
+  const { isSuccess, isPending } = useQuery({
     queryKey: ["user"],
     queryFn: () => fetch(oryEndpoint + "/sessions/whoami", {
       credentials: "include",
@@ -81,7 +81,9 @@ export default function Header() {
           <DocSearch />
 
           <Button variant="outline" className="hidden lg:block">
-            <NextLink href="/registration">Get started</NextLink>
+            <NextLink href={isSuccess ? "/dashboard" : "/registration"} className="w-28">
+              {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
+            </NextLink>
           </Button>
 
           <Button
@@ -145,12 +147,15 @@ export default function Header() {
                   >
                     Star us on Github
                   </NextLink>
-                  <NextLink
-                    href={!isError ? "/dashboard" : "/registration"}
-                    className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
-                  >
-                    {isPending ? "" : !isError ? "Dashboard" : "Get started"}
-                  </NextLink>
+                  {
+                    !isPending && (
+                      <NextLink
+                        href={isSuccess ? "/dashboard" : "/registration"}
+                        className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
+                      >
+                        {isSuccess ? "Dashboard" : "Get started"}
+                      </NextLink>
+                    )}
                 </div>
               </div>
             </div>
