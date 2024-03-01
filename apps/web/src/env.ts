@@ -7,7 +7,7 @@ export const env = createEnv({
     BACKEND_URL: z.string().optional(),
   },
   client: {
-    NEXT_PUBLIC_BACKEND_URL: z.string(),
+    NEXT_PUBLIC_BACKEND_URL: z.string().optional(),
     NEXT_PUBLIC_PIXELEYE_HOSTING: z.string().optional(),
   },
   experimental__runtimeEnv: {
