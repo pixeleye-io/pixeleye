@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { BACKEND_URL } from "@/env";
 import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
 import { redirect } from "next/navigation";
@@ -12,7 +12,7 @@ export interface CustomProps {
 }
 
 export const createAPI = (extraHeaders: Record<string, string> = {}) =>
-  getAPI<Services, CustomProps>(env.NEXT_PUBLIC_BACKEND_URL, (url, options) =>
+  getAPI<Services, CustomProps>(BACKEND_URL, (url, options) =>
     fetch(url, {
       ...options,
       headers: {

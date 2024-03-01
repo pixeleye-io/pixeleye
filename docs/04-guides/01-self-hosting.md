@@ -19,7 +19,27 @@ We aren't responsible for any security breaches or data loss if you're self-host
 
 We publish three docker image for Pixeleye, our backend, frontend and database migrations.
 
-We maintain this docker compose
+We maintain this docker compose file to help you get started with Pixeleye. You can find the latest version of the docker compose file in our [Github repository](https://github.com/pixeleye-io/pixeleye).
+
+```yaml
+
+
+```
+
+### Changing secrets
+
+Our rabbitmq and database require passwords to be set. By default they're set to `CHANGEME`. You **must** change these passwords to something secure.
+
+## Github app setup (optional)
+
+Pixeleye has awesome integration with Github. If you want to use this feature, you need to create a Github app. You can still use github repos with Pixeleye without creating a Github app, but features like permission syncing, github commit statuses, and more won't work.
+
+
+### Create a Github app
+
+### Add environment variables
+
+### Configure login
 
 ## Release cycle
 

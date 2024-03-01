@@ -1,29 +1,27 @@
 version: "3.7"
 services:
-  postgres-ory:
-    image: postgres:latest
-    restart: unless-stopped
-    volumes:
-      - postgres-ory:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=kratos
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=kratos
-      - PGPORT=5431
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
     ports:
-      - "5431:5431"
+      - "4436:4436"
+      - "4437:4437"
     networks:
       - intranet
-  postgres-pixeleye:
+  postgres:
     image: postgres:latest
     restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - type: bind
+        source: ./config/init-user-db.sh
+        target: /docker-entrypoint-initdb.d/init-user-db.sh
+
     environment:
       - POSTGRES_USER=kratos
-      - POSTGRES_PASSWORD=secret
+      - POSTGRES_PASSWORD=CHANGEME
       - POSTGRES_DB=kratos
       - PGPORT=5431
-    volumes:
-      - postgres-pixeleye:/var/lib/postgresql/data
+      - POSTGRES_MULTIPLE_DATABASES=pixeleye
     ports:
       - "5431:5431"
     networks:
@@ -33,21 +31,87 @@ services:
     restart: unless-stopped
     environment:
       - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_PASS=CHANGEME
     ports:
       - "5672:5672"
       - "15672:15672"
     networks:
       - intranet
     volumes:
-      - rabbitmq:/var/lib/rabbitmq
+      - rabbitmq-data:/var/lib/rabbitmq
+  pixeleye-migrate:
+    image: pixeleye/pixeleye-migrations:latest
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5431
+      - DB_NAME=pixeleye
+      - DB_USERNAME=pixeleye
+      - DB_PASSWORD=CHANGEME
+      - DB_PARAMS=sslmode=disable
+    restart: on-failure
+    networks:
+      - intranet
+  pixeleye-backend:
+    ports:
+      - "5000:5000"
+    depends_on:
+      - pixeleye-migrate
+    image: pixeleye/pixeleye:latest
+    restart: unless-stopped
+    environment:
+      - STAGE_STATUS=prod
+      - BACKEND_URL=http://localhost:5000
+      - FRONTEND_URL=http://localhost:3000
+      - DB_HOST=postgres
+      - DB_PORT=5431
+      - DB_NAME=pixeleye
+      - DB_USERNAME=pixeleye
+      - DB_PASSWORD=CHANGEME
+      - DB_SSL_MODE=disable
+      - DB_MAX_CONNECTIONS=20
+      - DB_MAX_IDLE_CONNECTIONS=4
+      - DB_MAX_LIFTTIME_CONNECTIONS=1
+      - S3_BUCKET=
+      - ORY_URL=http://kratos:4433
+      - ORY_ADMIN_URL=http://kratos:4434
+      - ORY_API_KEY=
+      - AMQP_USER=guest
+      - AMQP_PASSWORD=CHANGEME
+      - AMQP_HOST=rabbitmq
+      - AMQP_PORT=5672
+      - AMQP_VHOST=/
+      - AMQP_TLS=false
+      - SMTP_HOST=mailslurper
+      - SMTP_PORT=1025
+      - SMTP_USER=test
+      - SMTP_PASSWORD=test
+      - SMTP_SENDER=no-reply@pixeleye.sh
+      # - GITHUB_APP_NAME= # optional if you want to use the github login
+      # - GITHUB_APP_CLIENT_ID= # optional if you want to use the github login
+      # - GITHUB_APP_ID= # optional if you want to use the github login
+      # - GITHUB_APP_CLIENT_SECRET= # optional if you want to use the github login
+      # - GITHUB_APP_PRIVATE_KEY= # optional if you want to use the github login
+    networks:
+      - intranet
+  pixeleye-frontend:
+    image: pixeleye/pixeleye-frontend:latest
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_ORY_URL=http://kratos:4433
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
+      # - GITHUB_APP_NAME= # optional if you want to use the github login
+    networks:
+      - intranet
+    ports:
+      - "3000:3000"
+    
   kratos-migrate:
     image: oryd/kratos:v1.0.0
     environment:
-      - DSN=postgres://kratos:secret@postgres-ory:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://kratos:CHANGEME@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
       - type: bind
-        source: ./kratos
+        source: ./config
         target: /etc/config/kratos
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
     restart: on-failure
@@ -62,26 +126,18 @@ services:
       - "4434:4434" # admin
     restart: unless-stopped
     environment:
-      - DSN=postgres://kratos:secret@postgres-ory:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://kratos:CHANGEME@postgres:5431/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
       - LOG_LEVEL=trace
     command: serve -c /etc/config/kratos/kratos.yml --watch-courier
     volumes:
       - type: bind
-        source: ./kratos
+        source: ./config
         target: /etc/config/kratos
-    networks:
-      - intranet
-  mailslurper:
-    image: oryd/mailslurper:latest-smtps
-    ports:
-      - "4436:4436"
-      - "4437:4437"
     networks:
       - intranet
 networks:
   intranet:
 
 volumes:
-  postgres-ory:
-  postgres-pixeleye:
-  rabbitmq:
+  postgres-data:
+  rabbitmq-data:

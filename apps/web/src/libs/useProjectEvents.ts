@@ -8,7 +8,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { env } from "../env";
+import { BACKEND_URL, env } from "../env";
 
 interface ProjectEvent {
   projectID: string;
@@ -169,7 +169,7 @@ export function useProjectEvents({ projectID }: ProjectEvent) {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `${env.NEXT_PUBLIC_BACKEND_URL}/v1/projects/${projectID}/events`,
+      `${BACKEND_URL}/v1/projects/${projectID}/events`,
       {
         withCredentials: true,
       }
