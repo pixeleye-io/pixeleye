@@ -43,7 +43,7 @@ export function PanelMobile() {
   return (
     <Dialog.Root modal={false} open={open ?? false} onOpenChange={(open) => window.innerWidth < 1024 && setPanelOpen(() => open)}>
       <Dialog.Portal>
-        <Dialog.Content className={"lg:hidden absolute left-0 z-10 top-16 bottom-0 w-full max-w-xs bg-surface-container-low shadow border-r border-b border-outline-variant rounded-r-xl z-10 mt-px top-[calc(4rem-1px)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"} >
+        <Dialog.Content className={"lg:hidden absolute left-0 z-10 top-14 bottom-0 w-full max-w-xs bg-surface-container-low shadow border-r border-b border-outline-variant rounded-r-xl z-10 mt-px data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"} >
           <div className="flex w-full h-full">
             <Sidebar className="!bg-surface-container-low" />
             <OverlayScrollbar className="flex grow h-full w-full z-10 overflow-y-auto [&>*:nth-child(2)]:flex">
