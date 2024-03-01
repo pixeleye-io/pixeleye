@@ -57,7 +57,7 @@ export default async function AuthErrorPage({
         </div>
       </div>
       <Button asChild>
-        <Link href="/dashboard">Go back home</Link>
+        <Link href="/home">Go back home</Link>
       </Button>
     </>
   );
