@@ -28,7 +28,7 @@ export default function Header() {
 
   const pathname = usePathname();
 
-  const { isSuccess, isPending } = useQuery({
+  const { isError, isPending } = useQuery({
     queryKey: ["user"],
     queryFn: () => fetch(oryEndpoint + "/sessions/whoami", {
       credentials: "include",
@@ -146,10 +146,10 @@ export default function Header() {
                     Star us on Github
                   </NextLink>
                   <NextLink
-                    href={isSuccess ? "/dashboard" : "/registration"}
+                    href={!isError ? "/dashboard" : "/registration"}
                     className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
                   >
-                    {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
+                    {isPending ? "" : !isError ? "Dashboard" : "Get started"}
                   </NextLink>
                 </div>
               </div>
