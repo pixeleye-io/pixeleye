@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { create } from "zustand";
 import { PostHogProvider } from 'posthog-js/react';
 import posthog from 'posthog-js'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { env } from "./env";
 
 
@@ -29,6 +30,8 @@ export const useGlobalStore = create<GlobalStore>()((set) => ({
   setFramerLoaded: () => set({ framerLoaded: true }),
 }));
 
+const queryClient = new QueryClient()
+
 export default function Providers({ children }: { children: React.ReactNode }) {
   const setFramerLoaded = useGlobalStore((state) => state.setFramerLoaded);
 
@@ -42,7 +45,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PostHogProvider>
       <ThemeProvider attribute="class">
-        <LazyMotion features={loadFeatures}>{children}</LazyMotion>
+        <QueryClientProvider client={queryClient}>
+          <LazyMotion features={loadFeatures}>{children}</LazyMotion>
+        </QueryClientProvider>
       </ThemeProvider>
     </PostHogProvider>
   );
