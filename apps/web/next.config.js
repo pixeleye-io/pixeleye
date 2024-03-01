@@ -7,7 +7,9 @@ const nextConfig = {
     domains: ["avatars.githubusercontent.com"],
   },
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  assetPrefix: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" && process.env.NODE_ENV === "production" ? "https://app.pixeleye.io" : undefined
+  assetPrefix: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" && process.env.NODE_ENV === "production" ? "https://app.pixeleye.io" : undefined,
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
 };
 
 module.exports = nextConfig;

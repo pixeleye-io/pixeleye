@@ -28,6 +28,19 @@ services:
       - "5431:5431"
     networks:
       - intranet
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - intranet
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
   kratos-migrate:
     image: oryd/kratos:v1.0.0
     environment:
@@ -71,3 +84,4 @@ networks:
 volumes:
   postgres-ory:
   postgres-pixeleye:
+  rabbitmq:

@@ -15,4 +15,6 @@ export const env = createEnv({
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     NEXT_PUBLIC_PIXELEYE_HOSTING: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING,
   },
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
 });
