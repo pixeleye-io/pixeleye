@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
 import { cx } from "class-variance-authority";
+import { env } from "@/env";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -37,7 +38,9 @@ export default function RootLayout({
           "dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50 h-fit"
         )}
       >
-        <Providers>{children}</Providers>
+        <Providers backendURL={
+          env.CLIENT_BACKEND_URL || env.BACKEND_URL
+        }>{children}</Providers>
       </body>
     </html>
   );

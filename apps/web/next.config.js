@@ -7,13 +7,7 @@ const nextConfig = {
     domains: ["avatars.githubusercontent.com"],
   },
   assetPrefix: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" && process.env.NODE_ENV === "production" ? "https://app.pixeleye.io" : undefined,
-  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
-  async rewrites() {
-    return [{
-      source: "/api/:path*",
-      destination: process.env.BACKEND_URL + "/:path*",
-    }]
-  }
+  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined
 };
 
 module.exports = nextConfig;

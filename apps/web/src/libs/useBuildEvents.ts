@@ -5,6 +5,7 @@ import { Build } from "@pixeleye/api";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { BACKEND_URL, env } from "../env";
+import { useBackendURL } from "@/app/providers";
 
 interface BuildEvent {
   buildID: string;
@@ -71,9 +72,11 @@ function updateBuildStatus(
 export function useBuildEvents({ buildID }: BuildEvent) {
   const queryClient = useQueryClient();
 
+  const backendURL = useBackendURL((state) => state.backendURL) || BACKEND_URL!;
+
   useEffect(() => {
     const eventSource = new EventSource(
-      `${BACKEND_URL}/v1/builds/${buildID}/events`,
+      `${backendURL}/v1/builds/${buildID}/events`,
       {
         withCredentials: true,
       }

@@ -1,3 +1,4 @@
+import { useBackendURL } from "@/app/providers";
 import { BACKEND_URL } from "@/env";
 import { Services } from "@pixeleye/api";
 import { getAPI } from "api-typify";
@@ -11,8 +12,9 @@ export interface CustomProps {
   };
 }
 
-export const createAPI = (extraHeaders: Record<string, string> = {}) =>
-  getAPI<Services, CustomProps>(BACKEND_URL!, (url, options) =>
+export const createAPI = (extraHeaders: Record<string, string> = {}) => {
+  const backendURL = useBackendURL.getState().backendURL || BACKEND_URL!;
+  return getAPI<Services, CustomProps>(backendURL, (url, options) =>
     fetch(url, {
       ...options,
       headers: {
@@ -37,5 +39,6 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
       return Promise.reject(await res.json().catch(() => res));
     })
   );
+};
 
 export const API = createAPI();
