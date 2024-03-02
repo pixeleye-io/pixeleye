@@ -23,7 +23,8 @@ RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
 ENV SKIP_ENV_VALIDATION=true
 ENV DOCKER_BUILD=true
- 
+ENV NEXT_PUBLIC_BACKEND_URL=/api
+
 # Build the project
 COPY --from=builder /app/out/full/ .
 RUN pnpm turbo run build --filter=@pixeleye/web

@@ -25,4 +25,4 @@ export const env = createEnv({
 export const BACKEND_URL =
   (typeof window !== "undefined"
     ? env.NEXT_PUBLIC_BACKEND_URL
-    : env.BACKEND_URL) || env.NEXT_PUBLIC_BACKEND_URL;
+    : env.BACKEND_URL) || env.BACKEND_URL;

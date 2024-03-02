@@ -7,6 +7,18 @@ services:
       - "4437:4437"
     networks:
       - intranet
+  minio:
+    image: docker.io/bitnami/minio:2022
+    ports:
+      - '9000:9000'
+    networks:
+      - intranet
+    volumes:
+      - 'minio-data:/data'
+    environment:
+      - MINIO_ROOT_USER=pixeleye
+      - MINIO_ROOT_PASSWORD=CHANGEME
+      - MINIO_DEFAULT_BUCKETS=pixeleye
   postgres:
     image: postgres:latest
     restart: unless-stopped
@@ -71,7 +83,10 @@ services:
       - DB_MAX_CONNECTIONS=20
       - DB_MAX_IDLE_CONNECTIONS=4
       - DB_MAX_LIFTTIME_CONNECTIONS=1
-      - S3_BUCKET=
+      - S3_BUCKET=pixeleye
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY_ID=pixeleye
+      - S3_KEY_SECRET=CHANGEME
       - ORY_URL=http://kratos:4433
       - ORY_ADMIN_URL=http://kratos:4434
       - ORY_API_KEY=
@@ -97,10 +112,10 @@ services:
     image: pixeleye/pixeleye-frontend:latest
     restart: unless-stopped
     environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
       - NEXT_PUBLIC_ORY_URL=http://kratos:4433
       - ORY_URL=http://kratos:4433
       - NEXT_PUBLIC_ORY_URL=http://localhost:4433
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
       - BACKEND_URL=http://pixeleye-backend:5000
       # - GITHUB_APP_NAME= # optional if you want to use the github login
     networks:
@@ -144,3 +159,4 @@ networks:
 volumes:
   postgres-data:
   rabbitmq-data:
+  minio-data:
