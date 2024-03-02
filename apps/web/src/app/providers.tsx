@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { LazyMotion } from "framer-motion";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useBackendURL } from "@/libs";
 
 const loadFeatures = () => import("./features.js").then((res) => res.default);
 
@@ -30,14 +29,8 @@ function getQueryClient() {
   }
 }
 
-
-
-export default function Providers({ children, backendURL }: { children: React.ReactNode; backendURL: string }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient()
-
-  useEffect(() => {
-    useBackendURL.setState({ backendURL });
-  }, [backendURL]);
 
   return (
     <ThemeProvider attribute="class">
