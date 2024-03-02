@@ -10,9 +10,9 @@ const nextConfig = {
   output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
   async rewrites() {
     return [
-      ...(process.env.BACKEND_URL ? [{
+      ...(process.env.NEXT_PUBLIC_BACKEND_URL ? [{
         source: "/api/:path*",
-        destination: process.env.BACKEND_URL + "/:path*",
+        destination: process.env.NEXT_PUBLIC_BACKEND_URL + "/:path*",
       }] : []),
     ];
   }
