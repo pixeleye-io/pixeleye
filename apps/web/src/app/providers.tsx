@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { LazyMotion } from "framer-motion";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { create } from "zustand";
+import { useBackendURL } from "@/libs";
 
 const loadFeatures = () => import("./features.js").then((res) => res.default);
 
@@ -30,12 +30,7 @@ function getQueryClient() {
   }
 }
 
-export const useBackendURL = create<{
-  backendURL?: string;
-  setBackendURL: (url: string) => void;
-}>((set) => ({
-  setBackendURL: (url: string) => set({ backendURL: url }),
-}));
+
 
 export default function Providers({ children, backendURL }: { children: React.ReactNode; backendURL: string }) {
   const queryClient = getQueryClient()

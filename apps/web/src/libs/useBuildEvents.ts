@@ -4,8 +4,8 @@ import { queries } from "@/queries";
 import { Build } from "@pixeleye/api";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { BACKEND_URL, env } from "../env";
-import { useBackendURL } from "@/app/providers";
+import { BACKEND_URL } from "../env";
+import { useBackendURL } from "./api";
 
 interface BuildEvent {
   buildID: string;

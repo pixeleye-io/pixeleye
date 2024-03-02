@@ -8,8 +8,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { BACKEND_URL, env } from "../env";
-import { useBackendURL } from "@/app/providers";
+import { BACKEND_URL } from "../env";
+import { useBackendURL } from "./api";
 
 interface ProjectEvent {
   projectID: string;
