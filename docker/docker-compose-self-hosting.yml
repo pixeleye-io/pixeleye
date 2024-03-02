@@ -112,7 +112,6 @@ services:
     image: pixeleye/pixeleye-frontend:latest
     restart: unless-stopped
     environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
       - NEXT_PUBLIC_ORY_URL=http://kratos:4433
       - ORY_URL=http://kratos:4433
       - NEXT_PUBLIC_ORY_URL=http://localhost:4433
