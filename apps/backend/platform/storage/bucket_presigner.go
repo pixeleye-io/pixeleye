@@ -27,15 +27,12 @@ func replaceS3Endpoint(request *v4.PresignedHTTPRequest) {
 		return
 	}
 
-	httpURL := fmt.Sprintf("http://%s", s3Endpoint)
-	httpsURL := fmt.Sprintf("https://%s", s3Endpoint)
-
-	url := request.URL
-
-	if strings.HasPrefix(url, httpURL) {
-		request.URL = strings.Replace(url, httpURL, fmt.Sprintf("http://%s", clientS3Endpoint), 1)
-	} else if strings.HasPrefix(url, httpsURL) {
-		request.URL = strings.Replace(url, httpsURL, fmt.Sprintf("https://%s", clientS3Endpoint), 1)
+	if strings.HasPrefix(request.URL, s3Endpoint) {
+		if strings.HasPrefix(s3Endpoint, "https") {
+			request.URL = strings.Replace(request.URL, s3Endpoint, fmt.Sprintf("https://%s", clientS3Endpoint), 1)
+		} else {
+			request.URL = strings.Replace(request.URL, s3Endpoint, fmt.Sprintf("http://%s", clientS3Endpoint), 1)
+		}
 	}
 }
 
