@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+// A bit of a hack to ensure when running in docker, external clients can access the S3 endpoint
 func replaceS3Endpoint(request *v4.PresignedHTTPRequest) {
 
 	if os.Getenv("PIXELEYE_HOSTING") == "true" {
@@ -26,15 +27,15 @@ func replaceS3Endpoint(request *v4.PresignedHTTPRequest) {
 		return
 	}
 
-	httpURL := fmt.Sprint("http://%s", s3Endpoint)
-	httpsURL := fmt.Sprint("https://%s", s3Endpoint)
+	httpURL := fmt.Sprintf("http://%s", s3Endpoint)
+	httpsURL := fmt.Sprintf("https://%s", s3Endpoint)
 
 	url := request.URL
 
 	if strings.HasPrefix(url, httpURL) {
-		request.URL = strings.Replace(url, httpURL, fmt.Sprint("http://%s", clientS3Endpoint), 1)
+		request.URL = strings.Replace(url, httpURL, fmt.Sprintf("http://%s", clientS3Endpoint), 1)
 	} else if strings.HasPrefix(url, httpsURL) {
-		request.URL = strings.Replace(url, httpsURL, fmt.Sprint("https://%s", clientS3Endpoint), 1)
+		request.URL = strings.Replace(url, httpsURL, fmt.Sprintf("https://%s", clientS3Endpoint), 1)
 	}
 }
 
