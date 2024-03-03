@@ -27,7 +27,7 @@ import { HighlightedDiff } from "./highlightedDiff";
 export const metadata: Metadata = {
   title: "Open-source Visual Testing & Reviewing Platform | Pixeleye",
   description:
-    "The all-batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.",
+    "The batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.",
   alternates: {
     canonical: "https://pixeleye.io/",
   },
@@ -99,7 +99,7 @@ function Hero() {
             Open-source visual testing platform
           </h1>
           <p className="mt-4 text-lg leading-8 text-on-surface-variant">
-            The all-batteries-included platform for visually testing and reviewing your UI; it&apos;s even self-hostable!
+            The batteries-included platform for visually testing and reviewing your UI; it&apos;s even self-hostable!
             Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.
           </p>
           <div className="mt-10 flex items-center gap-x-6">

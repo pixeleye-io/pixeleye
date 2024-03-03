@@ -6,7 +6,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <h1>Pixeleye</h1>
-<p>The all-batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.</p>  
+<p>The batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.</p>  
 </p>
 <div align="center">
   <a href="https://pixeleye.io/home">Homepage</a>

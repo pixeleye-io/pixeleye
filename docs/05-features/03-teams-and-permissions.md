@@ -7,6 +7,12 @@ description: Pixeleye allows you to have unlimited teams and control what member
 
 Pixeleye allows you to have unlimited teams and control what members can do via roles.
 
+## Permission syncing
+
+Pixeleye will sync your team permissions with those from your version control provider. If you use Github for example, we will ensure that all your Github collaborators are added to your Pixeleye team with the correct roles.
+
+You can also add members directly and override the roles from your version control provider.
+
 ## Personal teams
 
 When you sign up to Pixeleye, you will automatically be assigned to a personal team. This team is designed to hold all of your personal projects. You can add projects from any version control provider and invite other members to collaborate with you.
