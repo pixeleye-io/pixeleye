@@ -66,11 +66,7 @@ func getS3Clients() (*s3.Client, *s3.Client, error) {
 		return nil, nil, err
 	}
 
-	s3Client := s3.NewFromConfig(sdkConfig, func(o *s3.Options) {
-		if os.Getenv("PIXELEYE_HOSTING") != "true" {
-			o.UsePathStyle = true
-		}
-	})
+	s3Client := s3.NewFromConfig(sdkConfig)
 
 	externalEndpoint := os.Getenv("S3_CLIENT_ENDPOINT")
 	if externalEndpoint == "" {
@@ -82,11 +78,7 @@ func getS3Clients() (*s3.Client, *s3.Client, error) {
 		return nil, nil, err
 	}
 
-	s3ExternalClient := s3.NewFromConfig(sdkExternalConfig, func(o *s3.Options) {
-		if os.Getenv("PIXELEYE_HOSTING") != "true" {
-			o.UsePathStyle = true
-		}
-	})
+	s3ExternalClient := s3.NewFromConfig(sdkExternalConfig)
 
 	return s3Client, s3ExternalClient, nil
 }
