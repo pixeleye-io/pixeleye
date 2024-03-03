@@ -108,20 +108,20 @@ services:
       # - GITHUB_APP_PRIVATE_KEY= # optional if you want to use the github login
     networks:
       - intranet
-  pixeleye-frontend:
-    image: pixeleye/pixeleye-frontend:latest
-    restart: unless-stopped
-    environment:
-      - NEXT_PUBLIC_ORY_URL=http://kratos:4433
-      - ORY_URL=http://kratos:4433
-      - NEXT_PUBLIC_ORY_URL=http://localhost:4433
-      - BACKEND_URL=http://pixeleye-backend:5000
-      - NEXT_PUBLIC_BACKEND_URL=/api
-      # - GITHUB_APP_NAME= # optional if you want to use the github login
-    networks:
-      - intranet
-    ports:
-      - "3000:3000"
+  # pixeleye-frontend:
+  #   image: pixeleye/pixeleye-frontend:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     - NEXT_PUBLIC_ORY_URL=http://kratos:4433
+  #     - ORY_URL=http://kratos:4433
+  #     - NEXT_PUBLIC_ORY_URL=http://localhost:4433
+  #     - BACKEND_URL=http://pixeleye-backend:5000
+  #     - CLIENT_BACKEND_URL=http://localhost:5000
+  #     # - GITHUB_APP_NAME= # optional if you want to use the github login
+  #   networks:
+  #     - intranet
+  #   ports:
+  #     - "3000:3000"
 
   kratos-migrate:
     image: oryd/kratos:v1.0.0

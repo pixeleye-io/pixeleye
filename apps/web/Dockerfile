@@ -18,12 +18,11 @@ WORKDIR /app
 # First install the dependencies (as they change less often)
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/out/pnpm-lock.yaml ./app/pnpm-lock.yaml
 RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
 ENV SKIP_ENV_VALIDATION=true
 ENV DOCKER_BUILD=true
-ENV NEXT_PUBLIC_BACKEND_URL=/api
 
 # Build the project
 COPY --from=builder /app/out/full/ .
@@ -36,6 +35,7 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 USER nextjs
+
  
 COPY --from=installer /app/apps/web/next.config.js .
 COPY --from=installer /app/apps/web/package.json .
@@ -46,7 +46,7 @@ COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-ENV NEXT_PUBLIC_BACKEND_URL=/api
+
  
 EXPOSE 3000
 
