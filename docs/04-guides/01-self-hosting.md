@@ -78,10 +78,6 @@ Once you've created the Github app, you'll need to set the `GITHUB_*` perms in t
 
 You'll need to update the `config/kratos.yml` file to include the Github app client id and secret.
 
-### Add environment variables
-
-### Configure login
-
 ## Release cycle
 
 We are regularly realizing new versions of Pixeleye, often multiple times each day! Our cloud platform follows a rolling release cycle, meaning that we are continuously deploying new versions of Pixeleye. Since people using our self-hosted version probably don't want to be frequently updating their instance, we only release new versions of Pixeleye once new features are stable and tested, or when security updates are necessary.
