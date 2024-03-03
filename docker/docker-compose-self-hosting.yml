@@ -40,7 +40,7 @@ services:
     networks:
       - intranet
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:3.13
     restart: unless-stopped
     environment:
       - RABBITMQ_DEFAULT_USER=guest
@@ -91,7 +91,6 @@ services:
       - S3_KEY_SECRET=CHANGEME
       - ORY_URL=http://kratos:4433
       - ORY_ADMIN_URL=http://kratos:4434
-      - ORY_API_KEY=
       - AMQP_USER=guest
       - AMQP_PASSWORD=CHANGEME
       - AMQP_HOST=rabbitmq

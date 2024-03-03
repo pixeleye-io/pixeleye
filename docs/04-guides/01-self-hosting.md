@@ -19,23 +19,64 @@ We aren't responsible for any security breaches or data loss if you're self-host
 
 We publish three docker image for Pixeleye, our backend, frontend and database migrations.
 
-We maintain this docker compose file to help you get started with Pixeleye. You can find the latest version of the docker compose file in our [Github repository](https://github.com/pixeleye-io/pixeleye).
+We maintain this docker compose file to help you get started with Pixeleye. You can find the latest version of the docker compose file in our [Github repository](https://github.com/pixeleye-io/pixeleye/blob/main/docker/docker-compose-self-hosting.yml).
 
-```yaml
+This docker file requires the files found in this [config folder](https://github.com/pixeleye-io/pixeleye/tree/main/docker/config). These files are mostly there to configure our auth.
 
+### Quick start
 
-```
+1. Copy `docker-compose-self-hosting.yml` & `config` folder to your server.
+2. run `docker compose -f docker-compose-self-hosting.yml up`
 
 ### Changing secrets
 
 Our rabbitmq and database require passwords to be set. By default they're set to `CHANGEME`. You **must** change these passwords to something secure.
 
+### Email
+
+We're using mailslurper to capture emails. You can access the mailslurper web interface at `http://localhost:4437`.
+
+If you actually want to send emails, you'll need to change the `SMTP_*` environment variables for the pixeleye backend and update `kratos.yml`.
+
 ## Github app setup (optional)
 
 Pixeleye has awesome integration with Github. If you want to use this feature, you need to create a Github app. You can still use github repos with Pixeleye without creating a Github app, but features like permission syncing, github commit statuses, and more won't work.
 
-
 ### Create a Github app
+
+Follow the instructions on the [Github documentation](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app).
+
+The auth callback URL should be `http(s)://<domain-of-ory-kratos>:<public-port>/self-service/methods/oidc/callback/github`.
+
+The post installation url should be `http(s)://<domain-of-pixeleye-backend>:<public-port>/add/github`. You should also redirect on update.
+
+We recommend restricting the app to just your organization.
+
+#### Permissions
+
+Pixeleye requires the following permissions:
+
+Repository permissions:
+
+- `checks:write`
+- `commit_status:write`
+- `pull_requests:write`
+
+Organization permissions:
+
+- `members:read`
+
+Account permissions:
+
+- `email:read`
+
+#### Environment variables
+
+Once you've created the Github app, you'll need to set the `GITHUB_*` perms in the compose file.
+
+#### Auth setup
+
+You'll need to update the `config/kratos.yml` file to include the Github app client id and secret.
 
 ### Add environment variables
 
