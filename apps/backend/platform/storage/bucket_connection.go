@@ -28,11 +28,7 @@ type BucketClient struct {
 // nolint:gochecknoglobals
 var globalClient *BucketClient
 
-// nolint:gochecknoglobals
-var globalS3Client *s3.Client
-
-func getConfig() (aws.Config, error) {
-	var endpoint = os.Getenv("S3_ENDPOINT")
+func getConfig(endpoint string) (aws.Config, error) {
 	var accessKeyId = os.Getenv("S3_ACCESS_KEY_ID")
 	var accessKeySecret = os.Getenv("S3_KEY_SECRET")
 
@@ -63,34 +59,53 @@ func getConfig() (aws.Config, error) {
 	return cfg, err
 }
 
-func getS3Client() (*s3.Client, error) {
-	if globalS3Client == nil {
+func getS3Clients() (*s3.Client, *s3.Client, error) {
 
-		sdkConfig, err := getConfig()
-
-		if err != nil {
-			return nil, err
-		}
-
-		globalS3Client = s3.NewFromConfig(sdkConfig, func(o *s3.Options) {
-			if os.Getenv("PIXELEYE_HOSTING") != "true" {
-				o.UsePathStyle = true
-			}
-		})
+	sdkConfig, err := getConfig(os.Getenv("S3_ENDPOINT"))
+	if err != nil {
+		return nil, nil, err
 	}
-	return globalS3Client, nil
+
+	s3Client := s3.NewFromConfig(sdkConfig, func(o *s3.Options) {
+		if os.Getenv("PIXELEYE_HOSTING") != "true" {
+			o.UsePathStyle = true
+		}
+	})
+
+	externalEndpoint := os.Getenv("CLIENT_S3_ENDPOINT")
+	if externalEndpoint == "" {
+		return s3Client, nil, nil
+	}
+
+	sdkExternalConfig, err := getConfig(externalEndpoint)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	s3ExternalClient := s3.NewFromConfig(sdkExternalConfig, func(o *s3.Options) {
+		if os.Getenv("PIXELEYE_HOSTING") != "true" {
+			o.UsePathStyle = true
+		}
+	})
+
+	return s3Client, s3ExternalClient, nil
 }
 
 func GetClient() (*BucketClient, error) {
 
 	if globalClient == nil {
-		s3Client, err := getS3Client()
+		s3Client, s3ExternalClient, err := getS3Clients()
 
 		if err != nil {
 			return nil, err
 		}
 
-		presignClient := s3.NewPresignClient(s3Client)
+		var presignClient *s3.PresignClient
+		if s3ExternalClient != nil {
+			presignClient = s3.NewPresignClient(s3ExternalClient)
+		} else {
+			presignClient = s3.NewPresignClient(s3Client)
+		}
 
 		globalClient = &BucketClient{
 			PresignClient: presignClient,
