@@ -55,6 +55,9 @@ The best way to use Pixeleye is through our [cloud offering](https://pixeleye.io
 - **Latest features** Our Cloud follows a rolling release cycle, whereas our official self-hosted releases are more long-term. Enjoy our latest features with Cloud!
 - **Premium support** We offer fantastic support for our Cloud customers. While we'll fix any bugs you find self-hosting, we can't help you with onboarding or setup.
 
+
+Want to get started? Head over [to our](https://pixeleye.io/home) website to begin.
+
 ## Self-hosting
 
 The easiest way to self-host Pixeye is with Docker. Check out our [guide](https://pixeleye.io/docs/guides/self-hosting) to get started quickly.
