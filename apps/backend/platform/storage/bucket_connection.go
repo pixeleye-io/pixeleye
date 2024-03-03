@@ -72,7 +72,7 @@ func getS3Clients() (*s3.Client, *s3.Client, error) {
 		}
 	})
 
-	externalEndpoint := os.Getenv("CLIENT_S3_ENDPOINT")
+	externalEndpoint := os.Getenv("S3_CLIENT_ENDPOINT")
 	if externalEndpoint == "" {
 		return s3Client, nil, nil
 	}
