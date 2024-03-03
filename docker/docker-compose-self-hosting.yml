@@ -10,11 +10,11 @@ services:
   minio:
     image: docker.io/bitnami/minio:2022
     ports:
-      - '9000:9000'
+      - "9000:9000"
     networks:
       - intranet
     volumes:
-      - 'minio-data:/data'
+      - "minio-data:/data"
     environment:
       - MINIO_ROOT_USER=pixeleye
       - MINIO_ROOT_PASSWORD=CHANGEME
@@ -108,20 +108,18 @@ services:
       # - GITHUB_APP_PRIVATE_KEY= # optional if you want to use the github login
     networks:
       - intranet
-  # pixeleye-frontend:
-  #   image: pixeleye/pixeleye-frontend:latest
-  #   restart: unless-stopped
-  #   environment:
-  #     - NEXT_PUBLIC_ORY_URL=http://kratos:4433
-  #     - ORY_URL=http://kratos:4433
-  #     - NEXT_PUBLIC_ORY_URL=http://localhost:4433
-  #     - BACKEND_URL=http://pixeleye-backend:5000
-  #     - CLIENT_BACKEND_URL=http://localhost:5000
-  #     # - GITHUB_APP_NAME= # optional if you want to use the github login
-  #   networks:
-  #     - intranet
-  #   ports:
-  #     - "3000:3000"
+  pixeleye-frontend:
+    image: pixeleye/pixeleye-frontend:latest
+    restart: unless-stopped
+    environment:
+      - ORY_URL=http://kratos:4433
+      - CLIENT_ORY_URL=http://localhost:4433
+      - BACKEND_URL=http://pixeleye-backend:5000
+      # - GITHUB_APP_NAME= # optional if you want to use the github login
+    networks:
+      - intranet
+    ports:
+      - "3000:3000"
 
   kratos-migrate:
     image: oryd/kratos:v1.0.0

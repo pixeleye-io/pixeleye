@@ -1,10 +1,8 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 import { Configuration, FrontendApi } from "@ory/client";
 
-// If we're on the client, we can use the NEXT_PUBLIC_ environment variables
 // This is a bit of a hack for docker-compose, since we want our server-side code to access ory via the docker network
-const oryEndpointClient =
-  process.env.NEXT_PUBLIC_ORY_URL! || process.env.ORY_URL!;
+const oryEndpointClient = process.env.CLIENT_ORY_URL || process.env.ORY_URL!;
 
 export const oryEndpoint = process.env.ORY_URL!;
 
