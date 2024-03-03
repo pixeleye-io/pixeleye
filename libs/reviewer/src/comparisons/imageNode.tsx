@@ -30,16 +30,18 @@ export interface ImageNodeData {
 export function ImageNode({ data: {
     base,
     overlay,
-    secondBase
+    secondBase,
 } }: NodeProps<ImageNodeData>) {
 
     const store = useContext(StoreContext)!
+
+    const type = Boolean(secondBase) ? "single" : "double";
 
     const optimize = useStore(store, (state) => state.optimize);
     const showOverlay = useStore(store, (state) => state.showDiff);
     const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
 
-    const style = singleSnapshot === "head" ? {
+    const singleStyle = singleSnapshot === "head" ? {
         width: base.width,
         height: base.height
     } : {
@@ -47,9 +49,14 @@ export function ImageNode({ data: {
         height: secondBase?.height
     }
 
+    const doubleStyle = {
+        width: base.width,
+        height: base.height
+    }
+
 
     return (
-        <div className="active:cursor-grabbing relative" style={style}>
+        <div className="active:cursor-grabbing relative" style={type === "double" ? doubleStyle : singleStyle}>
             <NextImage
                 key={`base - ${base.src.toString()}`}
                 quality={optimize ? 75 : 100}
@@ -57,7 +64,7 @@ export function ImageNode({ data: {
                 priority
                 className={cx(
                     "pointer-events-none select-none",
-                    singleSnapshot !== "head" && "hidden",
+                    singleSnapshot !== "head" && type === "single" && "hidden",
                     showOverlay && overlay && "brightness-[50%]",
                 )}
                 sizes="(min-width: 640px) 50vw, 100vw"
@@ -76,7 +83,7 @@ export function ImageNode({ data: {
                     sizes="(min-width: 640px) 50vw, 100vw"
                     className={cx(
                         "pointer-events-none select-none",
-                        singleSnapshot === "head" && "hidden",
+                        singleSnapshot === "head" && type === "single" && "hidden",
                     )}
                     draggable={false}
                     alt={secondBase.alt}
@@ -93,7 +100,7 @@ export function ImageNode({ data: {
                     sizes="(min-width: 640px) 50vw, 100vw"
                     quality={optimize ? 75 : 100}
                     className={cx(
-                        (!showOverlay || singleSnapshot !== "head") && "opacity-0",
+                        (!showOverlay || (singleSnapshot !== "head" && type === "single")) && "opacity-0",
                         "pointer-events-none select-none",
                     )}
                     draggable={false}

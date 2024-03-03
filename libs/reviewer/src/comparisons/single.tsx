@@ -3,7 +3,7 @@ import { DraggableImage, DraggableImageRef } from "./draggableImage";
 import { useStore } from "zustand";
 import { StoreContext } from "../store";
 import { ReactFlowProvider } from "reactflow";
-import { ArrowPathIcon, ArrowsRightLeftIcon, Square2StackIcon } from "@heroicons/react/24/outline";
+import { ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
 import { Button } from "@pixeleye/ui";
 
 interface SingleProps {
