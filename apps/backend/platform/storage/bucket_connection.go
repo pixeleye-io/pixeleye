@@ -72,7 +72,11 @@ func getS3Client() (*s3.Client, error) {
 			return nil, err
 		}
 
-		globalS3Client = s3.NewFromConfig(sdkConfig)
+		globalS3Client = s3.NewFromConfig(sdkConfig, func(o *s3.Options) {
+			if os.Getenv("PIXELEYE_HOSTING") != "true" {
+				o.UsePathStyle = true
+			}
+		})
 	}
 	return globalS3Client, nil
 }
