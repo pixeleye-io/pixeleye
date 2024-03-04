@@ -4,14 +4,16 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     GITHUB_APP_NAME: z.string().optional(),
-    BACKEND_URL: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_PIXELEYE_HOSTING: z.string().optional(),
+    NEXT_PUBLIC_BACKEND_URL: z.string().optional(),
   },
   experimental__runtimeEnv: {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     NEXT_PUBLIC_PIXELEYE_HOSTING: process.env.NEXT_PUBLIC_PIXELEYE_HOSTING,
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
   },
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
@@ -22,4 +24,4 @@ export const env = createEnv({
 export const BACKEND_URL =
   env.NEXT_PUBLIC_PIXELEYE_HOSTING !== "true" && typeof window !== "undefined"
     ? "/api"
-    : env.BACKEND_URL;
+    : env.NEXT_PUBLIC_BACKEND_URL;

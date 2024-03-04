@@ -29,7 +29,7 @@ async function waitForBuildStatus(
   return new Promise<void>((resolve, reject) => {
     let didProcess = false;
     const es = new EventSource(
-      `${env.BACKEND_URL}/v1/client/builds/${build?.id}/events`,
+      `${env.NEXT_PUBLIC_BACKEND_URL}/v1/client/builds/${build?.id}/events`,
       {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
