@@ -108,7 +108,7 @@ function SelfHostBanner() {
       <div className="pointer-events-auto flex items-center justify-between gap-x-6 bg-tertiary-container text-on-tertiary-container px-6 py-2.5 sm:rounded-xl sm:py-3 sm:pl-4 sm:pr-3.5">
         <p className="text-sm leading-6 text-on-tertiary-container">
           <NextLink href="/docs/guides/self-hosting">
-            <strong className="font-semibold ">Want to self host?</strong>
+            <strong className="font-semibold">Want to self host?</strong>
             <svg
               viewBox="0 0 2 2"
               className="mx-2 inline h-0.5 w-0.5 fill-current"
@@ -128,6 +128,11 @@ function SelfHostBanner() {
 export default function PricingPage() {
   return (
     <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-20">
+      <div className="absolute inset-x-0 top-[4.5rem] bg-tertiary-container py-2">
+        <p className="text-center text-on-tertiary-container">
+          Use code <span className="text-on-surface font-semibold">WELCOME25</span> for 25% off your first 3 months.
+        </p>
+      </div>
       <div className="mx-auto max-w-2xl sm:text-center">
         <h1 className="text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
           Simple no-tricks pricing
