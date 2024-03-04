@@ -84,11 +84,11 @@ jobs:
       - name: Test
         run: pnpm turbo test
 
-      - name: Build
-        run: pnpm turbo deploy
-
       - name: Types
         run: pnpm turbo types
+
+      - name: Build
+        run: pnpm turbo deploy
 
   golang-ci:
     name: Golang - Lint, Test, Build
