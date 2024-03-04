@@ -65,6 +65,7 @@ function useTeamNavigation() {
       }
 
       router.push(pathname + "?" + params.toString());
+      router.refresh();
     },
     [router, pathname, searchParams]
   );
