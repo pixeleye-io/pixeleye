@@ -1,5 +1,14 @@
 # pixeleye
 
+## 0.4.18
+
+### Patch Changes
+
+- [`059f59c`](https://github.com/pixeleye-io/pixeleye/commit/059f59c0f77bc09f60d83edcdc7d8f98fa134f62) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improving storybook integration
+
+- Updated dependencies [[`059f59c`](https://github.com/pixeleye-io/pixeleye/commit/059f59c0f77bc09f60d83edcdc7d8f98fa134f62)]:
+  - @pixeleye/storybook@0.5.15
+
 ## 0.4.17
 
 ### Patch Changes
