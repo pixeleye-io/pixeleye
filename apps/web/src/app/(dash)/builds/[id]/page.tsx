@@ -34,7 +34,6 @@ export default async function ProjectOverviewPage({
         queries.builds.detail(buildID, cookie)._ctx.listSnapshots()
       )
       .catch(() => undefined),
-
   ]);
 
   const [project] = await Promise.all([API.get("/v1/projects/{id}", {

@@ -8,7 +8,10 @@ export interface RawStory {
   title: string;
   component: Record<string, unknown>;
   tags: string[];
-  parameters: Record<string, unknown>;
+  parameters: {
+    pixeleye?: StoryParams;
+  };
+  [key: string]: unknown;
 }
 
 interface API {
@@ -28,5 +31,14 @@ export type SBWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
   __STORYBOOK_PREVIEW__: {
     channel: Channel;
+  };
+};
+
+export type StoryParams = {
+  parameters?: {
+    pixeleye?: {
+      skip?: boolean;
+      selector?: string;
+    };
   };
 };

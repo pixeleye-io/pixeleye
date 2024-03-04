@@ -56,10 +56,11 @@ export async function captureStories({
 
     return {
       stories: Object.values(api._storyStore?.extract() || {}).map(
-        ({ id, story, kind }) => ({
+        ({ id, story, kind, parameters: { pixeleye } }) => ({
           id,
           story,
           kind,
+          config: pixeleye,
         })
       )!,
     };
@@ -78,6 +79,10 @@ export async function captureStories({
 
   for (const story of result.stories!) {
     for (let variant of variants) {
+      const storyConfig = story.config?.parameters?.pixeleye;
+
+      if (storyConfig?.skip) continue;
+
       if (variant.params?.startsWith("?")) {
         variant.params = variant.params.substring(1);
       }
@@ -122,13 +127,13 @@ export async function captureStories({
         timeout: 60_000,
       });
 
-      const selector = "body";
-      await page.waitForSelector(selector);
+      if (storyConfig?.selector)
+        await page.waitForSelector(storyConfig.selector);
 
       await pixeleyeSnapshot(page, {
         name: story.id,
         variant: variant.name,
-        selector,
+        selector: storyConfig?.selector,
         devices,
       });
 

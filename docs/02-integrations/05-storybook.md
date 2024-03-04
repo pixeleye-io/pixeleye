@@ -117,7 +117,6 @@ pnpm run storybook & pixeleye storybook http://localhost:6006
 
 {% /tabs %}
 
-
 We recommend adding the something like this to your `package.json` file:
 
 ```package.json
@@ -189,3 +188,32 @@ const config = {
 {% /tab %}
 
 {% /tabs %}
+
+## Specific story config
+
+You can also specify specific config options for stores.
+
+In your story file add a `pixeleye` object to the `parameters` object.
+
+```tsx
+import type { Meta } from "@storybook/react";
+import type { StoryParams } from "pixeleye";
+import Button from "./button";
+
+const meta: Meta<typeof Button> & StoryParams = {
+  component: Button,
+  title: "UI/Button",
+  parameters: {
+    pixeleye: {
+      skip: true,
+    },
+  },
+};
+```
+
+You can also define this on a global level in your `.storybook/preview.js` or on a per component level in the `parameters` object.
+
+### Config options
+
+- `skip` - Skip capturing this story
+- `selector` - A CSS selector to capture a specific element in the story. If you want to just capture the story, try `#storybook-root > *`
