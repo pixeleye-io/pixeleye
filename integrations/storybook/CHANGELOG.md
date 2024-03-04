@@ -1,5 +1,11 @@
 # @pixeleye/storybook
 
+## 0.5.13
+
+### Patch Changes
+
+- [`e0862db`](https://github.com/pixeleye-io/pixeleye/commit/e0862db72f7bffbf09168c1000df472956d1bac7) Thanks [@AlfieJones](https://github.com/AlfieJones)! - increasing timeout
+
 ## 0.5.12
 
 ### Patch Changes
