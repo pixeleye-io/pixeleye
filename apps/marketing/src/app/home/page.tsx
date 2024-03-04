@@ -95,8 +95,8 @@ function Hero() {
               </span>
             </NextLink>
           </div>
-          <h1 className="mt-10 text-5xl font-semibold tracking-tight pb-2 text-tertiary sm:text-6xl">
-            Open-source <span className="text-tertiary font-bold underline ">visual review & testing</span> platform
+          <h1 className="mt-10 text-5xl font-semibold tracking-tight pb-2 text-on-surface sm:text-6xl">
+            Open-source <span className="text-tertiary font-bold">visual review & testing</span> platform
           </h1>
           <p className="mt-4 text-lg leading-8 text-on-surface-variant">
             The batteries-included platform for visually testing and reviewing your UI; it&apos;s even self-hostable!
