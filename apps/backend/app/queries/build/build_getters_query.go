@@ -158,39 +158,6 @@ func (q *BuildQueries) GetDirectBuildChildren(ctx context.Context, buildID strin
 	return builds, err
 }
 
-// This assumes that all dependencies of the build have been processed
-// This will add any builds failed/aborted parents to our parent list. We will also be leaving the failed/aborted parents in the list
-func (q *BuildQueriesTx) squashFailedOrAbortedParents(ctx context.Context, buildID string) error {
-	query := `INSERT INTO build_history (parent_id, child_id) SELECT bh.parent_id, build_history.child_id FROM build_history JOIN build_history AS bh ON bh.child_id = build_history.parent_id JOIN build ON build_history.parent_id = build.id WHERE build_history.child_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
-
-	_, err := q.ExecContext(ctx, query, buildID)
-
-	return err
-}
-
-// This assumes that all dependencies of the build have been processed
-// This will add any builds failed/aborted targets parents to our target list. We will also be leaving the failed/aborted targets in the list
-func (q *BuildQueriesTx) squashFailedOrAbortedTargets(ctx context.Context, buildID string) error {
-	query := `INSERT INTO build_targets (build_id, target_id) SELECT bt.build_id, bh.parent_id FROM build_targets AS bt JOIN build ON bt.target_id = build.id JOIN build_history AS bh ON bh.child_id = bt.target_id WHERE bt.build_id = $1 AND build.status in ('failed', 'aborted') ON CONFLICT DO NOTHING`
-
-	_, err := q.ExecContext(ctx, query, buildID)
-
-	return err
-}
-
-// This assumes that all dependencies of the build have been processed
-func (q *BuildQueriesTx) SquashDependencies(ctx context.Context, buildID string) error {
-	if err := q.squashFailedOrAbortedParents(ctx, buildID); err != nil {
-		return err
-	}
-
-	if err := q.squashFailedOrAbortedTargets(ctx, buildID); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (q *BuildQueries) GetBuildTargets(ctx context.Context, buildID string) ([]models.Build, error) {
 
 	builds := []models.Build{}
