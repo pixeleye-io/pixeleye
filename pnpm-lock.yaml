@@ -1260,9 +1260,6 @@ importers:
       eslint-plugin-storybook:
         specifier: ^0.8.0
         version: 0.8.0(eslint@8.56.0)(typescript@5.3.3)
-      pixeleye:
-        specifier: latest
-        version: link:../../integrations/cli/pixeleye
       storybook:
         specifier: ^7.6.17
         version: 7.6.17
