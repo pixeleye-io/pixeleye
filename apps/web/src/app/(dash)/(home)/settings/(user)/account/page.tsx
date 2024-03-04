@@ -16,7 +16,9 @@ export default async function AccountPage({
   const team = await getTeam(searchParams);
 
   const oryUser = await frontend.toSession({
-    cookie: cookies().toString(),
+    cookie: cookies().getAll()
+      .map((cookie) => `${cookie.name}=${cookie.value}`)
+      .join("; ")
   })
 
 
