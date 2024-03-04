@@ -19,6 +19,14 @@ interface API {
   };
 }
 
+interface Channel {
+  on: (event: string, callback: (data: unknown) => void) => void;
+  emit: (event: string, data: unknown) => void;
+}
+
 export type SBWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
+  __STORYBOOK_PREVIEW__: {
+    channel: Channel;
+  };
 };

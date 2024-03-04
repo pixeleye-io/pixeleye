@@ -11,6 +11,14 @@ async function openBrowser() {
   return { browser, page };
 }
 
+const timeout = <T>(prom: Promise<T>, time: number) => {
+  let timer: NodeJS.Timeout;
+  return Promise.race([
+    prom,
+    new Promise((_r, rej) => (timer = setTimeout(rej, time))),
+  ]).finally(() => clearTimeout(timer));
+};
+
 export async function captureStories({
   storybookURL,
   variants,
@@ -82,10 +90,37 @@ export async function captureStories({
           variant.params ? variant.params : ""
         }`,
         {
-          waitUntil: "networkidle",
-          timeout: 120_000,
+          waitUntil: "domcontentloaded",
         }
       );
+
+      await page.waitForFunction(
+        () => (window as SBWindow).__STORYBOOK_PREVIEW__.channel,
+        {
+          timeout: 60_000,
+        }
+      );
+
+      await timeout(
+        page.evaluate(() => {
+          const { channel } = (window as SBWindow).__STORYBOOK_PREVIEW__;
+
+          return new Promise<void>((resolve) => {
+            channel.on("storyRendered", () => {
+              resolve();
+            });
+          });
+        }),
+        60_000
+      );
+
+      await page.waitForLoadState("load", {
+        timeout: 60_000,
+      });
+
+      await page.waitForFunction(() => document.fonts.ready, {
+        timeout: 60_000,
+      });
 
       const selector = "body";
       await page.waitForSelector(selector);
