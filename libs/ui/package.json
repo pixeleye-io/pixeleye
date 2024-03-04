@@ -9,7 +9,7 @@
     "types": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test:pixeleye": "pnpm storybook & pnpm pixeleye storybook http://localhost:6006"
+    "pixeleye": "pnpm storybook & pixeleye storybook http://localhost:6006"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
@@ -27,7 +27,7 @@
     "@types/react": "18.2.57",
     "@types/react-dom": "18.2.19",
     "eslint-plugin-storybook": "^0.8.0",
-    "pixeleye": "workspace:*",
+    "pixeleye": "latest",
     "storybook": "^7.6.17"
   },
   "dependencies": {
