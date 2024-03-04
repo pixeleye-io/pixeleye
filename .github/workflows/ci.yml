@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [node-ci]
     env:
-      PIXELEYE_PROJECT_TOKEN: ${{ secrets.PIXELEYE_PROJECT_TOKEN }}
+      PIXELEYE_TOKEN: ${{ secrets.PIXELEYE_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
