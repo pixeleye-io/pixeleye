@@ -27,7 +27,7 @@
     "@types/react": "18.2.57",
     "@types/react-dom": "18.2.19",
     "eslint-plugin-storybook": "^0.8.0",
-    "pixeleye": "latest",
+    "pixeleye": "workspace:*",
     "storybook": "^7.6.17"
   },
   "dependencies": {
