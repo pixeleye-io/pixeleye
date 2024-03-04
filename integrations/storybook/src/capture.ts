@@ -83,6 +83,7 @@ export async function captureStories({
         }`,
         {
           waitUntil: "networkidle",
+          timeout: 120_000,
         }
       );
 
