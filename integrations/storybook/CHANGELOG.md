@@ -1,5 +1,11 @@
 # @pixeleye/storybook
 
+## 0.5.12
+
+### Patch Changes
+
+- [`983744b`](https://github.com/pixeleye-io/pixeleye/commit/983744b8eee50301095cdba2eea56dcbd893908a) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Increasing wait
+
 ## 0.5.11
 
 ### Patch Changes
