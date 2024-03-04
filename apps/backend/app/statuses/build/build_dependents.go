@@ -46,7 +46,7 @@ func SyncBuildStatus(ctx context.Context, build *models.Build) error {
 // Checks to see if we can update the build status based on snapshots and parent builds
 func syncBuildStatusInternal(ctx context.Context, build *models.Build, processed map[string]bool) error {
 	if processed[build.ID] {
-		log.Error().Msgf("Cyclic build dependency detected for build %s", build.ID)
+		log.Info().Msgf("Already processed build %s", build.ID)
 		return nil
 	}
 	processed[build.ID] = true
