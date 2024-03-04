@@ -179,7 +179,7 @@ jobs:
         run: pnpm install
       - name: Capture stories with Pixeleye CLI
         # Running Pixeleye against your storybook
-        run: pnpm -F @pixeleye/ui pixeleye 
+        run: pnpm -F @pixeleye/ui test:pixeleye 
 
 
   api-tests:
