@@ -20,7 +20,8 @@ export function HighlightedDiff() {
                     <h2 className="text-base font-semibold leading-7 text-tertiary">Develop with confidence</h2>
                     <p className="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">Highlighted Visual Regressions</p>
                     <p className="mt-6 text-lg leading-8 text-on-surface-variant">
-                        Pixeleye helps you move faster without sacrificing quality. We provide you with the tools to review and approve visual changes.
+                        Ever changed a line of css only to have a completely different part of your app break?
+                        Pixeleye catches these changes making it easier for you and your team to review and approve changes.
                     </p>
                 </div>
             </div>
@@ -73,8 +74,12 @@ export function HighlightedDiff() {
                     <div className="relative" aria-hidden="true">
                         <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-surface pt-[7%]" />
                     </div>
+
                 </div>
             </div>
+            <p className="mt-12 text-center text-lg text-tertiary">
+                How many did you spot? <span className="text-on-surface-variant">Imagine manually doing this across your entire app after every change!</span>
+            </p>
         </div>
     )
 }
