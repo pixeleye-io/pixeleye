@@ -178,7 +178,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build
-        run: pnpm turbo deploy
+        run: pnpm turbo build --filter pixeleye
       - name: Capture stories with Pixeleye CLI
         # Running Pixeleye against your storybook
         run: pnpm -F @pixeleye/ui test:pixeleye 
