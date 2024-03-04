@@ -263,7 +263,7 @@ export function Navbar() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link href="/logout">Log out</Link>
+              <a href="/logout">Log out</a>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
