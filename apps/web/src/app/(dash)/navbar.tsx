@@ -21,7 +21,6 @@ import {
   Status,
   TeamSwitcher,
 } from "@pixeleye/ui";
-
 import Link from "next/link";
 import {
   usePathname,
@@ -35,10 +34,11 @@ import { Team, User } from "@pixeleye/api";
 import { useTheme } from "next-themes";
 import React, { useCallback } from "react";
 import { API } from "@/libs";
-import { ArrowPathIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ArrowTopRightOnSquareIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cx } from "class-variance-authority";
 import { queries } from "@/queries";
+import { env } from "@/env";
 
 export interface NavbarProps {
   user: User;
@@ -85,6 +85,25 @@ function TeamsHeading() {
 
   return (
     <div className="flex justify-between items-center">
+      {
+        Boolean(env.GITHUB_APP_NAME) && (<Button
+          onClick={() => syncTeams()}
+          disabled={isPending}
+          variant={"ghost"}
+          className="!w-4 !h-4"
+          size="icon"
+        >
+          <a href={`https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`}>
+            <PlusIcon
+              className={cx(
+                "text-on-surface-variant h-4 w-4 hover:text-on-surface",
+                isPending && "animate-spin"
+              )}
+            />
+          </a>
+        </Button>
+        )
+      }
       <span>Teams</span>
       <Button
         onClick={() => syncTeams()}
