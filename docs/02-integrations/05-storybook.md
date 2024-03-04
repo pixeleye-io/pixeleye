@@ -94,7 +94,7 @@ export default config;
 {% tab label="NPM" %}
 
 ```bash
-npm run storybook & pixeleye storybook --url http://localhost:6006
+npm run storybook & pixeleye storybook http://localhost:6006
 ```
 
 {% /tab %}
@@ -102,7 +102,7 @@ npm run storybook & pixeleye storybook --url http://localhost:6006
 {% tab label="Yarn" %}
 
 ```bash
-yarn storybook & pixeleye storybook --url http://localhost:6006
+yarn storybook & pixeleye storybook http://localhost:6006
 ```
 
 {% /tab %}
@@ -110,7 +110,7 @@ yarn storybook & pixeleye storybook --url http://localhost:6006
 {% tab label="PNPM" %}
 
 ```bash
-pnpm run storybook & pixeleye storybook --url http://localhost:6006
+pnpm run storybook & pixeleye storybook http://localhost:6006
 ```
 
 {% /tab %}
@@ -124,7 +124,7 @@ We recommend adding the something like this to your `package.json` file:
 {
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "pixeleye": "npm run storybook & pixeleye storybook --url http://localhost:6006"
+    "pixeleye": "npm run storybook & pixeleye storybook http://localhost:6006"
   }
 }
 ```
