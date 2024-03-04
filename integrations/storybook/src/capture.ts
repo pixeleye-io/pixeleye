@@ -30,8 +30,7 @@ export async function captureStories({
     storybookURL +
       "/iframe.html?selectedKind=story-crawler-kind&selectedStory=story-crawler-story",
     {
-      timeout: 60_000,
-      waitUntil: "networkidle",
+      timeout: 120_000,
     }
   );
 
