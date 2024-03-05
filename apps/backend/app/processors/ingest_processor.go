@@ -16,6 +16,7 @@ import (
 	"image/png"
 	_ "image/png"
 
+	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -243,9 +244,20 @@ func processSnapshot(ctx context.Context, project models.Project, build models.B
 			Format:    "image/png",
 		}
 
-		if err = db.CreateDiffImage(&diffImg); err != nil {
-			log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to create diff image")
-			return err
+		if err := db.CreateDiffImage(&diffImg); err != nil {
+			if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23503") {
+				// We've created a diff image in the meantime so we can ignore this error and get the newly created diff image
+				diffImg, err = db.GetDiffImage(hash, snapImg.ProjectID)
+				if err != nil {
+					log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to get diff image from DB")
+					return err
+				}
+
+			} else {
+
+				log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to create diff image")
+				return err
+			}
 		}
 	}
 
