@@ -44,7 +44,7 @@ func (c *GithubAppClient) GetInstallationRepositories(ctx context.Context, page 
 			return nil, false, fmt.Errorf("installation was suspended from github")
 		}
 
-		if res != nil && res.StatusCode == 404 {
+		if strings.Contains(err.Error(), "\"404") {
 			return nil, false, removeInstallationFromDB(ctx, c.InstallationID)
 		}
 

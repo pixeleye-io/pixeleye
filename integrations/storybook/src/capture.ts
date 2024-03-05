@@ -2,6 +2,7 @@ import { pixeleyeSnapshot } from "@pixeleye/playwright";
 import { SBWindow } from "./browser";
 import { chromium } from "playwright-core";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
+import { logger } from "@pixeleye/cli-logger";
 
 async function openBrowser() {
   const browser = await chromium.launch({
@@ -117,7 +118,11 @@ export async function captureStories({
           });
         }),
         60_000
-      );
+      ).catch(() => {
+        logger.info(
+          `Didn't receive storyRendered event for ${story.id} in 60s, attempting to capture anyway`
+        );
+      });
 
       await page.waitForLoadState("load", {
         timeout: 60_000,

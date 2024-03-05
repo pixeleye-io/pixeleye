@@ -245,7 +245,7 @@ func processSnapshot(ctx context.Context, project models.Project, build models.B
 		}
 
 		if err := db.CreateDiffImage(&diffImg); err != nil {
-			if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23503") {
+			if driverErr, ok := err.(*pq.Error); ok && (driverErr.Code == pq.ErrorCode("23503") || driverErr.Code == pq.ErrorCode("23505")) {
 				// We've created a diff image in the meantime so we can ignore this error and get the newly created diff image
 				diffImg, err = db.GetDiffImage(hash, snapImg.ProjectID)
 				if err != nil {
