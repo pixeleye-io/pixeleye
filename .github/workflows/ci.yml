@@ -425,6 +425,7 @@ jobs:
         deploy-private-ingest-image,
         deploy-private-api-image,
         deploy-private-migration-image,
+        pixeleye,
       ]
     if: ${{ always() && !failure() && !cancelled() && github.ref == 'refs/heads/main' }}
     name: Promote to Vercel Production
