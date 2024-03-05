@@ -32,11 +32,11 @@ let defaultSources: ImportCardProps[] = [
   },
 ];
 
-if (env.GITHUB_APP_NAME)
+if (env.NEXT_PUBLIC_GITHUB_APP_NAME)
   defaultSources = [{
     name: "Github",
     type: "github",
-    installUrl: `https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`,
+    installUrl: `https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`,
     connected: false,
     imageUrl: {
       light: "/github-mark.svg",

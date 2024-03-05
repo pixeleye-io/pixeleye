@@ -116,7 +116,7 @@ services:
       - ORY_URL=http://kratos:4433
       - CLIENT_ORY_URL=http://localhost:4433
       - NEXT_PUBLIC_BACKEND_URL=http://pixeleye-backend:5000
-      # - GITHUB_APP_NAME= # optional if you want to use the github login
+      # - NEXT_PUBLIC_GITHUB_APP_NAME= # optional if you want to use the github login
     networks:
       - intranet
     ports:

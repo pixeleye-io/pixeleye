@@ -50,7 +50,7 @@ async function Repos({ team }: { team: Team; }) {
         Not seeing your repo or organization?{" "}
         <a
           className="text-blue-400 dark:text-blue-300"
-          href={`https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`}
+          href={`https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -70,7 +70,7 @@ export default async function AddGithubProjectPage({
   searchParams: Record<string, string>;
 }) {
 
-  if (!env.GITHUB_APP_NAME) return redirect("/add");
+  if (!env.NEXT_PUBLIC_GITHUB_APP_NAME) return redirect("/add");
 
   const installation_id = searchParams.installation_id;
 
@@ -98,7 +98,7 @@ export default async function AddGithubProjectPage({
 
   if (!team.hasInstall) {
     redirect(
-      `https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`
+      `https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`
     );
   }
 

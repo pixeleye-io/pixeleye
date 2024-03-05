@@ -86,21 +86,22 @@ function TeamsHeading() {
   return (
     <div className="flex justify-between items-center">
       {
-        Boolean(env.GITHUB_APP_NAME) && (<Button
-          variant={"ghost"}
-          size="icon"
-          asChild
-        >
-          <a className="!w-4 !h-4"
-            href={`https://github.com/apps/${env.GITHUB_APP_NAME}/installations/new`}>
-            <PlusIcon
-              className={cx(
-                "text-on-surface-variant h-4 w-4 hover:text-on-surface",
-                isPending && "animate-spin"
-              )}
-            />
-          </a>
-        </Button>
+        Boolean(env.NEXT_PUBLIC_GITHUB_APP_NAME) && (
+          <Button
+            variant={"ghost"}
+            size="icon"
+            asChild
+          >
+            <a className="!w-4 !h-4"
+              href={`https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`}>
+              <PlusIcon
+                className={cx(
+                  "text-on-surface-variant h-4 w-4 hover:text-on-surface",
+                  isPending && "animate-spin"
+                )}
+              />
+            </a>
+          </Button>
         )
       }
       <span>Teams</span>
