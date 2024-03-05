@@ -95,11 +95,7 @@ function TeamsHeading() {
             <a className="!w-4 !h-4 mr-2"
               href={`https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`}>
               <PlusIcon
-                className={cx(
-                  "text-on-surface-variant h-4 w-4 hover:text-on-surface",
-                  isPending && "animate-spin"
-                )}
-              />
+                className="text-on-surface-variant h-4 w-4 hover:text-on-surface" />
             </a>
           </Button>
         )
