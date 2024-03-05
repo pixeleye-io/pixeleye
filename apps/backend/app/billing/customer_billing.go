@@ -41,7 +41,13 @@ func (c *CustomerBilling) CreateCustomer(opts CreateCustomerOpts) (*stripe.Custo
 
 func (c *CustomerBilling) GetOrCreateCustomer(ctx context.Context, team models.Team) (*stripe.Customer, error) {
 	if team.CustomerID != "" {
-		return c.GetCustomer(team.CustomerID)
+		if customer, err := c.GetCustomer(team.CustomerID); err != nil {
+			if err.(*stripe.Error).Code != stripe.ErrorCodeResourceMissing {
+				return nil, err
+			}
+		} else {
+			return customer, nil
+		}
 	}
 
 	customer, err := c.CreateCustomer(CreateCustomerOpts{
@@ -187,15 +193,21 @@ func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team model
 		var err error
 		sub, err = c.API.Subscriptions.Get(team.SubscriptionID, nil)
 		if err != nil {
-			return nil, err
-		}
-
-		if slices.Contains([]stripe.SubscriptionStatus{
+			// If the subscription is not found, we should get the latest subscription instead
+			if err.(*stripe.Error).Code == stripe.ErrorCodeResourceMissing {
+				sub, err = c.getLatestSubscription(team)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
+		} else if slices.Contains([]stripe.SubscriptionStatus{
 			stripe.SubscriptionStatusCanceled,
 			stripe.SubscriptionStatusIncompleteExpired,
 			stripe.SubscriptionStatusUnpaid,
 		}, sub.Status) {
-			// If the subscription is in a state where it's not active, we should get the latest subscription
+			// If the subscription is in a state where it's not active, we should get the latest subscription to be sure we have the latest
 			sub, err = c.getLatestSubscription(team)
 			if err != nil {
 				return nil, err
@@ -205,6 +217,17 @@ func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team model
 
 	if sub != nil && team.SubscriptionID != sub.ID {
 		team.SubscriptionID = sub.ID
+
+		db, err := database.OpenDBConnection()
+		if err != nil {
+			return nil, err
+		}
+
+		if err := db.UpdateTeamBilling(ctx, team); err != nil {
+			return nil, err
+		}
+	} else if sub == nil && team.SubscriptionID != "" {
+		team.SubscriptionID = ""
 
 		db, err := database.OpenDBConnection()
 		if err != nil {
