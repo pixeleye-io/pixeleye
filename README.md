@@ -1,7 +1,4 @@
 <div align="center">
-<br />
-<!-- PROJECT LOGO -->
-<br />
 <h1>Pixeleye</h1>
 <p>The batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.</p>  
 </p>
