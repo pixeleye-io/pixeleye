@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation";
 import { cx } from "class-variance-authority";
 import { DocSearch } from "./docs/search";
 import { useQuery } from "@tanstack/react-query";
-import { oryEndpoint } from "@pixeleye/auth";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -31,7 +30,8 @@ export default function Header() {
   const { isSuccess, isPending } = useQuery({
     queryKey: ["user"],
     retry: false,
-    queryFn: () => fetch(oryEndpoint + "/sessions/whoami", {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    queryFn: () => fetch(process.env.NEXT_PUBLIC_ORY_URL + "/sessions/whoami", {
       credentials: "include",
     }).then((res) => (res.ok) ? res.json() : Promise.reject(res)),
   })
