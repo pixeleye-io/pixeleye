@@ -234,10 +234,11 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 		price = os.Getenv("STRIPE_PRICE_ID_7500")
 	}
 	return c.API.CheckoutSessions.New(&stripe.CheckoutSessionParams{
-		SuccessURL: stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
-		CancelURL:  stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
-		Mode:       stripe.String("subscription"),
-		Customer:   stripe.String(customer.ID),
+		SuccessURL:          stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
+		CancelURL:           stripe.String(os.Getenv("FRONTEND_URL") + "/billing"),
+		Mode:                stripe.String("subscription"),
+		Customer:            stripe.String(customer.ID),
+		AllowPromotionCodes: stripe.Bool(true),
 		TaxIDCollection: &stripe.CheckoutSessionTaxIDCollectionParams{
 			Enabled: stripe.Bool(true),
 		},
