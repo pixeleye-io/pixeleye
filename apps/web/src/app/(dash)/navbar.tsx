@@ -84,7 +84,7 @@ function TeamsHeading() {
   });
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex items-center">
       {
         Boolean(env.NEXT_PUBLIC_GITHUB_APP_NAME) && (
           <Button
@@ -92,7 +92,7 @@ function TeamsHeading() {
             size="icon"
             asChild
           >
-            <a className="!w-4 !h-4"
+            <a className="!w-4 !h-4 mr-2"
               href={`https://github.com/apps/${env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`}>
               <PlusIcon
                 className={cx(
@@ -109,7 +109,7 @@ function TeamsHeading() {
         onClick={() => syncTeams()}
         disabled={isPending}
         variant={"ghost"}
-        className="!w-4 !h-4"
+        className="!w-4 !h-4 ml-auto"
         size="icon"
       >
         <ArrowPathIcon
