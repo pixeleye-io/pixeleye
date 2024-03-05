@@ -10,6 +10,7 @@ import (
 
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
+	"github.com/rs/zerolog/log"
 	"github.com/stripe/stripe-go/v76"
 	"github.com/stripe/stripe-go/v76/client"
 	"github.com/stripe/stripe-go/v76/form"
@@ -41,7 +42,7 @@ func (c *CustomerBilling) CreateCustomer(opts CreateCustomerOpts) (*stripe.Custo
 
 func (c *CustomerBilling) GetOrCreateCustomer(ctx context.Context, team models.Team) (*stripe.Customer, error) {
 	if team.CustomerID != "" {
-		if customer, err := c.GetCustomer(team.CustomerID); err != nil {
+		if customer, err := c.API.Customers.Get(team.CustomerID, nil); err != nil {
 			if err.(*stripe.Error).Code != stripe.ErrorCodeResourceMissing {
 				return nil, err
 			}
@@ -92,7 +93,7 @@ func (c *CustomerBilling) CreateBillingPortalSession(team models.Team) (*stripe.
 	return c.API.BillingPortalSessions.New(params)
 }
 
-func (c *CustomerBilling) getLatestSubscription(team models.Team) (*stripe.Subscription, error) {
+func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models.Team) (*stripe.Subscription, error) {
 	if team.CustomerID == "" {
 		return nil, fmt.Errorf("team does not have a customer id")
 	}
@@ -108,6 +109,26 @@ func (c *CustomerBilling) getLatestSubscription(team models.Team) (*stripe.Subsc
 		Customer: &team.CustomerID,
 		Price:    stripe.String(price),
 	})
+
+	if list.Err() != nil {
+		if list.Err().(*stripe.Error).Code == stripe.ErrorCodeResourceMissing && list.Err().(*stripe.Error).Param == "customer" {
+			// Customer has been deleted in stripe, we should delete the customer id from the team
+			team.CustomerID = ""
+			team.SubscriptionID = ""
+
+			db, err := database.OpenDBConnection()
+			if err != nil {
+				return nil, err
+			}
+
+			if err := db.UpdateTeamBilling(ctx, team); err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		log.Error().Err(list.Err()).Msg("error getting latest subscription")
+		return nil, nil
+	}
 
 	// We will only ever have 1 active subscription
 	if list.Next() {
@@ -181,7 +202,7 @@ func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team model
 
 	if team.SubscriptionID == "" {
 		var err error
-		sub, err = c.getLatestSubscription(team)
+		sub, err = c.getLatestSubscription(ctx, team)
 
 		if err != nil {
 			return nil, err
@@ -195,7 +216,7 @@ func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team model
 		if err != nil {
 			// If the subscription is not found, we should get the latest subscription instead
 			if err.(*stripe.Error).Code == stripe.ErrorCodeResourceMissing {
-				sub, err = c.getLatestSubscription(team)
+				sub, err = c.getLatestSubscription(ctx, team)
 				if err != nil {
 					return nil, err
 				}
@@ -208,7 +229,7 @@ func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team model
 			stripe.SubscriptionStatusUnpaid,
 		}, sub.Status) {
 			// If the subscription is in a state where it's not active, we should get the latest subscription to be sure we have the latest
-			sub, err = c.getLatestSubscription(team)
+			sub, err = c.getLatestSubscription(ctx, team)
 			if err != nil {
 				return nil, err
 			}
@@ -280,10 +301,6 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 		},
 	})
 
-}
-
-func (c *CustomerBilling) GetCustomer(customerID string) (*stripe.Customer, error) {
-	return c.API.Customers.Get(customerID, nil)
 }
 
 func (c *CustomerBilling) ReportSnapshotUsage(customerID string, buildID string, snapshotCount int64) error {
