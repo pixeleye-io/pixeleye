@@ -17,8 +17,10 @@ export function HighlightedDiff() {
         <div className="bg-surface py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto max-w-2xl sm:text-center">
-                    <h2 className="text-base font-semibold leading-7 text-tertiary">Develop with confidence</h2>
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">Highlighted Visual Regressions</p>
+                    <h2 className="text-base font-semibold leading-7 text-tertiary">Highlighted Visual Regressions</h2>
+                    <p className="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
+                        Catch unintended visual changes
+                    </p>
                     <p className="mt-6 text-lg leading-8 text-on-surface-variant">
                         Ever changed a line of css only to have a completely different part of your app break?
                         Pixeleye catches these changes making it easier for you and your team to review and approve changes.
