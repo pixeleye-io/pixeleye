@@ -66,7 +66,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 	status := getStatus(build.Status)
 	title := "Pixeleye -" + project.Name
 	summary := "Current build status is " + build.Status
-	text := "Some build details"
+	text := "[Build details](" + detailsURL + ")"
 
 	startedAt := github.Timestamp{Time: build.CreatedAt}
 
