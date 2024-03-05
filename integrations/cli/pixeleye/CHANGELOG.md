@@ -1,5 +1,12 @@
 # pixeleye
 
+## 0.4.19
+
+### Patch Changes
+
+- Updated dependencies [[`71f4d04`](https://github.com/pixeleye-io/pixeleye/commit/71f4d047efba72f65d8b22a7ecc704a4face6ab9)]:
+  - @pixeleye/storybook@0.5.16
+
 ## 0.4.18
 
 ### Patch Changes

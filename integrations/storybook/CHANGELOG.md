@@ -1,5 +1,11 @@
 # @pixeleye/storybook
 
+## 0.5.16
+
+### Patch Changes
+
+- [#233](https://github.com/pixeleye-io/pixeleye/pull/233) [`71f4d04`](https://github.com/pixeleye-io/pixeleye/commit/71f4d047efba72f65d8b22a7ecc704a4face6ab9) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Catching timeout error waiting for story to render
+
 ## 0.5.15
 
 ### Patch Changes
