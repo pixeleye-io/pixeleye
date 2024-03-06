@@ -1,5 +1,15 @@
 # pixeleye
 
+## 0.4.21
+
+### Patch Changes
+
+- [`c33c6af`](https://github.com/pixeleye-io/pixeleye/commit/c33c6afda32179210884db54a6520f4ca33c7d60) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Reducing parent branches when using latest in branch
+
+- Updated dependencies [[`c33c6af`](https://github.com/pixeleye-io/pixeleye/commit/c33c6afda32179210884db54a6520f4ca33c7d60)]:
+  - @pixeleye/cli-api@0.3.10
+  - @pixeleye/cli-booth@0.4.10
+
 ## 0.4.20
 
 ### Patch Changes
