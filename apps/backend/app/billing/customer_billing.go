@@ -124,10 +124,10 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 			if err := db.UpdateTeamBilling(ctx, team); err != nil {
 				return nil, err
 			}
+		} else {
+			log.Error().Err(list.Err()).Msgf("error getting latest subscription: %s", list.Err().Error())
+			return nil, nil
 		}
-	} else {
-		log.Error().Err(list.Err()).Msgf("error getting latest subscription: %s", list.Err().Error())
-		return nil, nil
 	}
 
 	// We will only ever have 1 active subscription
