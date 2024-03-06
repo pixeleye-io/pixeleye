@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.4.20
+
+### Patch Changes
+
+- [`4cd0be7`](https://github.com/pixeleye-io/pixeleye/commit/4cd0be79ab0b5d260a883f4f2dec418d0c407d7a) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improving error output
+
 ## 0.4.19
 
 ### Patch Changes
