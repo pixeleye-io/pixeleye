@@ -26,7 +26,7 @@ func UserRoutes(e *echo.Echo) {
 
 	v1.PATCH("/user/me", controllers.UpdateUser)
 
-	if os.Getenv("PIXELEYE_HOSTING") != "true" {
+	if os.Getenv("PIXELEYE_HOSTING") == "true" {
 		v1.POST("/user/refer", controllers.ReferUser)
 	}
 }
