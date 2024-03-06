@@ -106,7 +106,7 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 	}
 
 	list := c.API.Subscriptions.List(&stripe.SubscriptionListParams{
-		Customer: &team.CustomerID,
+		Customer: stripe.String(team.CustomerID),
 		Price:    stripe.String(price),
 	})
 
@@ -131,6 +131,24 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 	}
 
 	// We will only ever have 1 active subscription
+	if list.Next() {
+		return list.Subscription(), nil
+	}
+
+	// We might have a mismatch between the price and the subscription, we should update the subscription
+	if err := c.UpdateTeamPlan(ctx, team); err != nil {
+		return nil, err
+	}
+
+	list = c.API.Subscriptions.List(&stripe.SubscriptionListParams{
+		Customer: stripe.String(team.CustomerID),
+		Price:    stripe.String(price),
+	})
+
+	if list.Err() != nil {
+		return nil, list.Err()
+	}
+
 	if list.Next() {
 		return list.Subscription(), nil
 	}
