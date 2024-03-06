@@ -114,6 +114,10 @@ export const getAllFiles = cache(async () => {
   return test;
 });
 
+const transforms: Record<string, string> = {
+  "any other platform (cli)": "any other platform (CLI)",
+};
+
 export async function getFiles() {
   const files = await getAllFiles();
 
@@ -123,8 +127,10 @@ export async function getFiles() {
       (s) => s.title === section.replaceAll("-", " ")
     );
 
+    const title = link.replaceAll("-", " ");
+
     const linkObj = {
-      title: link.replaceAll("-", " "),
+      title: transforms[title] || title,
       href: `/docs/${url}`,
     };
 
