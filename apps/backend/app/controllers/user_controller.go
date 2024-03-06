@@ -185,19 +185,16 @@ func GetUserTeams(c echo.Context) error {
 
 	// Get user from session.
 	user, err := middleware.GetUser(c)
-
 	if err != nil {
 		return err
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
 
 	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
-
 	if err != nil {
 		return err
 	}
