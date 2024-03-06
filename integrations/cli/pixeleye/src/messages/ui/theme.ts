@@ -10,6 +10,9 @@ export function errMsg(strings: TemplateStringsArray, ...args: any[]) {
 }
 
 export function errStr(str: string | object) {
+  if (typeof str === "object") {
+    return chalk.bold.red(JSON.stringify(str, null, 2));
+  }
   return chalk.bold.red(str);
 }
 
