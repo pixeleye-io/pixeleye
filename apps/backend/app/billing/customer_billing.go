@@ -126,7 +126,7 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 			}
 		}
 	} else {
-		log.Error().Err(list.Err()).Msg("error getting latest subscription")
+		log.Error().Err(list.Err()).Msgf("error getting latest subscription: %s", list.Err().Error())
 		return nil, nil
 	}
 
