@@ -13,9 +13,9 @@ Head over to [Pixeleye](https://pixeleye.io/registration) (or equivalent if self
 
 > Note: If you signed up with a vcs provider like Github, you should see any teams with access to Pixeleye. Find out more about [teams and permissions](/docs/features/teams-and-permissions).
 
-### Install relevant VCS tools (optional)
+### Install relevant VCs tools
 
-If you want to use a VCS integration that wasn't installed automatically, you'll need to set it up first.
+If you want to use a VCs integration that wasn't installed automatically, you'll need to set it up first.
 
 #### Github
 
@@ -37,11 +37,11 @@ We have separate guides for each integration. Pick the one that best suits your 
 
 We currently support the following official integrations:
 
-- [Storybook](/docs/integrations/storybook)
-- [Cypress](/docs/integrations/cypress)
-- [Puppeteer](/docs/integrations/puppeteer)
-- [Playwright](/docs/integrations/playwright)
-- [Any other platform](</docs/integrations/any-other-platform-(cli)>)
+- [storybook](/docs/integrations/storybook)
+- [cypress](/docs/integrations/cypress)
+- [puppeteer](/docs/integrations/puppeteer)
+- [playwright](/docs/integrations/playwright)
+- [any other platform](</docs/integrations/any-other-platform-(cli)>)
 
 > Note: If you want to use another tool, you can use our CLI tool directly.
 

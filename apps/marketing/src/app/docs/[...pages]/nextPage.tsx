@@ -26,7 +26,7 @@ function PageLink({
                 <NextLink
                     href={page.href}
                     aria-label={`${label}: ${page.title}`}
-                    className="not-prose !text-on-surface hover:!text-tertiary flex space-x-2 items-center justify-center"
+                    className="not-prose !text-on-surface hover:!text-tertiary capitalize flex space-x-2 items-center justify-center"
                 >
                     {
                         previous && (

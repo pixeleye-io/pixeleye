@@ -28,7 +28,7 @@ export function DocsNavDesktop({ sections, mobile, onNav }: DocsNavProps) {
       <ul role="list" className={cx("space-y-9", mobile && "mb-20")}>
         {sections.map((section) => (
           <li key={section.title}>
-            <h2 className="font-display font-medium text-on-surface">
+            <h2 className="font-display capitalize font-medium text-on-surface">
               {section.title}
             </h2>
             <ul
@@ -41,7 +41,7 @@ export function DocsNavDesktop({ sections, mobile, onNav }: DocsNavProps) {
                     onClick={() => onNav?.()}
                     href={link.href}
                     className={cx(
-                      "block w-full pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full",
+                      "block w-full capitalize pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full",
                       link.href === pathname
                         ? "before:bg-tertiary font-semibold text-tertiary"
                         : "before:hidden before:bg-on-surface-variant hover:text-on-surface hover:before:block text-on-surface-variant"
