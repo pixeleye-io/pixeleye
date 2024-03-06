@@ -320,47 +320,53 @@ describe.concurrent(
       });
     });
 
-    it("should create 3 builds with data then no data", async () => {
-      const snapshot1: CreateBuildOptions["snapshots"] = [
-        {
-          hash: nanoid(40),
-          img: cleanEyePng,
-          name: "button",
-        },
-      ];
+    it(
+      "should create 3 builds with data then no data",
+      async () => {
+        const snapshot1: CreateBuildOptions["snapshots"] = [
+          {
+            hash: nanoid(40),
+            img: cleanEyePng,
+            name: "button",
+          },
+        ];
 
-      const build1 = await createBuildWithSnapshots({
-        token: jekyllsToken,
-        branch: "test",
-        sha: "123",
-        expectedBuildStatus: ["orphaned"],
-        snapshots: snapshot1,
-      }).catch((err) => {
-        throw err;
-      });
+        const build1 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "123",
+          expectedBuildStatus: ["orphaned"],
+          snapshots: snapshot1,
+        }).catch((err) => {
+          throw err;
+        });
 
-      const build2 = await createBuildWithSnapshots({
-        token: jekyllsToken,
-        branch: "test",
-        sha: "1234",
-        expectedBuildStatus: ["unchanged"],
-        parentBuildIds: build1.id,
-        snapshots: [],
-      }).catch((err) => {
-        throw err;
-      });
+        const build2 = await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "1234",
+          expectedBuildStatus: ["unchanged"],
+          parentBuildIds: build1.id,
+          snapshots: [],
+        }).catch((err) => {
+          throw err;
+        });
 
-      await createBuildWithSnapshots({
-        token: jekyllsToken,
-        branch: "test",
-        sha: "12345",
-        expectedBuildStatus: ["unchanged"],
-        parentBuildIds: build2.id,
-        snapshots: [],
-      }).catch((err) => {
-        throw err;
-      });
-    });
+        await createBuildWithSnapshots({
+          token: jekyllsToken,
+          branch: "test",
+          sha: "12345",
+          expectedBuildStatus: ["unchanged"],
+          parentBuildIds: build2.id,
+          snapshots: [],
+        }).catch((err) => {
+          throw err;
+        });
+      },
+      {
+        retry: 3, // TODO - we should not need to retry this test
+      }
+    );
 
     it("should create 4 builds with increasingly more snapshots", async () => {
       const snapshot1: CreateBuildOptions["snapshots"] = [

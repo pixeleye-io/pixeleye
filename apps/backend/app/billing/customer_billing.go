@@ -113,9 +113,7 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 	// We will only ever have 1 active subscription
 	if list.Next() {
 		return list.Subscription(), nil
-	}
-
-	if list.Err() != nil {
+	} else if list.Err() != nil {
 		if list.Err().(*stripe.Error).Code == stripe.ErrorCodeResourceMissing && list.Err().(*stripe.Error).Param == "customer" {
 			// Customer has been deleted in stripe, we should delete the customer id from the team
 			team.CustomerID = ""
@@ -135,22 +133,30 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 		}
 	}
 
-	// We might have a mismatch between the price and the subscription, we should update the subscription
-	if err := c.UpdateTeamPlan(ctx, team); err != nil {
+	list = c.API.Subscriptions.List(&stripe.SubscriptionListParams{
+		Customer: stripe.String(team.CustomerID),
+	})
+
+	if list.Next() {
+		sub := list.Subscription()
+
+		if err := c.UpdateTeamPlan(ctx, team, sub); err != nil {
+			return nil, err
+		}
+
+		return sub, nil
+	}
+
+	team.CustomerID = ""
+	team.SubscriptionID = ""
+
+	db, err := database.OpenDBConnection()
+	if err != nil {
 		return nil, err
 	}
 
-	list = c.API.Subscriptions.List(&stripe.SubscriptionListParams{
-		Customer: stripe.String(team.CustomerID),
-		Price:    stripe.String(price),
-	})
-
-	if list.Err() != nil {
-		return nil, list.Err()
-	}
-
-	if list.Next() {
-		return list.Subscription(), nil
+	if err := db.UpdateTeamBilling(ctx, team); err != nil {
+		return nil, err
 	}
 
 	return nil, nil
@@ -183,7 +189,7 @@ func (c *CustomerBilling) CanCreateNewSubscription(team models.Team) (bool, int,
 	return true, 0, nil
 }
 
-func (c *CustomerBilling) UpdateTeamPlan(ctx context.Context, team models.Team) error {
+func (c *CustomerBilling) UpdateTeamPlan(ctx context.Context, team models.Team, sub *stripe.Subscription) error {
 	price := os.Getenv("STRIPE_PRICE_ID_5000")
 	if team.Referrals == 1 {
 		price = os.Getenv("STRIPE_PRICE_ID_6250")
@@ -191,11 +197,14 @@ func (c *CustomerBilling) UpdateTeamPlan(ctx context.Context, team models.Team) 
 		price = os.Getenv("STRIPE_PRICE_ID_7500")
 	}
 
-	sub, err := c.GetCurrentSubscription(ctx, team)
-	if err != nil {
-		return err
-	} else if sub == nil {
-		return nil
+	var err error
+	if sub == nil {
+		sub, err = c.GetCurrentSubscription(ctx, team)
+		if err != nil {
+			return err
+		} else if sub == nil {
+			return nil
+		}
 	}
 
 	_, err = c.API.Subscriptions.Update(sub.ID, &stripe.SubscriptionParams{
@@ -221,7 +230,6 @@ func (c *CustomerBilling) GetCurrentSubscription(ctx context.Context, team model
 	if team.SubscriptionID == "" {
 		var err error
 		sub, err = c.getLatestSubscription(ctx, team)
-
 		if err != nil {
 			return nil, err
 		}
