@@ -110,6 +110,11 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 		Price:    stripe.String(price),
 	})
 
+	// We will only ever have 1 active subscription
+	if list.Next() {
+		return list.Subscription(), nil
+	}
+
 	if list.Err() != nil {
 		if list.Err().(*stripe.Error).Code == stripe.ErrorCodeResourceMissing && list.Err().(*stripe.Error).Param == "customer" {
 			// Customer has been deleted in stripe, we should delete the customer id from the team
@@ -128,11 +133,6 @@ func (c *CustomerBilling) getLatestSubscription(ctx context.Context, team models
 			log.Error().Err(list.Err()).Msgf("error getting latest subscription: %s", list.Err().Error())
 			return nil, nil
 		}
-	}
-
-	// We will only ever have 1 active subscription
-	if list.Next() {
-		return list.Subscription(), nil
 	}
 
 	// We might have a mismatch between the price and the subscription, we should update the subscription
