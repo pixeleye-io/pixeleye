@@ -87,7 +87,7 @@ function Hero() {
                 What&apos;s new
               </span>
               <span className="inline-flex items-center space-x-1.5 text-sm font-medium leading-6 text-on-surface group-hover:text-tertiary">
-                <span>Integrate with storybook</span>
+                <span>Integrate with Storybook</span>
                 <ChevronRightIcon
                   className="h-5 w-5 group-hover:translate-x-0.5 transition ease-in-out duration-150"
                   aria-hidden="true"

@@ -125,10 +125,10 @@ The name of the variant. This will make up part of the snapshots name.
 - **Type:** `string`
 - **Default:** `undefined`
 
-Optional search params to append to the storybook URL when capturing the screenshot.
+Optional search params to append to the Storybook URL when capturing the screenshot.
 
 #### Example
 
 `[{ name: "Dark", params: "?globals=theme:dark" }, { name: "Light", params: "?globals=theme:light" }]`
 
-This will capture screenshots for both the dark and light theme if using storybooks theme addon.
+This will capture screenshots for both the dark and light theme if using Storybooks theme addon.
