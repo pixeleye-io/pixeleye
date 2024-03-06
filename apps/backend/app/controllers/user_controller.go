@@ -89,11 +89,11 @@ func ReferUser(c echo.Context) error {
 	}
 
 	paymentClient := payments.NewPaymentClient()
-	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), userTeam); err != nil {
+	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), userTeam, nil); err != nil {
 		return err
 	}
 
-	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), referralTeam); err != nil {
+	if err := paymentClient.UpdateTeamPlan(c.Request().Context(), referralTeam, nil); err != nil {
 		return err
 	}
 
