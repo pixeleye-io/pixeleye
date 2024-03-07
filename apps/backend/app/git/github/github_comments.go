@@ -127,9 +127,11 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 
 	status := getStatus(build.Status)
 
+	detailsURL := os.Getenv("FRONTEND_URL") + "/projects/" + project.ID + "/builds/" + build.ID
+
 	title := "Pixeleye - " + project.Name
 	summary := "Current build status is " + build.Status
-	text := "Some build details"
+	text := "[Build details](" + detailsURL + ")"
 
 	opts := github.UpdateCheckRunOptions{
 		Status:     &status,
