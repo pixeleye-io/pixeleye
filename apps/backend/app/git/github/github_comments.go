@@ -61,7 +61,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 		return err
 	}
 
-	detailsURL := os.Getenv("FRONTEND_URL") + "/projects/" + project.ID + "/builds/" + build.ID
+	detailsURL := os.Getenv("FRONTEND_URL") + "/builds/" + build.ID
 
 	status := getStatus(build.Status)
 	title := "Pixeleye -" + project.Name
@@ -127,7 +127,7 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 
 	status := getStatus(build.Status)
 
-	detailsURL := os.Getenv("FRONTEND_URL") + "/projects/" + project.ID + "/builds/" + build.ID
+	detailsURL := os.Getenv("FRONTEND_URL") + "/builds/" + build.ID
 
 	title := "Pixeleye - " + project.Name
 	summary := "Current build status is " + build.Status
