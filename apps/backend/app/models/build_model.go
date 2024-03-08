@@ -36,7 +36,7 @@ type Build struct {
 	IsLatest bool `db:"is_latest" json:"isLatest"`
 
 	ShardingCount   int    `db:"sharding_count" json:"shardingCount,omitempty" validate:"omitempty,min=1"`
-	ShardingID      string `db:"sharding_id" json:"shardingID,omitempty" validate:"omitempty,min=8"`
+	ShardingID      string `db:"sharding_id" json:"shardingID,omitempty" validate:"omitempty,min=1"`
 	ShardsCompleted int    `db:"shards_completed" json:"shardsCompleted,omitempty" validate:"omitempty,min=0"`
 
 	Sha                string         `db:"sha" json:"sha" validate:"required"`
