@@ -246,15 +246,17 @@ func CompleteBuild(ctx context.Context, build *models.Build) (bool, error) {
 		return false, err
 	}
 	build.Status = curBuild.Status
+	build.ShardingCount = curBuild.ShardingCount
+	build.ShardsCompleted = curBuild.ShardsCompleted
 
-	if build.ShardCount > 0 {
+	if build.ShardingCount > 0 {
 		build.ShardsCompleted += 1
 
 		if err := tx.UpdateBuildShardsCompleted(ctx, build); err != nil {
 			return false, err
 		}
 
-		if build.ShardCount != build.ShardsCompleted {
+		if build.ShardingCount != build.ShardsCompleted {
 			// We're not ready to complete the build yet
 			if err := tx.Commit(); err != nil {
 				return false, err
@@ -263,7 +265,6 @@ func CompleteBuild(ctx context.Context, build *models.Build) (bool, error) {
 			completed = true
 			return true, nil
 		}
-
 	}
 
 	if !models.IsBuildPreProcessing(build.Status) {

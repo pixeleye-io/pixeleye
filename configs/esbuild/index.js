@@ -1,10 +1,20 @@
 import * as esbuild from "esbuild";
 
+
+const forceExternal = [
+  "jsdom",
+  "playwright-core",
+  "playwright-core/lib/server"
+]
+
 const makeAllPackagesExternalPlugin = {
   name: 'make-all-packages-external',
   setup(build) {
     const filter = /^[^.\/]|^\.[^.\/]|^\.\.[^\/]/ // Must not start with "/" or "./" or "../"
-    build.onResolve({ filter }, args => { return ({ path: args.path, external: true }) })
+    build.onResolve({ filter }, args => {
+      if (build.initialOptions.format === "cjs") return ({ external: forceExternal.includes(args.path) }); // Sorry npm but this means our cjs builds are massive
+      { return ({ path: args.path, external: true }) }
+    })
   },
 }
 

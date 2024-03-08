@@ -1,3 +1,8 @@
+const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config({ path: path.join(__dirname, '../../.env') });
+
 /* eslint-disable turbo/no-undeclared-env-vars */
 /** @type {import('next').NextConfig} */
 const nextConfig = {

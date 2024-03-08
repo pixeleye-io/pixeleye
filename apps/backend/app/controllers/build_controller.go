@@ -51,9 +51,9 @@ func CreateBuild(c echo.Context) error {
 	}
 
 	// Build splitting
-	if build.ShardCount != 0 && build.ShardingID == "" {
+	if build.ShardingCount != 0 && build.ShardingID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "shardingID required if shard count is set, we normally try to set this automatically but looks like you've to set it manually")
-	} else if build.ShardingID != "" && build.ShardCount == 0 {
+	} else if build.ShardingID != "" && build.ShardingCount == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "shard count required if shardingID is set")
 	}
 
