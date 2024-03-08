@@ -9,6 +9,7 @@ export interface SnapshotRequest {
   name: string;
   variant?: string;
   serializedDom?: serializedNodeWithId;
+  waitForSelector?: string;
   url?: string;
   selector?: string;
   fullPage?: boolean;
@@ -50,6 +51,7 @@ export async function handleQueue({
         fullPage: body.fullPage,
         maskSelectors: body.maskSelectors,
         maskColor: body.maskColor,
+        waitForSelector: body.waitForSelector,
         css: body.css,
       });
 

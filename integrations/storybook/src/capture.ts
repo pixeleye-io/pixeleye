@@ -128,9 +128,13 @@ export async function captureStories({
         timeout: 60_000,
       });
 
-      await page.waitForFunction(() => document.fonts.ready, {
-        timeout: 60_000,
-      });
+      await page
+        .waitForFunction(() => document.fonts.ready)
+        .catch(() => {
+          logger.info(
+            `Time out waiting for document fonts to be ready for ${story.id}`
+          );
+        });
 
       if (storyConfig?.selector)
         await page.waitForSelector(storyConfig.selector);

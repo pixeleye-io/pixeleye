@@ -551,6 +551,9 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli-devices
+      '@pixeleye/cli-logger':
+        specifier: workspace:*
+        version: link:../cli-logger
       '@types/jsdom':
         specifier: ^21.1.6
         version: 21.1.6

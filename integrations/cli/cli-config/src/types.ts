@@ -2,6 +2,14 @@ import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 export type DomEnvironment = "jsdom" | "happy-dom";
 
+export type SnapshotURL = {
+  url: string;
+  name?: string; // defaults to the URL
+  variant?: string;
+  waitForSelector?: string;
+  selector?: string;
+};
+
 export type StorybookVariant = {
   /**
    * The name of the variant.

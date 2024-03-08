@@ -8,6 +8,7 @@ import { getBrowser } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { DomEnvironment, defaultConfig } from "@pixeleye/cli-config";
 import { JSDOM } from "jsdom";
+import { logger } from "@pixeleye/cli-logger";
 
 export interface CaptureScreenshotOptions {
   device: DeviceDescriptor;
@@ -16,6 +17,7 @@ export interface CaptureScreenshotOptions {
   content?: string;
   selector?: string;
   fullPage?: boolean;
+  waitForSelector?: string;
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
@@ -62,6 +64,17 @@ export async function captureScreenshot(
   }
 
   await page.waitForLoadState();
+
+  await page
+    .waitForFunction(() => document.fonts.ready)
+    .catch(() => {
+      logger.info("Timed out waiting for document fonts to be ready");
+    });
+
+  if (options.waitForSelector)
+    await page.waitForSelector(options.waitForSelector, {
+      timeout: 60_000,
+    });
 
   if (options.selector)
     await page.waitForSelector(options.selector, {
