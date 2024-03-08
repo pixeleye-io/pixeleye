@@ -5,7 +5,9 @@ description: How to run your Pixeleye tests across multiple nodes with sharding
 
 # Parallel tests
 
-Many E2E testing frameworks support test sharding, which allows you to run your tests across multiple nodes. This can significantly reduce the time it takes to run your tests.
+Many E2E testing frameworks support test sharding, which allows you to run your tests across multiple nodes.
+
+Sharding won't speed up Pixeleye's image processing since we already do this in parallel, but it can help speed up your e2e tests.
 
 Pixeleye also supports test sharding. This guide will show you how to get started with test sharding in Pixeleye.
 
