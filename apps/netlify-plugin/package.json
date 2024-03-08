@@ -1,0 +1,22 @@
+{
+  "name": "@pixeleye/netlify",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "type": "module",
+  "private": false,
+  "license": "AGPL-3.0",
+  "scripts": {
+    "lint": "eslint",
+    "types": "tsc --noEmit",
+    "build": "netlify-integration build -a",
+    "dev": "netlify-integration dev -a",
+    "preview": "netlify-integration preview"
+  },
+  "devDependencies": {
+    "@pixeleye/eslint-config": "workspace:*",
+    "@pixeleye/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@netlify/sdk": "^1.25.0"
+  }
+}

@@ -7,3 +7,4 @@ packages:
   - "apps/web"
   - "apps/marketing"
   - "apps/api-tests"
+  - "apps/netlify-plugin"
