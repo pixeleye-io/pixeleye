@@ -156,21 +156,19 @@ func CreateBuild(c echo.Context) error {
 				return err
 			}
 
-			return c.JSON(http.StatusOK, existingBuild)
+			return c.JSON(http.StatusCreated, existingBuild)
 		}
 
 		return err
 	}
 
 	// We can notify all our subscribers that a new build has been created
-	go func(build models.Build) {
-		notifier, err := events.GetNotifier(nil)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get notifier")
-			return
-		}
+	notifier, err := events.GetNotifier(nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get notifier")
+	} else {
 		notifier.NewBuild(build)
-	}(build)
+	}
 
 	return c.JSON(http.StatusCreated, build)
 }
