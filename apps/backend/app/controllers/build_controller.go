@@ -156,7 +156,7 @@ func CreateBuild(c echo.Context) error {
 				return err
 			}
 
-			return c.JSON(http.StatusCreated, existingBuild)
+			return c.JSON(http.StatusOK, existingBuild)
 		}
 
 		return err
