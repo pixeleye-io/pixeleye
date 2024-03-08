@@ -15,7 +15,13 @@ import {
 import { execOutput } from "../messages/exec";
 import { setEnv } from "@pixeleye/cli-env";
 
-export async function execHandler(command: string[], options: Config) {
+export async function execHandler(
+  command: string[],
+  options: Config & {
+    count?: number;
+    shard?: string;
+  }
+) {
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -26,7 +32,10 @@ export async function execHandler(command: string[], options: Config) {
 
   const buildSpinner = ora("Creating build").start();
 
-  const build = await createBuild(api).catch(async (err) => {
+  const build = await createBuild(api, {
+    shardingCount: options.count,
+    shardID: options.shard,
+  }).catch(async (err) => {
     buildSpinner.fail("Failed to create build.");
     console.log(errStr(err));
     program.error(err);

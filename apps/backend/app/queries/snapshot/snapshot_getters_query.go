@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/rs/zerolog/log"
 )
 
 func (tx *SnapshotQueriesTx) GetSnapshotsForUpdate(ctx context.Context, ids []string) ([]models.Snapshot, error) {
@@ -25,6 +26,8 @@ func (tx *SnapshotQueriesTx) GetSnapshotsForUpdate(ctx context.Context, ids []st
 
 func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, error) {
 	snapshot := models.Snapshot{}
+
+	log.Debug().Msgf("Getting last approved snapshot in history for snapshot %s", id)
 
 	query := `WITH RECURSIVE find_approved_snapshot AS (
 		-- Anchor query: Get the initial snapshot with the given snapshot_id
@@ -55,7 +58,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 		  s.status, 
 		  s.snap_image_id,
 		  s.updated_at,
-		  f.depth + 1 
+		  f.depth + 1 as depth
 		FROM 
 		  snapshot s
 		  INNER JOIN build_history bh ON bh.parent_id = s.build_id
@@ -76,9 +79,7 @@ func (q *SnapshotQueries) GetLastApprovedInHistory(id string) (models.Snapshot, 
 	  FROM 
 		find_approved_snapshot 
 	  WHERE 
-		status = 'approved' 
-		or status = 'orphaned'
-		or status = 'missing_baseline' 
+		status IN ('approved', 'orphaned', 'missing_baseline', 'unchanged')
 	  ORDER BY 
 		depth ASC,
 		updated_at DESC 

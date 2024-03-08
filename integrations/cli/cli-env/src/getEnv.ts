@@ -12,6 +12,7 @@ export interface Environment {
   targetBranch?: string;
   prID?: string;
   title?: string;
+  shardID?: string;
 }
 
 export async function getEnvironment(): Promise<Environment> {
@@ -34,5 +35,6 @@ export async function getEnvironment(): Promise<Environment> {
     isPR: isPr,
     prID: pr,
     title: tag,
+    shardID: process.env.PIXELEYE_SHARD_ID || env.build,
   };
 }
