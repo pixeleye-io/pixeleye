@@ -38,11 +38,15 @@ function createAPI(endpoint: string, headers?: HeadersInit) {
       options?.retries,
       options?.retryWait
     )
-      .then((res) => {
+      .then(async (res) => {
         if (res.ok) {
           return res.json().catch(() => res);
         }
-        return Promise.reject(res);
+        const errMsg = await res
+          .json()
+          .catch(() => res)
+          .then((json) => JSON.stringify(json));
+        return Promise.reject(errMsg);
       })
       .catch((err) => {
         if (err instanceof Response) {

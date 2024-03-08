@@ -62,5 +62,4 @@ func CompareSnaps(a Snapshot, b Snapshot) bool {
 	}
 
 	return true
-
 }

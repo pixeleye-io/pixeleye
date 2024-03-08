@@ -21,7 +21,7 @@ import (
 func main() {
 
 	if os.Getenv("STAGE_STATUS") == "" {
-		if err := godotenv.Load(".env", "./../../.env"); err != nil {
+		if err := godotenv.Load("./../../.env"); err != nil {
 			log.Info().Msg("No .env file found")
 		}
 	}

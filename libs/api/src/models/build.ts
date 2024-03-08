@@ -16,6 +16,10 @@ export const BuildZod = z.object({
 
   isLatest: z.boolean().optional(),
 
+  shardingCount: z.number().int().optional(),
+  shardingID: z.string().optional(),
+  shardsCompleted: z.number().int().optional(),
+
   sha: z.string(),
   branch: z.string(),
   message: z.string().optional(),

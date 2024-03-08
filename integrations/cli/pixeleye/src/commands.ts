@@ -17,6 +17,7 @@ export const optionMap = {
   p: "boothPort",
   w: "wait",
   v: "verbose",
+  c: "config",
 } as const;
 
 const configOption = (name: string) =>
@@ -69,6 +70,11 @@ apiOptions("exec")
     "-w, --wait [wait]",
     "Wait for build results, outputting them once finished processing",
     "false"
+  )
+  .option("--count [count]", "Number of shards to split the build into")
+  .option(
+    "--shard [shard]",
+    "An identifier for the shard, use something unique like the CI job id. We'll attempt to set this automatically"
   )
   .description("Start your e2e tests with pixeleye running in the background")
   .hook("preAction", loadAndMergeConfig)

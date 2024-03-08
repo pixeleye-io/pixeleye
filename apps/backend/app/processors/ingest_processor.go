@@ -340,38 +340,44 @@ func compareBuilds(ctx context.Context, project models.Project, snapshots []mode
 	snapshotsToUpdate := []models.Snapshot{}
 
 	for _, snap := range unchangedSnapshots {
+		base := snap[1]
 		snapshot := snap[0]
-		snapshot.BaselineID = &snap[1].ID
+		snapshot.BaselineID = &base.ID
 		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
 
 		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range unreviewedSnapshots {
+		base := snap[1]
 		snapshot := snap[0]
-		snapshot.BaselineID = snap[1].BaselineID
+		snapshot.BaselineID = &base.ID
 		snapshot.Status = models.SNAPSHOT_STATUS_UNREVIEWED
-		snapshot.DiffID = snap[1].DiffID
+		snapshot.DiffID = base.DiffID
 
 		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range rejectedSnapshots {
+		base := snap[1]
 		snapshot := snap[0]
-		snapshot.BaselineID = snap[1].BaselineID
+		snapshot.BaselineID = &base.ID
 		snapshot.Status = models.SNAPSHOT_STATUS_REJECTED
-		snapshot.DiffID = snap[1].DiffID
+		snapshot.DiffID = base.DiffID
 
 		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)
 	}
 
 	for _, snap := range changedSnapshots {
-		err := processSnapshot(ctx, project, build, snap[0], snap[1], db)
+
+		base := snap[1]
+		snapshot := snap[0]
+
+		err := processSnapshot(ctx, project, build, snapshot, base, db)
 
 		if err != nil {
-			log.Error().Err(err).Str("SnapshotID", snap[0].ID).Msg("Failed to process snapshot")
+			log.Error().Err(err).Str("SnapshotID", snapshot.ID).Msg("Failed to process snapshot")
 
-			snapshot := snap[0]
 			snapshot.Status = models.SNAPSHOT_STATUS_FAILED
 			snapshot.Error = fmt.Sprintf("Failed to process snapshot: %s", err.Error())
 

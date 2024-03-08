@@ -221,15 +221,15 @@ func FailBuild(ctx context.Context, build *models.Build) error {
 	return nil
 }
 
-func CompleteBuild(ctx context.Context, build *models.Build) error {
+func CompleteBuild(ctx context.Context, build *models.Build) (bool, error) {
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	tx, err := build_queries.NewBuildTx(db.DBx, ctx)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	completed := false
@@ -243,13 +243,33 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 	// We want to lock the build and make sure we have the latest data
 	curBuild, err := tx.GetBuildForUpdate(ctx, build.ID)
 	if err != nil {
-		return err
+		return false, err
 	}
 	build.Status = curBuild.Status
+	build.ShardingCount = curBuild.ShardingCount
+	build.ShardsCompleted = curBuild.ShardsCompleted
+
+	if build.ShardingCount > 0 {
+		build.ShardsCompleted += 1
+
+		if err := tx.UpdateBuildShardsCompleted(ctx, build); err != nil {
+			return false, err
+		}
+
+		if build.ShardingCount != build.ShardsCompleted {
+			// We're not ready to complete the build yet
+			if err := tx.Commit(); err != nil {
+				return false, err
+			}
+
+			completed = true
+			return true, nil
+		}
+	}
 
 	if !models.IsBuildPreProcessing(build.Status) {
 		// Build has already been marked as complete
-		return fmt.Errorf("build has already been marked as complete")
+		return false, fmt.Errorf("build has already been marked as complete")
 	}
 
 	if build.Status == models.BUILD_STATUS_QUEUED_UPLOADING {
@@ -258,22 +278,22 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 		build.Status = models.BUILD_STATUS_PROCESSING // We need to set this before we calculate the true status
 		build.Status, err = tx.CalculateBuildStatusFromSnapshotsIgnoringQueued(ctx, *build)
 		if err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	if err := tx.UpdateBuildStatus(ctx, build); err != nil {
-		return err
+		return false, err
 	}
 
 	if !models.IsBuildQueued(build.Status) {
 		if err := queueSnapshots(tx, ctx, build); err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return err
+		return false, err
 	}
 
 	completed = true
@@ -286,5 +306,5 @@ func CompleteBuild(ctx context.Context, build *models.Build) error {
 		}
 	}
 
-	return nil
+	return false, nil
 }

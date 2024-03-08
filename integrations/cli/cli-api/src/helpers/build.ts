@@ -48,13 +48,29 @@ export async function getParentBuilds(api: APIType) {
   return [];
 }
 
-export async function createBuild(api: APIType) {
+export async function createBuild(
+  api: APIType,
+  options?: {
+    shardingCount?: number;
+    shardID?: string;
+  }
+) {
   const env = await getEnvironment();
 
   if (!env.branch) {
     throw new Error("No branch found");
   } else if (!env.commit) {
     throw new Error("No commit found");
+  }
+
+  if (options?.shardingCount && !options?.shardID) {
+    options.shardID = env.shardID;
+
+    if (!options.shardID) {
+      throw new Error(
+        "No shard ID found, please set it with --shard or PIXELEYE_SHARD_ID"
+      );
+    }
   }
 
   const parentBuilds = (await getParentBuilds(api)) || [];
@@ -118,6 +134,8 @@ export async function createBuild(api: APIType) {
       targetBranch: env.targetBranch,
       prID: env.prID?.toString(),
       title: env.title,
+      shardingCount: Number(options?.shardingCount) || undefined, // Avoids sending 0
+      shardingID: options?.shardID?.toString() || undefined, // Avoids sending ""
     },
   });
 
