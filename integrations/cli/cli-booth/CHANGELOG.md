@@ -1,5 +1,14 @@
 # @pixeleye/cli-booth
 
+## 0.4.11
+
+### Patch Changes
+
+- Updated dependencies [[`1615bb5`](https://github.com/pixeleye-io/pixeleye/commit/1615bb58f0d1b097b513cf99a6af10b58e43ad5a)]:
+  - @pixeleye/cli-api@0.3.11
+  - @pixeleye/cli-config@0.4.9
+  - @pixeleye/cli-capture@0.4.6
+
 ## 0.4.10
 
 ### Patch Changes
