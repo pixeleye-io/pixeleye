@@ -583,6 +583,23 @@ table "build" {
     default = ""
   }
 
+  column "sharding_id" {
+    type    = varchar(255)
+    null    = false
+    default = ""
+  }
+  column "sharding_count" {
+    type    = integer
+    null    = false
+    default = 0
+  }
+
+  column "shards_completed" {
+    type    = integer
+    null    = false
+    default = 0
+  }
+
   column "sha" {
     type = varchar(255)
     null = false
@@ -624,7 +641,15 @@ table "build" {
     columns = [column.project_id, column.build_number]
     unique  = true
   }
+
+  index "idx_unique_build_project_id__sharding_id" {
+    columns = [column.project_id, column.sharding_id]
+    unique  = true
+    where   = "sharding_id != ''"
+  }
+
 }
+
 
 table "build_history" {
   schema = schema.public
