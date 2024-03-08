@@ -130,6 +130,14 @@ We recommend adding the something like this to your `package.json` file:
 
 You should run this command in your ci/cd pipeline.
 
+## External storybook
+
+You can enter any url to capture a storybook. This is useful if you have a public storybook or a storybook running on a different server.
+
+```bash
+pixeleye storybook https://example.com/storybook
+```
+
 ## Dark/Light, Mobile/Desktop, and more
 
 We support capturing multiple variants of your components. As long as there's a url parameter for it, we can capture it.
