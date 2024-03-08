@@ -1,9 +1,10 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
 const path = require('path');
 const dotenv = require('dotenv');
 
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+if (process.env.NODE_ENV === "development")
+  dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-/* eslint-disable turbo/no-undeclared-env-vars */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ["@pixeleye/ui", "@pixeleye/api", "@pixeleye/tailwind"],
