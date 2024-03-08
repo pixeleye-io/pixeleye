@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.3.9
+
+### Patch Changes
+
+- [#241](https://github.com/pixeleye-io/pixeleye/pull/241) [`1615bb5`](https://github.com/pixeleye-io/pixeleye/commit/1615bb58f0d1b097b513cf99a6af10b58e43ad5a) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Fixing cjs bundle
+
 ## 0.3.8
 
 ### Patch Changes
