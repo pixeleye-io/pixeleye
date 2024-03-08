@@ -7,6 +7,16 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 )
 
+func (q *BuildQueries) GetBuildFromShardID(ctx context.Context, projectID string, shardID string) (models.Build, error) {
+	build := models.Build{}
+
+	query := `SELECT * FROM build WHERE sharding_id = $1 AND project_id = $2`
+
+	err := q.GetContext(ctx, &build, query, shardID, projectID)
+
+	return build, err
+}
+
 // You should always check that the builds commit sha is in the history of head
 func (q *BuildQueries) GetBuildFromBranch(projectID string, branch string) (models.Build, error) {
 	// TODO - We should make sure we ignore failed builds

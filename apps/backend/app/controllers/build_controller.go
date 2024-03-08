@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 	nanoid "github.com/matoous/go-nanoid/v2"
 	"github.com/pixeleye-io/pixeleye/app/events"
 	"github.com/pixeleye-io/pixeleye/app/models"
@@ -49,9 +50,30 @@ func CreateBuild(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Build splitting
+	if build.ShardCount != 0 && build.ShardingID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "shardingID required if shard count is set, we normally try to set this automatically but looks like you've to set it manually")
+	} else if build.ShardingID != "" && build.ShardCount == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "shard count required if shardingID is set")
+	}
+
 	db, err := database.OpenDBConnection()
 	if err != nil {
 		return err
+	}
+
+	if build.ShardingID != "" {
+		// Attempt to find the build with the same sharding id
+		// If it doesn't exist, then this is the first build in the shard and we can set the build number to 1
+
+		existingBuild, err := db.GetBuildFromShardID(c.Request().Context(), project.ID, build.ShardingID)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+
+		if existingBuild.ID != "" {
+			return c.JSON(http.StatusOK, existingBuild)
+		}
 	}
 
 	if os.Getenv("PIXELEYE_HOSTING") == "true" {
@@ -127,6 +149,16 @@ func CreateBuild(c echo.Context) error {
 	}
 
 	if err := db.CreateBuild(c.Request().Context(), &build); err != nil {
+		if driverErr, ok := err.(*pq.Error); ok && driverErr.Code == pq.ErrorCode("23505") && driverErr.Constraint == "idx_unique_build_project_id__sharding_id" {
+			// We'e just lost the race to create the build, lets fetch the existing build and return it
+			existingBuild, err := db.GetBuildFromShardID(c.Request().Context(), project.ID, build.ShardingID)
+			if err != nil {
+				return err
+			}
+
+			return c.JSON(http.StatusOK, existingBuild)
+		}
+
 		return err
 	}
 
@@ -545,8 +577,11 @@ func UploadComplete(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "build has already been completed")
 	}
 
-	if err := statuses_build.CompleteBuild(c.Request().Context(), build); err != nil {
+	if stillWaiting, err := statuses_build.CompleteBuild(c.Request().Context(), build); err != nil {
 		return err
+	} else if stillWaiting {
+		// We have some parallel builds that are still processing
+		return c.JSON(http.StatusAccepted, build)
 	}
 
 	snapCount, err := db.CountBuildSnapshots(c.Request().Context(), build.ID)
