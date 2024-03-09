@@ -3,7 +3,8 @@ import bodyParser from "body-parser";
 import { Build } from "@pixeleye/api";
 import { getEnvConfig } from "@pixeleye/cli-config";
 import { SnapshotRequest, handleQueue, queue } from "./snapshotQueue";
-import { getBrowser } from "@pixeleye/cli-capture";
+import { getBrowser, getBuildContent } from "@pixeleye/cli-capture";
+import { registerOnEmpty } from "./bus";
 
 export interface BoothServerOptions {
   port: number;
@@ -45,14 +46,31 @@ export function startServer(options: BoothServerOptions) {
     app.post("/snapshot", (req, res) => {
       const body = req.body as SnapshotRequest;
 
-      queue.add(async () => handleQueue({ ...options, body }));
+      const content = body.serializedDom
+        ? getBuildContent(body.serializedDom)
+        : undefined;
+
+      body.devices.forEach((device) => {
+        queue.add(async () =>
+          handleQueue({
+            ...options,
+            body: {
+              device,
+              content,
+              ...body,
+            },
+          })
+        );
+      });
 
       res.end("ok");
     });
 
     app.get("/finished", (_, res) => {
       queue.onIdle().then(() => {
-        res.end("ok");
+        registerOnEmpty(() => {
+          res.end("ok");
+        });
       });
     });
 

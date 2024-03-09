@@ -1,8 +1,13 @@
-import { captureScreenshot, getBuildContent } from "@pixeleye/cli-capture";
+import {
+  CaptureScreenshotOptions,
+  captureScreenshot,
+  getBuildContent,
+} from "@pixeleye/cli-capture";
 import { serializedNodeWithId } from "rrweb-snapshot";
 import PQueue from "p-queue";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
 import type { DeviceDescriptor } from "@pixeleye/cli-devices";
+import { QueuedSnap, queueSnapshot } from "./bus";
 
 export interface SnapshotRequest {
   name: string;
@@ -18,14 +23,45 @@ export interface SnapshotRequest {
   css?: string;
 }
 
-export const queue = new PQueue({ concurrency: 6 });
+export const queue = new PQueue({
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  concurrency: Number(process.env.PIXELEYE_BOOTH_CONCURRENCY) || 4,
+});
+
+export type HandleSnapshot = CaptureScreenshotOptions & {
+  name: string;
+  variant?: string;
+};
 
 export async function handleQueue({
   endpoint,
   token,
   body,
   buildID,
-  
+}: {
+  endpoint: string;
+  token: string;
+  body: HandleSnapshot;
+  buildID: string;
+}) {
+  const file: QueuedSnap = await captureScreenshot(body).then((file) => ({
+    file,
+    format: "png",
+    name: body.name,
+    variant: body.variant,
+    target: body.device.name as string,
+    viewport: `${body.device.viewport.width}x${body.device.viewport.height}`,
+    targetIcon: body.device.icon,
+  }));
+
+  queueSnapshot(endpoint, token, buildID, file);
+}
+
+export async function handleQueue2({
+  endpoint,
+  token,
+  body,
+  buildID,
 }: {
   endpoint: string;
   token: string;

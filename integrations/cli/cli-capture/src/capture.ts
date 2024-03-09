@@ -4,11 +4,12 @@ import {
   rebuild,
   serializedNodeWithId,
 } from "rrweb-snapshot";
-import { getBrowser } from "./browsers";
+import { getPage } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { defaultConfig } from "@pixeleye/cli-config";
 import { JSDOM } from "jsdom";
 import { logger } from "@pixeleye/cli-logger";
+import { Page } from "playwright-core";
 
 export interface CaptureScreenshotOptions {
   device: DeviceDescriptor;
@@ -34,10 +35,18 @@ export function getBuildContent(serializedDom: serializedNodeWithId): string {
 export async function captureScreenshot(
   options: CaptureScreenshotOptions
 ): Promise<Buffer> {
-  const browser = await getBrowser(options.device);
+  const page = await getPage(options.device);
 
-  const page = await browser.newPage();
+  return internalCaptureScreenshot(page, options).catch((err) => {
+    page.close();
+    throw err;
+  });
+}
 
+async function internalCaptureScreenshot(
+  page: Page,
+  options: CaptureScreenshotOptions
+): Promise<Buffer> {
   if (options.url) {
     await page.goto(options.url, {
       timeout: 60_000,

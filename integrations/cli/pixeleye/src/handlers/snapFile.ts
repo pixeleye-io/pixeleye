@@ -11,8 +11,15 @@ import {
   waitForProcessing,
   watchExit,
 } from "./utils";
+import Sitemapper from "sitemapper";
 
-export async function snapFileHandler(files: string[], options: Config) {
+export async function snapFileHandler(
+  files: string[],
+  options: Config & {
+    urls?: string[];
+    sitemaps?: string[];
+  }
+) {
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -30,10 +37,48 @@ export async function snapFileHandler(files: string[], options: Config) {
 
   readFilesSpinner.succeed("Successfully read url files.");
 
+  if (options.urls && options.urls.length > 0) {
+    const cmdURLs = ora("Parsing urls from command line").start();
+    snapshotURLs.push(
+      ...options.urls
+        .map((url) => ({ url }))
+        .filter(({ url }) =>
+          !snapshotURLs.some((existing) => existing.url === url)
+        )
+    );
+    cmdURLs.succeed("Successfully parsed urls from command line");
+  }
+
+  if (options.sitemaps && options.sitemaps.length > 0) {
+    const sitemapURLs = ora("Parsing urls from sitemaps").start();
+    const sitemap = new Sitemapper({});
+
+    const urls = await Promise.all(
+      options.sitemaps.map(async (sitemapURL) => sitemap.fetch(sitemapURL))
+    ).catch((err) => {
+      sitemapURLs.fail("Failed to parse urls from sitemaps.");
+      program.error(err);
+    });
+
+    snapshotURLs.push(
+      ...urls.flatMap(({ sites }) =>
+        sites
+          .map((url) => ({ url }))
+          .filter(({ url }) =>
+            !snapshotURLs.some((existing) => existing.url === url)
+          )
+      )
+    );
+
+    sitemapURLs.succeed("Successfully parsed urls from sitemaps");
+  }
+
   if (snapshotURLs.length === 0) {
     console.log(errStr("No URLs to snapshot."));
     process.exit(1);
   }
+
+  ora(`Found ${snapshotURLs.length} URLs to snapshot.`).info();
 
   const buildSpinner = ora("Creating build").start();
 

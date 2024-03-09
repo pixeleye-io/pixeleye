@@ -1,8 +1,15 @@
-import { chromium, firefox, webkit, BrowserContext } from "playwright-core";
+import {
+  chromium,
+  firefox,
+  webkit,
+  BrowserContext,
+  Browser,
+  Page,
+} from "playwright-core";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import hash from "object-hash";
 
-const deviceCache: Record<string, BrowserContext | undefined> = {};
+const browserCache: Record<string, Browser | undefined> = {};
 
 const renderEngines = {
   chromium: chromium,
@@ -12,11 +19,11 @@ const renderEngines = {
 
 export async function getBrowser(
   deviceDescriptor: DeviceDescriptor
-): Promise<BrowserContext> {
-  const key = hash(deviceDescriptor);
+): Promise<Browser> {
+  const key = hash(deviceDescriptor.defaultBrowserType);
 
-  if (deviceCache[key]) {
-    return deviceCache[key]!;
+  if (browserCache[key]) {
+    return browserCache[key]!;
   }
 
   const renderer = renderEngines[deviceDescriptor.defaultBrowserType];
@@ -25,11 +32,18 @@ export async function getBrowser(
     throw new Error(`Unknown renderer ${deviceDescriptor.defaultBrowserType}`);
   }
 
-  const browser = await renderer.launch();
+  const browser = await renderer.launch({
+    headless: true,
+  });
 
-  const context = await browser.newContext(deviceDescriptor);
+  browserCache[key] = browser;
 
-  deviceCache[key] = context;
+  return browser;
+}
 
-  return context;
+export async function getPage(
+  deviceDescriptor: DeviceDescriptor
+): Promise<Page> {
+  const browser = await getBrowser(deviceDescriptor);
+  return browser.newPage(deviceDescriptor);
 }

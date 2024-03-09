@@ -24,6 +24,8 @@ export const optionMap = {
   w: "wait",
   v: "verbose",
   c: "config",
+  sm: "sitemaps",
+  u: "urls",
 } as const;
 
 const configOption = (name: string) =>
@@ -101,6 +103,14 @@ apiOptions("snapshot")
   .argument(
     "[files...]",
     "File globs for pixeleye snapshot definitions. You can also declare these in your config file"
+  )
+  .option(
+    "-sm, --sitemaps <sitemaps...>",
+    "Sitemap URLs to snapshot, e.g. https://example.com/sitemap.xml. If a url has already been listed in a file], the file definition will take precedence."
+  )
+  .option(
+    "-u, --urls <urls...>",
+    "URLs to snapshot, e.g. https://example.com. If a url has already been listed in a file, the file definition will take precedence."
   )
   .option(
     "-w, --wait [wait]",
