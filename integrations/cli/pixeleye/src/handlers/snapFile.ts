@@ -1,10 +1,9 @@
 import ora from "ora";
-import { ping } from "@pixeleye/cli-booth";
+import { ping, snapshot } from "@pixeleye/cli-booth";
 import { program } from "commander";
-import { captureStories } from "@pixeleye/storybook";
 import { errStr } from "../messages/ui/theme";
 import { API, createBuild } from "@pixeleye/cli-api";
-import { Config } from "@pixeleye/cli-config";
+import { Config, readSnapshotFiles } from "@pixeleye/cli-config";
 import {
   getExitBuild,
   startBooth,
@@ -13,11 +12,23 @@ import {
   watchExit,
 } from "./utils";
 
-export async function storybook(url: string, options: Config) {
+export async function snapFileHandler(files: string[], options: Config) {
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
   });
+
+  const readFilesSpinner = ora("Reading url files").start();
+  // We've already called and resolved urlCaptureFiles if it's a function
+  const snapshotURLs = await readSnapshotFiles([
+    ...files,
+    ...((options.snapshotFiles as string[]) || []),
+  ]).catch((err) => {
+    readFilesSpinner.fail("Failed to read url files.");
+    program.error(err);
+  });
+
+  readFilesSpinner.succeed("Successfully read url files.");
 
   const buildSpinner = ora("Creating build").start();
 
@@ -58,28 +69,35 @@ export async function storybook(url: string, options: Config) {
 
   pingSpinner.succeed("Successfully pinged booth server.");
 
-  const storybookSpinner = ora(
-    `Capturing stories at ${url}, Snapshots captured: 0`
-  ).start();
+  const captureURlSpinner = ora("Capturing URLs").start();
 
-  let totalSnaps = 0;
-  await captureStories({
-    storybookURL: url,
-    devices: options.devices!,
-    variants: options.storybookOptions?.variants,
-    callback({ current }) {
-      totalSnaps = current;
-      storybookSpinner.text = `Capturing stories at ${url}, Snapshots captured: ${current}`;
-      return Promise.resolve();
-    },
-  }).catch(async (err) => {
-    storybookSpinner.fail("Failed to capture stories.");
+  await Promise.all(
+    snapshotURLs.map(async (url) => {
+      const res = await snapshot(
+        {
+          endpoint: options.endpoint!,
+        },
+        {
+          devices: options.devices!,
+          name: url.name || url.url,
+          variant: url.variant,
+          url: url.url,
+          selector: url.selector,
+          maskSelectors: url.maskSelectors,
+          css: `${options.css || ""}\n${url.css || ""}`,
+          fullPage: url.fullPage,
+          waitForSelector: url.waitForSelector,
+        }
+      );
+
+      return res;
+    })
+  ).catch(async (err) => {
+    captureURlSpinner.fail("Failed to capture URLs.");
     await exitBuild(err);
   });
 
-  storybookSpinner.succeed(
-    `Successfully captured stories (${totalSnaps} snaps in total)`
-  );
+  captureURlSpinner.succeed("Successfully captured URLs.");
 
   const processingSpinner = ora(
     "Waiting for device capturing and uploads to finish"

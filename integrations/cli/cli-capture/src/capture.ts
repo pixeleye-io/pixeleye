@@ -6,13 +6,12 @@ import {
 } from "rrweb-snapshot";
 import { getBrowser } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import { DomEnvironment, defaultConfig } from "@pixeleye/cli-config";
+import { defaultConfig } from "@pixeleye/cli-config";
 import { JSDOM } from "jsdom";
 import { logger } from "@pixeleye/cli-logger";
 
 export interface CaptureScreenshotOptions {
   device: DeviceDescriptor;
-  domEnvironment: DomEnvironment;
   url?: string;
   content?: string;
   selector?: string;

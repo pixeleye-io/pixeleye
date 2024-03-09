@@ -1,7 +1,13 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { loadAndMergeConfig } from "./config-loader";
-import { execHandler, ping, storybook, uploadHandler } from "./handlers";
+import {
+  execHandler,
+  ping,
+  snapFileHandler,
+  storybook,
+  uploadHandler,
+} from "./handlers";
 import { setLogLevel } from "@pixeleye/cli-logger";
 
 export const program = new Command();
@@ -90,5 +96,21 @@ apiOptions("upload")
   .description("Upload screenshots to pixeleye")
   .hook("preAction", loadAndMergeConfig)
   .action(uploadHandler);
+
+apiOptions("snapshot")
+  .argument(
+    "[files...]",
+    "File globs for pixeleye snapshot definitions. You can also declare these in your config file"
+  )
+  .option(
+    "-w, --wait [wait]",
+    "Wait for build results, outputting them once finished processing",
+    "false"
+  )
+  .description(
+    "Upload screenshots to pixeleye from a list of URL files passed in or defined in your config file"
+  )
+  .hook("preAction", loadAndMergeConfig)
+  .action(snapFileHandler);
 
 export default program.parse(process.argv);

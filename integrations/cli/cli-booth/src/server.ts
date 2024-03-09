@@ -1,7 +1,7 @@
 import polka from "polka";
 import bodyParser from "body-parser";
 import { Build } from "@pixeleye/api";
-import { DomEnvironment, getEnvConfig } from "@pixeleye/cli-config";
+import { getEnvConfig } from "@pixeleye/cli-config";
 import { SnapshotRequest, handleQueue, queue } from "./snapshotQueue";
 import { getBrowser } from "@pixeleye/cli-capture";
 
@@ -10,7 +10,6 @@ export interface BoothServerOptions {
   endpoint: string;
   token: string;
   buildID: Build["id"];
-  domEnvironment: DomEnvironment;
 }
 
 // We want to warm up the browsers in the pixeleye.config.js file to speed up the first snapshot

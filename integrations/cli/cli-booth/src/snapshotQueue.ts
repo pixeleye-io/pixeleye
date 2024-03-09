@@ -3,7 +3,6 @@ import { serializedNodeWithId } from "rrweb-snapshot";
 import PQueue from "p-queue";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
 import type { DeviceDescriptor } from "@pixeleye/cli-devices";
-import type { DomEnvironment } from "@pixeleye/cli-config";
 
 export interface SnapshotRequest {
   name: string;
@@ -26,13 +25,12 @@ export async function handleQueue({
   token,
   body,
   buildID,
-  domEnvironment,
+  
 }: {
   endpoint: string;
   token: string;
   body: SnapshotRequest;
   buildID: string;
-  domEnvironment: DomEnvironment;
 }) {
   const api = API({ endpoint, token });
 
@@ -43,7 +41,6 @@ export async function handleQueue({
   await Promise.all(
     body.devices.map(async (device) => {
       const file = await captureScreenshot({
-        domEnvironment,
         device,
         content,
         url: body.url,
