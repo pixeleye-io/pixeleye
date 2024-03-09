@@ -1,70 +1,60 @@
-import { PartialSnapshot } from "@pixeleye/api";
-import { API, uploadSnapshots } from "@pixeleye/cli-api";
-
-export type QueuedSnap = Omit<PartialSnapshot, "snapID"> & {
-  file: Buffer;
-  format: "png";
+export type Bus<T> = {
+  queue: T[];
+  delay: number;
+  timer: NodeJS.Timeout | undefined;
+  add: (message: T) => Promise<void>;
+  process: (autoStart?: boolean) => Promise<void>;
+  hurryAndWait: () => Promise<void>;
 };
 
-const queuedSnaps: QueuedSnap[] = [];
+export function createBus<T>(options: {
+  delay: number;
+  batchSize: number;
+  handler: (messages: T[]) => Promise<void>;
+}): Bus<T> {
+  return {
+    queue: [] as T[],
+    delay: options.delay,
+    timer: undefined as NodeJS.Timeout | undefined,
+    async add(message: T) {
+      this.queue.push(message);
 
-let timer: NodeJS.Timeout | undefined;
+      if (!this.timer) {
+        this.timer = setTimeout(() => this.process(true), this.delay);
+      }
+    },
+    async process(autoStart?: boolean) {
+      if (this.queue.length === 0) {
+        return;
+      }
 
-let onEmpty: (() => void) | undefined;
+      const messages = this.queue.splice(
+        0,
+        Math.min(this.queue.length, options.batchSize)
+      );
+      await options.handler(messages);
 
-export function registerOnEmpty(cb: () => void) {
-  onEmpty = cb;
-}
+      if (!autoStart) return;
 
-export function queueSnapshot(
-  endpoint: string,
-  token: string,
-  buildID: string,
-  snapshot: QueuedSnap
-) {
-  queuedSnaps.push(snapshot);
+      if (this.queue.length === 0) {
+        this.timer = undefined;
+      } else {
+        this.timer = setTimeout(() => this.process(true), this.delay);
+      }
+    },
+    async hurryAndWait() {
+      clearInterval(this.timer);
 
-  if (!timer) {
-    timer = setTimeout(() => handleQueue(endpoint, token, buildID), 5_000);
-  }
-}
+      if (this.queue.length === 0) {
+        return;
+      }
 
-async function handleQueue(endpoint: string, token: string, buildID: string) {
-  timer = undefined;
-  const snapshots = queuedSnaps.splice(0, Math.min(queuedSnaps.length, 10));
-
-  if (queuedSnaps.length > 0) {
-    timer = setTimeout(() => handleQueue(endpoint, token, buildID), 5_000);
-  }
-
-  if (snapshots.length === 0) {
-    timer = undefined;
-    return;
-  }
-
-  const api = API({ endpoint, token });
-
-  await uploadSnapshots(endpoint, token, snapshots).then(
-    (ids) =>
-      ids.length > 0 &&
-      api.post("/v1/client/builds/{id}/upload", {
-        params: {
-          id: buildID,
-        },
-        body: {
-          snapshots: snapshots.map((body, i) => ({
-            name: body.name,
-            variant: body.variant,
-            snapID: ids[i].id,
-            target: body.target,
-            viewport: body.viewport,
-            targetIcon: body.targetIcon,
-          })),
-        },
-      })
-  );
-
-  if (queuedSnaps.length === 0 && onEmpty) {
-    onEmpty();
-  }
+      return new Promise(async (resolve) => {
+        while (this.queue.length > 0) {
+          await this.process(false);
+        }
+        resolve();
+      });
+    },
+  };
 }
