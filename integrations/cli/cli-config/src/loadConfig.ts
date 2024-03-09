@@ -131,7 +131,9 @@ export async function loadConfig(path?: string): Promise<Config> {
 export async function readSnapshotFiles(
   files: string[]
 ): Promise<SnapshotDefinition[]> {
-  const fileNames = await fb(files, {});
+  const fileNames = await fb(files, {
+    absolute: true,
+  });
 
   return Promise.all(
     fileNames.map(async (fileName) => {

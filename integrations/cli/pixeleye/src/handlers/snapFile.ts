@@ -30,6 +30,11 @@ export async function snapFileHandler(files: string[], options: Config) {
 
   readFilesSpinner.succeed("Successfully read url files.");
 
+  if (snapshotURLs.length === 0) {
+    console.log(errStr("No URLs to snapshot."));
+    process.exit(1);
+  }
+
   const buildSpinner = ora("Creating build").start();
 
   const build = await createBuild(api).catch(async (err) => {
@@ -72,10 +77,10 @@ export async function snapFileHandler(files: string[], options: Config) {
   const captureURlSpinner = ora("Capturing URLs").start();
 
   await Promise.all(
-    snapshotURLs.map(async (url) => {
-      const res = await snapshot(
+    snapshotURLs.map(async (url) =>
+      snapshot(
         {
-          endpoint: options.endpoint!,
+          endpoint: `http://localhost:${options.boothPort}`,
         },
         {
           devices: options.devices!,
@@ -88,10 +93,8 @@ export async function snapFileHandler(files: string[], options: Config) {
           fullPage: url.fullPage,
           waitForSelector: url.waitForSelector,
         }
-      );
-
-      return res;
-    })
+      )
+    )
   ).catch(async (err) => {
     captureURlSpinner.fail("Failed to capture URLs.");
     await exitBuild(err);

@@ -39,7 +39,9 @@ export async function captureScreenshot(
   const page = await browser.newPage();
 
   if (options.url) {
-    await page.goto(options.url);
+    await page.goto(options.url, {
+      timeout: 60_000,
+    });
   } else if (options.content) {
     await page.setContent(options.content, {
       timeout: 60_000,
