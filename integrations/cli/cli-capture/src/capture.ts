@@ -32,14 +32,35 @@ export function getBuildContent(serializedDom: serializedNodeWithId): string {
   return doc.documentElement.outerHTML;
 }
 
+const retries = 3;
+
 export async function captureScreenshot(
   options: CaptureScreenshotOptions
 ): Promise<Buffer> {
   const page = await getPage(options.device);
 
-  return internalCaptureScreenshot(page, options).catch((err) => {
-    page.close();
-    throw err;
+  let error: Error | undefined;
+
+  return new Promise(async (resolve, reject) => {
+    for (let i = 0; i < retries; i++) {
+      const buffer = await internalCaptureScreenshot(page, options).catch(
+        (err) => {
+          logger.error(err);
+          error = err;
+        }
+      );
+
+      if (buffer) {
+        await page.close();
+        return resolve(buffer);
+      }
+    }
+
+    await page.close();
+
+    logger.error(`Failed to capture screenshot after ${retries} retries`);
+
+    reject(error);
   });
 }
 
