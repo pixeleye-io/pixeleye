@@ -7,6 +7,7 @@ import { existsSync } from "node:fs";
 import { Config, SnapshotDefinition } from "./types";
 import { fileURLToPath } from "node:url";
 import fb from "fast-glob";
+import path from "node:path";
 
 const _filename =
   typeof __filename !== "undefined"
@@ -137,6 +138,10 @@ export async function readSnapshotFiles(
 
   return Promise.all(
     fileNames.map(async (fileName) => {
+      if (path.extname(fileName) === ".html") {
+        return [{ url: `file://${fileName}` }];
+      }
+
       const content = readFile<SnapshotDefinition[]>(fileName);
       return typeof content === "function" ? content() : content;
     })
