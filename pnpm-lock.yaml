@@ -741,7 +741,7 @@ importers:
         specifier: workspace:*
         version: link:../cli-api
       '@pixeleye/cli-booth':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../cli-booth
       '@pixeleye/cli-config':
         specifier: workspace:*
