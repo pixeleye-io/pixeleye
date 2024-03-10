@@ -1,5 +1,31 @@
 # pixeleye
 
+## 0.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`57d5bf2`](https://github.com/pixeleye-io/pixeleye/commit/57d5bf28839bb7ebc450155312c0c4ae9a31627b)]:
+  - @pixeleye/cli-config@0.5.0
+  - @pixeleye/cli-booth@0.4.13
+
+## 0.6.1
+
+### Patch Changes
+
+- [`a581e6a`](https://github.com/pixeleye-io/pixeleye/commit/a581e6a460fdc6ccd6a27681a747437d75794730) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating deps
+
+## 0.6.0
+
+### Minor Changes
+
+- [#248](https://github.com/pixeleye-io/pixeleye/pull/248) [`439d21e`](https://github.com/pixeleye-io/pixeleye/commit/439d21edbe949b6fd63c84f2eac42e5374f933df) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding sitemap & url integration
+
+### Patch Changes
+
+- Updated dependencies [[`c9cef90`](https://github.com/pixeleye-io/pixeleye/commit/c9cef900d102ba61a673cb7c9e06fe57a3f62999), [`c9cef90`](https://github.com/pixeleye-io/pixeleye/commit/c9cef900d102ba61a673cb7c9e06fe57a3f62999)]:
+  - @pixeleye/cli-booth@0.4.12
+  - @pixeleye/storybook@0.5.17
+
 ## 0.5.0
 
 ### Minor Changes

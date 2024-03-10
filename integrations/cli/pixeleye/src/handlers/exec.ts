@@ -13,7 +13,6 @@ import {
   watchExit,
 } from "./utils";
 import { execOutput } from "../messages/exec";
-import { setEnv } from "@pixeleye/cli-env";
 
 export async function execHandler(
   command: string[],
@@ -26,9 +25,6 @@ export async function execHandler(
     endpoint: options.endpoint!,
     token: options.token,
   });
-
-  // set boothPort env variable for booth server
-  setEnv("PIXELEYE_BOOTH_PORT", options.boothPort!);
 
   const buildSpinner = ora("Creating build").start();
 

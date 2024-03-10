@@ -4,11 +4,14 @@ import jitiFactory from "jiti";
 import { transform } from "sucrase";
 import { join } from "node:path";
 import { existsSync } from "node:fs";
-import { Config } from "./types";
+import { Config, SnapshotDefinition } from "./types";
 import { fileURLToPath } from "node:url";
+import fb from "fast-glob";
 
 const _filename =
-  typeof __filename !== "undefined" ? __filename : fileURLToPath(import.meta.url);
+  typeof __filename !== "undefined"
+    ? __filename
+    : fileURLToPath(import.meta.url);
 
 let jiti: ReturnType<typeof jitiFactory> | null = null;
 
@@ -51,7 +54,7 @@ function lazyJiti() {
   );
 }
 
-function readConfig(path: string): Config | (() => Promise<Config>) {
+export function readFile<T>(path: string): T | (() => Promise<T>) {
   let config = (function () {
     try {
       return path ? require(path) : {};
@@ -86,7 +89,7 @@ export async function loadConfig(path?: string): Promise<Config> {
 
   const relativePath = join(process.cwd(), path ?? "");
 
-  let userConfig = readConfig(relativePath);
+  let userConfig = readFile<Config>(relativePath);
 
   if (typeof userConfig === "function") {
     userConfig = await userConfig().catch((err) => {
@@ -106,6 +109,12 @@ export async function loadConfig(path?: string): Promise<Config> {
 
   const merged = mergeObjects(defaultConfig as Config, userConfig);
 
+  // Check & get snapshotURLs
+  if (typeof merged.snapshotFiles === "function") {
+    const { snapshotFiles: _, ...rest } = merged;
+    merged.snapshotFiles = await merged.snapshotFiles(rest);
+  }
+
   for (const key of Object.keys(merged) as Array<keyof Config>) {
     // IF string then set env variable
     if (typeof merged[key] === "string") {
@@ -117,4 +126,19 @@ export async function loadConfig(path?: string): Promise<Config> {
   }
 
   return merged;
+}
+
+export async function readSnapshotFiles(
+  files: string[]
+): Promise<SnapshotDefinition[]> {
+  const fileNames = await fb(files, {
+    absolute: true,
+  });
+
+  return Promise.all(
+    fileNames.map(async (fileName) => {
+      const content = readFile<SnapshotDefinition[]>(fileName);
+      return typeof content === "function" ? content() : content;
+    })
+  ).then((results) => results.flat());
 }

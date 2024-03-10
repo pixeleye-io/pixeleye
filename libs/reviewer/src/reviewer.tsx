@@ -209,7 +209,7 @@ export function Reviewer(props: ReviewerProps) {
 
   const store = useRef(createStore({
     panelOpen: props.defaultSidebarOpen,
-    currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].snapshots[0],
+    currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0]?.snapshots[0],
     optimize: props.optimize,
     snapshots: snapshotTargetGroups,
     build: props.build,

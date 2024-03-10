@@ -1,5 +1,11 @@
 # @pixeleye/playwright
 
+## 0.4.10
+
+### Patch Changes
+
+- [#248](https://github.com/pixeleye-io/pixeleye/pull/248) [`c9cef90`](https://github.com/pixeleye-io/pixeleye/commit/c9cef900d102ba61a673cb7c9e06fe57a3f62999) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Added wait for selector option
+
 ## 0.4.9
 
 ### Patch Changes

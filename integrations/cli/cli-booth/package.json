@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-booth",
-  "version": "0.4.11",
+  "version": "0.4.13",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -38,6 +38,7 @@
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-capture": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*",
     "@types/polka": "^0.5.7",
     "body-parser": "^1.20.2",
     "p-queue": "^8.0.1",

@@ -22,6 +22,7 @@ export interface Options {
   fullPage?: boolean;
   variant?: string;
   selector?: string;
+  waitForSelector?: string;
   devices?: DeviceDescriptor[];
   maskSelectors?: string[];
   maskColor?: string;
@@ -53,6 +54,9 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
   await (page as Page).addScriptTag({
     path: rrwebSnapshot,
   });
+
+  if (options.waitForSelector)
+    await page.waitForSelector(options.waitForSelector);
 
   const domSnapshot = await (page as Page).evaluate(() => {
     // @ts-ignore

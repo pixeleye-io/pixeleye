@@ -1,10 +1,9 @@
 import ora from "ora";
-import { ping } from "@pixeleye/cli-booth";
+import { ping, snapshot } from "@pixeleye/cli-booth";
 import { program } from "commander";
-import { captureStories } from "@pixeleye/storybook";
 import { errStr } from "../messages/ui/theme";
 import { API, createBuild } from "@pixeleye/cli-api";
-import { Config } from "@pixeleye/cli-config";
+import { Config, readSnapshotFiles } from "@pixeleye/cli-config";
 import {
   getExitBuild,
   startBooth,
@@ -12,12 +11,74 @@ import {
   waitForProcessing,
   watchExit,
 } from "./utils";
+import Sitemapper from "sitemapper";
 
-export async function storybook(url: string, options: Config) {
+export async function snapFileHandler(
+  files: string[],
+  options: Config & {
+    urls?: string[];
+    sitemaps?: string[];
+  }
+) {
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
   });
+
+  const readFilesSpinner = ora("Reading url files").start();
+  // We've already called and resolved urlCaptureFiles if it's a function
+  const snapshotURLs = await readSnapshotFiles([
+    ...files,
+    ...((options.snapshotFiles as string[]) || []),
+  ]).catch((err) => {
+    readFilesSpinner.fail("Failed to read url files.");
+    program.error(err);
+  });
+
+  readFilesSpinner.succeed("Successfully read url files.");
+
+  if (options.urls && options.urls.length > 0) {
+    const cmdURLs = ora("Parsing urls from command line").start();
+    snapshotURLs.push(
+      ...options.urls
+        .map((url) => ({ url }))
+        .filter(
+          ({ url }) => !snapshotURLs.some((existing) => existing.url === url)
+        )
+    );
+    cmdURLs.succeed("Successfully parsed urls from command line");
+  }
+
+  if (options.sitemaps && options.sitemaps.length > 0) {
+    const sitemapURLs = ora("Parsing urls from sitemaps").start();
+    const sitemap = new Sitemapper({});
+
+    const urls = await Promise.all(
+      options.sitemaps.map(async (sitemapURL) => sitemap.fetch(sitemapURL))
+    ).catch((err) => {
+      sitemapURLs.fail("Failed to parse urls from sitemaps.");
+      program.error(err);
+    });
+
+    snapshotURLs.push(
+      ...urls.flatMap(({ sites }) =>
+        sites
+          .map((url) => ({ url }))
+          .filter(
+            ({ url }) => !snapshotURLs.some((existing) => existing.url === url)
+          )
+      )
+    );
+
+    sitemapURLs.succeed("Successfully parsed urls from sitemaps");
+  }
+
+  if (snapshotURLs.length === 0) {
+    console.log(errStr("No URLs to snapshot."));
+    process.exit(1);
+  }
+
+  ora(`Found ${snapshotURLs.length} URLs to snapshot.`).info();
 
   const buildSpinner = ora("Creating build").start();
 
@@ -58,28 +119,28 @@ export async function storybook(url: string, options: Config) {
 
   pingSpinner.succeed("Successfully pinged booth server.");
 
-  const storybookSpinner = ora(
-    `Capturing stories at ${url}, Snapshots captured: 0`
-  ).start();
+  const captureURlSpinner = ora("Capturing URLs").start();
 
-  let totalSnaps = 0;
-  await captureStories({
-    storybookURL: url,
-    devices: options.devices!,
-    variants: options.storybookOptions?.variants,
-    callback({ current }) {
-      totalSnaps = current;
-      storybookSpinner.text = `Capturing stories at ${url}, Snapshots captured: ${current}`;
-      return Promise.resolve();
-    },
-  }).catch(async (err) => {
-    storybookSpinner.fail("Failed to capture stories.");
+  await Promise.all(
+    snapshotURLs.map(async (url) =>
+      snapshot(
+        {
+          endpoint: `http://localhost:${options.boothPort}`,
+        },
+        {
+          ...url,
+          devices: options.devices!,
+          name: url.name || url.url,
+          css: `${options.css || ""}\n${url.css || ""}`,
+        }
+      )
+    )
+  ).catch(async (err) => {
+    captureURlSpinner.fail("Failed to capture URLs.");
     await exitBuild(err);
   });
 
-  storybookSpinner.succeed(
-    `Successfully captured stories (${totalSnaps} snaps in total)`
-  );
+  captureURlSpinner.succeed("Successfully captured URLs.");
 
   const processingSpinner = ora(
     "Waiting for device capturing and uploads to finish"
