@@ -508,6 +508,9 @@ importers:
       '@pixeleye/cli-config':
         specifier: workspace:*
         version: link:../cli-config
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../cli-devices
       '@types/polka':
         specifier: ^0.5.7
         version: 0.5.7
@@ -524,9 +527,6 @@ importers:
         specifier: ^6.6.2
         version: 6.6.2
     devDependencies:
-      '@pixeleye/cli-devices':
-        specifier: workspace:*
-        version: link:../cli-devices
       '@pixeleye/esbuild':
         specifier: workspace:*
         version: link:../../../configs/esbuild

@@ -1,6 +1,6 @@
 import { fetchRetry } from "@pixeleye/cli-api";
-import { SnapshotRequest } from "./snapshotQueue";
 import { Response } from "undici";
+import { SnapshotRequest } from "./server";
 
 export interface Options {
   endpoint: string;

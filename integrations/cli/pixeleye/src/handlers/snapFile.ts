@@ -42,8 +42,8 @@ export async function snapFileHandler(
     snapshotURLs.push(
       ...options.urls
         .map((url) => ({ url }))
-        .filter(({ url }) =>
-          !snapshotURLs.some((existing) => existing.url === url)
+        .filter(
+          ({ url }) => !snapshotURLs.some((existing) => existing.url === url)
         )
     );
     cmdURLs.succeed("Successfully parsed urls from command line");
@@ -64,8 +64,8 @@ export async function snapFileHandler(
       ...urls.flatMap(({ sites }) =>
         sites
           .map((url) => ({ url }))
-          .filter(({ url }) =>
-            !snapshotURLs.some((existing) => existing.url === url)
+          .filter(
+            ({ url }) => !snapshotURLs.some((existing) => existing.url === url)
           )
       )
     );
@@ -128,15 +128,10 @@ export async function snapFileHandler(
           endpoint: `http://localhost:${options.boothPort}`,
         },
         {
+          ...url,
           devices: options.devices!,
           name: url.name || url.url,
-          variant: url.variant,
-          url: url.url,
-          selector: url.selector,
-          maskSelectors: url.maskSelectors,
           css: `${options.css || ""}\n${url.css || ""}`,
-          fullPage: url.fullPage,
-          waitForSelector: url.waitForSelector,
         }
       )
     )

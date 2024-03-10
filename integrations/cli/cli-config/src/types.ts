@@ -17,14 +17,14 @@ export type SnapshotDefinition = {
    */
   variant?: string;
   /**
-   * Provide a css selector and we will wait for it before capturing the screenshot.
+   * Provide an array of css selectors and we will wait for it before capturing the screenshot.
    * Unlike `selector`, we won't only capture this selector. We just wait for it.
-   * `waitForSelector` is waited for before `selector`.
+   * `waitForSelectors` is waited for before `selector`.
    */
-  waitForSelector?: string;
+  waitForSelectors?: string[];
   /**
    * Provide a css selector and we wait for it and only capture the screenshot of the element.
-   * `waitForSelector` is waited for before `selector`.
+   * `waitForSelectors` is waited for before `selector`.
    */
   selector?: string;
 
@@ -33,6 +33,12 @@ export type SnapshotDefinition = {
    * We will mask these elements with the color defined in the config.
    */
   maskSelectors?: string[];
+
+  /**
+   * Mask color for this snapshot.
+   * This will override the mask color defined in the config.
+   */
+  maskColor?: string;
 
   /**
    * Should we capture the full page? If true, we will capture the entire page.

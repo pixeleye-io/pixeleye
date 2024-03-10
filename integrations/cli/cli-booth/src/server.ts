@@ -2,15 +2,16 @@ import polka from "polka";
 import bodyParser from "body-parser";
 import { Build } from "@pixeleye/api";
 import { getEnvConfig } from "@pixeleye/cli-config";
+import { QueuedSnap, handleQueue, queue } from "./snapshotQueue";
 import {
-  QueuedSnap,
-  SnapshotRequest,
-  handleQueue,
-  queue,
-} from "./snapshotQueue";
-import { getBrowser, getBuildContent } from "@pixeleye/cli-capture";
+  CaptureScreenshotData,
+  getBrowser,
+  getBuildContent,
+} from "@pixeleye/cli-capture";
 import { createBus } from "./bus";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
+import { serializedElementNodeWithId } from "rrweb-snapshot";
+import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 export interface BoothServerOptions {
   port: number;
@@ -18,6 +19,11 @@ export interface BoothServerOptions {
   token: string;
   buildID: Build["id"];
 }
+
+export type SnapshotRequest = Omit<CaptureScreenshotData, "device"> & {
+  serializedDom?: serializedElementNodeWithId;
+  devices: DeviceDescriptor[];
+};
 
 // We want to warm up the browsers in the pixeleye.config.js file to speed up the first snapshot
 function warmUpBrowsers() {
@@ -80,7 +86,7 @@ export function startServer(options: BoothServerOptions) {
     app.post("/snapshot", (req, res) => {
       const body = req.body as SnapshotRequest;
 
-      const content = body.serializedDom
+      body.content = body.serializedDom
         ? getBuildContent(body.serializedDom)
         : undefined;
 
@@ -89,9 +95,8 @@ export function startServer(options: BoothServerOptions) {
           handleQueue({
             ...options,
             body: {
+              ...(body as unknown as CaptureScreenshotData),
               device,
-              content,
-              ...body,
             },
             addToBusQueue: bus.add,
           })
