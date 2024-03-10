@@ -115,7 +115,8 @@ export const getAllFiles = cache(async () => {
 });
 
 const transforms: Record<string, string> = {
-  "any other platform (cli)": "any other platform (CLI)",
+  "any other platform (cli)": "Any other platform (CLI)",
+  "sitemaps and urls": "Sitemaps and URLs",
 };
 
 export async function getFiles() {

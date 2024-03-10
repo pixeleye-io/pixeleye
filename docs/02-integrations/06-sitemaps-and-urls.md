@@ -9,8 +9,8 @@ Pixeleye can crawl your sitemaps & provided URLs to automatically capture screen
 
 ## Prerequisites
 
-- (You have a Pixeleye account)[https://pixeleye.io/registration]
-- (You've created a project and obtained a project token)[https://pixeleye.io/docs/getting-started/quickstart#create-a-new-project]
+- [You have a Pixeleye account](https://pixeleye.io/registration)
+- [You've created a project and obtained a project token](https://pixeleye.io/docs/getting-started/quickstart#create-a-new-project)
 
 ## Quick start
 
