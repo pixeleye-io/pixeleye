@@ -1,5 +1,13 @@
 # pixeleye
 
+## 0.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`57d5bf2`](https://github.com/pixeleye-io/pixeleye/commit/57d5bf28839bb7ebc450155312c0c4ae9a31627b)]:
+  - @pixeleye/cli-config@0.5.0
+  - @pixeleye/cli-booth@0.4.13
+
 ## 0.6.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @pixeleye/cli-config
 
+## 0.5.0
+
+### Minor Changes
+
+- [#251](https://github.com/pixeleye-io/pixeleye/pull/251) [`57d5bf2`](https://github.com/pixeleye-io/pixeleye/commit/57d5bf28839bb7ebc450155312c0c4ae9a31627b) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Added read snapshots
+
 ## 0.4.9
 
 ### Patch Changes
