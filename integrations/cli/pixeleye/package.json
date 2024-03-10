@@ -36,8 +36,8 @@
     "@pixeleye/cli-booth": "workspace:^",
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/cli-env": "workspace:*",
-    "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/cli-install": "workspace:*",
+    "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/storybook": "workspace:*",
     "chalk": "4.1.2",
     "commander": "^12.0.0",
@@ -46,6 +46,7 @@
     "graceful-fs": "^4.2.11",
     "ora": "^8.0.1",
     "playwright-core": "^1.41.2",
-    "rrweb-snapshot": "2.0.0-alpha.11"
+    "rrweb-snapshot": "2.0.0-alpha.11",
+    "sitemapper": "^3.2.8"
   }
 }

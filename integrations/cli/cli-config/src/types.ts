@@ -1,6 +1,59 @@
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
-export type DomEnvironment = "jsdom" | "happy-dom";
+export type SnapshotDefinition = {
+  /**
+   * The URL that you want to capture a screenshot of.
+   */
+  url: string;
+  /**
+   * The name of the snapshot.
+   * We default to the URL if no name is provided.
+   */
+  name?: string;
+  /**
+   * The variant of the snapshot.
+   * This will make up part of the snapshots name.
+   * @example "Dark"
+   */
+  variant?: string;
+  /**
+   * Provide an array of css selectors and we will wait for it before capturing the screenshot.
+   * Unlike `selector`, we won't only capture this selector. We just wait for it.
+   * `waitForSelectors` is waited for before `selector`.
+   */
+  waitForSelectors?: string[];
+  /**
+   * Provide a css selector and we wait for it and only capture the screenshot of the element.
+   * `waitForSelectors` is waited for before `selector`.
+   */
+  selector?: string;
+
+  /**
+   * A list of css selectors that you want to mask.
+   * We will mask these elements with the color defined in the config.
+   */
+  maskSelectors?: string[];
+
+  /**
+   * Mask color for this snapshot.
+   * This will override the mask color defined in the config.
+   */
+  maskColor?: string;
+
+  /**
+   * Should we capture the full page? If true, we will capture the entire page.
+   *
+   * @default false
+   */
+  fullPage?: boolean;
+
+  /**
+   * The css that you want to inject into the page before capturing the screenshot.
+   * This will be combined with the css defined in the config.
+   * @example "body { background-color: red; }"
+   */
+  css?: string;
+};
 
 export type StorybookVariant = {
   /**
@@ -78,4 +131,15 @@ export type Config = {
      */
     variants: StorybookVariant[];
   };
+
+  /**
+   * An array of file matchers which contain snapshot definition files
+   *
+   * @example ['./snaps.pixeleye.ts', './src/*.pixeleye.ts']
+   */
+  snapshotFiles?:
+    | string[]
+    | ((config: ConfigWithoutSnapshotFiles) => Promise<string[]>);
 };
+
+export type ConfigWithoutSnapshotFiles = Omit<Config, "snapshotFiles">;

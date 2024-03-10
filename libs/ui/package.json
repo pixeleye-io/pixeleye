@@ -26,6 +26,7 @@
     "@storybook/test": "^7.6.17",
     "@types/react": "18.2.57",
     "@types/react-dom": "18.2.19",
+    "pixeleye": "workspace:*",
     "eslint-plugin-storybook": "^0.8.0",
     "storybook": "^7.6.17"
   },

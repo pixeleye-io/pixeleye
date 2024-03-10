@@ -38,6 +38,7 @@
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-capture": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*",
     "@types/polka": "^0.5.7",
     "body-parser": "^1.20.2",
     "p-queue": "^8.0.1",

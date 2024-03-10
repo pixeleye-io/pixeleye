@@ -102,7 +102,6 @@ test("Some test", async ({ page }) => {
 
 ### Running the Pixeleye CLI
 
-
 {% tabs %}
 
 {% tab label="NPM" %}
@@ -169,6 +168,13 @@ Whether to capture the full page. If set to `true`, the entire page will be capt
 - **Default:** `undefined`
 
 The selector of the element to capture. If set, only the element matching the selector will be captured. If not set, the entire page will be captured.
+
+#### Options - waitForSelectors
+
+- **Type:** `string[]`
+- **Default:** `[]`
+
+The selectors to wait for before capturing the snapshot. If set, we will wait for all the selectors to appear before capturing the snapshot. If not set, we will not wait for any selectors. This doesn't effect the `selector` option.
 
 #### Options - devices
 

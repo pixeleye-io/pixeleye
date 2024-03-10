@@ -1,6 +1,7 @@
 import { Command, program } from "commander";
 import { optionMap } from "./commands";
 import { loadConfig, defaultConfig } from "@pixeleye/cli-config";
+import { setEnv } from "@pixeleye/cli-env";
 
 export async function loadAndMergeConfig(
   hookedCommand: Command,
@@ -38,4 +39,15 @@ export async function loadAndMergeConfig(
         code: "PIXELEYE_TOKEN_REQUIRED",
       }
     );
+
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  const envBoothPort = process.env.PIXELEYE_BOOTH_PORT;
+
+  if (!commands.boothPort && envBoothPort) {
+    subCommand.setOptionValue("boothPort", envBoothPort);
+
+    commands.boothPort = envBoothPort;
+  }
+
+  setEnv("PIXELEYE_BOOTH_PORT", commands.boothPort!);
 }
