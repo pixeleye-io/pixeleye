@@ -10,7 +10,7 @@ import {
 } from "@pixeleye/cli-capture";
 import { createBus } from "./bus";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
-import { serializedElementNodeWithId } from "rrweb-snapshot";
+import { serializedNodeWithId } from "rrweb-snapshot";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 export interface BoothServerOptions {
@@ -21,7 +21,7 @@ export interface BoothServerOptions {
 }
 
 export type SnapshotRequest = Omit<CaptureScreenshotData, "device"> & {
-  serializedDom?: serializedElementNodeWithId;
+  serializedDom?: serializedNodeWithId;
   devices: DeviceDescriptor[];
 };
 
