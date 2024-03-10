@@ -1,5 +1,17 @@
 # pixeleye
 
+## 0.6.0
+
+### Minor Changes
+
+- [#248](https://github.com/pixeleye-io/pixeleye/pull/248) [`439d21e`](https://github.com/pixeleye-io/pixeleye/commit/439d21edbe949b6fd63c84f2eac42e5374f933df) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding sitemap & url integration
+
+### Patch Changes
+
+- Updated dependencies [[`c9cef90`](https://github.com/pixeleye-io/pixeleye/commit/c9cef900d102ba61a673cb7c9e06fe57a3f62999), [`c9cef90`](https://github.com/pixeleye-io/pixeleye/commit/c9cef900d102ba61a673cb7c9e06fe57a3f62999)]:
+  - @pixeleye/cli-booth@0.4.12
+  - @pixeleye/storybook@0.5.17
+
 ## 0.5.0
 
 ### Minor Changes
