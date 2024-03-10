@@ -1,8 +1,9 @@
 module github.com/pixeleye-io/pixeleye
 
-go 1.22
+go 1.22.1
 
 require (
+	github.com/aws/smithy-go v1.20.1
 	github.com/bradleyfalzon/ghinstallation/v2 v2.9.0
 	github.com/go-playground/validator/v10 v10.19.0
 	github.com/google/go-github/v59 v59.0.0
@@ -26,7 +27,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.20.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.23.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.4 // indirect
-	github.com/aws/smithy-go v1.20.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
@@ -72,7 +72,7 @@ require (
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.32.0
 	github.com/stretchr/testify v1.9.0
-	github.com/stripe/stripe-go/v76 v76.20.0
+	github.com/stripe/stripe-go/v76 v76.21.0-beta.1
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/crypto v0.21.0
 	golang.org/x/sys v0.18.0 // indirect
