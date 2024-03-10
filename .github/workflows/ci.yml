@@ -97,7 +97,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.21"
+          go-version: "1.22"
           cache: false
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
@@ -231,7 +231,7 @@ jobs:
       - name: Setup golang
         uses: actions/setup-go@v5
         with:
-          go-version: "^1.21"
+          go-version: "^1.22"
           cache-dependency-path: ./apps/backend/go.sum
 
       - name: Install go dependencies
