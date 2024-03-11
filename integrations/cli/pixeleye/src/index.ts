@@ -5,3 +5,4 @@ export type {
   ConfigWithoutSnapshotFiles,
 } from "@pixeleye/cli-config";
 export type { StoryParams } from "@pixeleye/storybook";
+export * from "./handlers";

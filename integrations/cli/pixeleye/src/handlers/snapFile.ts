@@ -13,7 +13,7 @@ import {
 } from "./utils";
 import Sitemapper from "sitemapper";
 
-export async function snapFileHandler(
+export async function snapshotHandler(
   files: string[],
   options: Config & {
     urls?: string[];

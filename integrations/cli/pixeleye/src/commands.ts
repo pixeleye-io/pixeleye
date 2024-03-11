@@ -4,7 +4,7 @@ import { loadAndMergeConfig } from "./config-loader";
 import {
   execHandler,
   ping,
-  snapFileHandler,
+  snapshotHandler,
   storybook,
   uploadHandler,
 } from "./handlers";
@@ -121,6 +121,6 @@ apiOptions("snapshot")
     "Upload screenshots to pixeleye from a list of URL files passed in or defined in your config file"
   )
   .hook("preAction", loadAndMergeConfig)
-  .action(snapFileHandler);
+  .action(snapshotHandler);
 
 export default program.parse(process.argv);
