@@ -17,7 +17,7 @@
     "@pixeleye/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@netlify/sdk": "^1.26.0",
+    "@netlify/sdk": "^1.28.0",
     "@pixeleye/cli-config": "workspace:*",
     "pixeleye": "workspace:*"
   }

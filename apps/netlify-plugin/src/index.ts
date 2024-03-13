@@ -1,7 +1,13 @@
 // Documentation: https://sdk.netlify.com
-import { NetlifyIntegration } from "@netlify/sdk";
+import { NetlifyIntegration, z } from "@netlify/sdk";
+import { snapshotHandler } from "pixeleye";
+import { loadConfig } from "@pixeleye/cli-config";
 
-const integration = new NetlifyIntegration();
+const buildConfigSchema = z.object({
+  configPath: z.string().optional(),
+});
+
+const integration = new NetlifyIntegration({ buildConfigSchema });
 
 integration.onEnable(async (_, { teamId, siteId, client }) => {
   // Build event handlers are disabled by default, so we need to
@@ -14,8 +20,13 @@ integration.onEnable(async (_, { teamId, siteId, client }) => {
   };
 });
 
-integration.addBuildEventHandler("onPreBuild", () => {
-  console.log("Hello there.");
-});
+integration.addBuildEventHandler(
+  "onPreBuild",
+  async ({ utils: { build, status, cache, run, git }, buildConfig }) => {
+    const config = await loadConfig(buildConfig?.configPath);
+
+    await snapshotHandler([], config);
+  }
+);
 
 export { integration };
