@@ -44,7 +44,6 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +54,6 @@ func RefreshGithubTokens(ctx context.Context, refreshToken string) (*GithubRefre
 	}
 
 	response := GithubRefreshTokenResponse{}
-
 	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, err
 	}
