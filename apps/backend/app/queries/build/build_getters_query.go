@@ -217,20 +217,22 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 	builds := []models.Build{}
 	// recursive query that selects all builds with a sha in the list of shas and that aren't parents of any other build in the list
 	query := `
-	WITH RECURSIVE find_latest_builds AS (
-		SELECT build.*, 0 as depth, build.sha as base_sha FROM build WHERE project_id = ? AND status NOT IN ('failed', 'aborted') AND sha in (?)
-		
+	WITH RECURSIVE build_tree AS (
+		SELECT child_id, 0 as depth, build.sha as base_sha
+		FROM build_history
+		JOIN build parent ON parent.id = build_history.parent_id
+		JOIN build ON build.id = build_history.child_id
+		WHERE parent.sha IN (?) AND parent.project_id = $1 AND parent.status NOT IN ('failed', 'aborted')
+	
 		UNION ALL
-		
-		SELECT b.*, latest.depth + 1, latest.base_sha FROM build b
-		INNER JOIN build_history bh on bh.child_id = b.id
-		INNER JOIN find_latest_builds latest ON bh.parent_id = latest.id
-		WHERE b.status NOT IN ('failed', 'aborted')
-		
-		
+	
+		SELECT bh.child_id, b.*, bt.depth + 1, bt.base_sha
+		FROM build_history bh
+		INNER JOIN build b ON bh.child_id = b.id
+		INNER JOIN build_tree bt ON bh.parent_id = bt.child_id
 	)
-	SELECT DISTINCT ON (sha) id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM (SELECT DISTINCT ON (base_sha) * from find_latest_builds WHERE sha in (?) ORDER BY base_sha, build_number DESC) as data
-			
+
+	SELECT id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM build WHERE sha IN (?) AND project_id = $1 AND status NOT IN ('failed', 'aborted') AND NOT EXISTS(SELECT * FROM build_tree WHERE build_tree.sha in (?) AND build_tree.base_sha = build.sha AND status NOT IN ('failed', 'aborted'))		
 	`
 
 	query, args, err := sqlx.In(query, projectID, shas, shas)
