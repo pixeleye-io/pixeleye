@@ -146,7 +146,7 @@ describe.concurrent(
         token: jekyllsToken,
         branch: "test",
         sha: sha4,
-        expectedBuildStatus: ["rejected"],
+        expectedBuildStatus: ["unchanged"],
         snapshots: snapshot1,
         parentBuildIds: build3.id,
       }).catch((err) => {
