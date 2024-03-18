@@ -222,7 +222,7 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 		FROM build_history
 		JOIN build parent ON parent.id = build_history.parent_id
 		JOIN build ON build.id = build_history.child_id
-		WHERE parent.sha IN (?) AND parent.project_id = $1 AND parent.status NOT IN ('failed', 'aborted')
+		WHERE parent.sha IN (?) AND parent.project_id = ? AND parent.status NOT IN ('failed', 'aborted')
 	
 		UNION ALL
 	
@@ -232,10 +232,10 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 		INNER JOIN build_tree bt ON bh.parent_id = bt.child_id
 	)
 
-	SELECT id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM build WHERE sha IN (?) AND project_id = $1 AND status NOT IN ('failed', 'aborted') AND NOT EXISTS(SELECT * FROM build_tree WHERE build_tree.sha in (?) AND build_tree.base_sha = build.sha AND status NOT IN ('failed', 'aborted'))		
+	SELECT id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM build WHERE sha IN (?) AND project_id = ? AND status NOT IN ('failed', 'aborted') AND NOT EXISTS(SELECT * FROM build_tree WHERE build_tree.sha in (?) AND build_tree.base_sha = build.sha AND status NOT IN ('failed', 'aborted'))		
 	`
 
-	query, args, err := sqlx.In(query, projectID, shas, shas)
+	query, args, err := sqlx.In(query, shas, projectID, shas, projectID, shas)
 	if err != nil {
 		return builds, err
 	}
