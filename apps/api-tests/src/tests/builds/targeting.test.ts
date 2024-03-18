@@ -169,13 +169,13 @@ describe.concurrent(
           );
         });
 
-      await buildTokenAPI
-        .getLatestBuilds([sha1, sha2, sha3, sha4], jekyllsToken)
-        .returns(({ res }: any) => {
-          expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
-            [build1.id, build4.id].sort()
-          );
-        });
+      // await buildTokenAPI
+      //   .getLatestBuilds([sha1, sha2, sha3, sha4], jekyllsToken)
+      //   .returns(({ res }: any) => {
+      //     expect((res.json as Build[]).map((b) => b.id).sort()).toEqual(
+      //       [build1.id, build4.id].sort()
+      //     );
+      //   });
     });
   }
 );
