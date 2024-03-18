@@ -226,7 +226,7 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 	
 		UNION ALL
 	
-		SELECT b.*, bh.child_id, bt.depth + 1, bt.base_sha
+		SELECT b.*, bh.child_id, bt.depth + 1, bt.base_sha as base_sha
 		FROM build b
 		JOIN build_history bh ON b.id = bh.parent_id
 		JOIN build_tree bt ON bt.child_id = bh.child_id
