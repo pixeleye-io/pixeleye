@@ -218,7 +218,7 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 	// recursive query that selects all builds with a sha in the list of shas and that aren't parents of any other build in the list
 	query := `
 	WITH RECURSIVE build_tree AS (
-		SELECT parent.*, child_id, 0 as depth, parent.sha as base_sha
+		SELECT parent.*, build_history.child_id, 0 as depth, parent.sha as base_sha
 		FROM build parent
 		JOIN build_history ON parent.id = build_history.parent_id
 		WHERE parent.sha IN (?) AND parent.project_id = ? AND parent.status NOT IN ('failed', 'aborted')
