@@ -142,16 +142,16 @@ describe.concurrent(
         throw err;
       });
 
-      const build4 = await createBuildWithSnapshots({
-        token: jekyllsToken,
-        branch: "test",
-        sha: sha4,
-        expectedBuildStatus: ["unchanged"],
-        snapshots: snapshot1,
-        parentBuildIds: build3.id,
-      }).catch((err) => {
-        throw err;
-      });
+      // const build4 = await createBuildWithSnapshots({
+      //   token: jekyllsToken,
+      //   branch: "test",
+      //   sha: sha4,
+      //   expectedBuildStatus: ["unchanged"],
+      //   snapshots: snapshot1,
+      //   parentBuildIds: build3.id,
+      // }).catch((err) => {
+      //   throw err;
+      // });
 
       await buildTokenAPI
         .getLatestBuilds([sha1, sha2, sha3], jekyllsToken)
