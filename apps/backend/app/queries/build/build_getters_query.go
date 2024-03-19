@@ -5,6 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
+	"github.com/rs/zerolog/log"
 )
 
 func (q *BuildQueries) GetBuildFromShardID(ctx context.Context, projectID string, shardID string) (models.Build, error) {
@@ -239,6 +240,8 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 		return builds, err
 	}
 	query = q.Rebind(query)
+
+	log.Info().Msgf("Query: %s", query)
 
 	err = q.SelectContext(ctx, &builds, query, args...)
 
