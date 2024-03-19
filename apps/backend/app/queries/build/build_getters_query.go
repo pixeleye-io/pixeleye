@@ -242,6 +242,7 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 	query = q.Rebind(query)
 
 	log.Info().Msgf("Query: %s", query)
+	log.Info().Msgf("Args: %v", args)
 
 	err = q.SelectContext(ctx, &builds, query, args...)
 
