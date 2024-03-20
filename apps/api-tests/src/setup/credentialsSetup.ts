@@ -14,15 +14,17 @@ import { usersAPI } from "../routes/users";
 
 let oryAuthAPI: FrontendApi | undefined = undefined;
 
+const oryEndpoint = env.ORY_ADMIN_URL || env.ORY_URL;
+
 function getOryAuthAPI(): FrontendApi {
   if (oryAuthAPI) {
     return oryAuthAPI;
   }
   oryAuthAPI = new FrontendApi(
     new Configuration({
-      accessToken: `bearer ${env.ORY_API_KEY}`,
+     accessToken: env.ORY_API_KEY?  `bearer ${env.ORY_API_KEY}` : undefined,
     }),
-    env.ORY_URL
+    oryEndpoint
   );
   return oryAuthAPI;
 }
@@ -30,7 +32,7 @@ function getOryAuthAPI(): FrontendApi {
 // Requires an ory api key
 async function createOryIdentity(id: IDs = IDs.jekyll) {
   const identity = await fetch(
-    (env.ORY_URL) + "/admin/identities",
+    (oryEndpoint) + "/admin/identities",
     {
       method: "POST",
       headers: {

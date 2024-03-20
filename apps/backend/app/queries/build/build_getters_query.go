@@ -5,7 +5,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/models"
-	"github.com/rs/zerolog/log"
 )
 
 func (q *BuildQueries) GetBuildFromShardID(ctx context.Context, projectID string, shardID string) (models.Build, error) {
@@ -216,23 +215,24 @@ func (q *BuildQueries) GetSnapshotsBuild(ctx context.Context, snapshotID string)
 
 func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
 	builds := []models.Build{}
-	// recursive query that selects all builds with a sha in the list of shas and that aren't parents of any other build in the list
+	// Fun recursive query to get the latest build for a given list of shas
+	// We first get all builds with a given sha, then we recursively get their children and check if any also have a matching sha
 	query := `
 	WITH RECURSIVE build_tree AS (
-		SELECT build.*, build_history.child_id, 0 as depth, build.sha as base_sha
+		SELECT build.*, build_history.child_id, build.id as base_id
 		FROM build
-		JOIN build_history ON build.id = build_history.parent_id
+		LEFT JOIN build_history ON build.id = build_history.parent_id
 		WHERE build.sha IN (?) AND build.project_id = ? AND build.status NOT IN ('failed', 'aborted')
 	
 		UNION ALL
 	
-		SELECT b.*, bh.child_id, bt.depth + 1, bt.base_sha as base_sha
+		SELECT b.*, bh.child_id, bt.base_id
 		FROM build b
+		LEFT JOIN build_history bh ON b.id = bh.parent_id
 		JOIN build_tree bt ON bt.child_id = b.id
-		JOIN build_history bh ON b.id = bh.parent_id
 	)
 
-	SELECT id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM build WHERE sha IN (?) AND project_id = ? AND status NOT IN ('failed', 'aborted') AND NOT EXISTS(SELECT * FROM build_tree WHERE build_tree.sha in (?) AND build_tree.base_sha = build.sha AND build_tree.id != build.id AND build_tree.status NOT IN ('failed', 'aborted') AND build_tree.depth > 0)		
+	SELECT id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM build WHERE sha IN (?) AND project_id = ? AND status NOT IN ('failed', 'aborted') AND NOT EXISTS(SELECT * FROM build_tree WHERE build_tree.sha in (?) AND build_tree.base_id = build.id AND build_tree.id != build.id AND build_tree.status NOT IN ('failed', 'aborted'))	
 	`
 
 	query, args, err := sqlx.In(query, shas, projectID, shas, projectID, shas)
@@ -240,9 +240,6 @@ func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID st
 		return builds, err
 	}
 	query = q.Rebind(query)
-
-	log.Info().Msgf("Query: %s", query)
-	log.Info().Msgf("Args: %v", args)
 
 	err = q.SelectContext(ctx, &builds, query, args...)
 
