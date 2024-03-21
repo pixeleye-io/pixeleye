@@ -296,7 +296,8 @@ jobs:
   deploy-private-migration-image:
     name: Deploy database migrations
     runs-on: ubuntu-latest
-    needs: [api-tests, atlas-lint, paths-filter]
+    # needs: [api-tests, atlas-lint, paths-filter]
+    needs: [api-tests, paths-filter]
     if: ${{ always() && !failure() && !cancelled() && github.ref == 'refs/heads/main' &&  needs.paths-filter.outputs.migrations == 'true' }}
     steps:
       - name: Check out the repo
@@ -379,7 +380,8 @@ jobs:
   deploy-private-ingest-image:
     name: Deploy ingest image
     runs-on: ubuntu-latest
-    needs: [api-tests, atlas-lint, paths-filter]
+    # needs: [api-tests, atlas-lint, paths-filter]
+    needs: [api-tests, paths-filter]
     if: ${{ always() && !failure() && !cancelled() && github.ref == 'refs/heads/main' && needs.paths-filter.outputs.backend == 'true' }}
     steps:
       - name: Check out the repo

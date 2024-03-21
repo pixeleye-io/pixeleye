@@ -215,6 +215,7 @@ func (q *BuildQueries) GetSnapshotsBuild(ctx context.Context, snapshotID string)
 
 func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
 	builds := []models.Build{}
+
 	// Fun recursive query to get the latest build for a given list of shas
 	// We first get all builds with a given sha, then we recursively get their children and check if any also have a matching sha
 	query := `
