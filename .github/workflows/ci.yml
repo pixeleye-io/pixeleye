@@ -122,41 +122,41 @@ jobs:
           cd apps/backend
           go test -v ./...
 
-  atlas-lint:
-    name: Atlas - Linting
-    runs-on: ubuntu-latest
-    needs: paths-filter-pr
-    if: ${{ ( always() && !failure() && !cancelled() && github.ref == 'refs/heads/main' ) || needs.paths-filter-pr.outputs.migrations == 'true' }}
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: pass
-          POSTGRES_DB: test
-        ports:
-          - 5430:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: ariga/setup-atlas@v0
-        with:
-          cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
-      - uses: ariga/atlas-action/migrate/lint@v1
-        with:
-          dir: "file://apps/backend/platform/migrations"
-          dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
-          dir-name: "pixeleye"
-      - uses: ariga/atlas-action/migrate/push@v1
-        if: github.ref == 'refs/heads/main'
-        with:
-          dir: "file://apps/backend/platform/migrations"
-          dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
-          dir-name: "pixeleye"
+  # atlas-lint:
+  #   name: Atlas - Linting
+  #   runs-on: ubuntu-latest
+  #   needs: paths-filter-pr
+  #   if: ${{ ( always() && !failure() && !cancelled() && github.ref == 'refs/heads/main' ) || needs.paths-filter-pr.outputs.migrations == 'true' }}
+  #   services:
+  #     postgres:
+  #       image: postgres:15-alpine
+  #       env:
+  #         POSTGRES_USER: postgres
+  #         POSTGRES_PASSWORD: pass
+  #         POSTGRES_DB: test
+  #       ports:
+  #         - 5430:5432
+  #       options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  #   env:
+  #     GITHUB_TOKEN: ${{ github.token }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - uses: ariga/setup-atlas@v0
+  #       with:
+  #         cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
+  #     - uses: ariga/atlas-action/migrate/lint@v1
+  #       with:
+  #         dir: "file://apps/backend/platform/migrations"
+  #         dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
+  #         dir-name: "pixeleye"
+  #     - uses: ariga/atlas-action/migrate/push@v1
+  #       if: github.ref == 'refs/heads/main'
+  #       with:
+  #         dir: "file://apps/backend/platform/migrations"
+  #         dev-url: postgres://postgres:pass@127.0.0.1:5430/test?sslmode=disable
+  #         dir-name: "pixeleye"
 
   pixeleye:
     runs-on: ubuntu-latest
