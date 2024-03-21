@@ -6,7 +6,11 @@ import { env } from "./env";
 
 // Bit of a hack to redirect self-hosted docker users to the correct backend URL.
 function handleSelfHostedRewrites(request: NextRequest) {
-  if (env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" || !env.NEXT_PUBLIC_BACKEND_URL) return;
+  if (
+    env.NEXT_PUBLIC_PIXELEYE_HOSTING === "true" ||
+    !env.NEXT_PUBLIC_BACKEND_URL
+  )
+    return;
 
   const url = request.nextUrl.clone();
   if (!url.pathname.startsWith("/api")) return;
@@ -14,6 +18,9 @@ function handleSelfHostedRewrites(request: NextRequest) {
   const newURL = new URL(env.NEXT_PUBLIC_BACKEND_URL);
 
   newURL.pathname = url.pathname.replace("/api", "");
+
+  newURL.search = url.search;
+  newURL.hash = url.hash;
 
   return NextResponse.rewrite(newURL, {
     request,

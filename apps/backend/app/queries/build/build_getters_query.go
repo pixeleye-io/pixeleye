@@ -215,25 +215,27 @@ func (q *BuildQueries) GetSnapshotsBuild(ctx context.Context, snapshotID string)
 
 func (q *BuildQueries) GetLatestBuildsFromShas(ctx context.Context, projectID string, shas []string) ([]models.Build, error) {
 	builds := []models.Build{}
-	// recursive query that selects all builds with a sha in the list of shas and that aren't parents of any other build in the list
+	// Fun recursive query to get the latest build for a given list of shas
+	// We first get all builds with a given sha, then we recursively get their children and check if any also have a matching sha
 	query := `
-	WITH RECURSIVE find_latest_builds AS (
-		SELECT build.*, 0 as depth, build.sha as base_sha FROM build WHERE project_id = ? AND status NOT IN ('failed', 'aborted') AND sha in (?)
-		
+	WITH RECURSIVE build_tree AS (
+		SELECT build.*, build_history.child_id, build.id as base_id
+		FROM build
+		LEFT JOIN build_history ON build.id = build_history.parent_id
+		WHERE build.sha IN (?) AND build.project_id = ? AND build.status NOT IN ('failed', 'aborted')
+	
 		UNION ALL
-		
-		SELECT b.*, latest.depth + 1, latest.base_sha FROM build b
-		INNER JOIN build_history bh on bh.child_id = b.id
-		INNER JOIN find_latest_builds latest ON bh.parent_id = latest.id
-		WHERE b.status NOT IN ('failed', 'aborted')
-		
-		
+	
+		SELECT b.*, bh.child_id, bt.base_id
+		FROM build b
+		LEFT JOIN build_history bh ON b.id = bh.parent_id
+		JOIN build_tree bt ON bt.child_id = b.id
 	)
-	SELECT DISTINCT ON (sha) id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM (SELECT DISTINCT ON (base_sha) * from find_latest_builds WHERE sha in (?) ORDER BY base_sha, build_number DESC) as data
-			
+
+	SELECT id, created_at, updated_at, project_id, build_number, status, sha, branch, message, title, warnings, errors FROM build WHERE sha IN (?) AND project_id = ? AND status NOT IN ('failed', 'aborted') AND NOT EXISTS(SELECT * FROM build_tree WHERE build_tree.sha in (?) AND build_tree.base_id = build.id AND build_tree.id != build.id AND build_tree.status NOT IN ('failed', 'aborted'))	
 	`
 
-	query, args, err := sqlx.In(query, projectID, shas, shas)
+	query, args, err := sqlx.In(query, shas, projectID, shas, projectID, shas)
 	if err != nil {
 		return builds, err
 	}
