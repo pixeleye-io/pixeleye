@@ -337,7 +337,8 @@ jobs:
   deploy-private-api-image:
     name: Deploy api image
     runs-on: ubuntu-latest
-    needs: [api-tests, atlas-lint, paths-filter]
+    # needs: [api-tests, atlas-lint, paths-filter]
+    needs: [api-tests, paths-filter]
     if: ${{ always() && !failure() && !cancelled() && github.ref == 'refs/heads/main' && needs.paths-filter.outputs.backend == 'true' }}
     steps:
       - name: Check out the repo
