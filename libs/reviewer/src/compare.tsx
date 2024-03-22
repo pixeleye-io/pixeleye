@@ -269,31 +269,31 @@ export function Compare() {
 
   const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
 
-  const currentGroup = currentSnapshotGroup.targetGroups.find((group) => group.snapshots.some((snap) => snap.id === snapshot?.id));
-  const currentSnapshotGroupIndex = currentGroup?.snapshots.findIndex((snap) => snap.id === snapshot?.id) || 0;
+  // const currentGroup = currentSnapshotGroup.targetGroups.find((group) => group.snapshots.some((snap) => snap.id === snapshot?.id));
+  // const currentSnapshotGroupIndex = currentGroup?.snapshots.findIndex((snap) => snap.id === snapshot?.id) || 0;
 
 
-  useHotkeys(
-    "ArrowRight",
-    (e) => {
-      setCurrentSnapshot(
-        currentGroup?.snapshots.at(Math.min(currentSnapshotGroupIndex + 1, currentGroup?.snapshots.length - 1))
-      );
-      e.preventDefault();
-    },
-    [currentSnapshotGroupIndex, snapshotTargetGroups.length, snapshotTargetGroups]
-  );
+  // useHotkeys(
+  //   "ArrowRight",
+  //   (e) => {
+  //     setCurrentSnapshot(
+  //       currentGroup?.snapshots.at(Math.min(currentSnapshotGroupIndex + 1, currentGroup?.snapshots.length - 1))
+  //     );
+  //     e.preventDefault();
+  //   },
+  //   [currentSnapshotGroupIndex, snapshotTargetGroups.length, snapshotTargetGroups]
+  // );
 
-  useHotkeys(
-    "ArrowLeft",
-    (e) => {
-      setCurrentSnapshot(
-        currentGroup?.snapshots.at(Math.max(currentSnapshotGroupIndex - 1, 0))
-      );
-      e.preventDefault();
-    },
-    [currentSnapshotGroupIndex, setCurrentSnapshot, snapshotTargetGroups]
-  );
+  // useHotkeys(
+  //   "ArrowLeft",
+  //   (e) => {
+  //     setCurrentSnapshot(
+  //       currentGroup?.snapshots.at(Math.max(currentSnapshotGroupIndex - 1, 0))
+  //     );
+  //     e.preventDefault();
+  //   },
+  //   [currentSnapshotGroupIndex, setCurrentSnapshot, snapshotTargetGroups]
+  // );
 
 
   if (!snapshot) {

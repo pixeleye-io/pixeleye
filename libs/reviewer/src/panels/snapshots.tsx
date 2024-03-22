@@ -110,17 +110,6 @@ function SnapButton({
       type="button"
       ref={ref}
       tabIndex={active ? 0 : -1}
-      // onKeyDown={(e) => {
-      //   if (e.key === "ArrowUp" && !e.ctrlKey && index > 0) {
-      //     e.preventDefault();
-      //     setIndex(index - 1);
-      //     e.currentTarget.blur();
-      //   } else if (e.key === "ArrowDown" && !e.ctrlKey && index < total - 1) {
-      //     e.preventDefault();
-      //     setIndex(index + 1);
-      //     e.currentTarget.blur();
-      //   }
-      // }}
       onClick={() => setIndex(index)}
       className={cx(
         "p-2 rounded relative transition flex w-full justify-center items-center border border-outline-variant/50 hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
