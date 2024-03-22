@@ -114,7 +114,7 @@ function ReviewerInternal({
   }, [currentSnapshot, snapshotTargetGroups]);
 
   useHotkeys(
-    "ctrl+ArrowDown",
+    "ArrowDown",
     (e) => {
       setCurrentSnapshot(
         snapshotTargetGroups.at(
@@ -122,20 +122,23 @@ function ReviewerInternal({
         )?.targetGroups[0].snapshots[0]
       );
       e.preventDefault();
+      e.stopPropagation();
     },
     [currentSnapshotIndex, snapshotTargetGroups.length, snapshotTargetGroups]
   );
 
   useHotkeys(
-    "ctrl+ArrowUp",
+    "ArrowUp",
     (e) => {
       setCurrentSnapshot(
         snapshotTargetGroups.at(Math.max(currentSnapshotIndex - 1, 0))?.targetGroups[0].snapshots[0]
       );
       e.preventDefault();
+      e.stopPropagation();
     },
     [currentSnapshotIndex, setCurrentSnapshot, snapshotTargetGroups]
   );
+
 
   useEffect(() => {
     setBuild(build);

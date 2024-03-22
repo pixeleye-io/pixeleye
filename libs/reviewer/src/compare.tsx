@@ -11,6 +11,7 @@ import {
   TabsTrigger,
   Toggle,
 } from "@pixeleye/ui";
+import { useHotkeys } from "react-hotkeys-hook";
 import { CompareTab, DiffGroupedSnapshotTargetGroups, StoreContext } from "./store";
 import { FC, useCallback, useContext, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, ChevronDownIcon, EyeIcon } from "@heroicons/react/24/outline";
@@ -266,10 +267,40 @@ export function Compare() {
     }
   }, []);
 
+  const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
+
+  const currentGroup = currentSnapshotGroup.targetGroups.find((group) => group.snapshots.some((snap) => snap.id === snapshot?.id));
+  const currentSnapshotGroupIndex = currentGroup?.snapshots.findIndex((snap) => snap.id === snapshot?.id) || 0;
+
+
+  useHotkeys(
+    "ArrowRight",
+    (e) => {
+      setCurrentSnapshot(
+        currentGroup?.snapshots.at(Math.min(currentSnapshotGroupIndex + 1, currentGroup?.snapshots.length - 1))
+      );
+      e.preventDefault();
+    },
+    [currentSnapshotGroupIndex, snapshotTargetGroups.length, snapshotTargetGroups]
+  );
+
+  useHotkeys(
+    "ArrowLeft",
+    (e) => {
+      setCurrentSnapshot(
+        currentGroup?.snapshots.at(Math.max(currentSnapshotGroupIndex - 1, 0))
+      );
+      e.preventDefault();
+    },
+    [currentSnapshotGroupIndex, setCurrentSnapshot, snapshotTargetGroups]
+  );
+
+
   if (!snapshot) {
     return null;
   }
-  const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
+
+
 
 
   return (

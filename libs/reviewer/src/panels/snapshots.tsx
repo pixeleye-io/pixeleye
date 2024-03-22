@@ -110,17 +110,17 @@ function SnapButton({
       type="button"
       ref={ref}
       tabIndex={active ? 0 : -1}
-      onKeyDown={(e) => {
-        if (e.key === "ArrowUp" && !e.ctrlKey && index > 0) {
-          e.preventDefault();
-          setIndex(index - 1);
-          e.currentTarget.blur();
-        } else if (e.key === "ArrowDown" && !e.ctrlKey && index < total - 1) {
-          e.preventDefault();
-          setIndex(index + 1);
-          e.currentTarget.blur();
-        }
-      }}
+      // onKeyDown={(e) => {
+      //   if (e.key === "ArrowUp" && !e.ctrlKey && index > 0) {
+      //     e.preventDefault();
+      //     setIndex(index - 1);
+      //     e.currentTarget.blur();
+      //   } else if (e.key === "ArrowDown" && !e.ctrlKey && index < total - 1) {
+      //     e.preventDefault();
+      //     setIndex(index + 1);
+      //     e.currentTarget.blur();
+      //   }
+      // }}
       onClick={() => setIndex(index)}
       className={cx(
         "p-2 rounded relative transition flex w-full justify-center items-center border border-outline-variant/50 hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
@@ -154,7 +154,7 @@ function ShortcutHint() {
       <div className="flex justify-center px-2 py-1 mx-4 rounded-lg shadow lg:bg-surface-container-low bg-surface-container-high">
         <p className="space-x-4 text-on-surface-variant">
           <kbd>
-            <kbd>Ctrl</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
+            <kbd>Arrows</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
           </kbd>
           <span className="sr-only"> to navigate between screenshots</span>
         </p>
@@ -229,6 +229,7 @@ export default function SnapshotsPanel() {
           type="single"
           value={accordionValue}
           onValueChange={setAccordionValue}
+
           defaultValue={currentSnapshot?.status}
           collapsible
           className="w-full"
