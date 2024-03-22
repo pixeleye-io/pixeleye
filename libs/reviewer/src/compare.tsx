@@ -11,7 +11,7 @@ import {
   TabsTrigger,
   Toggle,
 } from "@pixeleye/ui";
-import { CompareTab, SnapshotTargetGroup, StoreContext } from "./store";
+import { CompareTab, DiffGroupedSnapshotTargetGroups, StoreContext } from "./store";
 import { FC, useCallback, useContext, useMemo, useRef } from "react";
 import { ArrowsPointingInIcon, ChevronDownIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { Double, DraggableImageRef, Single } from "./comparisons";
@@ -49,7 +49,7 @@ const buttonHoverColors: Record<Snapshot["status"], string> = {
 }
 
 
-function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: SnapshotTargetGroup; canReview: boolean; onReview: (status: Snapshot["status"]) => void }) {
+function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: DiffGroupedSnapshotTargetGroups; canReview: boolean; onReview: (status: Snapshot["status"]) => void }) {
 
   return (
     <DropdownMenu>
@@ -155,35 +155,75 @@ function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
   );
 }
 
-function Title({ snapshot }: { snapshot: ExtendedSnapshotPair }) {
-  return (<div className="flex space-x-2 py-1 items-center">
-    <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold">
-      {snapshot.name}
+function Title({ snapshot, group }: { snapshot: ExtendedSnapshotPair; group: DiffGroupedSnapshotTargetGroups }) {
 
-      {snapshot.variant && (
-        <>
-          <span className="px-1 text-on-surface-variant" aria-hidden="true">
-            /
-          </span>
-          <span className="text-on-surface-variant">
-            <span className="sr-only">variant</span>
-            {snapshot.variant}
-          </span>
-        </>
-      )}
-      {snapshot.viewport && (
-        <>
-          <span className="text-on-surface-variant mx-1" aria-hidden="true">
-            ·
-          </span>
-          <span className="text-on-surface-variant text-sm font-normal">
-            <span className="sr-only">viewport</span>
-            {snapshot.viewport}
-          </span>
-        </>
-      )}
-    </h2>
-  </div>
+
+  const store = useContext(StoreContext)!
+  const setCurrentSnapshot = useStore(store, (state) => state.setCurrentSnapshot);
+
+  return (
+    <div className="flex space-x-2 py-1 items-center">
+      {
+        group.targetGroups.length > 1 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center text-tertiary p-1 rounded hover:bg-surface-container">
+              <span className="sr-only">Select grouped snapshot</span>
+              <ChevronDownIcon className="w-5 h-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuContent>
+                {
+                  group.targetGroups.map((targetGroup) => (
+                    <DropdownMenuItem key={targetGroup.name} onClick={() => {
+                      setCurrentSnapshot(targetGroup.snapshots[0])
+                    }}>
+                      <span className="text-on-surface">{targetGroup.name}</span>
+                      {targetGroup.variant && (
+                        <>
+                          <span className="px-1 text-on-surface-variant" aria-hidden="true">
+                            /
+                          </span>
+                          <span className="text-on-surface-variant">
+                            <span className="sr-only">variant</span>
+                            {targetGroup.variant}
+                          </span>
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  ))
+                }
+              </DropdownMenuContent>
+            </DropdownMenuPortal>
+          </DropdownMenu>
+        )
+      }
+      <h2 className="first-letter:uppercase text-on-surface text-xl cursor-text font-bold">
+        {snapshot.name}
+
+        {snapshot.variant && (
+          <>
+            <span className="px-1 text-on-surface-variant" aria-hidden="true">
+              /
+            </span>
+            <span className="text-on-surface-variant">
+              <span className="sr-only">variant</span>
+              {snapshot.variant}
+            </span>
+          </>
+        )}
+        {snapshot.viewport && (
+          <>
+            <span className="text-on-surface-variant mx-1" aria-hidden="true">
+              ·
+            </span>
+            <span className="text-on-surface-variant text-sm font-normal">
+              <span className="sr-only">viewport</span>
+              {snapshot.viewport}
+            </span>
+          </>
+        )}
+      </h2>
+    </div>
   );
 }
 
@@ -210,7 +250,7 @@ export function Compare() {
 
 
   const currentSnapshotIndex = useMemo(() => {
-    const index = snapshotTargetGroups.findIndex((group) => group.snapshots.some((snap) => snap.id === snapshot?.id));
+    const index = snapshotTargetGroups.findIndex((group) => group.targetGroups.some((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === snapshot?.id)));
     return index !== -1 ? index : 0;
   }, [snapshot, snapshotTargetGroups]);
 
@@ -231,6 +271,7 @@ export function Compare() {
   }
   const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
 
+
   return (
     <main className="w-full z-0 h-full grow-0 flex relative">
       <Tabs
@@ -242,18 +283,17 @@ export function Compare() {
         <header className="w-full border-b border-outline-variant">
           <div className="flex px-4 py-2 flex-col">
             <div className="flex justify-between items-center">
-              <Title snapshot={snapshot} />
+              <Title snapshot={snapshot} group={currentSnapshotGroup} />
 
               <div className="space-x-2">
                 <ReviewDropdown snapshots={currentSnapshotGroup} canReview={Boolean(build.isLatest) && userRole !== "viewer"} onReview={(status) => {
-                  if (status === "approved") buildAPI.approveSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
-                  else buildAPI.rejectSnapshots(currentSnapshotGroup.snapshots.map((snap) => snap.id))
-
-
+                  if (status === "approved") buildAPI.approveSnapshots(currentSnapshotGroup.targetGroups.flatMap((group) => group.snapshots.flatMap((snap) => snap.id)))
+                  else buildAPI.rejectSnapshots(currentSnapshotGroup.targetGroups.flatMap((group) => group.snapshots.flatMap((snap) => snap.id)))
 
                   setCurrentSnapshot(
-                    snapshotTargetGroups[currentSnapshotIndex + 1]?.snapshots[0] ||
-                    snapshotTargetGroups[currentSnapshotIndex]?.snapshots[0]
+                    snapshotTargetGroups[currentSnapshotIndex + 1]?.targetGroups[0]?.snapshots[0] ||
+                    snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[0]?.snapshots[0] ||
+                    snapshotTargetGroups[0]?.targetGroups[0]?.snapshots[0]
                   )
 
 
@@ -302,7 +342,7 @@ function TargetTabs({
 
   const groupedSnapshots = useStore(store, (state) => state.snapshots);
 
-  const targetGroup = groupedSnapshots.find((group) => group.name === snapshot.name && group.status === snapshot.status && group.variant === snapshot.variant && group.viewport === snapshot.viewport);
+  const targetGroup = groupedSnapshots.find((groups) => groups.targetGroups.some(group => group.name === snapshot.name && group.status === snapshot.status && group.variant === snapshot.variant && group.viewport === snapshot.viewport))?.targetGroups.find(group => group.name === snapshot.name && group.status === snapshot.status && group.variant === snapshot.variant && group.viewport === snapshot.viewport);
 
   const setCurrentSnapshot = useStore(store, (state) => state.setCurrentSnapshot);
 
