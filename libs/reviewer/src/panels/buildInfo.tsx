@@ -25,7 +25,7 @@ export default function BuildInfoPanel() {
 
   const snapshots = useStore(store, (state) => state.snapshots);
 
-  const snapshotCount = snapshots.reduce((acc, snapshot) => acc + snapshot.snapshots.length, 0);
+  const snapshotCount = snapshots.reduce((acc, snapshot) => acc + snapshot.targetGroups.reduce((acc, group) => acc + group.snapshots.length, 0), 0);
 
   const snapshotsChangedCount = snapshots.filter((snapshot) =>
     ["unreviewed", "approved", "rejected"].includes(snapshot.status)

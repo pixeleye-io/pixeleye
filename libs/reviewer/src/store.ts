@@ -19,6 +19,11 @@ export interface BuildAPI {
   rejectRemainingSnapshots: () => void;
 }
 
+export type DiffGroupedSnapshotTargetGroups = {
+  status: ExtendedSnapshotPair["status"];
+  targetGroups: SnapshotTargetGroup[];
+};
+
 export type SnapshotTargetGroup = {
   snapshots: ExtendedSnapshotPair[];
   name: ExtendedSnapshotPair["name"];
@@ -33,8 +38,8 @@ interface ReviewerState {
   optimize: boolean;
   build: Build;
   setBuild: (build: Build) => void;
-  snapshots: SnapshotTargetGroup[];
-  setSnapshots: (snapshots: SnapshotTargetGroup[]) => void;
+  snapshots: DiffGroupedSnapshotTargetGroups[];
+  setSnapshots: (snapshots: DiffGroupedSnapshotTargetGroups[]) => void;
   currentSnapshot?: ExtendedSnapshotPair;
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
   showDiff: boolean;

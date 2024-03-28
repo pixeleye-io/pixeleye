@@ -16,7 +16,6 @@ import {
 import {
   InformationCircleIcon,
   QueueListIcon,
-  ChatBubbleBottomCenterTextIcon,
   HandThumbDownIcon,
   HandThumbUpIcon,
 } from "@heroicons/react/24/solid";
