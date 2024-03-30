@@ -109,7 +109,7 @@ export default async function AddGithubProjectPage({
         segment={[
           {
             name: "Add project",
-            value: `/add/github/${team.type !== "user" ? "?team=" + team.id : ""}`,
+            value: team.type !== "user" ? `/add/github/?team=${team.id}` : "/add",
           },
           {
             name: "Github",
