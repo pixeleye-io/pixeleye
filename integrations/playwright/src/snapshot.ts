@@ -27,6 +27,7 @@ export interface Options {
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
+  wait?: number;
 }
 
 export async function pixeleyeSnapshot(page: Page, options: Options) {
@@ -76,6 +77,7 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     selector: options.selector,
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
+    wait: options.wait,
     css,
   };
 

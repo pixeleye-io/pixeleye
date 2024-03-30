@@ -18,6 +18,7 @@ export interface Options {
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
+  wait?: number;
 }
 
 let rrwebSnapshot: string | undefined;
@@ -75,6 +76,7 @@ export async function pixeleyeSnapshot(
     selector: options.selector,
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
+    wait: options.wait,
     css,
   };
 
