@@ -29,6 +29,12 @@ export type SnapshotDefinition = {
   selector?: string;
 
   /**
+   * The time in milliseconds to wait before capturing the screenshot.
+   * We recommend using `waitForSelectors` or `selector` instead of `wait` as it's more reliable.
+   */
+  wait?: number;
+
+  /**
    * A list of css selectors that you want to mask.
    * We will mask these elements with the color defined in the config.
    */

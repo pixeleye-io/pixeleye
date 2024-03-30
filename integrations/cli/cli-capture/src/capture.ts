@@ -125,6 +125,10 @@ async function internalCaptureScreenshot(
       timeout: 60_000,
     });
 
+  if (data.wait) {
+    await page.waitForTimeout(data.wait);
+  }
+
   const locatedPage = data.selector ? page.locator(data.selector) : page;
 
   const mask = [...(data?.maskSelectors || []), "[data-pixeleye-mask]"].map(
