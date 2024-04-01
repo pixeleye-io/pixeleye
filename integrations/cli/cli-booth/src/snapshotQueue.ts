@@ -4,7 +4,7 @@ import {
 } from "@pixeleye/cli-capture";
 import PQueue from "p-queue";
 import { PartialSnapshot } from "@pixeleye/api";
-import { serializedElementNodeWithId } from "rrweb-snapshot";
+import { removeAsset } from "./webServer";
 
 export type QueuedSnap = Omit<PartialSnapshot, "snapID"> & {
   file: Buffer;
@@ -19,11 +19,19 @@ export const queue = new PQueue({
 export async function handleQueue({
   body,
   addToBusQueue,
+  webServerURL,
+  pageID,
 }: {
   body: CaptureScreenshotData;
   addToBusQueue: (message: QueuedSnap) => Promise<void>;
+  webServerURL: string;
+  pageID?: string;
 }) {
-  const file: QueuedSnap = await captureScreenshot(body).then((file) => ({
+  const file: QueuedSnap = await captureScreenshot({
+    ...body,
+    webServerURL,
+    pageID,
+  }).then((file) => ({
     file,
     format: "png",
     name: body.name,
@@ -32,6 +40,9 @@ export async function handleQueue({
     viewport: `${body.device.viewport.width}x${body.device.viewport.height}`,
     targetIcon: body.device.icon,
   }));
+
+  // Clean up our pages assets
+  if (pageID) removeAsset(pageID);
 
   addToBusQueue(file);
 }

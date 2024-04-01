@@ -1,4 +1,3 @@
 export default {
-  token: "your-token",
-  endpoint: "http://localhost:5000",
+  token: "pxi__z03R7VxzpaZcZwKjnxOKsTMga1Hj1MCZ:llbqm5XqSzwTz7WbtWbcD"
 };

@@ -1,13 +1,6 @@
-import {
-  createCache,
-  createMirror,
-  rebuild,
-  serializedNodeWithId,
-} from "rrweb-snapshot";
 import { getPage } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";
-import { JSDOM } from "jsdom";
 import { logger } from "@pixeleye/cli-logger";
 import { Page } from "playwright-core";
 
@@ -32,19 +25,10 @@ export type CaptureScreenshotData<
   : CaptureScreenshotConfigOptions &
       Either<{ url: string }, { content: string }>;
 
-export function getBuildContent(serializedDom: serializedNodeWithId): string {
-  const doc = new JSDOM().window.document;
-  const cache = createCache();
-  const mirror = createMirror();
-  rebuild(serializedDom, { doc, cache, mirror });
-
-  return doc.documentElement.outerHTML;
-}
-
 const retries = 3;
 
 export async function captureScreenshot(
-  options: CaptureScreenshotData
+  options: CaptureScreenshotData & { webServerURL: string; pageID?: string }
 ): Promise<Buffer> {
   const page = await getPage(options.device);
 
@@ -75,14 +59,31 @@ export async function captureScreenshot(
 
 async function internalCaptureScreenshot(
   page: Page,
-  data: CaptureScreenshotData
+  data: CaptureScreenshotData & { webServerURL: string; pageID?: string }
 ): Promise<Buffer> {
-  if (data.url) {
-    await page.goto(data.url, {
+  if (data.content) {
+    await page.route(
+      () => true,
+      (route, request) => {
+        if (!request.url().startsWith(data.webServerURL))
+          return route.continue();
+
+        const url = new URL(request.url());
+        const base = new URL(data.url!);
+        url.hostname = base.hostname;
+
+        return route.continue({
+          url: url.toString(),
+        });
+      }
+    );
+
+    await page.goto(`${data.webServerURL}/page/${data.pageID}`, {
       timeout: 60_000,
+      waitUntil: "domcontentloaded",
     });
-  } else if (data.content) {
-    await page.setContent(data.content, {
+  } else if (data.url) {
+    await page.goto(data.url, {
       timeout: 60_000,
     });
   } else {
@@ -103,7 +104,8 @@ async function internalCaptureScreenshot(
       }, data.css);
   }
 
-  await page.waitForLoadState();
+  await page.waitForLoadState("load");
+  await page.waitForLoadState("domcontentloaded");
 
   await page
     .waitForFunction(() => document.fonts.ready)
@@ -125,9 +127,8 @@ async function internalCaptureScreenshot(
       timeout: 60_000,
     });
 
-  if (data.wait) {
-    await page.waitForTimeout(data.wait);
-  }
+  // small wait to ensure all content is loaded
+  await page.waitForTimeout(data.wait || 0 + 100);
 
   const locatedPage = data.selector ? page.locator(data.selector) : page;
 

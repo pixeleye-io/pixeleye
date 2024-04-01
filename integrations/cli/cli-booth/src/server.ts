@@ -6,12 +6,13 @@ import { QueuedSnap, handleQueue, queue } from "./snapshotQueue";
 import {
   CaptureScreenshotData,
   getBrowser,
-  getBuildContent,
+  // getBuildContent,
 } from "@pixeleye/cli-capture";
 import { createBus } from "./bus";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
-import { serializedNodeWithId } from "rrweb-snapshot";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
+import { addAsset, startWebServer } from "./webServer";
+import type { SerializeResult } from "@pixeleye/cli-dom";
 
 export interface BoothServerOptions {
   port: number;
@@ -21,7 +22,8 @@ export interface BoothServerOptions {
 }
 
 export type SnapshotRequest = Omit<CaptureScreenshotData, "device"> & {
-  serializedDom?: serializedNodeWithId;
+  // serializedDom?: serializedNodeWithId;
+  serializedDom?: SerializeResult;
   devices: DeviceDescriptor[];
 };
 
@@ -43,6 +45,8 @@ export function startServer(options: BoothServerOptions) {
     close: () => void;
   }>((resolve, _) => {
     const api = API({ endpoint: options.endpoint, token: options.token });
+
+    const webServer = startWebServer();
 
     const bus = createBus<QueuedSnap>({
       batchSize: 10,
@@ -86,9 +90,14 @@ export function startServer(options: BoothServerOptions) {
     app.post("/snapshot", (req, res) => {
       const body = req.body as SnapshotRequest;
 
-      body.content = body.serializedDom
-        ? getBuildContent(body.serializedDom)
-        : undefined;
+      body.content = body.serializedDom?.html;
+      // ? getBuildContent(body.serializedDom)
+      // : undefined;
+
+      let pageID: string | undefined;
+      if (body.serializedDom) {
+        pageID = addAsset(body.serializedDom, body.devices.length);
+      }
 
       body.devices.forEach((device) => {
         queue.add(async () =>
@@ -98,7 +107,9 @@ export function startServer(options: BoothServerOptions) {
               ...(body as unknown as CaptureScreenshotData),
               device,
             },
+            webServerURL: webServer.url,
             addToBusQueue: bus.add,
+            pageID,
           })
         );
       });

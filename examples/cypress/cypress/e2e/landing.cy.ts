@@ -3,7 +3,7 @@ describe("Landing page - e2e", () => {
     cy.visit("/");
     cy.get("kbd.ml-auto").should("be.visible");
 
-    cy.wait(1000);
+    cy.wait(5000);
 
     cy.pixeleyeSnapshot({ name: "landing" });
   });

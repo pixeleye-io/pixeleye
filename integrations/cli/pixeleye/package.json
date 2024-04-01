@@ -29,6 +29,7 @@
     "@types/node": "20.11.19",
     "@types/require-relative": "^0.8.2",
     "esbuild": "^0.20.1",
+    "@percy/dom": "1.28.2",
     "rimraf": "^5.0.5"
   },
   "dependencies": {

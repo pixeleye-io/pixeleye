@@ -40,6 +40,12 @@ export async function pixeleyeSnapshot(
     throw new Error("No name provided");
   }
 
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
+  if (process.env.PIXELEYE_RUNNING !== "true") {
+    console.log("Skipping snapshot as Pixeleye exec is not running");
+    return;
+  }
+
   const config = await loadConfig();
 
   const opts: ServerOptions = {

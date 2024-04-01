@@ -1,6 +1,6 @@
 {
-  "name": "@pixeleye/cli-booth",
-  "version": "0.4.13",
+  "name": "@pixeleye/cli-dom",
+  "version": "0.0.1",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -25,27 +25,13 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/body-parser": "^1.19.5",
-    "rimraf": "^5.0.5",
-    "rrweb-snapshot": "2.0.0-alpha.11",
-    "@types/jsdom": "^21.1.6"
+    "@types/jsdom": "^21.1.6",
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "@pixeleye/api": "workspace:*",
-    "@pixeleye/cli-api": "workspace:*",
-    "@pixeleye/cli-capture": "workspace:*",
-    "@pixeleye/cli-config": "workspace:*",
-    "@pixeleye/cli-devices": "workspace:*",
-    "@pixeleye/cli-dom": "workspace:*",
-    "@types/polka": "^0.5.7",
-    "body-parser": "^1.20.2",
-    "p-queue": "^8.0.1",
-    "polka": "^0.5.2",
-    "undici": "^6.6.2",
-    "get-port": "^7.0.0"
+    "@percy/dom": "1.28.2"
   }
 }

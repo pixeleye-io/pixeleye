@@ -4,6 +4,7 @@ import { program } from "commander";
 import { errStr } from "../messages/ui/theme";
 import { exec } from "child_process";
 import { API, createBuild } from "@pixeleye/cli-api";
+import { setEnv } from "@pixeleye/cli-env";
 import { Config } from "@pixeleye/cli-config";
 import {
   getExitBuild,
@@ -21,6 +22,9 @@ export async function execHandler(
     shard?: string;
   }
 ) {
+  // Lets our integrations know we are running in a Pixeleye environment
+  setEnv("PIXELEYE_RUNNING", "true");
+
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -74,6 +78,7 @@ export async function execHandler(
     new Promise((resolve, reject) => {
       const child = exec(command.join(" "), {
         cwd: process.cwd(),
+        env: process.env,
       });
 
       child.on("error", (err) => {
