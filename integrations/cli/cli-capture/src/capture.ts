@@ -10,6 +10,7 @@ import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";
 import { JSDOM } from "jsdom";
 import { logger } from "@pixeleye/cli-logger";
 import { Page } from "playwright-core";
+import { SerializedDom } from "@pixeleye/cli-dom";
 
 type Only<T, U> = {
   [P in keyof T]: T[P];
@@ -30,7 +31,10 @@ export type CaptureScreenshotData<
 > = T extends string | number | symbol
   ? Omit<CaptureScreenshotConfigOptions, T>
   : CaptureScreenshotConfigOptions &
-      Either<{ url: string }, { content: string }>;
+      Either<
+        { url: string },
+        { serializedDom: SerializedDom & { url: string } }
+      >;
 
 export function getBuildContent(serializedDom: serializedNodeWithId): string {
   const doc = new JSDOM().window.document;
@@ -44,7 +48,9 @@ export function getBuildContent(serializedDom: serializedNodeWithId): string {
 const retries = 3;
 
 export async function captureScreenshot(
-  options: CaptureScreenshotData
+  options: CaptureScreenshotData,
+  assetServerURL: string,
+  assetID?: string
 ): Promise<Buffer> {
   const page = await getPage(options.device);
 
@@ -52,12 +58,15 @@ export async function captureScreenshot(
 
   return new Promise(async (resolve, reject) => {
     for (let i = 0; i < retries; i++) {
-      const buffer = await internalCaptureScreenshot(page, options).catch(
-        (err) => {
-          logger.error(err);
-          error = err;
-        }
-      );
+      const buffer = await internalCaptureScreenshot(
+        page,
+        options,
+        assetServerURL,
+        assetID
+      ).catch((err) => {
+        logger.error(err);
+        error = err;
+      });
 
       if (buffer) {
         await page.close();
@@ -75,15 +84,44 @@ export async function captureScreenshot(
 
 async function internalCaptureScreenshot(
   page: Page,
-  data: CaptureScreenshotData
+  data: CaptureScreenshotData,
+  assetServerURL: string,
+  assetID?: string
 ): Promise<Buffer> {
-  if (data.url) {
+  if (assetID) {
+    if (!data.serializedDom) {
+      throw new Error("Asset ID provided but no serializedDom");
+    }
+
+    // We have been given a serialized dom, so we need to go to our asset server
+
+    const pageURL = `${assetServerURL}/page/${assetID}`;
+
+    await page.route("**/*", (route) => {
+      if (
+        !route.request().url().startsWith(assetServerURL) ||
+        route.request().url() === pageURL ||
+        route.request().url() === pageURL + "/"
+      )
+        return route.continue();
+
+      const url = new URL(route.request().url());
+
+      url.pathname = `/asset/${assetID}${url.pathname}`;
+
+      return route.continue({
+        url: url.toString(),
+      });
+    });
+
+    await page.goto(pageURL, {
+      timeout: 60_000,
+      waitUntil: "domcontentloaded",
+    });
+  } else if (data.url) {
     await page.goto(data.url, {
       timeout: 60_000,
-    });
-  } else if (data.content) {
-    await page.setContent(data.content, {
-      timeout: 60_000,
+      waitUntil: "domcontentloaded",
     });
   } else {
     await page.close();
@@ -125,9 +163,7 @@ async function internalCaptureScreenshot(
       timeout: 60_000,
     });
 
-  if (data.wait) {
-    await page.waitForTimeout(data.wait);
-  }
+  if (data.wait) await page.waitForTimeout(data.wait);
 
   const locatedPage = data.selector ? page.locator(data.selector) : page;
 

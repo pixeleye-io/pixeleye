@@ -34,11 +34,13 @@
     "rrweb-snapshot": "2.0.0-alpha.11"
   },
   "dependencies": {
+    "@pixeleye/cli-asset-server": "workspace:*",
     "@pixeleye/api": "workspace:*",
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-capture": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/cli-devices": "workspace:*",
+    "@pixeleye/cli-dom": "workspace:*",
     "@types/polka": "^0.5.7",
     "body-parser": "^1.20.2",
     "p-queue": "^8.0.1",

@@ -1,7 +1,6 @@
 import type { Page } from "playwright-core";
 import { getEnvConfig } from "@pixeleye/cli-config";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import { logger } from "@pixeleye/cli-logger";
 import {
   snapshot,
   Options as ServerOptions,

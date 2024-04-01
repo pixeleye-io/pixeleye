@@ -34,6 +34,7 @@
   "dependencies": {
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-booth": "workspace:*",
+    "@pixeleye/cli-dom": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/cli-env": "workspace:*",
     "@pixeleye/cli-install": "workspace:*",

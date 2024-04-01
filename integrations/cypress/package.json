@@ -36,6 +36,7 @@
     "undici": "^6.6.2"
   },
   "devDependencies": {
+    "@pixeleye/cli-dom": "workspace:*",
     "@pixeleye/cli-booth": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",

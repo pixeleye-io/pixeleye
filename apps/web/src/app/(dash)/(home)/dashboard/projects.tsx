@@ -21,6 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/queries";
 import { Team } from "@pixeleye/api";
 import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 dayjs.extend(relativeTime);
 

@@ -1,11 +1,4 @@
-import {
-  chromium,
-  firefox,
-  webkit,
-  BrowserContext,
-  Browser,
-  Page,
-} from "playwright-core";
+import { chromium, firefox, webkit, Browser, Page } from "playwright-core";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import hash from "object-hash";
 
@@ -45,5 +38,8 @@ export async function getPage(
   deviceDescriptor: DeviceDescriptor
 ): Promise<Page> {
   const browser = await getBrowser(deviceDescriptor);
-  return browser.newPage(deviceDescriptor);
+  return browser.newPage({
+    ...deviceDescriptor,
+    javaScriptEnabled: deviceDescriptor.javaScriptEnabled ?? false,
+  });
 }

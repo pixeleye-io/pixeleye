@@ -1,5 +1,8 @@
 {
   "extends": "@pixeleye/tsconfig/node.json",
   "include": ["."],
+  "compilerOptions": {
+    "types": ["@pixeleye/cli-dom/dist/index.d.ts"]
+  },
   "exclude": ["dist", "bin", "build", "node_modules"]
 }

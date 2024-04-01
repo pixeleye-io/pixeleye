@@ -7,6 +7,7 @@ export type DeviceName = keyof typeof playwrightDevices;
 export interface DeviceDescriptor extends PlaywrightDeviceDescriptor {
   name: DeviceName;
   icon?: string;
+  javaScriptEnabled?: boolean;
 }
 
 const icons = {

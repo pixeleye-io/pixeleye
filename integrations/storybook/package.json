@@ -26,6 +26,7 @@
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/playwright": "workspace:*",
+    "@pixeleye/cli-dom": "workspace:*",
     "@storybook/addons": "^7.6.17",
     "@pixeleye/cli-logger": "workspace:*",
     "playwright-core": "^1.41.2",

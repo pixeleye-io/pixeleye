@@ -1,6 +1,6 @@
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { Options as ServerOptions, SnapshotRequest } from "@pixeleye/cli-booth";
-import { snapshot as domSnapshot } from "rrweb-snapshot";
+import { serialize } from "@pixeleye/cli-dom";
 
 export interface Options {
   fullPage?: boolean;
@@ -33,7 +33,7 @@ export const pixeleyeSnapshot = (options: Options) => {
       : undefined;
 
   return cy.document().then(async (doc) => {
-    const serializedDom = domSnapshot(doc);
+    const serializedDom = serialize({ dom: doc });
     if (!serializedDom) {
       throw new Error("Failed to serialize DOM");
     }
@@ -45,7 +45,10 @@ export const pixeleyeSnapshot = (options: Options) => {
       maskSelectors: options.maskSelectors,
       maskColor: options.maskColor,
       css,
-      serializedDom,
+      serializedDom: {
+        ...serializedDom,
+        url: window.location.href,
+      },
       fullPage: options.fullPage,
       wait: options.wait,
     };

@@ -27,8 +27,8 @@
   ],
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
+    "@pixeleye/cli-dom": "workspace:*",
     "playwright-core": "^1.41.2",
-    "rrweb-snapshot": "2.0.0-alpha.11",
     "undici": "^6.6.2"
   },
   "devDependencies": {
@@ -36,7 +36,6 @@
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
-    "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@swc-node/register": "^1.8.0",
     "@types/node": "20.11.19",
