@@ -15,9 +15,10 @@ export interface Options {
 }
 
 export const pixeleyeSnapshot = (options: Options) => {
-  if (!options.name) {
-    throw new Error("No name provided");
-  }
+  if (!options.name) throw new Error("No name provided");
+
+  if (!Cypress.env("PIXELEYE_RUNNING"))
+    return cy.log("Skipping snapshot as Pixeleye exec is not running");
 
   const opts: ServerOptions = {
     endpoint: `http://localhost:${Cypress.env("PIXELEYE_BOOTH_PORT")}`,
