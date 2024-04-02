@@ -38,7 +38,7 @@ export function getBuildContent(serializedDom: serializedNodeWithId): string {
   const mirror = createMirror();
   rebuild(serializedDom, { doc, cache, mirror });
 
-  return doc.documentElement.outerHTML;
+  return `<!DOCTYPE html>${doc.documentElement.outerHTML}`;
 }
 
 const retries = 3;
