@@ -1,5 +1,13 @@
 # @pixeleye/cli-capture
 
+## 0.5.0
+
+### Minor Changes
+
+- [#258](https://github.com/pixeleye-io/pixeleye/pull/258) [`5a9e5ce`](https://github.com/pixeleye-io/pixeleye/commit/5a9e5ce2e9a40b461bb832b5e71cce18e97459f4) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding missing doctype to rebuilt html
+
+- [#258](https://github.com/pixeleye-io/pixeleye/pull/258) [`3031827`](https://github.com/pixeleye-io/pixeleye/commit/3031827ba059064b6da38d4b82d4428074c955ee) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding wait in milliseconds option to snapshots
+
 ## 0.4.7
 
 ### Patch Changes

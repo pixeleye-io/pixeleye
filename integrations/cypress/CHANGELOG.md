@@ -1,5 +1,13 @@
 # @pixeleye/cypress
 
+## 0.4.0
+
+### Minor Changes
+
+- [#258](https://github.com/pixeleye-io/pixeleye/pull/258) [`54702db`](https://github.com/pixeleye-io/pixeleye/commit/54702db29c7d86770c0d5db7a33a3e931f2a55fb) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding wait in milliseconds option to snapshotting
+
+- [#260](https://github.com/pixeleye-io/pixeleye/pull/260) [`5d28e48`](https://github.com/pixeleye-io/pixeleye/commit/5d28e486d4bdd6f2c04b996681600a6eef500ed8) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Disabling pixeleye snapshots when exec isn't used
+
 ## 0.3.11
 
 ### Patch Changes
