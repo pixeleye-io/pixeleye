@@ -12,7 +12,7 @@ export type QueuedSnap = Omit<PartialSnapshot, "snapID"> & {
 
 export const queue = new PQueue({
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  concurrency: Number(process.env.PIXELEYE_BOOTH_CONCURRENCY) || 4,
+  concurrency: Number(process.env.PIXELEYE_BOOTH_CONCURRENCY) || 6,
 });
 
 export async function handleQueue({
