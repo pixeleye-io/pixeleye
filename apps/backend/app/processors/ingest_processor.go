@@ -342,7 +342,7 @@ func compareBuilds(ctx context.Context, project models.Project, snapshots []mode
 	for _, snap := range unchangedSnapshots {
 		base := snap[1]
 		snapshot := snap[0]
-		snapshot.BaselineID = base.BaselineID
+		snapshot.BaselineID = &base.ID
 		snapshot.Status = models.SNAPSHOT_STATUS_UNCHANGED
 
 		snapshotsToUpdate = append(snapshotsToUpdate, snapshot)

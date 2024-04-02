@@ -1,9 +1,5 @@
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import {
-  Options as ServerOptions,
-  SnapshotRequest,
-  snapshot,
-} from "@pixeleye/cli-booth";
+import { Options as ServerOptions, SnapshotRequest } from "@pixeleye/cli-booth";
 import { snapshot as domSnapshot } from "rrweb-snapshot";
 
 export interface Options {
@@ -15,6 +11,7 @@ export interface Options {
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
+  wait?: number;
 }
 
 export const pixeleyeSnapshot = (options: Options) => {
@@ -50,6 +47,7 @@ export const pixeleyeSnapshot = (options: Options) => {
       css,
       serializedDom,
       fullPage: options.fullPage,
+      wait: options.wait,
     };
 
     cy.request({

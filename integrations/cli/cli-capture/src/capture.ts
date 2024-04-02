@@ -38,7 +38,7 @@ export function getBuildContent(serializedDom: serializedNodeWithId): string {
   const mirror = createMirror();
   rebuild(serializedDom, { doc, cache, mirror });
 
-  return doc.documentElement.outerHTML;
+  return `<!DOCTYPE html>${doc.documentElement.outerHTML}`;
 }
 
 const retries = 3;
@@ -124,6 +124,10 @@ async function internalCaptureScreenshot(
     await page.waitForSelector(data.selector, {
       timeout: 60_000,
     });
+
+  if (data.wait) {
+    await page.waitForTimeout(data.wait);
+  }
 
   const locatedPage = data.selector ? page.locator(data.selector) : page;
 
