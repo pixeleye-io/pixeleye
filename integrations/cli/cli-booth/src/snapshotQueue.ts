@@ -4,7 +4,6 @@ import {
 } from "@pixeleye/cli-capture";
 import PQueue from "p-queue";
 import { PartialSnapshot } from "@pixeleye/api";
-import { serializedElementNodeWithId } from "rrweb-snapshot";
 
 export type QueuedSnap = Omit<PartialSnapshot, "snapID"> & {
   file: Buffer;
