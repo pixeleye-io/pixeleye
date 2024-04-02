@@ -1,5 +1,12 @@
 # @pixeleye/storybook
 
+## 0.5.18
+
+### Patch Changes
+
+- Updated dependencies [[`54702db`](https://github.com/pixeleye-io/pixeleye/commit/54702db29c7d86770c0d5db7a33a3e931f2a55fb)]:
+  - @pixeleye/playwright@0.5.0
+
 ## 0.5.17
 
 ### Patch Changes
