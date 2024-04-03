@@ -923,8 +923,8 @@ table "snapshot" {
     null = false
   }
 
-  index "idx_snapshot-build_id__name__variant__target" {
-    columns = [column.build_id, column.name, column.variant, column.target]
+  index "idx_snapshot-build_id__name__variant__viewport__target" {
+    columns = [column.build_id, column.name, column.variant, column.viewport, column.target]
     unique  = true
   }
 
