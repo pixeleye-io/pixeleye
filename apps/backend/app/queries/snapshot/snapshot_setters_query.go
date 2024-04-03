@@ -76,7 +76,7 @@ func (tx *SnapshotQueriesTx) BatchUpdateSnapshotStatus(ctx context.Context, snap
 	return err
 }
 
-func getDuplicateSnapWarning(snap models.Snapshot) string {
+func getDuplicateSnapError(snap models.Snapshot) string {
 	errTxt := "Duplicate snapshots with "
 
 	conflicting := []string{fmt.Sprintf("name: %s", snap.Name)}
@@ -97,8 +97,6 @@ func getDuplicateSnapWarning(snap models.Snapshot) string {
 		errTxt += utils.JoinStringsGrammatically(conflicting)
 	}
 
-	errTxt += " - this could be due to a test running multiple times or different snapshots with the same details"
-
 	return errTxt
 }
 
@@ -109,9 +107,9 @@ func getDuplicateSnapWarning(snap models.Snapshot) string {
 // Assumes we have no duplicate snapshots passed in
 func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []models.Snapshot, build *models.Build) ([]models.Snapshot, bool, error) {
 	selectExistingSnapshotsQuery := `SELECT * FROM snapshot WHERE build_id = $1`
-	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, target_icon, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :target_icon, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error) ON CONFLICT (build_id, name, variant, target, viewport) DO UPDATE SET updated_at = EXCLUDED.updated_at, snap_image_id = EXCLUDED.snap_image_id, status = EXCLUDED.status, error = EXCLUDED.error RETURNING *`
+	snapQuery := `INSERT INTO snapshot (id, build_id, name, variant, target, target_icon, viewport, created_at, updated_at, snap_image_id, status, error) VALUES (:id, :build_id, :name, :variant, :target, :target_icon, :viewport, :created_at, :updated_at, :snap_image_id, :status, :error)`
 
-	buildQueryAppend := `UPDATE build SET warnings = array_append(warnings, $1), updated_at = $2 WHERE id = $3`
+	buildQueryAppend := `UPDATE build SET errors = array_append(errors, $1), status = 'failed', updated_at = $2 WHERE id = $3`
 
 	if len(snapshots) == 0 {
 		return nil, false, echo.NewHTTPError(http.StatusBadRequest, "no snapshots to create")
@@ -129,7 +127,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []
 
 	newSnapshots := []models.Snapshot{}
 
-	warnings := pq.StringArray{}
+	errors := pq.StringArray{}
 
 	// TODO move this to a separate function, so we can test it
 	for i, snap := range snapshots {
@@ -139,34 +137,33 @@ func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []
 			snapAfter := snapshots[j]
 
 			if models.CompareSnaps(snap, snapAfter) {
-
 				isDup = true
-				warningsTxt := getDuplicateSnapWarning(snap)
-				if !utils.ContainsString(build.Warnings, warningsTxt) || !utils.ContainsString(warnings, warningsTxt) {
-					// No need to update build if the warning for this snapshot already exists.
-					warnings = append(warnings, warningsTxt)
+				errorTxt := getDuplicateSnapError(snap)
+				if !utils.ContainsString(build.Errors, errorTxt) || !utils.ContainsString(errors, errorTxt) {
+					// No need to update build if the error for this snapshot already exists.
+					errors = append(errors, errorTxt)
 				}
-				break
+				break // No need to check for anymore duplicates of this snapshot.
 			}
 		}
-		if !isDup {
-			// No need to check for any more duplicates as we've already found one.
-			// Check there aren't any duplicates in the existing snapshots.
-			for _, existingSnapshot := range existingSnapshots {
-				if models.CompareSnaps(snap, existingSnapshot) {
-					// We still want to update the snapshot even if it's a duplicate
-
-					warningTxt := getDuplicateSnapWarning(snap)
-					if !utils.ContainsString(build.Warnings, warningTxt) || !utils.ContainsString(warnings, warningTxt) {
-						// No need to update build if the warning for this snapshot already exists.
-						warnings = append(warnings, warningTxt)
-					}
+		if isDup {
+			// No need to check for anymore duplicates. Continue to next snapshot.
+			isDup = false
+			continue
+		}
+		// Check there aren't any duplicates in the existing snapshots.
+		for _, existingSnapshot := range existingSnapshots {
+			if models.CompareSnaps(snap, existingSnapshot) {
+				isDup = true
+				errorTxt := getDuplicateSnapError(snap)
+				if !utils.ContainsString(build.Errors, errorTxt) || !utils.ContainsString(errors, errorTxt) {
+					// No need to update build if the error for this snapshot already exists.
+					errors = append(errors, errorTxt)
 				}
 			}
 		}
 
 		if !isDup {
-
 			var err error
 			snap.ID, err = nanoid.New()
 			if err != nil {
@@ -184,9 +181,7 @@ func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []
 
 			snap.BuildID = build.ID
 			newSnapshots = append(newSnapshots, snap)
-
 		}
-
 	}
 
 	if len(newSnapshots) == 0 {
@@ -204,27 +199,17 @@ func (q *SnapshotQueries) CreateBatchSnapshots(ctx context.Context, snapshots []
 		return nil, false, echo.NewHTTPError(http.StatusBadRequest, string(msg))
 	}
 
-	if len(warnings) > 0 {
+	if len(errors) > 0 {
 		build.UpdatedAt = utils.CurrentTime()
-		build.Warnings = append(build.Warnings, warnings...)
-		if _, err := q.ExecContext(ctx, buildQueryAppend, warnings, build.UpdatedAt, build.ID); err != nil {
+		build.Errors = append(build.Errors, errors...)
+		if _, err := q.ExecContext(ctx, buildQueryAppend, errors, build.UpdatedAt, build.ID); err != nil {
 			return nil, false, err
 		}
 	}
 
-	if rows, err := q.NamedQueryContext(ctx, snapQuery, newSnapshots); err != nil {
+	if _, err := q.NamedExecContext(ctx, snapQuery, newSnapshots); err != nil {
 		return nil, false, err
-	} else {
-		insertedSnapshots := []models.Snapshot{}
-		for rows.Next() {
-			var snap models.Snapshot
-			if err := rows.StructScan(&snap); err != nil {
-				return nil, false, err
-			}
-			insertedSnapshots = append(insertedSnapshots, snap)
-		}
-
-		return insertedSnapshots, false, nil
 	}
 
+	return newSnapshots, len(errors) > 0, nil
 }
