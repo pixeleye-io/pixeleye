@@ -138,6 +138,19 @@ function DisplayOptions({ resetAlignment }: DisplayOptionsProps) {
   const showDiff = useStore(store, (state) => state.showDiff);
   const activeTab = useStore(store, (state) => state.activeCompareTab);
 
+
+  useHotkeys(
+    "d",
+    (e) => {
+
+      setShowDiff(!showDiff);
+
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [setShowDiff, showDiff]
+  );
+
   return (
     <div className="flex">
       <Toggle pressed={showDiff} onPressedChange={setShowDiff}>
@@ -269,39 +282,44 @@ export function Compare() {
 
   const currentSnapshotGroup = snapshotTargetGroups[currentSnapshotIndex];
 
-  // const currentGroup = currentSnapshotGroup.targetGroups.find((group) => group.snapshots.some((snap) => snap.id === snapshot?.id));
-  // const currentSnapshotGroupIndex = currentGroup?.snapshots.findIndex((snap) => snap.id === snapshot?.id) || 0;
+  const review = (status: Snapshot["status"]) => {
+    if (status === "approved") buildAPI.approveSnapshots(currentSnapshotGroup.targetGroups.flatMap((group) => group.snapshots.flatMap((snap) => snap.id)))
+    else buildAPI.rejectSnapshots(currentSnapshotGroup.targetGroups.flatMap((group) => group.snapshots.flatMap((snap) => snap.id)))
 
+    setCurrentSnapshot(
+      snapshotTargetGroups[currentSnapshotIndex + 1]?.targetGroups[0]?.snapshots[0] ||
+      snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[0]?.snapshots[0] ||
+      snapshotTargetGroups[0]?.targetGroups[0]?.snapshots[0]
+    )
+  }
 
-  // useHotkeys(
-  //   "ArrowRight",
-  //   (e) => {
-  //     setCurrentSnapshot(
-  //       currentGroup?.snapshots.at(Math.min(currentSnapshotGroupIndex + 1, currentGroup?.snapshots.length - 1))
-  //     );
-  //     e.preventDefault();
-  //   },
-  //   [currentSnapshotGroupIndex, snapshotTargetGroups.length, snapshotTargetGroups]
-  // );
+  useHotkeys(
+    "a",
+    (e) => {
 
-  // useHotkeys(
-  //   "ArrowLeft",
-  //   (e) => {
-  //     setCurrentSnapshot(
-  //       currentGroup?.snapshots.at(Math.max(currentSnapshotGroupIndex - 1, 0))
-  //     );
-  //     e.preventDefault();
-  //   },
-  //   [currentSnapshotGroupIndex, setCurrentSnapshot, snapshotTargetGroups]
-  // );
+      review("approved");
 
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [review]
+  );
+
+  useHotkeys(
+    "r",
+    (e) => {
+
+      review("rejected");
+
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [review]
+  );
 
   if (!snapshot) {
     return null;
   }
-
-
-
 
   return (
     <main className="w-full z-0 h-full grow-0 flex relative">
@@ -317,18 +335,7 @@ export function Compare() {
               <Title snapshot={snapshot} group={currentSnapshotGroup} />
 
               <div className="space-x-2">
-                <ReviewDropdown snapshots={currentSnapshotGroup} canReview={Boolean(build.isLatest) && userRole !== "viewer"} onReview={(status) => {
-                  if (status === "approved") buildAPI.approveSnapshots(currentSnapshotGroup.targetGroups.flatMap((group) => group.snapshots.flatMap((snap) => snap.id)))
-                  else buildAPI.rejectSnapshots(currentSnapshotGroup.targetGroups.flatMap((group) => group.snapshots.flatMap((snap) => snap.id)))
-
-                  setCurrentSnapshot(
-                    snapshotTargetGroups[currentSnapshotIndex + 1]?.targetGroups[0]?.snapshots[0] ||
-                    snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[0]?.snapshots[0] ||
-                    snapshotTargetGroups[0]?.targetGroups[0]?.snapshots[0]
-                  )
-
-
-                }} />
+                <ReviewDropdown snapshots={currentSnapshotGroup} canReview={Boolean(build.isLatest) && userRole !== "viewer"} onReview={review} />
 
               </div>
 
