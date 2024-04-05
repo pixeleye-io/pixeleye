@@ -72,7 +72,6 @@ export function ImageNode({ data: {
                 alt={base.alt}
                 src={base.src}
                 unoptimized={!optimize}
-                placeholder={optimize ? "blur" : "empty"}
             />
             {secondBase && (
                 <NextImage
@@ -88,7 +87,6 @@ export function ImageNode({ data: {
                     draggable={false}
                     alt={secondBase.alt}
                     src={secondBase.src}
-                    placeholder={optimize ? "blur" : "empty"}
                     unoptimized={!optimize}
                 />
             )}
@@ -106,7 +104,6 @@ export function ImageNode({ data: {
                     draggable={false}
                     alt={overlay.alt}
                     src={overlay.src}
-                    placeholder={optimize ? "blur" : "empty"}
                     unoptimized={!optimize}
                 />
             )}

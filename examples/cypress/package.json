@@ -2,20 +2,21 @@
   "name": "@pixeleye/cypress-example",
   "private": true,
   "scripts": {
-    "cypress:open": "pixeleye exec -- cypress open",
+    "cypress:open": "cypress open",
     "cypress:run": "pixeleye exec -- cypress run"
   },
+  "type": "module",
   "dependencies": {
     "@cypress/webpack-batteries-included-preprocessor": "^3.0.2",
     "@pixeleye/cypress": "workspace:*",
     "cypress-vite": "^1.5.0",
-    "pixeleye": "workspace:*"
+    "pixeleye": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "cypress": "^13.6.4",
     "typescript": "^5.3.3"
-  },
-  "version": null
+  }
 }

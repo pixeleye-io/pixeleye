@@ -13,6 +13,7 @@ export const defaultConfig: Omit<Config, "token"> = {
   storybookOptions: {
     variants: [],
   },
+  boothConcurrency: 4,
   maskColor: "#FF00FF",
   css: undefined,
   waitForStatus: false,

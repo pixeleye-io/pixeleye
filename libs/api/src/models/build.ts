@@ -37,7 +37,7 @@ export const BuildZod = z.object({
     "queued-processing",
     "queued-uploading",
   ]),
-  errors: z.array(z.string()),
+  errors: z.array(z.string()).optional(),
 });
 
 export type Build = z.infer<typeof BuildZod>;

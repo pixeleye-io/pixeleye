@@ -6,5 +6,8 @@ export default defineConfig({
       // implement node event listeners here
     },
     baseUrl: "https://syntax.pixeleye.io",
+    retries: {
+      runMode: 2,
+    },
   },
 });

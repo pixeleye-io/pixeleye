@@ -8,12 +8,11 @@ services:
     networks:
       - intranet
   minio:
-    image: minio/minio:latest
-    command: server /data
+    image: docker.io/bitnami/minio:2024
     ports:
       - "9000:9000"
     volumes:
-      - "minio-data:/data"
+      - minio-data:/bitnami/minio/data
     networks:
       - intranet
     environment:
