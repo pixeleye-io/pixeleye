@@ -69,6 +69,7 @@ function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: DiffGro
             ["rejected", "unreviewed"].includes(snapshots.status) && (<DropdownMenuItem onClick={() => onReview("approved")}>
               <HandThumbUpIcon className="w-4 h-4 mr-2" />
               Approve
+              <kbd className="ml-auto text-xs text-on-surface-variant pl-4"><kbd className="font-sans">Ctrl </kbd><kbd className="font-sans">A</kbd></kbd>
             </DropdownMenuItem>)
           }
 
@@ -76,6 +77,7 @@ function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: DiffGro
             ["approved", "unreviewed"].includes(snapshots.status) && (<DropdownMenuItem onClick={() => onReview("rejected")}>
               <HandThumbDownIcon className="w-4 h-4 mr-2" />
               Reject
+              <kbd className="ml-auto text-xs text-on-surface-variant"><kbd className="font-sans">Ctrl </kbd><kbd className="font-sans">R</kbd></kbd>
             </DropdownMenuItem>)
           }
         </DropdownMenuContent>
