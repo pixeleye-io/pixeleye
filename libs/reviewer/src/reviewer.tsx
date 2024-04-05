@@ -114,6 +114,18 @@ function ReviewerInternal({
     return index !== -1 ? index : 0;
   }, [currentSnapshot, snapshotTargetGroups]);
 
+
+  const currentTargetGroupIndex = useMemo(() => {
+    return snapshotTargetGroups[currentSnapshotIndex].targetGroups.findIndex((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === currentSnapshot?.id));
+  }, [currentSnapshot?.id, currentSnapshotIndex, snapshotTargetGroups]);
+
+
+  const currentBrowserIndex = useMemo(() => {
+    return snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.findIndex((snap) => snap.id === currentSnapshot?.id);
+  }, [currentSnapshot?.id, currentSnapshotIndex, currentTargetGroupIndex, snapshotTargetGroups]);
+
+  console.log(currentTargetGroupIndex, currentBrowserIndex)
+
   useHotkeys(
     "ArrowDown",
     (e) => {
@@ -138,6 +150,34 @@ function ReviewerInternal({
       e.stopPropagation();
     },
     [currentSnapshotIndex, setCurrentSnapshot, snapshotTargetGroups]
+  );
+
+  useHotkeys(
+    "ArrowLeft",
+    (e) => {
+      setCurrentSnapshot(
+        snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.at(
+          Math.max(currentBrowserIndex - 1, 0)
+        )
+      );
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [currentSnapshotIndex, setCurrentSnapshot, snapshotTargetGroups, currentTargetGroupIndex]
+  );
+
+  useHotkeys(
+    "ArrowRight",
+    (e) => {
+      setCurrentSnapshot(
+        snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.at(
+          Math.min(currentBrowserIndex + 1, snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.length - 1)
+        )
+      );
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [currentBrowserIndex, currentSnapshotIndex, currentTargetGroupIndex, setCurrentSnapshot, snapshotTargetGroups]
   );
 
 
