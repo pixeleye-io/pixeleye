@@ -30,4 +30,24 @@ describe("Landing page - e2e", () => {
     });
     cy.pixeleyeSnapshot({ name: "Docs modal", variant: "dark" });
   });
+
+  it("Should take a full page screenshot of the landing page", () => {
+    cy.visit("/");
+
+    cy.get("kbd.ml-auto").should("be.visible");
+
+    cy.setTheme("Light");
+    cy.pixeleyeSnapshot({
+      name: "Landing full page",
+      fullPage: true,
+      variant: "light",
+    });
+
+    cy.setTheme("Dark");
+    cy.pixeleyeSnapshot({
+      name: "Landing full page",
+      fullPage: true,
+      variant: "dark",
+    });
+  });
 });

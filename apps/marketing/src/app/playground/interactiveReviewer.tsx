@@ -17,7 +17,7 @@ export default function InteractiveReviewer({
     defaultSidebarOpen?: boolean
 }) {
 
-    const [snapshots, setSnapshots] = useState(initialSnaps)
+   const [snapshots, setSnapshots] = useState(initialSnaps)
 
 
     const buildAPI: BuildAPI = {
@@ -72,7 +72,6 @@ export default function InteractiveReviewer({
             }))
         },
     }
-
 
 
     return (

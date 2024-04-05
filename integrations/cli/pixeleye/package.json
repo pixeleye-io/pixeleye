@@ -18,7 +18,15 @@
     "LICENSE"
   ],
   "type": "module",
-  "types": "./bin/src/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "publishConfig": {
+    "main": "./bin/index.js",
+    "types": "./bin/index.d.ts"
+  },
+  "exports": {
+    "import": "./bin/index.js"
+  },
   "devDependencies": {
     "@pixeleye/api": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
@@ -39,6 +47,7 @@
     "@pixeleye/cli-install": "workspace:*",
     "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/storybook": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*",
     "chalk": "4.1.2",
     "commander": "^12.0.0",
     "dedent": "^1.5.1",

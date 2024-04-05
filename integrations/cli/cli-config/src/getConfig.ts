@@ -14,6 +14,7 @@ export function getEnvConfig(
     css: envFn("PIXELEYE_CSS"),
     devices: JSON.parse(envFn("PIXELEYE_DEVICES") || "{}") as Config["devices"],
     maskColor: envFn("PIXELEYE_MASK_COLOR"),
+    boothConcurrency: parseInt(envFn("PIXELEYE_BOOTH_CONCURRENCY") || "4", 10),
     storybookOptions: JSON.parse(
       envFn("PIXELEYE_STORYBOOK_OPTIONS") || "{}"
     ) as Config["storybookOptions"],

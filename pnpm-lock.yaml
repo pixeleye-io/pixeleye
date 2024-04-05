@@ -387,6 +387,9 @@ importers:
       '@cypress/webpack-batteries-included-preprocessor':
         specifier: ^3.0.2
         version: 3.0.2(@cypress/webpack-preprocessor@5.17.1)(typescript@5.3.3)
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../../integrations/cli/cli-devices
       '@pixeleye/cypress':
         specifier: workspace:*
         version: link:../../integrations/cypress
@@ -746,6 +749,9 @@ importers:
       '@pixeleye/cli-config':
         specifier: workspace:*
         version: link:../cli-config
+      '@pixeleye/cli-devices':
+        specifier: workspace:*
+        version: link:../cli-devices
       '@pixeleye/cli-env':
         specifier: workspace:*
         version: link:../cli-env

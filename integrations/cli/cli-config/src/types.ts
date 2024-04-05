@@ -128,6 +128,13 @@ export type Config = {
   waitForStatus?: boolean;
 
   /**
+   * Defines how many browser pages we run at the same time.
+   * This can be useful if you have a more powerful machine and want to speed up the process.
+   * @default 6
+   */
+  boothConcurrency?: number;
+
+  /**
    * Storybook specific options.
    */
   storybookOptions?: {
