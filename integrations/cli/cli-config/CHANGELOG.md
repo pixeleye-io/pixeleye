@@ -1,5 +1,11 @@
 # @pixeleye/cli-config
 
+## 0.6.0
+
+### Minor Changes
+
+- [#258](https://github.com/pixeleye-io/pixeleye/pull/258) [`3031827`](https://github.com/pixeleye-io/pixeleye/commit/3031827ba059064b6da38d4b82d4428074c955ee) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding wait in milliseconds option to snapshots
+
 ## 0.5.0
 
 ### Minor Changes

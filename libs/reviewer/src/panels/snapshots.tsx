@@ -118,7 +118,6 @@ function SnapButton({
     >
       <Image
         quality={50}
-        placeholder={optimize ? "blur" : "empty"}
         unoptimized={!optimize}
         src={snapshot.snapURL || ""}
         width={snapshot.snapWidth}

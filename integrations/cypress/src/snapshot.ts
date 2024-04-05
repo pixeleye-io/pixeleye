@@ -1,9 +1,5 @@
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import {
-  Options as ServerOptions,
-  SnapshotRequest,
-  snapshot,
-} from "@pixeleye/cli-booth";
+import { Options as ServerOptions, SnapshotRequest } from "@pixeleye/cli-booth";
 import { snapshot as domSnapshot } from "rrweb-snapshot";
 
 export interface Options {
@@ -15,12 +11,14 @@ export interface Options {
   maskSelectors?: string[];
   maskColor?: string;
   css?: string;
+  wait?: number;
 }
 
 export const pixeleyeSnapshot = (options: Options) => {
-  if (!options.name) {
-    throw new Error("No name provided");
-  }
+  if (!options.name) throw new Error("No name provided");
+
+  if (!Cypress.env("PIXELEYE_RUNNING"))
+    return cy.log("Skipping snapshot as Pixeleye exec is not running");
 
   const opts: ServerOptions = {
     endpoint: `http://localhost:${Cypress.env("PIXELEYE_BOOTH_PORT")}`,
@@ -50,6 +48,7 @@ export const pixeleyeSnapshot = (options: Options) => {
       css,
       serializedDom,
       fullPage: options.fullPage,
+      wait: options.wait,
     };
 
     cy.request({

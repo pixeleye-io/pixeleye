@@ -202,13 +202,11 @@ func GetBuildSnapshots(c echo.Context) error {
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
 
 	pairs, err := db.GetBuildsPairedSnapshots(*build)
-
 	if err != nil {
 		return err
 	}

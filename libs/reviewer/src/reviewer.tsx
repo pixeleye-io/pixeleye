@@ -26,6 +26,7 @@ export type ExtendedSnapshotPair = Omit<
   baselineURL?: StaticImageData | string;
   snapURL?: StaticImageData | string;
   diffURL?: StaticImageData | string;
+  diffID?: string;
 };
 
 export const snapshotSortMap: Record<Snapshot["status"], number> = {

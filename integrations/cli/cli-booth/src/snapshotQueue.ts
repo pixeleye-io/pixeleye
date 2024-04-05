@@ -4,7 +4,7 @@ import {
 } from "@pixeleye/cli-capture";
 import PQueue from "p-queue";
 import { PartialSnapshot } from "@pixeleye/api";
-import { serializedElementNodeWithId } from "rrweb-snapshot";
+import { getEnvConfig } from "@pixeleye/cli-config";
 
 export type QueuedSnap = Omit<PartialSnapshot, "snapID"> & {
   file: Buffer;
@@ -13,7 +13,7 @@ export type QueuedSnap = Omit<PartialSnapshot, "snapID"> & {
 
 export const queue = new PQueue({
   // eslint-disable-next-line turbo/no-undeclared-env-vars
-  concurrency: Number(process.env.PIXELEYE_BOOTH_CONCURRENCY) || 4,
+  concurrency: getEnvConfig().boothConcurrency,
 });
 
 export async function handleQueue({

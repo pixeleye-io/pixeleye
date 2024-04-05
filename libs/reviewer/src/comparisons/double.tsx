@@ -43,11 +43,11 @@ export function Double({ draggableImageRef }: DoubleProps) {
 
 
   const oldBase = useMemo(() => ({
-    src: snapshot.baselineURL!,
+    src: snapshot.baselineURL || (snapshot.status === "unchanged" ? snapshot.snapURL! : ""),
     alt: "Baseline snapshot",
-    width: snapshot.baselineWidth!,
-    height: snapshot.baselineHeight!,
-  }), [snapshot.baselineURL, snapshot.baselineWidth, snapshot.baselineHeight])
+    width: snapshot.baselineWidth || snapshot.snapWidth!,
+    height: snapshot.baselineHeight || snapshot.snapHeight!,
+  }), [snapshot.baselineURL, snapshot.status, snapshot.snapURL, snapshot.baselineWidth, snapshot.snapWidth, snapshot.baselineHeight, snapshot.snapHeight])
 
 
   return (
@@ -75,7 +75,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
         </ReactFlowProvider>
         <ReactFlowProvider>
           {
-            !validBaseline && (
+            !validBaseline && snapshot.status !== "unchanged" && (
               <div className="flex flex-col items-center justify-center w-full h-full pt-8">
                 <div className="flex flex-col items-center justify-center w-full h-full bg-surface-container rounded mt-1 border border-outline-variant">
                   <p className="text-center text-gray-400">No baseline snapshot</p>
@@ -83,7 +83,7 @@ export function Double({ draggableImageRef }: DoubleProps) {
               </div>
             )
           }
-          {validBaseline && (
+          {(validBaseline || snapshot.status === "unchanged") && (
             <div className="flex flex-col h-full w-full justify-center items-center">
               <p className="bg-surface-container-low border rounded-md border-outline px-2 py-1 text-sm mb-2">
                 Baseline

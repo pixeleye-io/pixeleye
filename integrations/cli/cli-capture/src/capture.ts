@@ -38,7 +38,7 @@ export function getBuildContent(serializedDom: serializedNodeWithId): string {
   const mirror = createMirror();
   rebuild(serializedDom, { doc, cache, mirror });
 
-  return doc.documentElement.outerHTML;
+  return `<!DOCTYPE html>${doc.documentElement.outerHTML}`;
 }
 
 const retries = 3;
@@ -46,12 +46,12 @@ const retries = 3;
 export async function captureScreenshot(
   options: CaptureScreenshotData
 ): Promise<Buffer> {
-  const page = await getPage(options.device);
-
-  let error: Error | undefined;
-
   return new Promise(async (resolve, reject) => {
+    let error: Error | undefined;
+
     for (let i = 0; i < retries; i++) {
+      const page = await getPage(options.device);
+
       const buffer = await internalCaptureScreenshot(page, options).catch(
         (err) => {
           logger.error(err);
@@ -59,13 +59,12 @@ export async function captureScreenshot(
         }
       );
 
+      await page.close();
+
       if (buffer) {
-        await page.close();
         return resolve(buffer);
       }
     }
-
-    await page.close();
 
     logger.error(`Failed to capture screenshot after ${retries} retries`);
 
@@ -90,6 +89,11 @@ async function internalCaptureScreenshot(
     throw new Error("No url or serializedDom provided");
   }
 
+  const networkIdle = page.waitForLoadState("networkidle");
+
+  await page.waitForLoadState("load");
+  await page.waitForLoadState("domcontentloaded");
+
   if (data.css) {
     // insert css at bottom of body
     await page
@@ -102,8 +106,6 @@ async function internalCaptureScreenshot(
         return true;
       }, data.css);
   }
-
-  await page.waitForLoadState();
 
   await page
     .waitForFunction(() => document.fonts.ready)
@@ -124,6 +126,12 @@ async function internalCaptureScreenshot(
     await page.waitForSelector(data.selector, {
       timeout: 60_000,
     });
+
+  if (data.wait) {
+    await page.waitForTimeout(data.wait);
+  }
+
+  await networkIdle;
 
   const locatedPage = data.selector ? page.locator(data.selector) : page;
 

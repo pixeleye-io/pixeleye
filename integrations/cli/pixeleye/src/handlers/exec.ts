@@ -13,6 +13,7 @@ import {
   watchExit,
 } from "./utils";
 import { execOutput } from "../messages/exec";
+import { setEnv } from "@pixeleye/cli-env";
 
 export async function execHandler(
   command: string[],
@@ -21,6 +22,9 @@ export async function execHandler(
     shard?: string;
   }
 ) {
+  // Lets our integrations know we are running in a Pixeleye environment
+  setEnv("PIXELEYE_RUNNING", "true");
+
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
