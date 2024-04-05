@@ -52,7 +52,7 @@ function AccordionSnaps({
               snapshots.some((snapshot) => currentSnapshot?.id === snapshot.id)
             );
             return (
-              <li className="h-fit p-1" key={snapshots[0].snapshots[0].id}>
+              <li className="h-fit p-1 relative z-0" key={snapshots[0].snapshots[0].id}>
                 <SnapButton
                   groupCount={groupedSnapshots[i].length}
                   active={active}
