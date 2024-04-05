@@ -1,5 +1,11 @@
 # @pixeleye/cli-booth
 
+## 0.5.0
+
+### Minor Changes
+
+- [#263](https://github.com/pixeleye-io/pixeleye/pull/263) [`9f78910`](https://github.com/pixeleye-io/pixeleye/commit/9f78910a545867c4825b939d82398c08e272a3e5) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Increasing default concurrency from 4 to 6
+
 ## 0.4.14
 
 ### Patch Changes
