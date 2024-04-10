@@ -1,5 +1,11 @@
 # @pixeleye/cli-config
 
+## 0.6.1
+
+### Patch Changes
+
+- [#266](https://github.com/pixeleye-io/pixeleye/pull/266) [`1c324e9`](https://github.com/pixeleye-io/pixeleye/commit/1c324e90b8c0b0f6b82e32a33c118cca91f95003) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating concurrency env variable
+
 ## 0.6.0
 
 ### Minor Changes
