@@ -1,4 +1,4 @@
-import { StoreContext } from "../store";
+import { DiffGroupedSnapshotTargetGroups, SnapshotTargetGroup, StoreContext } from "../store";
 import { PanelHeader } from "./shared";
 import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState, useContext } from "react";
@@ -9,7 +9,7 @@ import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
 
 interface AccordionSnapsProps {
-  groupedSnapshots: ExtendedSnapshotPair[][];
+  groupedSnapshots: SnapshotTargetGroup[][];
   name: Snapshot["status"];
   currentSnapshot: ExtendedSnapshotPair | undefined;
   setCurrentSnapshot: (snapshot?: ExtendedSnapshotPair) => void;
@@ -48,23 +48,24 @@ function AccordionSnaps({
       <Accordion.Content>
         <ul className="flex flex-col space-y-4 overflow-y-auto grow">
           {groupedSnapshots.map((snapshots, i) => {
-            const active = snapshots.some((snapshot) =>
-              currentSnapshot?.id === snapshot.id
+            const active = snapshots.some(({ snapshots }) =>
+              snapshots.some((snapshot) => currentSnapshot?.id === snapshot.id)
             );
             return (
-              <li className="h-fit p-1" key={snapshots[0].id}>
+              <li className="h-fit p-1 relative z-0" key={snapshots[0].snapshots[0].id}>
                 <SnapButton
+                  groupCount={groupedSnapshots[i].length}
                   active={active}
                   index={i}
                   total={groupedSnapshots.length}
                   setIndex={(i) => {
                     const newSnapGroup = groupedSnapshots.at(i)
-                    newSnapGroup?.some((snapshot) =>
-                      currentSnapshot?.id === snapshot.id
-                    ) ? setCurrentSnapshot(currentSnapshot) : setCurrentSnapshot(newSnapGroup?.[0])
+                    newSnapGroup?.some(({ snapshots }) =>
+                      snapshots.some((snapshot) => currentSnapshot?.id === snapshot.id)
+                    ) ? setCurrentSnapshot(currentSnapshot) : setCurrentSnapshot(newSnapGroup?.[0]?.snapshots[0])
                   }
                   }
-                  snapshot={active ? currentSnapshot! : snapshots[0]}
+                  snapshot={active ? currentSnapshot! : snapshots[0].snapshots[0]}
                 />
               </li>
             )
@@ -77,6 +78,7 @@ function AccordionSnaps({
 
 interface SnapButtonProps {
   snapshot: ExtendedSnapshotPair;
+  groupCount: number;
   index: number;
   active: boolean;
   total: number;
@@ -89,6 +91,7 @@ function SnapButton({
   total,
   setIndex,
   active,
+  groupCount
 }: SnapButtonProps) {
   const ref = useRef<HTMLButtonElement>(null);
   const store = useContext(StoreContext)!
@@ -107,20 +110,9 @@ function SnapButton({
       type="button"
       ref={ref}
       tabIndex={active ? 0 : -1}
-      onKeyDown={(e) => {
-        if (e.key === "ArrowUp" && !e.ctrlKey && index > 0) {
-          e.preventDefault();
-          setIndex(index - 1);
-          e.currentTarget.blur();
-        } else if (e.key === "ArrowDown" && !e.ctrlKey && index < total - 1) {
-          e.preventDefault();
-          setIndex(index + 1);
-          e.currentTarget.blur();
-        }
-      }}
       onClick={() => setIndex(index)}
       className={cx(
-        "p-2 rounded transition flex w-full justify-center items-center border border-outline-variant/50 hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
+        "p-2 rounded relative transition flex w-full justify-center items-center border border-outline-variant/50 hover:bg-surface-container-high focus-visible:outline-outline focus-visible:outline",
         active && "lg:bg-surface-container-low bg-surface-container !border-outline"
       )}
     >
@@ -133,6 +125,13 @@ function SnapButton({
         className="object-contain w-full max-h-[20rem] rounded brightness-[65%] p-1"
         alt={`Name: ${snapshot.name}, Variant ${snapshot.variant}`}
       />
+      {
+        groupCount > 1 && (
+          <span className="absolute bottom-4 shadow-xl border border-outline-variant rounded-lg left-8 right-8 p-2 bg-surface-container-high text-on-surface z-50">
+            {groupCount} grouped snaps
+          </span>
+        )
+      }
     </button>
   );
 }
@@ -143,7 +142,7 @@ function ShortcutHint() {
       <div className="flex justify-center px-2 py-1 mx-4 rounded-lg shadow lg:bg-surface-container-low bg-surface-container-high">
         <p className="space-x-4 text-on-surface-variant">
           <kbd>
-            <kbd>Ctrl</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
+            <kbd>Arrows</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
           </kbd>
           <span className="sr-only"> to navigate between screenshots</span>
         </p>
@@ -163,41 +162,41 @@ export default function SnapshotsPanel() {
 
   const [unreviewed, approved, rejected, unchanged, missingBaseline, orphaned, failed] =
     groupedSnapshots.reduce(
-      (acc, { snapshots, status }) => {
+      (acc, { targetGroups, status }) => {
 
         switch (status) {
           case "unreviewed":
-            acc[0].push(snapshots);
+            acc[0].push(targetGroups);
             break;
           case "approved":
-            acc[1].push(snapshots);
+            acc[1].push(targetGroups);
             break;
           case "rejected":
-            acc[2].push(snapshots);
+            acc[2].push(targetGroups);
             break;
           case "unchanged":
-            acc[3].push(snapshots);
+            acc[3].push(targetGroups);
             break;
           case "missing_baseline":
-            acc[4].push(snapshots);
+            acc[4].push(targetGroups);
             break;
           case "orphaned":
-            acc[5].push(snapshots);
+            acc[5].push(targetGroups);
             break;
           case "failed":
-            acc[6].push(snapshots);
+            acc[6].push(targetGroups);
             break;
         }
         return acc;
       },
       [[], [], [], [], [], [], []] as [
-        ExtendedSnapshotPair[][],
-        ExtendedSnapshotPair[][],
-        ExtendedSnapshotPair[][],
-        ExtendedSnapshotPair[][],
-        ExtendedSnapshotPair[][],
-        ExtendedSnapshotPair[][],
-        ExtendedSnapshotPair[][],
+        SnapshotTargetGroup[][],
+        SnapshotTargetGroup[][],
+        SnapshotTargetGroup[][],
+        SnapshotTargetGroup[][],
+        SnapshotTargetGroup[][],
+        SnapshotTargetGroup[][],
+        SnapshotTargetGroup[][],
       ]
     );
 
@@ -218,6 +217,7 @@ export default function SnapshotsPanel() {
           type="single"
           value={accordionValue}
           onValueChange={setAccordionValue}
+
           defaultValue={currentSnapshot?.status}
           collapsible
           className="w-full"

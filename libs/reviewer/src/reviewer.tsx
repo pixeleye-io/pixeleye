@@ -9,7 +9,7 @@ import {
 import { useHotkeys } from "react-hotkeys-hook";
 import { PanelMobile, PanelDesktop } from "./panel";
 import { Sidebar } from "./sidebar";
-import { BuildAPI, SnapshotTargetGroup, StoreContext, createStore } from "./store";
+import { BuildAPI, DiffGroupedSnapshotTargetGroups, SnapshotTargetGroup, StoreContext, createStore } from "./store";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Compare } from "./compare";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -74,7 +74,7 @@ function ReviewerInternal({
   isUpdatingSnapshotStatus,
   snapshotTargetGroups
 }: ReviewerProps & {
-  snapshotTargetGroups: SnapshotTargetGroup[];
+  snapshotTargetGroups: DiffGroupedSnapshotTargetGroups[];
 }) {
   const store = useContext(StoreContext)!
 
@@ -100,7 +100,7 @@ function ReviewerInternal({
     const params = new URLSearchParams(Array.from(searchParams.entries()));
     if (currentSnapshot) {
       if (!snapshots.some((snapshot) => snapshot.id === currentSnapshot.id)) {
-        setCurrentSnapshot(snapshotTargetGroups[0].snapshots[0]);
+        setCurrentSnapshot(snapshotTargetGroups[0].targetGroups[0].snapshots[0]);
         return;
       }
       params.set("s", currentSnapshot.id);
@@ -110,33 +110,76 @@ function ReviewerInternal({
   }, [currentSnapshot, pathname, router, searchParams, setCurrentSnapshot, snapshotTargetGroups, snapshots]);
 
   const currentSnapshotIndex = useMemo(() => {
-    const index = snapshotTargetGroups.findIndex((group) => group.snapshots.some((snapshot) => snapshot.id === currentSnapshot?.id));
+    const index = snapshotTargetGroups.findIndex((group) => group.targetGroups.some((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === currentSnapshot?.id)));
     return index !== -1 ? index : 0;
   }, [currentSnapshot, snapshotTargetGroups]);
 
+
+  const currentTargetGroupIndex = useMemo(() => {
+    return snapshotTargetGroups[currentSnapshotIndex].targetGroups.findIndex((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === currentSnapshot?.id));
+  }, [currentSnapshot?.id, currentSnapshotIndex, snapshotTargetGroups]);
+
+
+  const currentBrowserIndex = useMemo(() => {
+    return snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.findIndex((snap) => snap.id === currentSnapshot?.id);
+  }, [currentSnapshot?.id, currentSnapshotIndex, currentTargetGroupIndex, snapshotTargetGroups]);
+
+  console.log(currentTargetGroupIndex, currentBrowserIndex)
+
   useHotkeys(
-    "ctrl+ArrowDown",
+    "ArrowDown",
     (e) => {
       setCurrentSnapshot(
         snapshotTargetGroups.at(
           Math.min(currentSnapshotIndex + 1, snapshotTargetGroups.length - 1)
-        )?.snapshots[0]
+        )?.targetGroups[0].snapshots[0]
       );
       e.preventDefault();
+      e.stopPropagation();
     },
     [currentSnapshotIndex, snapshotTargetGroups.length, snapshotTargetGroups]
   );
 
   useHotkeys(
-    "ctrl+ArrowUp",
+    "ArrowUp",
     (e) => {
       setCurrentSnapshot(
-        snapshotTargetGroups.at(Math.max(currentSnapshotIndex - 1, 0))?.snapshots[0]
+        snapshotTargetGroups.at(Math.max(currentSnapshotIndex - 1, 0))?.targetGroups[0].snapshots[0]
       );
       e.preventDefault();
+      e.stopPropagation();
     },
     [currentSnapshotIndex, setCurrentSnapshot, snapshotTargetGroups]
   );
+
+  useHotkeys(
+    "ArrowLeft",
+    (e) => {
+      setCurrentSnapshot(
+        snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.at(
+          Math.max(currentBrowserIndex - 1, 0)
+        )
+      );
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [currentSnapshotIndex, setCurrentSnapshot, snapshotTargetGroups, currentTargetGroupIndex]
+  );
+
+  useHotkeys(
+    "ArrowRight",
+    (e) => {
+      setCurrentSnapshot(
+        snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.at(
+          Math.min(currentBrowserIndex + 1, snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.length - 1)
+        )
+      );
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [currentBrowserIndex, currentSnapshotIndex, currentTargetGroupIndex, setCurrentSnapshot, snapshotTargetGroups]
+  );
+
 
   useEffect(() => {
     setBuild(build);
@@ -189,28 +232,62 @@ export function Reviewer(props: ReviewerProps) {
   const searchParams = useSearchParams();
 
   const snapshotTargetGroups = useMemo(
-    () => Object.values(groupBy(props.snapshots, getGroupID)).flatMap((group) => {
+    () => {
 
-      const groupedByStatus = groupBy(group, (snapshot) => snapshot.status);
+      const groups = Object.values(groupBy(props.snapshots, getGroupID)).flatMap((group) => {
 
-      return Object.values(groupedByStatus).map((group) => ({
-        name: group[0].name,
-        variant: group[0].variant,
-        viewport: group[0].viewport,
-        snapshots: group.sort((a, b) => (a.target || "").localeCompare(b.target || "")),
-        status: group[0].status
-      } as SnapshotTargetGroup)
-      )
-    }).sort((a, b) => snapshotSortMap[a.status] - snapshotSortMap[b.status]),
+        const groupedByStatus = groupBy(group, (snapshot) => snapshot.status);
+
+        return Object.values(groupedByStatus).map((group) => ({
+          name: group[0].name,
+          variant: group[0].variant,
+          viewport: group[0].viewport,
+          snapshots: group.sort((a, b) => (a.target || "").localeCompare(b.target || "")),
+          status: group[0].status
+        } as SnapshotTargetGroup)
+        )
+      }).sort((a, b) => snapshotSortMap[a.status] - snapshotSortMap[b.status])
+
+      const diffGrouped: DiffGroupedSnapshotTargetGroups[] = [];
+
+      for (const group of groups) {
+
+        let found = false;
+
+        for (const grouped of diffGrouped) {
+
+          if (group.snapshots[0].diffHash && grouped.targetGroups.some((targetGroup) => targetGroup.snapshots[0].diffHash === group.snapshots[0].diffHash) && grouped.status === group.status) {
+            grouped.targetGroups.push(group);
+            found = true;
+            break;
+          }
+
+        }
+
+        if (!found) {
+          diffGrouped.push({
+            status: group.status,
+            targetGroups: [group]
+          })
+        }
+
+      }
+
+      return diffGrouped.sort((a, b) => snapshotSortMap[a.status] - snapshotSortMap[b.status]);
+    },
     [props.snapshots]
   );
 
+
+
+
   const snapshotId = searchParams.get("s");
-  const group = snapshotTargetGroups.find((group) => group.snapshots.some((snapshot) => snapshot.id === snapshotId));
+  const group = snapshotTargetGroups.find((group) => group.targetGroups.some((targetGroup) => targetGroup.snapshots.some((snapshot) => snapshot.id === snapshotId)));
 
   const store = useRef(createStore({
     panelOpen: props.defaultSidebarOpen,
-    currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0]?.snapshots[0],
+    // currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0]?.snapshots[0],
+    currentSnapshot: group?.targetGroups.find((targetGroup) => targetGroup.snapshots.some((snapshot) => snapshot.id === snapshotId))?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].targetGroups[0].snapshots[0],
     optimize: props.optimize,
     snapshots: snapshotTargetGroups,
     build: props.build,
