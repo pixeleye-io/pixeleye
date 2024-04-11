@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.6.0
+
+### Minor Changes
+
+- [#276](https://github.com/pixeleye-io/pixeleye/pull/276) [`e2eb487`](https://github.com/pixeleye-io/pixeleye/commit/e2eb48793eaf6393ab2fc44b80697ed51f6fdcff) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Reading github action payload
+
 ## 0.5.1
 
 ### Patch Changes
