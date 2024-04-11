@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.4.0
+
+### Minor Changes
+
+- [#268](https://github.com/pixeleye-io/pixeleye/pull/268) [`47ebd99`](https://github.com/pixeleye-io/pixeleye/commit/47ebd99d51e2ac26d591892d7b0ee90bbe0ea9cb) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating commit sha calculation order
+
 ## 0.3.9
 
 ### Patch Changes

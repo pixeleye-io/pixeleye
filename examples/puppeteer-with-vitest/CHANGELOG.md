@@ -5,6 +5,14 @@
 ### Patch Changes
 
 - Updated dependencies []:
+  - pixeleye@0.7.3
+  - @pixeleye/puppeteer@0.4.0
+
+## null
+
+### Patch Changes
+
+- Updated dependencies []:
   - pixeleye@0.7.2
   - @pixeleye/puppeteer@0.4.0
 

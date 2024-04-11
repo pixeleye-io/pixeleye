@@ -5,6 +5,13 @@
 ### Patch Changes
 
 - Updated dependencies []:
+  - pixeleye@0.7.3
+
+## null
+
+### Patch Changes
+
+- Updated dependencies []:
   - pixeleye@0.7.2
 
 ## null

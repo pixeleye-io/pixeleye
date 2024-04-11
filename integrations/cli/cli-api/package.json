@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-api",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
