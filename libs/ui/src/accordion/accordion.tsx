@@ -20,6 +20,7 @@ const AccordionItem = forwardRef<
   );
 });
 
+
 export interface AccordionTriggerProps
   extends ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
   size?: "sm" | "md";
