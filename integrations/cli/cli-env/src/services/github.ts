@@ -1,13 +1,30 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 import { CiEnv } from "env-ci";
 import { getCommit } from "../git";
+import { existsSync, readFileSync } from "fs";
+
+interface GithubPayload {
+  pull_request?: {
+    head: {
+      sha: string;
+      ref: string;
+    };
+    number: number;
+  };
+}
 
 export async function getGithubEnv(env: CiEnv): Promise<CiEnv> {
-  const commitSha = await getCommit();
-  console.log("SHA: ", commitSha);
+  let payload: GithubPayload = {};
+  if (
+    process.env.GITHUB_EVENT_PATH &&
+    existsSync(process.env.GITHUB_EVENT_PATH)
+  ) {
+    payload = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+  }
+
   return {
     ...env,
     prBranch: process.env.GITHUB_HEAD_REF,
-    commit: commitSha || env.commit,
+    commit: payload.pull_request?.head.sha || env.commit,
   };
 }
