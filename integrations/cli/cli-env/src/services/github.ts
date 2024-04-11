@@ -5,5 +5,6 @@ export function getGithubEnv(env: CiEnv): CiEnv {
   return {
     ...env,
     prBranch: process.env.GITHUB_HEAD_REF,
+    commit: process.env.GITHUB_SHA,
   };
 }

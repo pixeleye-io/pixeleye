@@ -27,9 +27,7 @@ const dummyBuild: Build = {
 };
 
 
-
 export default async function PlaygroundPage() {
-
 
   const defaultSidebarWidth = Number(cookies().get("reviewer-sidebar-width")?.value) || undefined
   const defaultSidebarOpen = cookies().get("reviewer-sidebar-open")?.value !== "false"
