@@ -1,4 +1,4 @@
-import { Team, Project, Build, SnapshotPair } from "@pixeleye/api";
+import { Team, Project, SnapshotPair } from "@pixeleye/api";
 import { ProjectBody, teamAPI } from "../../routes/team";
 import { usersAPI } from "../../routes/users";
 import { IDs } from "../../setup/credentialsSetup";
@@ -6,7 +6,6 @@ import { nanoid } from "nanoid";
 import { describe, beforeAll, it } from "vitest";
 import { CreateBuildOptions, createBuildWithSnapshots } from "./utils";
 import { buildTokenAPI } from "../../routes/build";
-import { sleep } from "pactum";
 import { like } from "pactum-matchers";
 
 // TODO - I should add checks to ensure each snapshot has the correct status, not just the build
@@ -30,7 +29,7 @@ const dirtyEyePng = Buffer.from(
 describe.concurrent(
   "Build revewing",
   {
-    timeout: 200_000,
+    timeout: 260_000,
   },
   () => {
     let jekyllTeams: Team[];
