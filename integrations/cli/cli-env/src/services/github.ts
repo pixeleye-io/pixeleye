@@ -1,10 +1,12 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 import { CiEnv } from "env-ci";
+import { getCommit } from "../git";
 
-export function getGithubEnv(env: CiEnv): CiEnv {
+export async function getGithubEnv(env: CiEnv): Promise<CiEnv> {
+  const commitSha = await getCommit();
   return {
     ...env,
     prBranch: process.env.GITHUB_HEAD_REF,
-    commit: process.env.GITHUB_SHA,
+    commit: commitSha || env.commit,
   };
 }
