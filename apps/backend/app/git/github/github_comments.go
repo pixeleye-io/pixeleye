@@ -68,7 +68,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 	startedAt := github.Timestamp{Time: build.CreatedAt}
 
 	opts := github.CreateCheckRunOptions{
-		Name:       "Pixeleye: " + project.Name,
+		Name:       "Pixeleye – " + project.Name,
 		HeadSHA:    build.Sha,
 		DetailsURL: &detailsURL,
 		ExternalID: &build.ID,
