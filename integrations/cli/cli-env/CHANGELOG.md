@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.4.1
+
+### Patch Changes
+
+- [#270](https://github.com/pixeleye-io/pixeleye/pull/270) [`48ab391`](https://github.com/pixeleye-io/pixeleye/commit/48ab3910cfd369623ceb02ed85aecf0e9fad0a10) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding github sha env
+
 ## 0.4.0
 
 ### Minor Changes

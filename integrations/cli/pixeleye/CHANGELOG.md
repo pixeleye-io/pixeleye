@@ -1,5 +1,15 @@
 # pixeleye
 
+## 0.7.4
+
+### Patch Changes
+
+- Updated dependencies [[`48ab391`](https://github.com/pixeleye-io/pixeleye/commit/48ab3910cfd369623ceb02ed85aecf0e9fad0a10)]:
+  - @pixeleye/cli-env@0.4.1
+  - @pixeleye/cli-api@0.3.13
+  - @pixeleye/cli-config@0.6.3
+  - @pixeleye/cli-booth@0.5.3
+
 ## 0.7.3
 
 ### Patch Changes
