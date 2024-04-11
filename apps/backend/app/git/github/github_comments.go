@@ -64,24 +64,16 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 	detailsURL := os.Getenv("FRONTEND_URL") + "/builds/" + build.ID
 
 	status := getStatus(build.Status)
-	title := "Pixeleye -" + project.Name
-	summary := "Current build status is " + build.Status
-	text := "[Build details](" + detailsURL + ")"
 
 	startedAt := github.Timestamp{Time: build.CreatedAt}
 
 	opts := github.CreateCheckRunOptions{
-		Name:       "Pixeleye",
+		Name:       "Pixeleye: " + project.Name,
 		HeadSHA:    build.Sha,
 		DetailsURL: &detailsURL,
 		ExternalID: &build.ID,
 		Status:     &status,
 		StartedAt:  &startedAt,
-		Output: &github.CheckRunOutput{
-			Title:   &title,
-			Summary: &summary,
-			Text:    &text,
-		},
 	}
 
 	if status == "completed" {
