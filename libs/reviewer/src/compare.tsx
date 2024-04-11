@@ -49,6 +49,7 @@ const buttonHoverColors: Record<Snapshot["status"], string> = {
   unchanged: "",
 }
 
+
 function ReviewDropdown({ snapshots, canReview, onReview }: { snapshots: DiffGroupedSnapshotTargetGroups; canReview: boolean; onReview: (status: Snapshot["status"]) => void }) {
 
   return (
