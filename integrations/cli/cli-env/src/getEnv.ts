@@ -16,7 +16,7 @@ export interface Environment {
 }
 
 export async function getEnvironment(): Promise<Environment> {
-  const env = getEnv();
+  const env = await getEnv();
 
   logger.debug(`Detected CI: ${JSON.stringify(env)}`);
   const { name, isCi, pr, branch: ciBranch, commit, tag, prBranch, isPr } = env;
