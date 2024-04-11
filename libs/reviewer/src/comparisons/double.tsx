@@ -41,7 +41,6 @@ export function Double({ draggableImageRef }: DoubleProps) {
     height: snapshot.diffHeight!,
   } : undefined, [snapshot.diffURL, snapshot.diffWidth, snapshot.diffHeight, validDiff])
 
-
   const oldBase = useMemo(() => ({
     src: snapshot.baselineURL || (snapshot.status === "unchanged" ? snapshot.snapURL! : ""),
     alt: "Baseline snapshot",

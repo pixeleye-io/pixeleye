@@ -4,6 +4,7 @@ import { getCommit } from "../git";
 
 export async function getGithubEnv(env: CiEnv): Promise<CiEnv> {
   const commitSha = await getCommit();
+  console.log("SHA: ", commitSha);
   return {
     ...env,
     prBranch: process.env.GITHUB_HEAD_REF,
