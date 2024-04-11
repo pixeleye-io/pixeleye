@@ -1,5 +1,14 @@
 # @pixeleye/cli-booth
 
+## 0.5.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/cli-api@0.3.15
+  - @pixeleye/cli-config@0.6.5
+  - @pixeleye/cli-capture@0.5.0
+
 ## 0.5.4
 
 ### Patch Changes

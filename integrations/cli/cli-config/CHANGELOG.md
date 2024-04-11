@@ -1,5 +1,12 @@
 # @pixeleye/cli-config
 
+## 0.6.5
+
+### Patch Changes
+
+- Updated dependencies [[`d2ba0e6`](https://github.com/pixeleye-io/pixeleye/commit/d2ba0e61f0bf6b4e46e05178248890b4e19ccb63)]:
+  - @pixeleye/cli-env@0.5.1
+
 ## 0.6.4
 
 ### Patch Changes
