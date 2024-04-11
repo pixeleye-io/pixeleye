@@ -37,6 +37,7 @@ const buttonColors: Record<Snapshot["status"], string> = {
   unchanged: "dark:bg-teal-300 dark:text-teal-900 bg-teal-500 text-teal-50",
 }
 
+
 const buttonHoverColors: Record<Snapshot["status"], string> = {
   approved: "hover:dark:bg-green-300/90 hover:bg-green-500/90",
   rejected: "hover:dark:bg-orange-300/90 hover:bg-orange-500/90",
