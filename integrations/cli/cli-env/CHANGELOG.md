@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.5.0
+
+### Minor Changes
+
+- [#272](https://github.com/pixeleye-io/pixeleye/pull/272) [`d3e70b1`](https://github.com/pixeleye-io/pixeleye/commit/d3e70b1220599431d8aa1eb00ad78c35a6568efc) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updating github actions env
+
 ## 0.4.1
 
 ### Patch Changes
