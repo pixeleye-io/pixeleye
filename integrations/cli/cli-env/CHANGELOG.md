@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.5.1
+
+### Patch Changes
+
+- [#274](https://github.com/pixeleye-io/pixeleye/pull/274) [`d2ba0e6`](https://github.com/pixeleye-io/pixeleye/commit/d2ba0e61f0bf6b4e46e05178248890b4e19ccb63) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding sha output
+
 ## 0.5.0
 
 ### Minor Changes
