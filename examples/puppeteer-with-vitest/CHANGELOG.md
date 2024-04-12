@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`623a588`](https://github.com/pixeleye-io/pixeleye/commit/623a588805e21ced05e0df7c3e0b06a600e9942a)]:
+  - @pixeleye/puppeteer@0.5.0
+  - pixeleye@0.7.8
+
+## null
+
+### Patch Changes
+
 - Updated dependencies []:
   - pixeleye@0.7.7
   - @pixeleye/puppeteer@0.4.0

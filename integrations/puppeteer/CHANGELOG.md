@@ -1,5 +1,11 @@
 # @pixeleye/puppeteer
 
+## 0.5.0
+
+### Minor Changes
+
+- [`623a588`](https://github.com/pixeleye-io/pixeleye/commit/623a588805e21ced05e0df7c3e0b06a600e9942a) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Disabling snapshotting when booth isn't running
+
 ## 0.4.0
 
 ### Minor Changes
