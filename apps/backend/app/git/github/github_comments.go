@@ -78,7 +78,8 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 		Status:     &status,
 		StartedAt:  &startedAt,
 		Output: &github.CheckRunOutput{
-			Title: &summary,
+			Title:   &title,
+			Summary: &summary,
 		},
 	}
 
@@ -136,7 +137,8 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 		Name:       title,
 		DetailsURL: &detailsURL,
 		Output: &github.CheckRunOutput{
-			Title: &summary,
+			Title:   &title,
+			Summary: &summary,
 		},
 	}
 
