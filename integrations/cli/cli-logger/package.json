@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-logger",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",

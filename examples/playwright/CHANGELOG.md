@@ -4,6 +4,14 @@
 
 ### Patch Changes
 
+- Updated dependencies [[`41ae1ba`](https://github.com/pixeleye-io/pixeleye/commit/41ae1bac3ab0c4d0d9bc46a2ceda8d7d78695f06)]:
+  - pixeleye@0.7.9
+  - @pixeleye/playwright@0.6.1
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [[`623a588`](https://github.com/pixeleye-io/pixeleye/commit/623a588805e21ced05e0df7c3e0b06a600e9942a)]:
   - @pixeleye/playwright@0.6.0
   - pixeleye@0.7.8
