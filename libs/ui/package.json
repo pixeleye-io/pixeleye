@@ -9,26 +9,26 @@
     "types": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "pixeleye": "pnpm storybook & npx --yes pixeleye@latest storybook http://localhost:6006"
+    "pixeleye": "npx --yes pixeleye@latest storybook http://localhost:6006"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tailwind": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@storybook/addon-essentials": "^7.6.17",
-    "@storybook/addon-interactions": "^7.6.17",
-    "@storybook/addon-links": "^7.6.17",
-    "@storybook/addon-onboarding": "^1.0.11",
-    "@storybook/addon-themes": "^7.6.17",
-    "@storybook/blocks": "^7.6.17",
-    "@storybook/nextjs": "^7.6.17",
-    "@storybook/react": "^7.6.17",
-    "@storybook/test": "^7.6.17",
+    "@storybook/addon-essentials": "^8.0.8",
+    "@storybook/addon-interactions": "^8.0.8",
+    "@storybook/addon-links": "^8.0.8",
+    "@storybook/addon-onboarding": "^8.0.8",
+    "@storybook/addon-themes": "^8.0.8",
+    "@storybook/blocks": "^8.0.8",
+    "@storybook/nextjs": "^8.0.8",
+    "@storybook/react": "^8.0.8",
+    "@storybook/test": "^8.0.8",
     "@types/react": "18.2.77",
     "@types/react-dom": "18.2.25",
     "eslint-plugin-storybook": "^0.8.0",
     "pixeleye": "workspace:*",
-    "storybook": "^7.6.17"
+    "storybook": "^8.0.8"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.3",
