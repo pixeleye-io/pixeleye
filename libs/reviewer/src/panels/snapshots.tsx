@@ -33,9 +33,10 @@ function AccordionSnaps({
   currentSnapshot,
   setCurrentSnapshot,
 }: AccordionSnapsProps) {
-  if (groupedSnapshots.length === 0) {
+
+  if (groupedSnapshots.length === 0)
     return null;
-  }
+
 
   return (
     <Accordion.Item value={name}>
