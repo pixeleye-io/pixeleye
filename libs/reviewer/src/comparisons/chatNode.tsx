@@ -6,7 +6,6 @@ export interface ChatNodeData {
     author?: string;
 }
 
-
 function NewComment({
     avatarURL,
     author
