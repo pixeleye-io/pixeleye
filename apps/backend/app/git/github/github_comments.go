@@ -361,6 +361,9 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 	}
 
 	snapshots, err := db.GetSnapshotsByBuild(ctx, build.ID)
+	if err != nil {
+		return err
+	}
 
 	if build.CheckRunID == "" {
 		err := githubAppClient.createCheckRun(ctx, team, project, build, snapshots)
