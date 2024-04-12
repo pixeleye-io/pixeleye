@@ -31,9 +31,9 @@
   "dependencies": {
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-devices": "workspace:*",
-    "cypress": "^13.6.4",
+    "cypress": "^13.7.3",
     "rrweb-snapshot": "2.0.0-alpha.11",
-    "undici": "^6.6.2"
+    "undici": "^6.13.0"
   },
   "devDependencies": {
     "@pixeleye/cli-booth": "workspace:*",
@@ -41,11 +41,11 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@swc-node/register": "^1.8.0",
-    "@types/node": "20.11.19",
+    "@swc-node/register": "^1.9.0",
+    "@types/node": "20.12.7",
     "execa": "^8.0.1",
-    "get-port": "^7.0.0",
+    "get-port": "^7.1.0",
     "rimraf": "^5.0.5",
-    "typescript": "5.3.3"
+    "typescript": "5.4.5"
   }
 }

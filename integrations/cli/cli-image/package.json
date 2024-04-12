@@ -28,7 +28,7 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.11.19",
+    "@types/node": "20.12.7",
     "rimraf": "^5.0.5"
   },
   "dependencies": {

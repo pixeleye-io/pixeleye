@@ -12,7 +12,7 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tailwind": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/react": "18.2.57"
+    "@types/react": "18.2.77"
   },
   "dependencies": {
     "react": "18.2.0"
