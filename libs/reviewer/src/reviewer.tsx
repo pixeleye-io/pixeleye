@@ -116,12 +116,12 @@ function ReviewerInternal({
 
 
   const currentTargetGroupIndex = useMemo(() => {
-    return snapshotTargetGroups[currentSnapshotIndex].targetGroups.findIndex((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === currentSnapshot?.id));
+    return snapshotTargetGroups[currentSnapshotIndex]?.targetGroups.findIndex((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === currentSnapshot?.id));
   }, [currentSnapshot?.id, currentSnapshotIndex, snapshotTargetGroups]);
 
 
   const currentBrowserIndex = useMemo(() => {
-    return snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.findIndex((snap) => snap.id === currentSnapshot?.id);
+    return snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[currentTargetGroupIndex].snapshots.findIndex((snap) => snap.id === currentSnapshot?.id);
   }, [currentSnapshot?.id, currentSnapshotIndex, currentTargetGroupIndex, snapshotTargetGroups]);
 
   console.log(currentTargetGroupIndex, currentBrowserIndex)
@@ -156,7 +156,7 @@ function ReviewerInternal({
     "ArrowLeft",
     (e) => {
       setCurrentSnapshot(
-        snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.at(
+        snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[currentTargetGroupIndex].snapshots.at(
           Math.max(currentBrowserIndex - 1, 0)
         )
       );
@@ -170,8 +170,8 @@ function ReviewerInternal({
     "ArrowRight",
     (e) => {
       setCurrentSnapshot(
-        snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.at(
-          Math.min(currentBrowserIndex + 1, snapshotTargetGroups[currentSnapshotIndex].targetGroups[currentTargetGroupIndex].snapshots.length - 1)
+        snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[currentTargetGroupIndex].snapshots.at(
+          Math.min(currentBrowserIndex + 1, snapshotTargetGroups[currentSnapshotIndex]?.targetGroups[currentTargetGroupIndex].snapshots.length - 1)
         )
       );
       e.preventDefault();
