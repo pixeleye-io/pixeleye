@@ -31,6 +31,11 @@ export type SBWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
   __STORYBOOK_PREVIEW__: {
     channel: Channel;
+    storyStoreValue?: {
+      cacheAllCSFFiles: () => Promise<void>;
+      cachedCSFFiles?: Record<string, unknown>;
+      extract: () => RawStory[];
+    };
   };
 };
 

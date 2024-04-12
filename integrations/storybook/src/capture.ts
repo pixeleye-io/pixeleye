@@ -40,23 +40,35 @@ export async function captureStories({
       "/iframe.html?selectedKind=story-crawler-kind&selectedStory=story-crawler-story",
     {
       timeout: 120_000,
+      waitUntil: "domcontentloaded",
     }
   );
 
-  await page.waitForFunction(
-    () => (window as SBWindow).__STORYBOOK_CLIENT_API__,
-    {
-      timeout: 60_000,
-    }
-  );
+  await Promise.race([
+    page
+      .waitForFunction(() => (window as SBWindow).__STORYBOOK_CLIENT_API__, {
+        timeout: 60_000,
+      })
+      .catch(() => {}),
+    page
+      .waitForFunction(() => (window as SBWindow).__STORYBOOK_PREVIEW__, {
+        timeout: 60_000,
+      })
+      .catch(() => {}),
+  ]);
 
   const result = await page.evaluate(async () => {
-    const { __STORYBOOK_CLIENT_API__: api } = window as SBWindow;
+    const { __STORYBOOK_CLIENT_API__, __STORYBOOK_PREVIEW__ } =
+      window as SBWindow;
 
-    await api._storyStore?.cacheAllCSFFiles();
+    const store =
+      __STORYBOOK_CLIENT_API__?._storyStore ||
+      __STORYBOOK_PREVIEW__?.storyStoreValue!;
+
+    await store.cacheAllCSFFiles();
 
     return {
-      stories: Object.values(api._storyStore?.extract() || {}).map(
+      stories: Object.values(store.extract() || {}).map(
         ({ id, story, kind, parameters: { pixeleye } }) => ({
           id,
           story,
