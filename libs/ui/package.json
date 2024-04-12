@@ -9,7 +9,7 @@
     "types": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "pixeleye": "npx --yes pixeleye@latest storybook http://localhost:6006"
+    "pixeleye": "pnpm storybook & npx --yes pixeleye@latest storybook http://localhost:6006"
   },
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
