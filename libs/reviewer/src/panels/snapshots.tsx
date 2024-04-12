@@ -128,7 +128,7 @@ function SnapButton({
       />
       {
         groupCount > 1 && (
-          <span className="absolute bottom-4 shadow-xl border border-outline-variant rounded-lg left-8 right-8 p-2 bg-surface-container-high text-on-surface z-50">
+          <span className="absolute bottom-4 text-xs shadow-xl border border-outline-variant rounded-lg left-8 right-8 p-1.5 bg-surface-container-high text-on-surface z-50">
             {groupCount} similar diffs
           </span>
         )
