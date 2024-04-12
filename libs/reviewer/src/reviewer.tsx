@@ -100,7 +100,7 @@ function ReviewerInternal({
     const params = new URLSearchParams(Array.from(searchParams.entries()));
     if (currentSnapshot) {
       if (!snapshots.some((snapshot) => snapshot.id === currentSnapshot.id)) {
-        setCurrentSnapshot(snapshotTargetGroups[0].targetGroups[0].snapshots[0]);
+        setCurrentSnapshot(snapshotTargetGroups[0]?.targetGroups[0].snapshots[0]);
         return;
       }
       params.set("s", currentSnapshot.id);
@@ -287,7 +287,7 @@ export function Reviewer(props: ReviewerProps) {
   const store = useRef(createStore({
     panelOpen: props.defaultSidebarOpen,
     // currentSnapshot: group?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0]?.snapshots[0],
-    currentSnapshot: group?.targetGroups.find((targetGroup) => targetGroup.snapshots.some((snapshot) => snapshot.id === snapshotId))?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0].targetGroups[0].snapshots[0],
+    currentSnapshot: group?.targetGroups.find((targetGroup) => targetGroup.snapshots.some((snapshot) => snapshot.id === snapshotId))?.snapshots.find((snapshot) => snapshot.id === snapshotId) || snapshotTargetGroups[0]?.targetGroups[0].snapshots[0],
     optimize: props.optimize,
     snapshots: snapshotTargetGroups,
     build: props.build,
