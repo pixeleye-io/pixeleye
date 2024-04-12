@@ -41,6 +41,7 @@ export function ImageNode({ data: {
     const showOverlay = useStore(store, (state) => state.showDiff);
     const singleSnapshot = useStore(store, (state) => state.singleSnapshot);
 
+
     const singleStyle = singleSnapshot === "head" ? {
         width: base.width,
         height: base.height
