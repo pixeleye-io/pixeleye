@@ -166,6 +166,7 @@ function ReviewerInternal({
     [currentSnapshotIndex, setCurrentSnapshot, snapshotTargetGroups, currentTargetGroupIndex]
   );
 
+  
   useHotkeys(
     "ArrowRight",
     (e) => {
