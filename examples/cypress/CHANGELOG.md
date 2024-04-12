@@ -5,6 +5,13 @@
 ### Patch Changes
 
 - Updated dependencies []:
+  - pixeleye@0.7.8
+
+## null
+
+### Patch Changes
+
+- Updated dependencies []:
   - pixeleye@0.7.7
   - @pixeleye/cypress@0.4.5
 

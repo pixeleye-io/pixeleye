@@ -1,5 +1,12 @@
 # pixeleye
 
+## 0.7.8
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/storybook@0.5.19
+
 ## 0.7.7
 
 ### Patch Changes

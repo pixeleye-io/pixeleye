@@ -416,7 +416,7 @@ importers:
   examples/playwright:
     dependencies:
       '@pixeleye/playwright':
-        specifier: 0.5.0
+        specifier: 0.6.0
         version: link:../../integrations/playwright
       pixeleye:
         specifier: workspace:*
