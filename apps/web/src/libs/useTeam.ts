@@ -1,3 +1,5 @@
+"use client";
+
 import { queries } from "@/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";

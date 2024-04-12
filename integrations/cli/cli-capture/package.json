@@ -36,10 +36,9 @@
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/cli-logger": "workspace:*",
     "@types/jsdom": "^21.1.6",
-    "happy-dom": "^13.3.8",
     "jsdom": "^24.0.0",
     "object-hash": "^3.0.0",
-    "playwright-core": "^1.41.2",
+    "playwright-core": "^1.43.0",
     "rrweb-snapshot": "2.0.0-alpha.11"
   }
 }

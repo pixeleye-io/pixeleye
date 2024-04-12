@@ -7,13 +7,13 @@
   "dependencies": {
     "@pixeleye/playwright": "0.6.0",
     "pixeleye": "workspace:*",
-    "playwright": "^1.41.2"
+    "playwright": "^1.43.0"
   },
   "devDependencies": {
     "@pixeleye/tsconfig": "workspace:*",
-    "@playwright/test": "^1.41.2",
-    "@types/node": "20.11.19",
-    "typescript": "^5.3.3"
+    "@playwright/test": "^1.43.0",
+    "@types/node": "20.12.7",
+    "typescript": "^5.4.5"
   },
   "version": null
 }

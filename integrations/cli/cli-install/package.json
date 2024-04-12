@@ -28,10 +28,10 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.11.19",
+    "@types/node": "20.12.7",
     "rimraf": "^5.0.5"
   },
   "dependencies": {
-    "playwright-core": "^1.41.2"
+    "playwright-core": "^1.43.0"
   }
 }

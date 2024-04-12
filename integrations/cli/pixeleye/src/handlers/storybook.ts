@@ -12,8 +12,12 @@ import {
   waitForProcessing,
   watchExit,
 } from "./utils";
+import { setEnv } from "@pixeleye/cli-env";
 
 export async function storybook(url: string, options: Config) {
+  // Lets our integrations know we are running in a Pixeleye environment
+  setEnv("PIXELEYE_RUNNING", "true");
+
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,

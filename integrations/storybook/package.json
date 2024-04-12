@@ -25,18 +25,18 @@
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
+    "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/playwright": "workspace:*",
     "@storybook/addons": "^7.6.17",
-    "@pixeleye/cli-logger": "workspace:*",
-    "playwright-core": "^1.41.2",
+    "playwright-core": "^1.43.0",
     "rrweb-snapshot": "2.0.0-alpha.11"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.11.19",
+    "@types/node": "20.12.7",
     "rimraf": "^5.0.5",
-    "typescript": "5.3.3"
+    "typescript": "5.4.5"
   }
 }
