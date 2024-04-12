@@ -1,5 +1,21 @@
 # pixeleye
 
+## 0.7.9
+
+### Patch Changes
+
+- [#284](https://github.com/pixeleye-io/pixeleye/pull/284) [`41ae1ba`](https://github.com/pixeleye-io/pixeleye/commit/41ae1bac3ab0c4d0d9bc46a2ceda8d7d78695f06) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updated dependencies
+
+- Updated dependencies [[`41ae1ba`](https://github.com/pixeleye-io/pixeleye/commit/41ae1bac3ab0c4d0d9bc46a2ceda8d7d78695f06), [`41ae1ba`](https://github.com/pixeleye-io/pixeleye/commit/41ae1bac3ab0c4d0d9bc46a2ceda8d7d78695f06)]:
+  - @pixeleye/cli-devices@0.4.7
+  - @pixeleye/cli-install@0.4.7
+  - @pixeleye/cli-logger@0.2.7
+  - @pixeleye/cli-booth@0.5.7
+  - @pixeleye/cli-api@0.3.17
+  - @pixeleye/cli-env@0.6.1
+  - @pixeleye/storybook@0.6.0
+  - @pixeleye/cli-config@0.6.7
+
 ## 0.7.8
 
 ### Patch Changes

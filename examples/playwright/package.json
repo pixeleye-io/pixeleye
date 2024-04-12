@@ -5,7 +5,7 @@
     "test:e2e": "pixeleye exec -- npx playwright test"
   },
   "dependencies": {
-    "@pixeleye/playwright": "0.6.0",
+    "@pixeleye/playwright": "0.6.1",
     "pixeleye": "workspace:*",
     "playwright": "^1.43.0"
   },

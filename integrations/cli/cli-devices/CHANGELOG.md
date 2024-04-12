@@ -1,5 +1,11 @@
 # @pixeleye/cli-devices
 
+## 0.4.7
+
+### Patch Changes
+
+- [#284](https://github.com/pixeleye-io/pixeleye/pull/284) [`41ae1ba`](https://github.com/pixeleye-io/pixeleye/commit/41ae1bac3ab0c4d0d9bc46a2ceda8d7d78695f06) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Updated dependencies
+
 ## 0.4.6
 
 ### Patch Changes
