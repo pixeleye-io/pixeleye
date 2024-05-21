@@ -18,6 +18,5 @@
     "@pixeleye/tsconfig": "workspace:*",
     "cypress": "^13.7.3",
     "typescript": "^5.4.5"
-  },
-  "version": null
+  }
 }
