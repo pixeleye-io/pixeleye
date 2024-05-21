@@ -1,13 +1,13 @@
 import type { Page } from "playwright-core";
 import { getEnvConfig } from "@pixeleye/cli-config";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
-import { logger } from "@pixeleye/cli-logger";
 import {
   snapshot,
   Options as ServerOptions,
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
 import { createRequire } from "node:module";
+import { snapshot as rrwebSnapshotFn } from "rrweb-snapshot";
 
 let rrwebSnapshot: string | undefined;
 try {
@@ -64,8 +64,13 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     await page.waitForSelector(options.waitForSelector);
 
   const domSnapshot = await (page as Page).evaluate(() => {
-    // @ts-ignore
-    return rrwebSnapshot.snapshot(document);
+    return ((rrwebSnapshot as any).snapshot as typeof rrwebSnapshotFn)(
+      document,
+      {
+        recordCanvas: true,
+        inlineImages: true,
+      }
+    );
   });
 
   if (!domSnapshot) {
