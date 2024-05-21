@@ -31,7 +31,7 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@types/body-parser": "^1.19.5",
     "rimraf": "^5.0.5",
-    "rrweb-snapshot": "2.0.0-alpha.11"
+    "rrweb-snapshot": "2.0.0-alpha.13"
   },
   "dependencies": {
     "@pixeleye/api": "workspace:*",

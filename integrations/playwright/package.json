@@ -28,7 +28,7 @@
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "playwright-core": "^1.43.0",
-    "rrweb-snapshot": "2.0.0-alpha.11",
+    "rrweb-snapshot": "2.0.0-alpha.13",
     "undici": "^6.13.0"
   },
   "devDependencies": {
