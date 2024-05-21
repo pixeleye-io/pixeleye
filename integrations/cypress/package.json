@@ -32,7 +32,7 @@
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-devices": "workspace:*",
     "cypress": "^13.7.3",
-    "rrweb-snapshot": "2.0.0-alpha.11",
+    "rrweb-snapshot": "2.0.0-alpha.13",
     "undici": "^6.13.0"
   },
   "devDependencies": {

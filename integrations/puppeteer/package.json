@@ -33,7 +33,7 @@
     "@pixeleye/cli-devices": "workspace:*",
     "puppeteer": "^22.6.4",
     "puppeteer-core": "^22.6.4",
-    "rrweb-snapshot": "2.0.0-alpha.11",
+    "rrweb-snapshot": "2.0.0-alpha.13",
     "undici": "^6.13.0"
   },
   "devDependencies": {

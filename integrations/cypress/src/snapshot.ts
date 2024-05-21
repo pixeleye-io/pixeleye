@@ -34,7 +34,10 @@ export const pixeleyeSnapshot = (options: Options) => {
       : undefined;
 
   return cy.document().then(async (doc) => {
-    const serializedDom = domSnapshot(doc);
+    const serializedDom = domSnapshot(doc, {
+      recordCanvas: true,
+      inlineImages: true,
+    });
     if (!serializedDom) {
       throw new Error("Failed to serialize DOM");
     }

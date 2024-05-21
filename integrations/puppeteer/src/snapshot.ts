@@ -8,6 +8,7 @@ import {
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
 import { createRequire } from "node:module";
+import { snapshot as rrwebSnapshotFn } from "rrweb-snapshot";
 
 export interface Options {
   fullPage?: boolean;
@@ -63,12 +64,17 @@ export async function pixeleyeSnapshot(
   });
 
   const domSnapshot = await (page as Page).evaluate(() => {
-    // @ts-ignore
-    return rrwebSnapshot.snapshot(document);
+    return ((rrwebSnapshot as any).snapshot as typeof rrwebSnapshotFn)(
+      document,
+      {
+        recordCanvas: true,
+        inlineImages: true,
+      }
+    );
   });
 
   if (!domSnapshot) {
-    throw new Error("No DOM snapshot available", domSnapshot);
+    throw new Error("No DOM snapshot available");
   }
 
   const snap: SnapshotRequest = {
