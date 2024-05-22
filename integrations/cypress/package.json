@@ -2,7 +2,7 @@
   "name": "@pixeleye/cypress",
   "description": "Cypress integration for Pixeleye",
   "private": false,
-  "version": "0.4.6-alpha.2",
+  "version": "0.4.6",
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",

@@ -1,7 +1,7 @@
 {
   "name": "@pixeleye/playwright",
   "private": false,
-  "version": "0.6.1-alpha.2",
+  "version": "0.6.1",
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
@@ -29,7 +29,6 @@
     "@pixeleye/cli-devices": "workspace:*",
     "playwright-core": "^1.43.0",
     "rrweb-snapshot": "2.0.0-alpha.13",
-    "rrweb-snapshot": "^2.0.0-alpha.13",
     "undici": "^6.13.0"
   },
   "devDependencies": {
