@@ -37,8 +37,6 @@
     "@pixeleye/cli-logger": "workspace:*",
     "rrweb-snapshot": "2.0.0-alpha.13",
     "@types/jsdom": "^21.1.6",
-    "canvas": "^2.11.2",
-    "jsdom": "^24.0.0",
     "object-hash": "^3.0.0",
     "playwright-core": "^1.43.0"
   }

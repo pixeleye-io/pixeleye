@@ -2,10 +2,8 @@ import rrweb, { serializedNodeWithId } from "rrweb-snapshot";
 import { getPage } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";
-import { JSDOM } from "jsdom";
 import { logger } from "@pixeleye/cli-logger";
 import { Page } from "playwright-core";
-import fs from "fs";
 import { createRequire } from "module";
 
 let rrwebScript: string | undefined;
@@ -39,7 +37,7 @@ export type CaptureScreenshotData<
 > = T extends string | number | symbol
   ? Omit<CaptureScreenshotConfigOptions, T>
   : CaptureScreenshotConfigOptions &
-      Either<{ url: string }, { content: serializedNodeWithId }>;
+      Either<{ url: string }, { serializedDom: serializedNodeWithId }>;
 
 const retries = 3;
 
@@ -80,25 +78,25 @@ async function internalCaptureScreenshot(
     await page.goto(data.url, {
       timeout: 60_000,
     });
-  } else if (data.content) {
+  } else if (data.serializedDom) {
     await page.setContent(blankPage);
 
     await (page as Page).addScriptTag({
       path: rrwebScript,
     });
 
-    await page.evaluate((content) => {
+    await page.evaluate((serializedDom) => {
       const r: RRWeb = (window as any).rrwebSnapshot;
 
       const cache = r.createCache();
       const mirror = r.createMirror();
 
-      r.rebuild(content, {
+      r.rebuild(serializedDom, {
         doc: document,
         cache,
         mirror,
       });
-    }, data.content);
+    }, data.serializedDom);
   } else {
     await page.close();
     throw new Error("No url or serializedDom provided");
