@@ -22,6 +22,8 @@ export async function execHandler(
     shard?: string;
   }
 ) {
+  console.log("HELLOWORLD");
+
   // Lets our integrations know we are running in a Pixeleye environment
   setEnv("PIXELEYE_RUNNING", "true");
 

@@ -1,6 +1,6 @@
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { Options as ServerOptions, SnapshotRequest } from "@pixeleye/cli-booth";
-import { snapshot as domSnapshot } from "@pixeleye/rrweb-snapshot";
+import { snapshot as domSnapshot } from "rrweb-snapshot";
 
 export interface Options {
   fullPage?: boolean;
