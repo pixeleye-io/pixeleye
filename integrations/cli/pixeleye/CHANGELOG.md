@@ -1,5 +1,15 @@
 # pixeleye
 
+## 0.8.1
+
+### Patch Changes
+
+- [#299](https://github.com/pixeleye-io/pixeleye/pull/299) [`f8353ae`](https://github.com/pixeleye-io/pixeleye/commit/f8353ae1d0ff21e68b92d869da184bcccde57cc6) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Kills the booth server after exit
+
+- Updated dependencies []:
+  - @pixeleye/storybook@0.6.2
+  - @pixeleye/cli-booth@0.6.1
+
 ## 0.8.0
 
 ### Minor Changes
