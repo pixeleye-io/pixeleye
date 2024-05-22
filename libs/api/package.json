@@ -25,12 +25,12 @@
   },
   "type": "module",
   "devDependencies": {
-    "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
+    "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*"
   },
   "dependencies": {
     "api-typify": "^0.3.2",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   }
 }

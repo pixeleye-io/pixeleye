@@ -29,18 +29,18 @@
     "cypress": "^13"
   },
   "dependencies": {
-    "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/cli-booth": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*",
     "rrweb-snapshot": "2.0.0-alpha.13",
-    "undici": "^6.13.0"
+    "undici": "^6.18.1"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/node": "20.12.12",
+    "cypress": "^13.10.0",
     "rimraf": "^5.0.7",
-    "typescript": "5.4.5",
-    "cypress": "^13.7.3"
+    "typescript": "5.4.5"
   }
 }

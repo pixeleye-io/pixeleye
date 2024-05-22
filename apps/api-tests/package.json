@@ -11,15 +11,15 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@t3-oss/env-core": "0.9.1",
+    "@t3-oss/env-core": "0.10.1",
     "@types/eventsource": "^1.1.15",
     "@types/node": "20.12.12",
     "@types/wait-on": "^5.3.4",
     "env-cmd": "^10.1.0",
     "typescript": "^5.4.5",
-    "undici": "^6.13.0",
+    "undici": "^6.18.1",
     "vitest": "^1.6.0",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "dependencies": {
     "@ory/client": "^1.9.0",

@@ -15,6 +15,6 @@
     "@types/react": "18.3.2"
   },
   "dependencies": {
-    "react": "18.2.0"
+    "react": "18.3.1"
   }
 }

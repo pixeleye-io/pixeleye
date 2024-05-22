@@ -26,17 +26,17 @@
     "LICENSE"
   ],
   "peerDependencies": {
-    "puppeteer": "^20 || ^21",
-    "puppeteer-core": "^20 || ^21"
+    "puppeteer": "^20 || ^21 || ^22",
+    "puppeteer-core": "^20 || ^21 || ^22"
   },
   "dependencies": {
-    "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/cli-booth": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
-    "puppeteer": "^22.6.4",
-    "puppeteer-core": "^22.6.4",
+    "@pixeleye/cli-devices": "workspace:*",
+    "puppeteer": "^22.9.0",
+    "puppeteer-core": "^22.9.0",
     "rrweb-snapshot": "2.0.0-alpha.13",
-    "undici": "^6.13.0"
+    "undici": "^6.18.1"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
