@@ -50,7 +50,7 @@
     "@tanstack/react-table": "^8.15.3",
     "bright": "^0.8.4",
     "class-variance-authority": "^0.7.0",
-    "cmdk": "^0.2.1",
+    "cmdk": "^1.0.0",
     "framer-motion": "^11.0.28",
     "next": "14.2.0",
     "overlayscrollbars": "^2.7.1",
