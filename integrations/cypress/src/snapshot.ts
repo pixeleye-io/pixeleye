@@ -55,6 +55,7 @@ export const pixeleyeSnapshot = (options: Options) => {
       maskSelectors: options.maskSelectors,
       maskColor: options.maskColor,
       css,
+      url: doc.location.href,
       serializedDom,
       fullPage: options.fullPage,
       wait: options.wait,

@@ -26,18 +26,13 @@ type Only<T, U> = {
 
 type Either<T, U> = Only<T, U> | Only<U, T>;
 
-export interface CaptureScreenshotConfigOptions
+export interface CaptureScreenshotData
   extends Omit<SnapshotDefinition, "url" | "name"> {
   device: DeviceDescriptor;
   name: string;
+  url: string;
+  serializedDom?: serializedNodeWithId;
 }
-
-export type CaptureScreenshotData<
-  T extends string | number | symbol | undefined = undefined,
-> = T extends string | number | symbol
-  ? Omit<CaptureScreenshotConfigOptions, T>
-  : CaptureScreenshotConfigOptions &
-      Either<{ url: string }, { serializedDom: serializedNodeWithId }>;
 
 const retries = 3;
 
@@ -74,11 +69,12 @@ async function internalCaptureScreenshot(
   page: Page,
   data: CaptureScreenshotData
 ): Promise<Buffer> {
-  if (data.url) {
-    await page.goto(data.url, {
-      timeout: 60_000,
-    });
-  } else if (data.serializedDom) {
+  await page.goto(data.url, {
+    timeout: 60_000,
+    waitUntil: "commit",
+  });
+
+  if (data.serializedDom) {
     await page.setContent(blankPage);
 
     await (page as Page).addScriptTag({

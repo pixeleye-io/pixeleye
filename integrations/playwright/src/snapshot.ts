@@ -102,6 +102,7 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     selector: options.selector,
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
+    url: page.url(),
     wait: options.wait,
     waitForSelectors: options.waitForSelectors,
     css,

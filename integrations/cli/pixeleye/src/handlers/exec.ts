@@ -45,9 +45,15 @@ export async function execHandler(
 
   const exitBuild = getExitBuild(api, build.id);
 
+  const onExitFns: Array<() => Promise<any>> = [
+    async () => {
+      console.log(errStr("\nAborting build..."));
+      await exitBuild("Interrupted");
+    },
+  ];
+
   watchExit(async () => {
-    console.log(errStr("\nAborting build..."));
-    await exitBuild("Interrupted");
+    await Promise.all(onExitFns.map((fn) => fn()));
   });
 
   const fileSpinner = ora("Starting local snapshot server").start();
@@ -57,6 +63,10 @@ export async function execHandler(
     token: options.token,
     endpoint: options.endpoint,
     boothPort: options.boothPort,
+  });
+
+  onExitFns.push(async () => {
+    child.kill();
   });
 
   fileSpinner.succeed("Successfully started local snapshot server.");
