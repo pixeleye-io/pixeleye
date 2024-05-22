@@ -113,6 +113,7 @@ export default function TeamSwitcher({
                 {group.teams.map((team) => (
                   <CommandItem
                     key={team.id}
+                    value={team.id}
                     onSelect={() => {
                       setSelectedTeam(team);
                       setOpen(false);
