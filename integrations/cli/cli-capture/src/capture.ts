@@ -3,7 +3,7 @@ import {
   createMirror,
   rebuild,
   serializedNodeWithId,
-} from "rrweb-snapshot";
+} from "@pixeleye/rrweb-snapshot";
 import { getPage } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";

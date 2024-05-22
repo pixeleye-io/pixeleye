@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-booth",
-  "version": "0.5.7",
+  "version": "0.5.7-alpha.1",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -31,7 +31,7 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@types/body-parser": "^1.19.5",
     "rimraf": "^5.0.5",
-    "rrweb-snapshot": "2.0.0-alpha.13"
+    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.14"
   },
   "dependencies": {
     "@pixeleye/api": "workspace:*",

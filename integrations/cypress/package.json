@@ -2,7 +2,7 @@
   "name": "@pixeleye/cypress",
   "description": "Cypress integration for Pixeleye",
   "private": false,
-  "version": "0.4.6",
+  "version": "0.4.6-alpha.1",
   "license": "AGPL-3.0",
   "scripts": {
     "lint": "eslint",
@@ -32,7 +32,7 @@
     "@pixeleye/cli-api": "workspace:*",
     "@pixeleye/cli-devices": "workspace:*",
     "cypress": "^13.7.3",
-    "rrweb-snapshot": "2.0.0-alpha.13",
+    "@pixeleye/rrweb-snapshot": "2.0.0-alpha.14",
     "undici": "^6.13.0"
   },
   "devDependencies": {

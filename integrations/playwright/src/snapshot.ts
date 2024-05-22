@@ -7,7 +7,7 @@ import {
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
 import { createRequire } from "node:module";
-import { snapshot as rrwebSnapshotFn } from "rrweb-snapshot";
+import { snapshot as rrwebSnapshotFn } from "@pixeleye/rrweb-snapshot";
 
 let rrwebSnapshot: string | undefined;
 try {

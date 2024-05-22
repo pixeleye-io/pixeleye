@@ -10,7 +10,7 @@ import {
 } from "@pixeleye/cli-capture";
 import { createBus } from "./bus";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
-import { serializedNodeWithId } from "rrweb-snapshot";
+import { serializedNodeWithId } from "@pixeleye/rrweb-snapshot";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 
 export interface BoothServerOptions {

@@ -417,7 +417,7 @@ importers:
     dependencies:
       '@pixeleye/playwright':
         specifier: 0.6.1
-        version: link:../../integrations/playwright
+        version: 0.6.1
       pixeleye:
         specifier: workspace:*
         version: link:../../integrations/cli/pixeleye
@@ -536,6 +536,9 @@ importers:
       '@pixeleye/eslint-config':
         specifier: workspace:*
         version: link:../../../configs/eslint-config
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../../configs/tsconfig
@@ -545,9 +548,6 @@ importers:
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
 
   integrations/cli/cli-capture:
     dependencies:
@@ -557,6 +557,9 @@ importers:
       '@pixeleye/cli-logger':
         specifier: workspace:*
         version: link:../cli-logger
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       '@types/jsdom':
         specifier: ^21.1.6
         version: 21.1.6
@@ -569,9 +572,6 @@ importers:
       playwright-core:
         specifier: ^1.43.0
         version: 1.43.0
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
     devDependencies:
       '@pixeleye/cli-config':
         specifier: workspace:*
@@ -758,6 +758,9 @@ importers:
       '@pixeleye/cli-logger':
         specifier: workspace:*
         version: link:../cli-logger
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       '@pixeleye/storybook':
         specifier: workspace:*
         version: link:../../storybook
@@ -782,9 +785,6 @@ importers:
       playwright-core:
         specifier: ^1.43.0
         version: 1.43.0
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
       sitemapper:
         specifier: ^3.2.8
         version: 3.2.8
@@ -828,12 +828,12 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       cypress:
         specifier: ^13.7.3
         version: 13.7.3
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
       undici:
         specifier: ^6.13.0
         version: 6.13.0
@@ -877,12 +877,12 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       playwright-core:
         specifier: ^1.43.0
         version: 1.43.0
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
       undici:
         specifier: ^6.13.0
         version: 6.13.0
@@ -932,15 +932,15 @@ importers:
       '@pixeleye/cli-devices':
         specifier: workspace:*
         version: link:../cli/cli-devices
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       puppeteer:
         specifier: ^22.6.4
         version: 22.6.4(typescript@5.4.5)
       puppeteer-core:
         specifier: ^22.6.4
         version: 22.6.4
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
       undici:
         specifier: ^6.13.0
         version: 6.13.0
@@ -996,15 +996,15 @@ importers:
       '@pixeleye/playwright':
         specifier: workspace:*
         version: link:../playwright
+      '@pixeleye/rrweb-snapshot':
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       '@storybook/addons':
         specifier: ^7.6.17
         version: 7.6.17(react-dom@18.2.0)(react@18.2.0)
       playwright-core:
         specifier: ^1.43.0
         version: 1.43.0
-      rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -6318,6 +6318,24 @@ packages:
     dependencies:
       detect-libc: 1.0.3
     dev: true
+
+  /@pixeleye/cli-devices@0.4.7:
+    resolution: {integrity: sha512-IcsQ8DJRL+JODzlDk6KmGv8z9zKL87E6QqaKObCrtZrmQfLG2s1auY/HnrR25wJuzlBe3qas6V9GbIxCsO3Ttg==}
+    dependencies:
+      playwright-core: 1.43.0
+    dev: false
+
+  /@pixeleye/playwright@0.6.1:
+    resolution: {integrity: sha512-vAnCpSdKpVHEUXp/7l1yKo7OWCKVvfhaXvdf9lp6pik6Rrxn1uLwx7DHDNSuws8ztHXPqyKGa+UzPJiAD573tw==}
+    dependencies:
+      '@pixeleye/cli-devices': 0.4.7
+      playwright-core: 1.43.0
+      rrweb-snapshot: 2.0.0-alpha.11
+      undici: 6.13.0
+    dev: false
+
+  /@pixeleye/rrweb-snapshot@2.0.0-alpha.14:
+    resolution: {integrity: sha512-kxQzkFA4g/PFndJNzphz77GdYfPnqDiRPQ6IoL5bP7FlfZyeXX4a0u/wEevmupkmp4UCun0+XvlXsq+1Lg4I1w==}
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -17419,8 +17437,9 @@ packages:
     resolution: {integrity: sha512-APM0Gt1KoXBz0iIkkdB/kfvGOwC4UuJFeG/c+yV7wSc7q96cG/kJ0HiYCnzivD9SB53cLV1MlHFNfOuPaadYSw==}
     dev: false
 
-  /rrweb-snapshot@2.0.0-alpha.13:
-    resolution: {integrity: sha512-slbhNBCYjxLGCeH95a67ECCy5a22nloXp1F5wF7DCzUNw80FN7tF9Lef1sRGLNo32g3mNqTc2sWLATlKejMxYw==}
+  /rrweb-snapshot@2.0.0-alpha.11:
+    resolution: {integrity: sha512-N0dzeJA2VhrlSOadkKwCVmV/DuNOwBH+Lhx89hAf9PQK4lCS8AP4AaylhqUdZOYHqwVjqsYel/uZ4hN79vuLhw==}
+    dev: false
 
   /run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
