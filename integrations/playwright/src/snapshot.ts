@@ -7,15 +7,17 @@ import {
   SnapshotRequest,
 } from "@pixeleye/cli-booth";
 import { createRequire } from "node:module";
-import { snapshot as rrwebSnapshotFn } from "rrweb-snapshot";
+import rrweb from "rrweb-snapshot";
 
-let rrwebSnapshot: string | undefined;
+let rrwebScript: string | undefined;
 try {
-  rrwebSnapshot = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+  rrwebScript = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
 } catch {
   const require = createRequire(import.meta.url);
-  rrwebSnapshot = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+  rrwebScript = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
 }
+
+type RRWeb = typeof rrweb;
 
 export interface Options {
   name: string;
@@ -57,20 +59,19 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
       : undefined;
 
   await (page as Page).addScriptTag({
-    path: rrwebSnapshot,
+    path: rrwebScript,
   });
 
   if (options.waitForSelector)
     await page.waitForSelector(options.waitForSelector);
 
   const domSnapshot = await (page as Page).evaluate(() => {
-    return ((rrwebSnapshot as any).snapshot as typeof rrwebSnapshotFn)(
-      document,
-      {
-        recordCanvas: true,
-        inlineImages: true,
-      }
-    );
+    const r: RRWeb = (window as any).rrwebSnapshot;
+    return r.snapshot(document, {
+      recordCanvas: true,
+      inlineImages: true,
+      inlineStylesheet: true,
+    });
   });
 
   if (!domSnapshot) {

@@ -2,7 +2,6 @@ import * as esbuild from "esbuild";
 
 
 const forceExternal = [
-  "jsdom",
   "playwright-core",
   "playwright-core/lib/server"
 ]
@@ -30,7 +29,7 @@ export function build(entryPoints, outdir, banner = {}, formats = ["cjs", "esm"]
       minify: false,
       platform: "node",
       target: "node20",
-      external: devBuild ? ["jsdom", "playwright-core", "rrweb-snapshot/dist/rrweb-snapshot.min.js"] : [],
+      external: devBuild ? ["playwright-core", "rrweb-snapshot/dist/rrweb-snapshot.min.js"] : [],
       outdir,
       format,
       outExtension: {

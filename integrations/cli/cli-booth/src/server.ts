@@ -3,11 +3,7 @@ import bodyParser from "body-parser";
 import { Build } from "@pixeleye/api";
 import { getEnvConfig } from "@pixeleye/cli-config";
 import { QueuedSnap, handleQueue, queue } from "./snapshotQueue";
-import {
-  CaptureScreenshotData,
-  getBrowser,
-  getBuildContent,
-} from "@pixeleye/cli-capture";
+import { CaptureScreenshotData, getBrowser } from "@pixeleye/cli-capture";
 import { createBus } from "./bus";
 import { API, uploadSnapshots } from "@pixeleye/cli-api";
 import { serializedNodeWithId } from "rrweb-snapshot";
@@ -85,10 +81,6 @@ export function startServer(options: BoothServerOptions) {
 
     app.post("/snapshot", (req, res) => {
       const body = req.body as SnapshotRequest;
-
-      body.content = body.serializedDom
-        ? getBuildContent(body.serializedDom)
-        : undefined;
 
       body.devices.forEach((device) => {
         queue.add(async () =>

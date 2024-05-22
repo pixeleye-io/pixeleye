@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-capture",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
@@ -35,10 +35,8 @@
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/cli-logger": "workspace:*",
-    "@types/jsdom": "^21.1.6",
-    "jsdom": "^24.0.0",
+    "rrweb-snapshot": "2.0.0-alpha.13",
     "object-hash": "^3.0.0",
-    "playwright-core": "^1.43.0",
-    "rrweb-snapshot": "2.0.0-alpha.13"
+    "playwright-core": "^1.43.0"
   }
 }

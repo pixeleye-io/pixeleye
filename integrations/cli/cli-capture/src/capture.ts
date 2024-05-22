@@ -1,15 +1,22 @@
-import {
-  createCache,
-  createMirror,
-  rebuild,
-  serializedNodeWithId,
-} from "rrweb-snapshot";
+import rrweb, { serializedNodeWithId } from "rrweb-snapshot";
 import { getPage } from "./browsers";
 import { DeviceDescriptor } from "@pixeleye/cli-devices";
 import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";
-import { JSDOM } from "jsdom";
 import { logger } from "@pixeleye/cli-logger";
 import { Page } from "playwright-core";
+import { createRequire } from "module";
+
+let rrwebScript: string | undefined;
+try {
+  rrwebScript = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+} catch {
+  const require = createRequire(import.meta.url);
+  rrwebScript = require.resolve("rrweb-snapshot/dist/rrweb-snapshot.min.js");
+}
+
+type RRWeb = typeof rrweb;
+
+const blankPage = "<!DOCTYPE html><html><head></head><body></body></html>";
 
 type Only<T, U> = {
   [P in keyof T]: T[P];
@@ -30,16 +37,7 @@ export type CaptureScreenshotData<
 > = T extends string | number | symbol
   ? Omit<CaptureScreenshotConfigOptions, T>
   : CaptureScreenshotConfigOptions &
-      Either<{ url: string }, { content: string }>;
-
-export function getBuildContent(serializedDom: serializedNodeWithId): string {
-  const doc = new JSDOM().window.document;
-  const cache = createCache();
-  const mirror = createMirror();
-  rebuild(serializedDom, { doc, cache, mirror });
-
-  return `<!DOCTYPE html>${doc.documentElement.outerHTML}`;
-}
+      Either<{ url: string }, { serializedDom: serializedNodeWithId }>;
 
 const retries = 3;
 
@@ -80,10 +78,25 @@ async function internalCaptureScreenshot(
     await page.goto(data.url, {
       timeout: 60_000,
     });
-  } else if (data.content) {
-    await page.setContent(data.content, {
-      timeout: 60_000,
+  } else if (data.serializedDom) {
+    await page.setContent(blankPage);
+
+    await (page as Page).addScriptTag({
+      path: rrwebScript,
     });
+
+    await page.evaluate((serializedDom) => {
+      const r: RRWeb = (window as any).rrwebSnapshot;
+
+      const cache = r.createCache();
+      const mirror = r.createMirror();
+
+      r.rebuild(serializedDom, {
+        doc: document,
+        cache,
+        mirror,
+      });
+    }, data.serializedDom);
   } else {
     await page.close();
     throw new Error("No url or serializedDom provided");
