@@ -24,7 +24,11 @@ export interface Options {
   fullPage?: boolean;
   variant?: string;
   selector?: string;
+  /**
+   * @deprecated use {@link Options.waitForSelectors} instead
+   */
   waitForSelector?: string;
+  waitForSelectors?: string[];
   devices?: DeviceDescriptor[];
   maskSelectors?: string[];
   maskColor?: string;
@@ -62,8 +66,19 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     path: rrwebScript,
   });
 
-  if (options.waitForSelector)
-    await page.waitForSelector(options.waitForSelector);
+  // TODO remove in next major release
+  if (options.waitForSelector) {
+    options.waitForSelectors = [
+      options.waitForSelector,
+      ...(options.waitForSelectors ?? []),
+    ];
+  }
+
+  if (options.waitForSelectors) {
+    for (const selector of options.waitForSelectors) {
+      await page.waitForSelector(selector);
+    }
+  }
 
   const domSnapshot = await (page as Page).evaluate(() => {
     const r: RRWeb = (window as any).rrwebSnapshot;
@@ -88,6 +103,7 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
     wait: options.wait,
+    waitForSelectors: options.waitForSelectors,
     css,
   };
 

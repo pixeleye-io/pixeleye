@@ -28,6 +28,7 @@ export interface Options {
   selector?: string;
   devices?: DeviceDescriptor[];
   maskSelectors?: string[];
+  waitForSelectors?: string[];
   maskColor?: string;
   css?: string;
   wait?: number;
@@ -66,6 +67,12 @@ export async function pixeleyeSnapshot(
     path: rrwebScript,
   });
 
+  if (options.waitForSelectors) {
+    for (const selector of options.waitForSelectors) {
+      await page.waitForSelector(selector);
+    }
+  }
+
   const domSnapshot = await (page as Page).evaluate(() => {
     const r: RRWeb = (window as any).rrwebSnapshot;
 
@@ -90,6 +97,7 @@ export async function pixeleyeSnapshot(
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
     wait: options.wait,
+    waitForSelectors: options.waitForSelectors,
     css,
   };
 

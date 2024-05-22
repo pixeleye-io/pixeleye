@@ -9,6 +9,7 @@ export interface Options {
   selector?: string;
   devices?: DeviceDescriptor[];
   maskSelectors?: string[];
+  waitForSelectors?: string[];
   maskColor?: string;
   css?: string;
   wait?: number;
@@ -33,6 +34,10 @@ export const pixeleyeSnapshot = (options: Options) => {
       ? `${configCSS ?? ""}\n${options.css ?? ""}`
       : undefined;
 
+  for (const waitForSelector of options.waitForSelectors ?? []) {
+    cy.get(waitForSelector);
+  }
+
   return cy.document().then(async (doc) => {
     const serializedDom = domSnapshot(doc, {
       recordCanvas: true,
@@ -53,6 +58,7 @@ export const pixeleyeSnapshot = (options: Options) => {
       serializedDom,
       fullPage: options.fullPage,
       wait: options.wait,
+      waitForSelectors: options.waitForSelectors,
     };
 
     cy.request({
