@@ -97,6 +97,7 @@ export async function pixeleyeSnapshot(
     maskSelectors: options.maskSelectors,
     maskColor: options.maskColor,
     wait: options.wait,
+    url: page.url(),
     waitForSelectors: options.waitForSelectors,
     css,
   };

@@ -15,6 +15,8 @@ import {
 import { setEnv } from "@pixeleye/cli-env";
 
 export async function storybook(url: string, options: Config) {
+  let buildFinished = false;
+
   // Lets our integrations know we are running in a Pixeleye environment
   setEnv("PIXELEYE_RUNNING", "true");
 
@@ -35,9 +37,17 @@ export async function storybook(url: string, options: Config) {
 
   const exitBuild = getExitBuild(api, build.id);
 
+  const onExitFns: Array<() => Promise<any>> = [
+    async () => {
+      if (buildFinished) return;
+
+      console.log(errStr("\nAborting build..."));
+      await exitBuild("Interrupted");
+    },
+  ];
+
   watchExit(async () => {
-    console.log(errStr("\nAborting build..."));
-    await exitBuild("Interrupted");
+    await Promise.all(onExitFns.map((fn) => fn()));
   });
 
   const fileSpinner = ora("Starting local snapshot server").start();
@@ -47,6 +57,10 @@ export async function storybook(url: string, options: Config) {
     token: options.token,
     endpoint: options.endpoint,
     boothPort: options.boothPort,
+  });
+
+  onExitFns.push(async () => {
+    child.kill();
   });
 
   fileSpinner.succeed("Successfully started local snapshot server.");
@@ -114,6 +128,7 @@ export async function storybook(url: string, options: Config) {
     });
 
   completeSpinner.succeed("Successfully completed build.");
+  buildFinished = true;
 
   if (options.waitForStatus) {
     const waitForStatus = ora("Waiting for build to finish processing").start();

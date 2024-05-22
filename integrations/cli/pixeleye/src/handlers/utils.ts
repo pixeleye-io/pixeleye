@@ -43,8 +43,21 @@ export const getExitBuild =
     program.error(err);
   };
 
-export function watchExit(callback: () => Promise<void>) {
-  process.on("SIGINT", async () => {
+export function watchExit(callback: () => Promise<any>) {
+  [
+    "SIGINT",
+    "SIGHUP",
+    "SIGQUIT",
+    "SIGTERM",
+    "uncaughtException",
+    "exit",
+  ].forEach((signal) => {
+    process.on(signal, async () => {
+      await callback();
+    });
+  });
+
+  process.on("SIGHUP", async () => {
     await callback();
   }); // CTRL+C
   process.on("SIGQUIT", async () => {
@@ -54,6 +67,7 @@ export function watchExit(callback: () => Promise<void>) {
     await callback();
   }); // `kill` command
 }
+
 
 export const startBooth = async ({
   buildID,

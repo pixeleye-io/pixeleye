@@ -20,6 +20,8 @@ export async function snapFileHandler(
     sitemaps?: string[];
   }
 ) {
+  let buildFinished = false;
+
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -92,9 +94,17 @@ export async function snapFileHandler(
 
   const exitBuild = getExitBuild(api, build.id);
 
+  const onExitFns: Array<() => Promise<any>> = [
+    async () => {
+      if (buildFinished) return;
+
+      console.log(errStr("\nAborting build..."));
+      await exitBuild("Interrupted");
+    },
+  ];
+
   watchExit(async () => {
-    console.log(errStr("\nAborting build..."));
-    await exitBuild("Interrupted");
+    await Promise.all(onExitFns.map((fn) => fn()));
   });
 
   const fileSpinner = ora("Starting local snapshot server").start();
@@ -104,6 +114,10 @@ export async function snapFileHandler(
     token: options.token,
     endpoint: options.endpoint,
     boothPort: options.boothPort,
+  });
+
+  onExitFns.push(async () => {
+    child.kill();
   });
 
   fileSpinner.succeed("Successfully started local snapshot server.");
@@ -168,9 +182,12 @@ export async function snapFileHandler(
     .catch(async (err) => {
       completeSpinner.fail("Failed to complete build.");
       await exitBuild(err);
-    });
+    })
+    .then(() => {
+      completeSpinner.succeed("Successfully completed build.");
 
-  completeSpinner.succeed("Successfully completed build.");
+      buildFinished = true;
+    });
 
   if (options.waitForStatus) {
     const waitForStatus = ora("Waiting for build to finish processing").start();
