@@ -417,7 +417,7 @@ importers:
     dependencies:
       '@pixeleye/playwright':
         specifier: 0.6.1
-        version: 0.6.1
+        version: link:../../integrations/playwright
       pixeleye:
         specifier: workspace:*
         version: link:../../integrations/cli/pixeleye
@@ -875,7 +875,7 @@ importers:
         specifier: ^1.43.0
         version: 1.43.0
       rrweb-snapshot:
-        specifier: ^2.0.0-alpha.13
+        specifier: 2.0.0-alpha.13
         version: 2.0.0-alpha.13
       undici:
         specifier: ^6.13.0
@@ -6312,21 +6312,6 @@ packages:
     dependencies:
       detect-libc: 1.0.3
     dev: true
-
-  /@pixeleye/cli-devices@0.4.7:
-    resolution: {integrity: sha512-IcsQ8DJRL+JODzlDk6KmGv8z9zKL87E6QqaKObCrtZrmQfLG2s1auY/HnrR25wJuzlBe3qas6V9GbIxCsO3Ttg==}
-    dependencies:
-      playwright-core: 1.43.0
-    dev: false
-
-  /@pixeleye/playwright@0.6.1:
-    resolution: {integrity: sha512-vAnCpSdKpVHEUXp/7l1yKo7OWCKVvfhaXvdf9lp6pik6Rrxn1uLwx7DHDNSuws8ztHXPqyKGa+UzPJiAD573tw==}
-    dependencies:
-      '@pixeleye/cli-devices': 0.4.7
-      playwright-core: 1.43.0
-      rrweb-snapshot: 2.0.0-alpha.11
-      undici: 6.13.0
-    dev: false
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -17323,10 +17308,6 @@ packages:
       '@rollup/rollup-win32-ia32-msvc': 4.14.2
       '@rollup/rollup-win32-x64-msvc': 4.14.2
       fsevents: 2.3.3
-
-  /rrweb-snapshot@2.0.0-alpha.11:
-    resolution: {integrity: sha512-N0dzeJA2VhrlSOadkKwCVmV/DuNOwBH+Lhx89hAf9PQK4lCS8AP4AaylhqUdZOYHqwVjqsYel/uZ4hN79vuLhw==}
-    dev: false
 
   /rrweb-snapshot@2.0.0-alpha.13:
     resolution: {integrity: sha512-slbhNBCYjxLGCeH95a67ECCy5a22nloXp1F5wF7DCzUNw80FN7tF9Lef1sRGLNo32g3mNqTc2sWLATlKejMxYw==}
