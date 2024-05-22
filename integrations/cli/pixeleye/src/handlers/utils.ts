@@ -56,18 +56,7 @@ export function watchExit(callback: () => Promise<any>) {
       await callback();
     });
   });
-
-  process.on("SIGHUP", async () => {
-    await callback();
-  }); // CTRL+C
-  process.on("SIGQUIT", async () => {
-    await callback();
-  }); // Keyboard quit signal
-  process.on("SIGTERM", async () => {
-    await callback();
-  }); // `kill` command
 }
-
 
 export const startBooth = async ({
   buildID,
