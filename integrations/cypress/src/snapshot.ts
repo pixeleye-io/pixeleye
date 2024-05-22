@@ -37,6 +37,7 @@ export const pixeleyeSnapshot = (options: Options) => {
     const serializedDom = domSnapshot(doc, {
       recordCanvas: true,
       inlineImages: true,
+      inlineStylesheet: true,
     });
     if (!serializedDom) {
       throw new Error("Failed to serialize DOM");
