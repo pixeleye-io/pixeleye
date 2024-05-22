@@ -1,5 +1,16 @@
 # @pixeleye/storybook
 
+## 0.6.1
+
+### Patch Changes
+
+- [#288](https://github.com/pixeleye-io/pixeleye/pull/288) [`d38bd97`](https://github.com/pixeleye-io/pixeleye/commit/d38bd971fe1d40f35603fe0a8d508416894d4735) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Enabling canvas recording and inlining images
+
+- [#288](https://github.com/pixeleye-io/pixeleye/pull/288) [`e3174bc`](https://github.com/pixeleye-io/pixeleye/commit/e3174bcedaa6c5df6b5e44720a5dfcbad6fc9738) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Upgrading dom snapshotting packages
+
+- Updated dependencies [[`d38bd97`](https://github.com/pixeleye-io/pixeleye/commit/d38bd971fe1d40f35603fe0a8d508416894d4735), [`a477497`](https://github.com/pixeleye-io/pixeleye/commit/a4774978d8a65ee8e630f4eec89e124b4b8e0845), [`e3174bc`](https://github.com/pixeleye-io/pixeleye/commit/e3174bcedaa6c5df6b5e44720a5dfcbad6fc9738)]:
+  - @pixeleye/playwright@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes
