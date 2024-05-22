@@ -1,5 +1,11 @@
 # @pixeleye/cli-capture
 
+## 0.7.0
+
+### Minor Changes
+
+- [#299](https://github.com/pixeleye-io/pixeleye/pull/299) [`f8353ae`](https://github.com/pixeleye-io/pixeleye/commit/f8353ae1d0ff21e68b92d869da184bcccde57cc6) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Fixing issue where svg's wouldn't load data from an external url via use
+
 ## 0.6.0
 
 ### Minor Changes
