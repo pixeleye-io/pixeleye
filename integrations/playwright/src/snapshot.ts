@@ -67,14 +67,11 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
 
   const domSnapshot = await (page as Page).evaluate(() => {
     const r: RRWeb = (window as any).rrwebSnapshot;
-    return r.snapshot(
-      document,
-      {
-        recordCanvas: true,
-        inlineImages: true,
-        inlineStylesheet: true,
-      }
-    );
+    return r.snapshot(document, {
+      recordCanvas: true,
+      inlineImages: true,
+      inlineStylesheet: true,
+    });
   });
 
   if (!domSnapshot) {
