@@ -27,8 +27,6 @@
   ],
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
-    "@types/jsdom": "^21.1.6",
-    "jsdom": "^24.0.0",
     "playwright-core": "^1.43.0",
     "rrweb-snapshot": "2.0.0-alpha.13",
     "undici": "^6.13.0"

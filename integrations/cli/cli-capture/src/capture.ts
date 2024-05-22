@@ -5,7 +5,6 @@ import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";
 import { logger } from "@pixeleye/cli-logger";
 import { Page } from "playwright-core";
 import { createRequire } from "module";
-import fs from "fs";
 
 let rrwebScript: string | undefined;
 try {
