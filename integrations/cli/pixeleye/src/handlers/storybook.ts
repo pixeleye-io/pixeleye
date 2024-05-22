@@ -15,6 +15,8 @@ import {
 import { setEnv } from "@pixeleye/cli-env";
 
 export async function storybook(url: string, options: Config) {
+  let buildFinished = false;
+
   // Lets our integrations know we are running in a Pixeleye environment
   setEnv("PIXELEYE_RUNNING", "true");
 
@@ -37,6 +39,8 @@ export async function storybook(url: string, options: Config) {
 
   const onExitFns: Array<() => Promise<any>> = [
     async () => {
+      if (buildFinished) return;
+
       console.log(errStr("\nAborting build..."));
       await exitBuild("Interrupted");
     },
@@ -124,6 +128,7 @@ export async function storybook(url: string, options: Config) {
     });
 
   completeSpinner.succeed("Successfully completed build.");
+  buildFinished = true;
 
   if (options.waitForStatus) {
     const waitForStatus = ora("Waiting for build to finish processing").start();

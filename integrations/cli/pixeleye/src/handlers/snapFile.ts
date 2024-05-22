@@ -20,6 +20,8 @@ export async function snapFileHandler(
     sitemaps?: string[];
   }
 ) {
+  let buildFinished = false;
+
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -94,6 +96,8 @@ export async function snapFileHandler(
 
   const onExitFns: Array<() => Promise<any>> = [
     async () => {
+      if (buildFinished) return;
+
       console.log(errStr("\nAborting build..."));
       await exitBuild("Interrupted");
     },
@@ -178,9 +182,12 @@ export async function snapFileHandler(
     .catch(async (err) => {
       completeSpinner.fail("Failed to complete build.");
       await exitBuild(err);
-    });
+    })
+    .then(() => {
+      completeSpinner.succeed("Successfully completed build.");
 
-  completeSpinner.succeed("Successfully completed build.");
+      buildFinished = true;
+    });
 
   if (options.waitForStatus) {
     const waitForStatus = ora("Waiting for build to finish processing").start();

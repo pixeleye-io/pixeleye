@@ -5,6 +5,7 @@ import { SnapshotDefinition, defaultConfig } from "@pixeleye/cli-config";
 import { logger } from "@pixeleye/cli-logger";
 import { Page } from "playwright-core";
 import { createRequire } from "module";
+import fs from "fs";
 
 let rrwebScript: string | undefined;
 try {
@@ -17,14 +18,6 @@ try {
 type RRWeb = typeof rrweb;
 
 const blankPage = "<!DOCTYPE html><html><head></head><body></body></html>";
-
-type Only<T, U> = {
-  [P in keyof T]: T[P];
-} & {
-  [P in keyof U]?: never;
-};
-
-type Either<T, U> = Only<T, U> | Only<U, T>;
 
 export interface CaptureScreenshotData
   extends Omit<SnapshotDefinition, "url" | "name"> {
