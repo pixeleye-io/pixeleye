@@ -36,7 +36,7 @@
     "@types/graceful-fs": "^4.1.9",
     "@types/node": "20.12.12",
     "@types/require-relative": "^0.8.2",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.21.3",
     "rimraf": "^5.0.7"
   },
   "dependencies": {
@@ -49,12 +49,12 @@
     "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/storybook": "workspace:*",
     "chalk": "4.1.2",
-    "commander": "^12.0.0",
-    "dedent": "^1.5.1",
+    "commander": "^12.1.0",
+    "dedent": "^1.5.3",
     "eventsource": "^2.0.2",
     "graceful-fs": "^4.2.11",
     "ora": "^8.0.1",
-    "playwright-core": "^1.43.0",
+    "playwright-core": "^1.44.0",
     "rrweb-snapshot": "2.0.0-alpha.13",
     "sitemapper": "^3.2.8"
   }

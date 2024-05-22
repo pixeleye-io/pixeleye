@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "esbuild": "^0.20.2"
+    "esbuild": "^0.21.3"
   },
   "devDependencies": {
     "@chialab/esbuild-plugin-meta-url": "^0.18.2",

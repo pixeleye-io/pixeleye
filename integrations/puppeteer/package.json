@@ -26,27 +26,23 @@
     "LICENSE"
   ],
   "peerDependencies": {
-    "puppeteer": "^20 || ^21",
-    "puppeteer-core": "^20 || ^21"
+    "puppeteer": "^20 || ^21 || ^22",
+    "puppeteer-core": "^20 || ^21 || ^22"
   },
   "dependencies": {
-    "@pixeleye/cli-devices": "workspace:*",
-    "puppeteer": "^22.6.4",
-    "puppeteer-core": "^22.6.4",
-    "rrweb-snapshot": "2.0.0-alpha.13",
-    "undici": "^6.13.0"
-  },
-  "devDependencies": {
     "@pixeleye/cli-booth": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
+    "@pixeleye/cli-devices": "workspace:*",
+    "puppeteer": "^22.9.0",
+    "puppeteer-core": "^22.9.0",
+    "rrweb-snapshot": "2.0.0-alpha.13",
+    "undici": "^6.18.1"
+  },
+  "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@swc-node/register": "^1.9.0",
     "@types/node": "20.12.12",
-    "execa": "^8.0.1",
-    "get-port": "^7.1.0",
-    "pptr-testing-library": "^0.8.0",
     "rimraf": "^5.0.7",
     "typescript": "5.4.5",
     "vitest": "^1.6.0"

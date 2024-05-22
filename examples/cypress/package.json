@@ -16,7 +16,7 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "cypress": "^13.7.3",
+    "cypress": "^13.10.0",
     "typescript": "^5.4.5"
   }
 }

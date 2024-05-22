@@ -7,7 +7,7 @@
   "dependencies": {
     "@pixeleye/playwright": "0.8.0",
     "pixeleye": "workspace:*",
-    "playwright": "^1.43.0"
+    "playwright": "^1.44.0"
   },
   "devDependencies": {
     "@pixeleye/tsconfig": "workspace:*",

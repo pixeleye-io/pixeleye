@@ -1,6 +1,6 @@
 import { API } from "@/libs";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
-import { UserAPI } from "@pixeleye/api/src/services/user";
+import { Services } from "@pixeleye/api";
 
 export const userKeys = createQueryKeys("user", {
   get: (cookie: string = "") => ({
@@ -14,7 +14,7 @@ export const userKeys = createQueryKeys("user", {
   }),
   update: (cookie: string = "") => ({
     queryKey: ["update"],
-    queryFn: (user: UserAPI["PATCH"]["/v1/user/me"]["req"]) =>
+    queryFn: (user: Services["PATCH"]["/v1/user/me"]["req"]) =>
       API.patch("/v1/user/me", {
         headers: {
           cookie,

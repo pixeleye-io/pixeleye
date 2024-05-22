@@ -26,25 +26,20 @@
     "LICENSE"
   ],
   "peerDependencies": {
-    "cypress": "^3"
+    "cypress": "^13"
   },
   "dependencies": {
-    "@pixeleye/cli-api": "workspace:*",
+    "@pixeleye/cli-booth": "workspace:*",
     "@pixeleye/cli-devices": "workspace:*",
-    "cypress": "^13.7.3",
     "rrweb-snapshot": "2.0.0-alpha.13",
-    "undici": "^6.13.0"
+    "undici": "^6.18.1"
   },
   "devDependencies": {
-    "@pixeleye/cli-booth": "workspace:*",
-    "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@swc-node/register": "^1.9.0",
     "@types/node": "20.12.12",
-    "execa": "^8.0.1",
-    "get-port": "^7.1.0",
+    "cypress": "^13.10.0",
     "rimraf": "^5.0.7",
     "typescript": "5.4.5"
   }
