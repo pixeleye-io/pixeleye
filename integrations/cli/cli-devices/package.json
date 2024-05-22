@@ -28,7 +28,7 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.7"
   },
   "dependencies": {
     "playwright-core": "^1.43.0"

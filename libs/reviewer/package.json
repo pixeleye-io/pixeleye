@@ -11,7 +11,7 @@
   "devDependencies": {
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/react": "18.2.77"
+    "@types/react": "18.3.2"
   },
   "peerDependencies": {
     "next": "^14",
@@ -24,7 +24,7 @@
     "@pixeleye/device-logos": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.5",
-    "@types/react-dom": "18.2.25",
+    "@types/react-dom": "18.3.0",
     "class-variance-authority": "^0.7.0",
     "framer-motion": "^11.0.28",
     "next": "14.2.0",

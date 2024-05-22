@@ -42,10 +42,10 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@swc-node/register": "^1.9.0",
-    "@types/node": "20.12.7",
+    "@types/node": "20.12.12",
     "execa": "^8.0.1",
     "get-port": "^7.1.0",
-    "rimraf": "^5.0.5",
+    "rimraf": "^5.0.7",
     "typescript": "5.4.5"
   }
 }

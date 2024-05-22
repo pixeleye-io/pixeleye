@@ -13,13 +13,12 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@t3-oss/env-core": "0.9.1",
     "@types/eventsource": "^1.1.15",
-    "@types/node": "20.12.7",
+    "@types/node": "20.12.12",
     "@types/wait-on": "^5.3.4",
     "env-cmd": "^10.1.0",
-    "pactum": "^3.6.6",
     "typescript": "^5.4.5",
     "undici": "^6.13.0",
-    "vitest": "^1.5.0",
+    "vitest": "^1.6.0",
     "zod": "^3.22.4"
   },
   "dependencies": {
@@ -28,6 +27,7 @@
     "@pixeleye/api": "workspace:*",
     "eventsource": "^2.0.2",
     "nanoid": "^5.0.7",
+    "pactum": "^3.6.9",
     "pactum-matchers": "^1.1.7",
     "wait-on": "^7.2.0"
   }

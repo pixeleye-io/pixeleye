@@ -34,10 +34,10 @@
     "@pixeleye/tsconfig": "workspace:*",
     "@types/eventsource": "^1.1.15",
     "@types/graceful-fs": "^4.1.9",
-    "@types/node": "20.12.7",
+    "@types/node": "20.12.12",
     "@types/require-relative": "^0.8.2",
     "esbuild": "^0.20.2",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.7"
   },
   "dependencies": {
     "@pixeleye/cli-api": "workspace:*",

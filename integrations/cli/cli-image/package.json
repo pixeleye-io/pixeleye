@@ -28,8 +28,8 @@
     "@pixeleye/esbuild": "workspace:*",
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
-    "@types/node": "20.12.7",
-    "rimraf": "^5.0.5"
+    "@types/node": "20.12.12",
+    "rimraf": "^5.0.7"
   },
   "dependencies": {
     "image-size": "^1.1.1",

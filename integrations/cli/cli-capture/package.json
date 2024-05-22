@@ -30,13 +30,13 @@
     "@pixeleye/eslint-config": "workspace:*",
     "@pixeleye/tsconfig": "workspace:*",
     "@types/object-hash": "^3.0.6",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.7"
   },
   "dependencies": {
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/cli-logger": "workspace:*",
-    "rrweb-snapshot": "2.0.0-alpha.13",
     "object-hash": "^3.0.0",
-    "playwright-core": "^1.43.0"
+    "playwright-core": "^1.43.0",
+    "rrweb-snapshot": "2.0.0-alpha.13"
   }
 }

@@ -11,8 +11,8 @@
   },
   "devDependencies": {
     "@pixeleye/tsconfig": "workspace:*",
-    "@playwright/test": "^1.43.0",
-    "@types/node": "20.12.7",
+    "@playwright/test": "^1.44.0",
+    "@types/node": "20.12.12",
     "typescript": "^5.4.5"
   }
 }
