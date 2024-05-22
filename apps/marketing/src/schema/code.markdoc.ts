@@ -1,4 +1,4 @@
-import { nodes, Node, Config, Tag } from "@markdoc/markdoc";
+import { Node } from "@markdoc/markdoc";
 
 import { Code as CodeComponent } from "@pixeleye/ui";
 
