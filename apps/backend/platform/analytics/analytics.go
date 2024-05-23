@@ -45,7 +45,7 @@ func FilterProperties(properties posthog.Properties) posthog.Properties {
 	return filteredProperties
 }
 
-func Track[K posthog.Identify | posthog.Capture](message K) {
+func Identify(message posthog.Identify) {
 
 	if os.Getenv("DISABLE_ANALYTICS") == "true" {
 		return
@@ -62,20 +62,37 @@ func Track[K posthog.Identify | posthog.Capture](message K) {
 		log.Error().Err(err).Msg("Error getting analytics client")
 	}
 
-	var msgToSend posthog.Message
-
 	if os.Getenv("PIXELEYE_HOSTING") != "true" {
-		switch msg := any(message).(type) {
-		case posthog.Identify:
-			msg.Properties = FilterProperties(msg.Properties)
-			msgToSend = msg
-		case posthog.Capture:
-			msg.Properties = FilterProperties(msg.Properties)
-			msgToSend = msg
-		}
+		message.Properties = FilterProperties(message.Properties)
 	}
 
-	if err := client.Enqueue(msgToSend); err != nil {
+	if err := client.Enqueue(message); err != nil {
+		log.Error().Err(err).Msg("Error sending analytics event")
+	}
+}
+
+func Track(message posthog.Capture) {
+
+	if os.Getenv("DISABLE_ANALYTICS") == "true" {
+		return
+	}
+
+	apiKey := os.Getenv("POSTHOG_API_KEY")
+	if apiKey == "" {
+		log.Error().Msg("POSTHOG_API_KEY is not set")
+		return
+	}
+
+	client, err := getClient(apiKey)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting analytics client")
+	}
+
+	if os.Getenv("PIXELEYE_HOSTING") != "true" {
+		message.Properties = FilterProperties(message.Properties)
+	}
+
+	if err := client.Enqueue(message); err != nil {
 		log.Error().Err(err).Msg("Error sending analytics event")
 	}
 }

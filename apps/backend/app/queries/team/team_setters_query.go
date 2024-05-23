@@ -63,7 +63,7 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 		Properties: posthog.NewProperties().Set("team_id", team.ID).Set("team_type", team.Type).Set("team_url", team.URL).Set("team_name", team.Name).Set("team_avatar_url", team.AvatarURL).Set("team_owner_id", team.OwnerID),
 	})
 
-	analytics.Track(posthog.Identify{
+	analytics.Identify(posthog.Identify{
 		DistinctId: team.ID,
 		Properties: posthog.NewProperties().Set("team_id", team.ID).Set("team_type", team.Type).Set("team_url", team.URL).Set("team_name", team.Name).Set("team_avatar_url", team.AvatarURL).Set("team_owner_id", team.OwnerID).Set("team_creator_email", creator.Email).Set("team_creator_name", creator.Name),
 	})
