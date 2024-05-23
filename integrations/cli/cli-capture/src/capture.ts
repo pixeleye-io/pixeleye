@@ -80,7 +80,11 @@ async function internalCaptureScreenshot(
 
     await page.goto(data.url, {
       timeout: 60_000,
+      waitUntil: "domcontentloaded",
     });
+
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    process.env["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = "true";
 
     await (page as Page).addScriptTag({
       path: rrwebScript,
