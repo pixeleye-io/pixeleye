@@ -1,5 +1,12 @@
 # @pixeleye/puppeteer
 
+## 0.7.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/cli-booth@0.6.3
+
 ## 0.7.1
 
 ### Patch Changes

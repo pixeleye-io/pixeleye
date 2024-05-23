@@ -1,5 +1,13 @@
 # pixeleye
 
+## 0.8.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/cli-booth@0.6.3
+  - @pixeleye/storybook@0.6.4
+
 ## 0.8.2
 
 ### Patch Changes

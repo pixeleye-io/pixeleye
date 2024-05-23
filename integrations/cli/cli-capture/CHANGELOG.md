@@ -1,5 +1,11 @@
 # @pixeleye/cli-capture
 
+## 0.7.2
+
+### Patch Changes
+
+- [#306](https://github.com/pixeleye-io/pixeleye/pull/306) [`edbd77c`](https://github.com/pixeleye-io/pixeleye/commit/edbd77c984f52c658c23b411290a8b3aaaad19ad) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improving page proxy
+
 ## 0.7.1
 
 ### Patch Changes
