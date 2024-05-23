@@ -61,17 +61,26 @@ async function internalCaptureScreenshot(
   page: Page,
   data: CaptureScreenshotData
 ): Promise<Buffer> {
-  await page
-    .goto(data.url, {
-      timeout: 60_000,
-      waitUntil: "commit",
-    })
-    .catch((err) => {
-      if (!data.serializedDom) throw err;
-    });
+  if (!data.url) throw new Error("No url provided");
 
   if (data.serializedDom) {
-    await page.setContent(blankPage);
+    await page.route(
+      "**/*",
+      (route) => {
+        route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: blankPage,
+        });
+      },
+      {
+        times: 1,
+      }
+    );
+
+    await page.goto(data.url, {
+      timeout: 60_000,
+    });
 
     await (page as Page).addScriptTag({
       path: rrwebScript,
@@ -90,8 +99,9 @@ async function internalCaptureScreenshot(
       });
     }, data.serializedDom);
   } else {
-    await page.close();
-    throw new Error("No url or serializedDom provided");
+    await page.goto(data.url, {
+      timeout: 60_000,
+    });
   }
 
   const networkIdle = page.waitForLoadState("networkidle");
