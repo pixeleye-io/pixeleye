@@ -13,7 +13,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/platform/analytics"
 )
 
-func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creatorID string) error {
+func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creator models.User) error {
 	createTeamQuery := `INSERT INTO team (id, name, type, avatar_url, url, created_at, updated_at, owner_id, external_id) VALUES (:id, :name, :type, :avatar_url, :url, :created_at, :updated_at, :owner_id, :external_id)`
 	createUserOnTeamQuery := `INSERT INTO team_users (team_id, user_id, role, type) VALUES (:team_id, :user_id, :role, :type)`
 
@@ -33,7 +33,7 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 	if team.Type == models.TEAM_TYPE_USER {
 		// This ensures that the a user can only ever have one personal team.
 		// They can own as many other teams as they want.
-		team.OwnerID = &creatorID
+		team.OwnerID = &creator.ID
 	}
 
 	if _, err = q.NamedExecContext(ctx, createTeamQuery, team); err != nil {
@@ -47,7 +47,7 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 
 	userOnTeam := models.TeamMember{
 		TeamID:   team.ID,
-		UserID:   creatorID,
+		UserID:   creator.ID,
 		Role:     models.TEAM_MEMBER_ROLE_OWNER,
 		RoleSync: false,
 		Type:     teamType,
@@ -61,6 +61,11 @@ func (q *TeamQueriesTx) CreateTeam(ctx context.Context, team *models.Team, creat
 		DistinctId: team.ID,
 		Event:      "Team Created",
 		Properties: posthog.NewProperties().Set("team_id", team.ID).Set("team_type", team.Type).Set("team_url", team.URL).Set("team_name", team.Name).Set("team_avatar_url", team.AvatarURL).Set("team_owner_id", team.OwnerID),
+	})
+
+	analytics.Track(posthog.Identify{
+		DistinctId: team.ID,
+		Properties: posthog.NewProperties().Set("team_id", team.ID).Set("team_type", team.Type).Set("team_url", team.URL).Set("team_name", team.Name).Set("team_avatar_url", team.AvatarURL).Set("team_owner_id", team.OwnerID).Set("team_creator_email", creator.Email).Set("team_creator_name", creator.Name),
 	})
 
 	return nil

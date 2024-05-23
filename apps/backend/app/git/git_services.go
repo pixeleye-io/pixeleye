@@ -95,7 +95,7 @@ func SyncUserTeamsAndAccount(ctx context.Context, user models.User) error {
 		return err
 	}
 
-	teams, err := db.GetUsersTeams(ctx, user.ID)
+	teams, err := db.GetUsersTeams(ctx, user)
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
