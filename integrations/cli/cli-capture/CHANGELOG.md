@@ -1,5 +1,11 @@
 # @pixeleye/cli-capture
 
+## 0.7.3
+
+### Patch Changes
+
+- [#308](https://github.com/pixeleye-io/pixeleye/pull/308) [`7cd62c3`](https://github.com/pixeleye-io/pixeleye/commit/7cd62c39171a95527bc562c97f7a58f679249ba9) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Disabling playwrights built in wait for font loading
+
 ## 0.7.2
 
 ### Patch Changes
