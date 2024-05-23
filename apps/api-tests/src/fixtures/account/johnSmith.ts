@@ -2,7 +2,7 @@ import { CreateIdentityBody } from "@ory/kratos-client";
 import { nanoid } from "nanoid";
 
 export const JohnSmithsPassword = nanoid(8);
-export const randomId = (Math.random() + 1).toString(36).substring(7);
+export const randomId = nanoid(4);
 export const getJohnSmithEmail = (id: string) =>
   `john.smith+${randomId}${id}@pixeleye.dev`;
 
