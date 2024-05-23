@@ -1,6 +1,6 @@
 {
   "name": "@pixeleye/cli-booth",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "private": false,
   "license": "AGPL-3.0",
   "main": "./src/index.ts",
