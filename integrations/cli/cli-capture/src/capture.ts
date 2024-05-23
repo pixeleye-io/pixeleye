@@ -83,9 +83,6 @@ async function internalCaptureScreenshot(
       waitUntil: "domcontentloaded",
     });
 
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
-    process.env["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = "true";
-
     await (page as Page).addScriptTag({
       path: rrwebScript,
     });
@@ -108,7 +105,8 @@ async function internalCaptureScreenshot(
     });
   }
 
-  const networkIdle = page.waitForLoadState("networkidle");
+  // We want to start waiting for network idle as soon as possible
+  const awaiters: Promise<unknown>[] = [page.waitForLoadState("networkidle")];
 
   await page.waitForLoadState("load");
   await page.waitForLoadState("domcontentloaded");
@@ -126,15 +124,17 @@ async function internalCaptureScreenshot(
       }, data.css);
   }
 
-  await page
-    .waitForFunction(() => document.fonts.ready)
-    .catch(() => {
-      logger.info("Timed out waiting for document fonts to be ready");
-    });
+  awaiters.push(
+    page
+      .waitForFunction(() => document.fonts.ready)
+      .catch(() => {
+        logger.info("Timed out waiting for document fonts to be ready");
+      })
+  );
 
   if (data.waitForSelectors && data.waitForSelectors.length > 0)
-    Promise.all(
-      data.waitForSelectors.map((selector) =>
+    awaiters.push(
+      ...data.waitForSelectors.map((selector) =>
         page.waitForSelector(selector, {
           timeout: 60_000,
         })
@@ -142,15 +142,15 @@ async function internalCaptureScreenshot(
     );
 
   if (data.selector)
-    await page.waitForSelector(data.selector, {
-      timeout: 60_000,
-    });
+    awaiters.push(
+      page.waitForSelector(data.selector, {
+        timeout: 60_000,
+      })
+    );
 
-  if (data.wait) {
-    await page.waitForTimeout(data.wait);
-  }
+  if (data.wait) awaiters.push(page.waitForTimeout(data.wait));
 
-  await networkIdle;
+  await Promise.all(awaiters);
 
   const locatedPage = data.selector ? page.locator(data.selector) : page;
 
@@ -163,6 +163,7 @@ async function internalCaptureScreenshot(
     type: "png",
     mask,
     maskColor: data?.maskColor || defaultConfig.maskColor,
+    timeout: 60_000,
   });
 
   await page.close();
