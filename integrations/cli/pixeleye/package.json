@@ -54,8 +54,8 @@
     "eventsource": "^2.0.2",
     "graceful-fs": "^4.2.11",
     "ora": "^8.0.1",
-    "playwright-core": "^1.44.0",
-    "rrweb-snapshot": "2.0.0-alpha.13",
+    "playwright-core": "^1.44.1",
+    "rrweb-snapshot": "2.0.0-alpha.14",
     "sitemapper": "^3.2.8"
   }
 }

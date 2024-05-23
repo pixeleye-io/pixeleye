@@ -422,15 +422,15 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/cli/pixeleye
       playwright:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
     devDependencies:
       '@pixeleye/tsconfig':
         specifier: workspace:*
         version: link:../../configs/tsconfig
       '@playwright/test':
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       '@types/node':
         specifier: 20.12.12
         version: 20.12.12
@@ -447,8 +447,8 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/cli/pixeleye
       playwright:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       puppeteer:
         specifier: ^22.9.0
         version: 22.9.0(typescript@5.4.5)
@@ -543,8 +543,8 @@ importers:
         specifier: ^5.0.7
         version: 5.0.7
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
 
   integrations/cli/cli-capture:
     dependencies:
@@ -558,11 +558,11 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       playwright-core:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
     devDependencies:
       '@pixeleye/cli-config':
         specifier: workspace:*
@@ -617,8 +617,8 @@ importers:
   integrations/cli/cli-devices:
     dependencies:
       playwright-core:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -689,8 +689,8 @@ importers:
   integrations/cli/cli-install:
     dependencies:
       playwright-core:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -771,11 +771,11 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       playwright-core:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       sitemapper:
         specifier: ^3.2.8
         version: 3.2.8
@@ -820,8 +820,8 @@ importers:
         specifier: workspace:*
         version: link:../cli/cli-devices
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       undici:
         specifier: ^6.18.1
         version: 6.18.1
@@ -860,11 +860,11 @@ importers:
         specifier: workspace:*
         version: link:../cli/cli-devices
       playwright-core:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       undici:
         specifier: ^6.18.1
         version: 6.18.1
@@ -909,8 +909,8 @@ importers:
         specifier: ^22.9.0
         version: 22.9.0
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
       undici:
         specifier: ^6.18.1
         version: 6.18.1
@@ -952,11 +952,11 @@ importers:
         specifier: ^7.6.17
         version: 7.6.17(react-dom@18.3.1)(react@18.3.1)
       playwright-core:
-        specifier: ^1.44.0
-        version: 1.44.0
+        specifier: ^1.44.1
+        version: 1.44.1
       rrweb-snapshot:
-        specifier: 2.0.0-alpha.13
-        version: 2.0.0-alpha.13
+        specifier: 2.0.0-alpha.14
+        version: 2.0.0-alpha.14
     devDependencies:
       '@pixeleye/esbuild':
         specifier: workspace:*
@@ -1787,7 +1787,7 @@ packages:
       '@babel/core': 7.24.5
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-environment-visitor': 7.22.20
-      '@babel/helper-wrap-function': 7.24.5
+      '@babel/helper-wrap-function': 7.22.20
     dev: true
 
   /@babel/helper-replace-supers@7.22.20(@babel/core@7.23.7):
@@ -1885,16 +1885,6 @@ packages:
       '@babel/helper-function-name': 7.23.0
       '@babel/template': 7.22.15
       '@babel/types': 7.23.6
-    dev: false
-
-  /@babel/helper-wrap-function@7.24.5:
-    resolution: {integrity: sha512-/xxzuNvgRl4/HLNKvnFwdhdgN3cpLxgLROeLDl83Yx0AJ1SGvq1ak0OszTOjDfiB8Vx03eJbeDWh9r+jCCWttw==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/helper-function-name': 7.23.0
-      '@babel/template': 7.24.0
-      '@babel/types': 7.24.5
-    dev: true
 
   /@babel/helpers@7.23.8:
     resolution: {integrity: sha512-KDqYz4PiOWvDFrdHLPhKtCThtIcKVy6avWD2oG4GEvyQ+XDZwHD4YQd+H2vNMnq2rkdxsDkU82T+Vk8U/WXHRQ==}
@@ -1940,7 +1930,6 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.23.6
-    dev: false
 
   /@babel/parser@7.23.9:
     resolution: {integrity: sha512-9tcKgqKbs3xGJ+NtKF2ndOBBLVwPjl1SHxPQkd36r3Dlirw3xWUeGaTbqr7uGZcTaxkVNwc+03SVP7aCdWrTlA==}
@@ -4644,7 +4633,6 @@ packages:
       '@babel/code-frame': 7.23.5
       '@babel/parser': 7.23.6
       '@babel/types': 7.23.6
-    dev: false
 
   /@babel/template@7.24.0:
     resolution: {integrity: sha512-Bkf2q8lMB0AFpX0NFEqSbx1OkTHf0f+0j82mkw+ZpzBnkk7e9Ql0891vlfgi+kHwOk8tQjiQHpqh4LaSa0fKEA==}
@@ -6502,12 +6490,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@playwright/test@1.44.0:
-    resolution: {integrity: sha512-rNX5lbNidamSUorBhB4XZ9SQTjAqfe5M+p37Z8ic0jPFBMo5iCtQz1kRWkEMg+rYOKSlVycpQmpqjSFq7LXOfg==}
+  /@playwright/test@1.44.1:
+    resolution: {integrity: sha512-1hZ4TNvD5z9VuhNJ/walIjvMVvYkZKf71axoF/uiAqpntQJXpG64dlXhoDXE3OczPuTuvjf/M5KWFg5VAVUS3Q==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      playwright: 1.44.0
+      playwright: 1.44.1
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.13(react-refresh@0.14.2)(webpack@5.91.0):
@@ -10536,7 +10524,7 @@ packages:
     requiresBuild: true
     dependencies:
       bare-events: 2.2.2
-      bare-path: 2.1.2
+      bare-path: 2.1.3
       bare-stream: 1.0.0
     dev: false
     optional: true
@@ -10547,8 +10535,8 @@ packages:
     dev: false
     optional: true
 
-  /bare-path@2.1.2:
-    resolution: {integrity: sha512-o7KSt4prEphWUHa3QUwCxUI00R86VdjiuxmJK0iNVDHYPGo+HsDaVCnqCmPbf/MiW1ok8F4p3m8RTHlWk8K2ig==}
+  /bare-path@2.1.3:
+    resolution: {integrity: sha512-lh/eITfU8hrj9Ru5quUp0Io1kJWIk1bTjzo7JH1P5dWmQ2EL4hFUlfI8FonAhSlgIfhn63p84CDY/x+PisgcXA==}
     requiresBuild: true
     dependencies:
       bare-os: 2.3.0
@@ -16019,17 +16007,17 @@ packages:
       mlly: 1.7.0
       pathe: 1.1.2
 
-  /playwright-core@1.44.0:
-    resolution: {integrity: sha512-ZTbkNpFfYcGWohvTTl+xewITm7EOuqIqex0c7dNZ+aXsbrLj0qI8XlGKfPpipjm0Wny/4Lt4CJsWJk1stVS5qQ==}
+  /playwright-core@1.44.1:
+    resolution: {integrity: sha512-wh0JWtYTrhv1+OSsLPgFzGzt67Y7BE/ZS3jEqgGBlp2ppp1ZDj8c+9IARNW4dwf1poq5MgHreEM2KV/GuR4cFA==}
     engines: {node: '>=16'}
     hasBin: true
 
-  /playwright@1.44.0:
-    resolution: {integrity: sha512-F9b3GUCLQ3Nffrfb6dunPOkE5Mh68tR7zN32L4jCk4FjQamgesGay7/dAAe1WaMEGV04DkdJfcJzjoCKygUaRQ==}
+  /playwright@1.44.1:
+    resolution: {integrity: sha512-qr/0UJ5CFAtloI3avF95Y0L1xQo6r3LQArLIg/z/PoGJ6xa+EwzrwO5lpNr/09STxdHuUoP2mvuELJS+hLdtgg==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      playwright-core: 1.44.0
+      playwright-core: 1.44.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -17073,8 +17061,8 @@ packages:
       '@rollup/rollup-win32-x64-msvc': 4.18.0
       fsevents: 2.3.3
 
-  /rrweb-snapshot@2.0.0-alpha.13:
-    resolution: {integrity: sha512-slbhNBCYjxLGCeH95a67ECCy5a22nloXp1F5wF7DCzUNw80FN7tF9Lef1sRGLNo32g3mNqTc2sWLATlKejMxYw==}
+  /rrweb-snapshot@2.0.0-alpha.14:
+    resolution: {integrity: sha512-HuJd7iZauzhf7XI5FFtCGeUXkHk1mgc8yvH9Km9zB09Yk2cr0bW4eKx9fWQhRFiry9yXf/vOMkUy403xTLPIrQ==}
 
   /run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -17877,7 +17865,7 @@ packages:
       tar-stream: 3.1.7
     optionalDependencies:
       bare-fs: 2.3.0
-      bare-path: 2.1.2
+      bare-path: 2.1.3
     dev: false
 
   /tar-stream@2.2.0:
