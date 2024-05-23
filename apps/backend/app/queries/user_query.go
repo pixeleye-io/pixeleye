@@ -20,6 +20,16 @@ type UserQueries struct {
 	*sqlx.DB
 }
 
+func (q *UserQueries) GetUserByID(ctx context.Context, id string) (models.User, error) {
+	query := `SELECT * FROM users WHERE id = $1`
+
+	user := models.User{}
+
+	err := q.GetContext(ctx, &user, query, id)
+
+	return user, err
+}
+
 func (q *UserQueries) GetUserByAuthID(ctx context.Context, authID string) (models.User, error) {
 	query := `SELECT * FROM users WHERE auth_id = $1`
 
@@ -157,19 +167,19 @@ func (q *UserQueries) CreateUser(ctx context.Context, userID string, userTraits 
 	return user, nil
 }
 
-func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Team, error) {
+func (q *UserQueries) GetUsersTeams(ctx context.Context, user models.User) ([]models.Team, error) {
 	query := `SELECT team.*, team_users.role, EXISTS(select * from git_installation where git_installation.team_id = team.id) as has_install, (SELECT COUNT(*) FROM user_referral WHERE user_referral.referrer_team_id = team.id OR user_referral.team_id = team.id) AS referrals FROM team JOIN team_users ON team.id = team_users.team_id WHERE team_users.user_id = $1`
 
 	teams := []models.Team{}
 
-	if err := q.Select(&teams, query, id); err != nil && err != sql.ErrNoRows {
+	if err := q.Select(&teams, query, user.ID); err != nil && err != sql.ErrNoRows {
 		return teams, err
 	}
 
 	personalTeamExists := false
 
 	for _, team := range teams {
-		if team.Type == "user" && utils.SafeDeref(team.OwnerID) == id {
+		if team.Type == "user" && utils.SafeDeref(team.OwnerID) == user.ID {
 			personalTeamExists = true
 		}
 	}
@@ -187,18 +197,18 @@ func (q *UserQueries) GetUsersTeams(ctx context.Context, id string) ([]models.Te
 		team := models.Team{
 			Type:    models.TEAM_TYPE_USER,
 			Name:    "Personal",
-			OwnerID: &id,
+			OwnerID: &user.ID,
 		}
 
 		// This is a new user, so we need to create a new team for them.
 
-		err = qt.CreateTeam(ctx, &team, id)
+		err = qt.CreateTeam(ctx, &team, user)
 
 		if driverErr, ok := err.(*pq.Error); ok {
 			if driverErr.Code == pq.ErrorCode("23505") {
 				log.Error().Err(err).Msg("Duplicate key error, user already has a personal team.")
 				// We have a duplicate key error, so have hit a race condition where another request has created the team for us.
-				if err := q.Select(&teams, query, id); err != nil {
+				if err := q.Select(&teams, query, user.ID); err != nil {
 					return teams, err
 				}
 				return teams, nil
@@ -237,15 +247,15 @@ func (q *UserQueries) AddUserReferral(ctx context.Context, teamID, referralTeamI
 	return err
 }
 
-func (q *UserQueries) GetUsersPersonalTeam(ctx context.Context, id string) (models.Team, error) {
-	teams, err := q.GetUsersTeams(ctx, id)
+func (q *UserQueries) GetUsersPersonalTeam(ctx context.Context, user models.User) (models.Team, error) {
+	teams, err := q.GetUsersTeams(ctx, user)
 
 	if err != nil {
 		return models.Team{}, err
 	}
 
 	for _, team := range teams {
-		if team.Type == models.TEAM_TYPE_USER && utils.SafeDeref(team.OwnerID) == id {
+		if team.Type == models.TEAM_TYPE_USER && utils.SafeDeref(team.OwnerID) == user.ID {
 			return team, nil
 		}
 	}

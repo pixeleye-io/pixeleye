@@ -45,7 +45,7 @@ func FilterProperties(properties posthog.Properties) posthog.Properties {
 	return filteredProperties
 }
 
-func Track(message posthog.Capture) {
+func Track[K posthog.Identify | posthog.Capture](message K) {
 
 	if os.Getenv("DISABLE_ANALYTICS") == "true" {
 		return
@@ -62,11 +62,20 @@ func Track(message posthog.Capture) {
 		log.Error().Err(err).Msg("Error getting analytics client")
 	}
 
+	var msgToSend posthog.Message
+
 	if os.Getenv("PIXELEYE_HOSTING") != "true" {
-		message.Properties = FilterProperties(message.Properties)
+		switch msg := any(message).(type) {
+		case posthog.Identify:
+			msg.Properties = FilterProperties(msg.Properties)
+			msgToSend = msg
+		case posthog.Capture:
+			msg.Properties = FilterProperties(msg.Properties)
+			msgToSend = msg
+		}
 	}
 
-	if err := client.Enqueue(message); err != nil {
+	if err := client.Enqueue(msgToSend); err != nil {
 		log.Error().Err(err).Msg("Error sending analytics event")
 	}
 }
