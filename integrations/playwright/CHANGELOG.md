@@ -1,5 +1,12 @@
 # @pixeleye/playwright
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/cli-booth@0.6.2
+
 ## 0.8.0
 
 ### Minor Changes

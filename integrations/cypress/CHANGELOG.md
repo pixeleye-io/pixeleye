@@ -1,5 +1,12 @@
 # @pixeleye/cypress
 
+## 0.6.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @pixeleye/cli-booth@0.6.2
+
 ## 0.6.0
 
 ### Minor Changes
