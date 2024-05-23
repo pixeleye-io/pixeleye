@@ -1,5 +1,11 @@
 # @pixeleye/cli-capture
 
+## 0.7.1
+
+### Patch Changes
+
+- [#304](https://github.com/pixeleye-io/pixeleye/pull/304) [`4b8ba1f`](https://github.com/pixeleye-io/pixeleye/commit/4b8ba1f184a961b46aa419f4be681cb284fc21b0) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Catching errors when navigating to a page intentend to be repopulated
+
 ## 0.7.0
 
 ### Minor Changes
