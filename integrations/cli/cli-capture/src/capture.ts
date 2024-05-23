@@ -61,10 +61,14 @@ async function internalCaptureScreenshot(
   page: Page,
   data: CaptureScreenshotData
 ): Promise<Buffer> {
-  await page.goto(data.url, {
-    timeout: 60_000,
-    waitUntil: "commit",
-  });
+  await page
+    .goto(data.url, {
+      timeout: 60_000,
+      waitUntil: "commit",
+    })
+    .catch((err) => {
+      if (!data.serializedDom) throw err;
+    });
 
   if (data.serializedDom) {
     await page.setContent(blankPage);
