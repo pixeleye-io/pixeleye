@@ -1,5 +1,14 @@
 # @pixeleye/cli-config
 
+## 0.6.8
+
+### Patch Changes
+
+- [`9c08dad`](https://github.com/pixeleye-io/pixeleye/commit/9c08dadb1115de7afdb2561dd63cd742b6b5c5c3) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Exposing inner playwright scale option
+
+- Updated dependencies [[`6e63036`](https://github.com/pixeleye-io/pixeleye/commit/6e6303693526024ba99e2ac786bf4a99b45b03cd)]:
+  - @pixeleye/cli-env@0.6.2
+
 ## 0.6.7
 
 ### Patch Changes
