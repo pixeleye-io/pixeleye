@@ -59,6 +59,14 @@ export type SnapshotDefinition = {
    * @example "body { background-color: red; }"
    */
   css?: string;
+
+  /**
+   * The scaling for the screenshot.
+   * When set to "css", screenshot will have a single pixel per each css pixel on the page. For high-dpi devices, this will keep screenshots small. Using "device" option will produce a single pixel per each device pixel, so screenshots of high-dpi devices will be twice as large or even larger.
+   *
+   * @default "device"
+   */
+  scale?: "device" | "css";
 };
 
 export type StorybookVariant = {
@@ -153,6 +161,16 @@ export type Config = {
   snapshotFiles?:
     | string[]
     | ((config: ConfigWithoutSnapshotFiles) => Promise<string[]>);
+
+  /**
+   * The scaling for the screenshot.
+   * When set to "css", screenshot will have a single pixel per each css pixel on the page. For high-dpi devices, this will keep screenshots small. Using "device" option will produce a single pixel per each device pixel, so screenshots of high-dpi devices will be twice as large or even larger.
+   *
+   * You can override this on a per snapshot basis.
+   *
+   * @default "device"
+   */
+  scale?: "device" | "css";
 };
 
 export type ConfigWithoutSnapshotFiles = Omit<Config, "snapshotFiles">;

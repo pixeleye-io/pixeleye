@@ -162,6 +162,7 @@ async function internalCaptureScreenshot(
     fullPage: data.fullPage,
     type: "png",
     mask,
+    scale: data.scale || "device",
     maskColor: data?.maskColor || defaultConfig.maskColor,
   });
 

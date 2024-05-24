@@ -32,6 +32,7 @@ export interface Options {
   maskColor?: string;
   css?: string;
   wait?: number;
+  scale?: "device" | "css";
 }
 
 export async function pixeleyeSnapshot(
@@ -100,6 +101,7 @@ export async function pixeleyeSnapshot(
     url: page.url(),
     waitForSelectors: options.waitForSelectors,
     css,
+    scale: options.scale || config.scale,
   };
 
   const res = await snapshot(opts, snap).catch((err) => {
