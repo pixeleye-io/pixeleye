@@ -86,14 +86,19 @@ export default config;
 
 {% /tabs %}
 
+### Import Pixeleye into your support files
+
+```cypress/support/e2e.ts
+import "@pixeleye/cypress";
+```
+
 ### Adding to your tests
 
 ```someTest.cy.ts
-import { pixeleyeSnapshot } from "@pixeleye/cypress";
 
 // ...
 
-  await pixeleyeSnapshot({
+  await cy.pixeleyeSnapshot({
     name: "landing-header",
   });
 
