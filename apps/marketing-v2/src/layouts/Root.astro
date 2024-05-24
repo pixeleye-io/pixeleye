@@ -1,0 +1,129 @@
+---
+import "@fontsource-variable/inter";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="darkd">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+<style is:global>
+  :root {
+    --color-surface: 255 248 247;
+    --color-on-surface: 32 26 27;
+    --color-surface-variant: 243 221 224;
+    --color-on-surface-variant: 81 67 70;
+    --color-outline: 132 115 118;
+    --color-outline-variant: 214 194 197;
+    --color-shadow: 0 0 0;
+    --color-scrim: 0 0 0;
+    --color-inverse-surface: 53 47 48;
+    --color-inverse-on-surface: 250 238 239;
+    --color-inverse-primary: 255 177 195;
+    --color-primary-fixed: 255 217 224;
+    --color-surface-dim: 227 215 216;
+    --color-surface-bright: 255 248 247;
+    --color-surface-container-lowest: 255 255 255;
+    --color-surface-container-low: 253 241 242;
+    --color-surface-container: 247 235 236;
+    --color-surface-container-high: 242 229 230;
+    --color-surface-container-highest: 236 224 225;
+    --color-primary: 156 62 91;
+    --color-primary-container: 255 217 224;
+    --color-on-primary: 255 255 255;
+    --color-on-primary-container: 63 0 25;
+    --color-secondary: 117 86 93;
+    --color-secondary-container: 255 217 224;
+    --color-on-secondary: 255 255 255;
+    --color-on-secondary-container: 43 21 27;
+    --color-tertiary: 123 87 51;
+    --color-tertiary-container: 255 220 190;
+    --color-on-tertiary: 255 255 255;
+    --color-on-tertiary-container: 45 22 0;
+    --color-error: 186 26 26;
+    --color-error-container: 255 218 214;
+    --color-on-error: 255 255 255;
+    --color-on-error-container: 65 0 2;
+    --color-primary-fixed: 255 217 224;
+    --color-on-primary-fixed: 63 0 25;
+    --color-primary-fixed-dim: 255 177 195;
+    --color-on-primary-fixed-variant: 126 38 68;
+    --color-secondary-fixed: 255 217 224;
+    --color-on-secondary-fixed: 43 21 27;
+    --color-secondary-fixed-dim: 228 189 196;
+    --color-on-secondary-fixed-variant: 91 63 69;
+    --color-tertiary-fixed: 255 220 190;
+    --color-on-tertiary-fixed: 45 22 0;
+    --color-tertiary-fixed-dim: 237 189 146;
+    --color-on-tertiary-fixed-variant: 96 64 30;
+
+    background-color: rgb(var(--color-surface));
+
+    font-family: "Inter", sans-serif;
+  }
+
+  .dark {
+    --color-surface: 23 18 19;
+    --color-on-surface: 236 224 225;
+    --color-surface-variant: 81 67 70;
+    --color-on-surface-variant: 214 194 197;
+    --color-outline: 158 140 143;
+    --color-outline-variant: 81 67 70;
+    --color-shadow: 0 0 0;
+    --color-scrim: 0 0 0;
+    --color-inverse-surface: 236 224 225;
+    --color-inverse-on-surface: 53 47 48;
+    --color-inverse-primary: 156 62 91;
+    --color-primary-fixed: 255 217 224;
+    --color-surface-dim: 23 18 19;
+    --color-surface-bright: 62 55 56;
+    --color-surface-container-lowest: 18 13 14;
+    --color-surface-container-low: 32 26 27;
+    --color-surface-container: 36 30 31;
+    --color-surface-container-high: 47 40 41;
+    --color-surface-container-highest: 58 51 52;
+    --color-primary: 255 177 195;
+    --color-primary-container: 126 38 68;
+    --color-on-primary: 96 14 45;
+    --color-on-primary-container: 255 217 224;
+    --color-secondary: 228 189 196;
+    --color-secondary-container: 91 63 69;
+    --color-on-secondary: 67 41 47;
+    --color-on-secondary-container: 255 217 224;
+    --color-tertiary: 237 189 146;
+    --color-tertiary-container: 96 64 30;
+    --color-on-tertiary: 71 42 10;
+    --color-on-tertiary-container: 255 220 190;
+    --color-error: 255 180 171;
+    --color-error-container: 147 0 10;
+    --color-on-error: 105 0 5;
+    --color-on-error-container: 255 218 214;
+    --color-primary-fixed: 255 217 224;
+    --color-on-primary-fixed: 63 0 25;
+    --color-primary-fixed-dim: 255 177 195;
+    --color-on-primary-fixed-variant: 126 38 68;
+    --color-secondary-fixed: 255 217 224;
+    --color-on-secondary-fixed: 43 21 27;
+    --color-secondary-fixed-dim: 228 189 196;
+    --color-on-secondary-fixed-variant: 91 63 69;
+    --color-tertiary-fixed: 255 220 190;
+    --color-on-tertiary-fixed: 45 22 0;
+    --color-tertiary-fixed-dim: 237 189 146;
+    --color-on-tertiary-fixed-variant: 96 64 30;
+  }
+</style>

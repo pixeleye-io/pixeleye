@@ -1,0 +1,66 @@
+---
+import { Image } from "astro:assets";
+import darkScreenshotImage from "./assets/playground.png";
+---
+
+<div class="px-8 pt-32 pb-64">
+  <div
+    class="bg-[#be7e91]/90 px-12 rounded-3xl max-w-[120rem] flex items-center space-between space-x-24"
+  >
+    <div class="w-fit">
+      <h1
+        class="text-4xl font-bold text-shadow-md tracking-tighter text-on-surface sm:text-8xl"
+      >
+        <span class="text-center text-inverse-on-surface text-6xl">
+          Open-source
+        </span>
+        <br />
+        Visual Review &
+        <br />
+        Testing Platform
+      </h1>
+
+      <p
+        class="text-inverse-on-surface text-2xl font-semibold text-left mt-8 max-w-2xl"
+      >
+        Connect your codebase with our many integrations and dramatically
+        increase your test coverage in minutes.
+        <br />
+      </p>
+      <div class="flex space-x-8 py-12">
+        <a
+          href="#"
+          class="bg-inverse-surface text-inverse-on-surface rounded-lg shadow-lg hover:rounded-2xl transition-all px-6 py-4 text-2xl font-semibold"
+        >
+          Get Started
+        </a>
+        <a
+          href="#"
+          class="bg-primary-container text-on-primary-container shadow-lg rounded-lg hover:rounded-2xl transition-all px-6 py-4 text-2xl font-semibold"
+        >
+          Playground
+        </a>
+      </div>
+    </div>
+    <div class="relative self-stretch grow">
+      <div
+        class="absolute inset-x-0 -inset-y-12 bg-[#be7e91] shadow-sm rounded-3xl"
+      >
+        <!-- <Image
+          src={darkScreenshotImage}
+          alt="Dark mode screenshot of the playground"
+          class="rounded-3xl"
+        /> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="h-96 w-full relative z-0 flex justify-center">
+  <span
+    class="absolute inset-x-0 top-0 h-[35rem] -z-10 bg-gradient-to-b from-surface-container to-transparent rounded-t-full"
+  ></span>
+  <h3 class="font-bold text-5xl text-center tracking-tight text-shadow-sm text-on-surface pt-32">
+    Ever made a change to your css, <br /> only to find out it broke something else?
+  </h3>
+</div>

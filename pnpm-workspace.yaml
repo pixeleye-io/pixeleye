@@ -4,6 +4,5 @@ packages:
   - "integrations/cli/*"
   - "examples/*"
   - "integrations/*"
-  - "apps/web"
-  - "apps/marketing"
-  - "apps/api-tests"
+  - "apps/*"
+
