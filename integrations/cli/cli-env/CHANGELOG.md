@@ -1,5 +1,11 @@
 # @pixeleye/cli-env
 
+## 0.6.2
+
+### Patch Changes
+
+- [`6e63036`](https://github.com/pixeleye-io/pixeleye/commit/6e6303693526024ba99e2ac786bf4a99b45b03cd) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Fixing misisng pr title in github actions
+
 ## 0.6.1
 
 ### Patch Changes
