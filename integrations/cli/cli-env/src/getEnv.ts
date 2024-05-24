@@ -26,6 +26,11 @@ export async function getEnvironment(): Promise<Environment> {
 
   const branch = process.env.PIXELEYE_BRANCH || ciBranch || gitBranch;
 
+  const title = (
+    process.env.PIXELEYE_TITLE ||
+    (tag || gitCommit ? `#${(tag || gitCommit)?.slice(0, 8)}` : "No title")
+  ).trim();
+
   return {
     name: name,
     commit: (process.env.PIXELEYE_COMMIT || commit || gitCommit)?.trim(),
@@ -34,7 +39,7 @@ export async function getEnvironment(): Promise<Environment> {
     isCI: isCi,
     isPR: isPr,
     prID: pr,
-    title: tag,
+    title,
     shardID: process.env.PIXELEYE_SHARD_ID || env.build,
   };
 }

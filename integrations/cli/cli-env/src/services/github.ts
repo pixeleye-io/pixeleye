@@ -24,6 +24,7 @@ export async function getGithubEnv(env: CiEnv): Promise<CiEnv> {
 
   return {
     ...env,
+    tag: payload.pull_request?.head.sha || env.tag,
     prBranch: process.env.GITHUB_HEAD_REF,
     commit: payload.pull_request?.head.sha || env.commit,
   };
