@@ -81,20 +81,6 @@ function Hero() {
               <span className="sr-only">P</span>ixeleye
             </h3>
           </div>
-          <div className="mt-10 lg:mt-16">
-            <NextLink href="/docs/integrations/storybook" className="inline-flex space-x-6 group">
-              <span className="rounded-full bg-tertiary-container/75 px-3 py-1 text-sm font-semibold leading-6 text-on-tertiary-container ring-1 ring-inset ring-tertiary/75">
-                What&apos;s new
-              </span>
-              <span className="inline-flex items-center space-x-1.5 text-sm font-medium leading-6 text-on-surface group-hover:text-tertiary">
-                <span>Integrate with Storybook</span>
-                <ChevronRightIcon
-                  className="h-5 w-5 group-hover:translate-x-0.5 transition ease-in-out duration-150"
-                  aria-hidden="true"
-                />
-              </span>
-            </NextLink>
-          </div>
           <h1 className="mt-10 text-5xl font-semibold tracking-tight pb-2 text-on-surface sm:text-6xl">
             Open-source <span className="text-tertiary font-bold">visual review & testing</span> platform
           </h1>
