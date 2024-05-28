@@ -140,7 +140,6 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 
 	if status == "completed" {
 		conclusion := getConclusion(build)
-
 		opts.Conclusion = &conclusion
 	}
 
