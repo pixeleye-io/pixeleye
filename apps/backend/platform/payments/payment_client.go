@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/pixeleye-io/pixeleye/app/billing"
-	"github.com/stripe/stripe-go/v76"
-	"github.com/stripe/stripe-go/v76/client"
+	"github.com/stripe/stripe-go/v78"
+	"github.com/stripe/stripe-go/v78/client"
 )
 
 type PaymentClient struct {

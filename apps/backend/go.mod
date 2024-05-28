@@ -11,6 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/mitchellh/mapstructure v1.5.0
+	github.com/stripe/stripe-go/v78 v78.8.0
 )
 
 require (
@@ -72,7 +73,6 @@ require (
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/rs/zerolog v1.32.0
 	github.com/stretchr/testify v1.9.0
-	github.com/stripe/stripe-go/v76 v76.21.0-beta.1
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/crypto v0.21.0
 	golang.org/x/sys v0.18.0 // indirect

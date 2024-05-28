@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"slices"
@@ -11,9 +12,8 @@ import (
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
 	"github.com/rs/zerolog/log"
-	"github.com/stripe/stripe-go/v76"
-	"github.com/stripe/stripe-go/v76/client"
-	"github.com/stripe/stripe-go/v76/form"
+	"github.com/stripe/stripe-go/v78"
+	"github.com/stripe/stripe-go/v78/client"
 )
 
 type CustomerBilling struct {
@@ -331,23 +331,17 @@ func (c *CustomerBilling) CreateCheckout(ctx context.Context, team models.Team) 
 
 func (c *CustomerBilling) ReportSnapshotUsage(customerID string, buildID string, snapshotCount int64) error {
 
-	params := map[string]interface{}{
-		"event_name": "snapshots",
-		"payload": map[string]interface{}{
+	params := &stripe.BillingMeterEventParams{
+		EventName: stripe.String("snapshots"),
+		Payload: map[string]string{
 			"stripe_customer_id": customerID,
-			"value":              snapshotCount,
+			"value":              strconv.Itoa(int(snapshotCount)),
 		},
-		"timestamp":  time.Now().Unix(),
-		"identifier": buildID,
+		Timestamp:  stripe.Int64(time.Now().Unix()),
+		Identifier: stripe.String(buildID),
 	}
 
-	formValues := &form.Values{}
-	form.AppendTo(formValues, params)
-	content := formValues.Encode()
-
-	stripe.Key = os.Getenv("STRIPE_ACCESS_TOKEN")
-
-	_, err := stripe.RawRequest("POST", "/v1/billing/meter_events", content, nil)
+	_, err := c.API.BillingMeterEvents.New(params)
 
 	return err
 }

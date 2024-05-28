@@ -23,7 +23,7 @@ import (
 	"github.com/pixeleye-io/pixeleye/platform/payments"
 	"github.com/posthog/posthog-go"
 	"github.com/rs/zerolog/log"
-	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v78"
 )
 
 // Create Build method for creating a new build.
