@@ -71,8 +71,8 @@ const config: Config = {
         ...themeColors,
       },
       textShadow: {
-        md: "0 4px 0 rgba(var(--color-primary) / 0.25)",
-        sm: "0 2px 0 rgba(var(--color-primary) / 0.25)",
+        md: "0 4px 0 rgba(var(--color-primary) / 0.5)",
+        sm: "0 2px 0 rgba(var(--color-primary) / 0.5)",
       },
     },
   },

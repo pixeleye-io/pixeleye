@@ -1,17 +1,39 @@
 ---
-import { Image } from "astro:assets";
-import darkScreenshotImage from "./assets/playground.png";
+import ChromeLogo from "../../devices/Chrome.astro";
+import FirefoxLogo from "../../devices/Firefox.astro";
+import Webkit from "../../devices/Webkit.astro";
+import Edge from "../../devices/Edge.astro";
+
+const browsers: { name: string; logo: typeof ChromeLogo }[] = [
+  {
+    name: "Chrome",
+    logo: ChromeLogo,
+  },
+  {
+    name: "Firefox",
+    logo: FirefoxLogo,
+  },
+  {
+    name: "Webkit",
+    logo: Webkit,
+  },
+  {
+    name: "Edge",
+    logo: Edge,
+  },
+];
 ---
 
-<div class="px-8 pt-32 pb-64">
+<div class="px-8 pt-32">
   <div
-    class="bg-[#be7e91]/90 px-12 rounded-3xl max-w-[120rem] flex items-center space-between space-x-24"
+    class="bg-surface-container py-4  z-0 relative px-12 rounded-3xl max-w-[120rem] flex items-center space-between space-x-24"
   >
+    <span class="absolute inset-0 -z-10 bg-primary/25 rounded-3xl"></span>
     <div class="w-fit">
       <h1
-        class="text-4xl font-bold text-shadow-md tracking-tighter text-on-surface sm:text-8xl"
+        class="text-4xl font-bold text-shadow-md tracking-tight text-on-surface sm:text-7xl"
       >
-        <span class="text-center text-inverse-on-surface text-6xl">
+        <span class="text-center text-inverse-on-surface text-5xl">
           Open-source
         </span>
         <br />
@@ -21,7 +43,7 @@ import darkScreenshotImage from "./assets/playground.png";
       </h1>
 
       <p
-        class="text-inverse-on-surface text-2xl font-semibold text-left mt-8 max-w-2xl"
+        class="text-on-surface-variant text-lg font-semibold text-left mt-8 max-w-2xl"
       >
         Connect your codebase with our many integrations and dramatically
         increase your test coverage in minutes.
@@ -30,13 +52,13 @@ import darkScreenshotImage from "./assets/playground.png";
       <div class="flex space-x-8 py-12">
         <a
           href="#"
-          class="bg-inverse-surface text-inverse-on-surface rounded-lg shadow-lg hover:rounded-2xl transition-all px-6 py-4 text-2xl font-semibold"
+          class="bg-inverse-surface text-inverse-on-surface rounded-lg shadow-lg hover:rounded-2xl transition-all px-6 py-4 text-xl font-semibold"
         >
           Get Started
         </a>
         <a
           href="#"
-          class="bg-primary-container text-on-primary-container shadow-lg rounded-lg hover:rounded-2xl transition-all px-6 py-4 text-2xl font-semibold"
+          class="text-on-surface border border-outline hover:bg-primary/15 rounded-lg hover:rounded-2xl transition-all px-6 py-4 text-xl font-semibold"
         >
           Playground
         </a>
@@ -55,12 +77,33 @@ import darkScreenshotImage from "./assets/playground.png";
     </div>
   </div>
 </div>
+<div
+  class="mb-64 mt-32 py-16 rounded-3xl max-w-7xl mx-auto bg-tertiary-container"
+>
+  <h3 class="pb-12 text-on-tertiary-container text-3xl text-center font-semibold">
+    Capture across multiple browsers and devices out of the box
+  </h3>
+  <div class="flex justify-around px-12 py-6">
+    {
+      browsers.map(({ name, logo: Logo }) => (
+        <div class="flex items-center space-x-3">
+          <Logo class="w-12 h-12 text-on-tertiary-container/75" />
+          <span class="text-on-tertiary-container/75 font-bold text-2xl">
+            {name}
+          </span>
+        </div>
+      ))
+    }
+  </div>
+</div>
 
 <div class="h-96 w-full relative z-0 flex justify-center">
   <span
     class="absolute inset-x-0 top-0 h-[35rem] -z-10 bg-gradient-to-b from-surface-container to-transparent rounded-t-full"
   ></span>
-  <h3 class="font-bold text-5xl text-center tracking-tight text-shadow-sm text-on-surface pt-32">
+  <h3
+    class="font-bold text-5xl text-center tracking-tight text-shadow-sm text-on-surface pt-32"
+  >
     Ever made a change to your css, <br /> only to find out it broke something else?
   </h3>
 </div>
