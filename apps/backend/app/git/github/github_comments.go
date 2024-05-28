@@ -65,10 +65,8 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 
 	status := getStatus(build.Status)
 
-	title := "Pixeleye — " + project.Name
-
 	opts := github.CreateCheckRunOptions{
-		Name:       title,
+		Name:       "Pixeleye — " + project.Name,
 		HeadSHA:    build.Sha,
 		DetailsURL: &detailsURL,
 		ExternalID: &build.ID,
@@ -124,12 +122,10 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 
 	detailsURL := getDetailsURL(build)
 
-	title := "Pixeleye — " + project.Name
-
 	opts := github.UpdateCheckRunOptions{
 		Status:     &status,
 		ExternalID: &build.ID,
-		Name:       title,
+		Name:       "Pixeleye — " + project.Name,
 		DetailsURL: &detailsURL,
 	}
 
