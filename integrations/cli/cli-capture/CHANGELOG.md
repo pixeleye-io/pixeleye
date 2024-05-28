@@ -1,5 +1,16 @@
 # @pixeleye/cli-capture
 
+## 0.7.5
+
+### Patch Changes
+
+- [#311](https://github.com/pixeleye-io/pixeleye/pull/311) [`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improved our screenshotting pipeline by waiting for things in parallel instead of asynchronously
+
+- [#311](https://github.com/pixeleye-io/pixeleye/pull/311) [`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Upgrading core deps
+
+- Updated dependencies [[`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4)]:
+  - @pixeleye/cli-devices@0.4.8
+
 ## 0.7.4
 
 ### Patch Changes
