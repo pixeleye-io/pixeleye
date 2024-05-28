@@ -60,7 +60,7 @@ func ReferUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	userTeam, err := db.GetUsersPersonalTeam(c.Request().Context(), user.ID)
+	userTeam, err := db.GetUsersPersonalTeam(c.Request().Context(), user)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,15 @@ func ReferUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "You already have the max number of referrals")
 	}
 
-	referralTeam, err := db.GetUsersPersonalTeam(c.Request().Context(), body.UserID)
+	referUser, err := db.GetUserByID(c.Request().Context(), body.UserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusBadRequest, "User not found")
+		}
+		return err
+	}
+
+	referralTeam, err := db.GetUsersPersonalTeam(c.Request().Context(), referUser)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			return err
@@ -122,13 +130,11 @@ func DeleteUser(c echo.Context) error {
 	}
 
 	db, err := database.OpenDBConnection()
-
 	if err != nil {
 		return err
 	}
 
-	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
-
+	teams, err := db.GetUsersTeams(c.Request().Context(), user)
 	if err != sql.ErrNoRows && err != nil {
 		return err
 	} else if err != sql.ErrNoRows {
@@ -194,7 +200,7 @@ func GetUserTeams(c echo.Context) error {
 		return err
 	}
 
-	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
+	teams, err := db.GetUsersTeams(c.Request().Context(), user)
 	if err != nil {
 		return err
 	}
@@ -220,7 +226,7 @@ func SyncUserTeams(c echo.Context) error {
 		return git_github.RedirectGithubUserToLogin(c, user)
 	}
 
-	teams, err := db.GetUsersTeams(c.Request().Context(), user.ID)
+	teams, err := db.GetUsersTeams(c.Request().Context(), user)
 	if err != nil {
 		return err
 	}

@@ -624,7 +624,7 @@ func LinkPersonalGithubTeam(ctx context.Context, user models.User, installationI
 		return models.Team{}, models.GitInstallation{}, err
 	}
 
-	personalTeam, err := db.GetUsersPersonalTeam(ctx, user.ID)
+	personalTeam, err := db.GetUsersPersonalTeam(ctx, user)
 	if err != nil {
 		return models.Team{}, models.GitInstallation{}, err
 	}
@@ -684,7 +684,7 @@ func LinkOrgGithubTeam(ctx context.Context, user models.User, app *github.Instal
 			ExternalID: strconv.Itoa(int(app.Account.GetID())),
 		}
 
-		err = ttx.CreateTeam(ctx, &team, user.ID)
+		err = ttx.CreateTeam(ctx, &team, user)
 		if err != nil {
 			return models.Team{}, models.GitInstallation{}, err
 		}

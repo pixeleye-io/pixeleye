@@ -34,6 +34,7 @@ export interface Options {
   maskColor?: string;
   css?: string;
   wait?: number;
+  scale?: "device" | "css";
 }
 
 export async function pixeleyeSnapshot(page: Page, options: Options) {
@@ -105,6 +106,7 @@ export async function pixeleyeSnapshot(page: Page, options: Options) {
     url: page.url(),
     wait: options.wait,
     waitForSelectors: options.waitForSelectors,
+    scale: options.scale || config.scale,
     css,
   };
 

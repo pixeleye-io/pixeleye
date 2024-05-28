@@ -13,6 +13,7 @@ export interface Options {
   maskColor?: string;
   css?: string;
   wait?: number;
+  scale?: "device" | "css";
 }
 
 export const pixeleyeSnapshot = (options: Options) => {
@@ -28,6 +29,8 @@ export const pixeleyeSnapshot = (options: Options) => {
   const configCSS = Cypress.env("PIXELEYE_CSS") || "";
 
   const devices = Cypress.env("PIXELEYE_DEVICES");
+
+  const configScale = Cypress.env("PIXELEYE_SCALE");
 
   const css =
     configCSS || options.css
@@ -60,6 +63,7 @@ export const pixeleyeSnapshot = (options: Options) => {
       fullPage: options.fullPage,
       wait: options.wait,
       waitForSelectors: options.waitForSelectors,
+      scale: options.scale || configScale,
     };
 
     cy.request({

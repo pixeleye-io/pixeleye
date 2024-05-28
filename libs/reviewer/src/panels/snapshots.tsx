@@ -1,12 +1,13 @@
-import { DiffGroupedSnapshotTargetGroups, SnapshotTargetGroup, StoreContext } from "../store";
-import { PanelHeader } from "./shared";
+import { SnapshotTargetGroup, StoreContext } from "../store";
 import { cx } from "class-variance-authority";
-import { useRef, useEffect, useState, useContext } from "react";
+import { useRef, useEffect, useState, useContext, useMemo } from "react";
 import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
-import { Accordion, Status } from "@pixeleye/ui";
+import { Accordion, Button, Status } from "@pixeleye/ui";
 import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
+import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import Fuse from "fuse.js"
 
 interface AccordionSnapsProps {
   groupedSnapshots: SnapshotTargetGroup[][];
@@ -97,14 +98,7 @@ function SnapButton({
   const ref = useRef<HTMLButtonElement>(null);
   const store = useContext(StoreContext)!
 
-
   const optimize = useStore(store, (state) => state.optimize);
-
-  useEffect(() => {
-    if (active) {
-      ref.current?.focus();
-    }
-  }, [active]);
 
   return (
     <button
@@ -152,19 +146,77 @@ function ShortcutHint() {
   );
 }
 
+
+
 export default function SnapshotsPanel() {
   const store = useContext(StoreContext)!
   const groupedSnapshots = useStore(store, (state) => state.snapshots);
   const currentSnapshot = useStore(store, (state) => state.currentSnapshot);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const setCurrentSnapshot = useStore(store,
     (state) => state.setCurrentSnapshot
   );
 
-  const [unreviewed, approved, rejected, unchanged, missingBaseline, orphaned, failed] =
-    groupedSnapshots.reduce(
-      (acc, { targetGroups, status }) => {
 
+
+
+
+
+  const filtered =
+    useMemo(() => {
+
+      const filteredSnaps = new Fuse(groupedSnapshots.flatMap(({ targetGroups }) => targetGroups), {
+        keys: ["name", "variant", "viewport"],
+        threshold: 0.3,
+      });
+
+      return filteredSnaps.search(
+        search
+      ).reduce(
+        (acc, { item: group }) => {
+          switch (group.status) {
+            case "unreviewed":
+              acc[0].push([group]);
+              break;
+            case "approved":
+              acc[1].push([group]);
+              break;
+            case "rejected":
+              acc[2].push([group]);
+              break;
+            case "unchanged":
+              acc[3].push([group]);
+              break;
+            case "missing_baseline":
+              acc[4].push([group]);
+              break;
+            case "orphaned":
+              acc[5].push([group]);
+              break;
+            case "failed":
+              acc[6].push([group]);
+              break;
+          }
+          return acc;
+        },
+        [[], [], [], [], [], [], []] as [
+          SnapshotTargetGroup[][],
+          SnapshotTargetGroup[][],
+          SnapshotTargetGroup[][],
+          SnapshotTargetGroup[][],
+          SnapshotTargetGroup[][],
+          SnapshotTargetGroup[][],
+          SnapshotTargetGroup[][],
+        ]
+      )
+    }
+      , [groupedSnapshots, search]);
+
+  const unFiltered =
+    useMemo(() => groupedSnapshots.reduce(
+      (acc, { targetGroups, status }) => {
         switch (status) {
           case "unreviewed":
             acc[0].push(targetGroups);
@@ -199,7 +251,8 @@ export default function SnapshotsPanel() {
         SnapshotTargetGroup[][],
         SnapshotTargetGroup[][],
       ]
-    );
+    ), [groupedSnapshots]);
+
 
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     currentSnapshot?.status
@@ -210,10 +263,40 @@ export default function SnapshotsPanel() {
   }, [currentSnapshot]);
 
 
+
+  const [unreviewed, approved, rejected, unchanged, missingBaseline, orphaned, failed] = searchOpen ? filtered : unFiltered;
+
   return (
-    <div className="pl-0.5 pt-4 flex flex-col w-full">
-      <PanelHeader className="px-4" title="Snapshots" />
-      <nav className="grow mt-4 flex pb-12 border-t border-outline-variant w-full">
+    <div className="pt-2 flex flex-col w-full">
+      <header className="flex w-full items-center px-2">
+        <Button type="button" aria-pressed={searchOpen} onClick={() => setSearchOpen(v => !v)} variant="ghost" size="icon" className="mr-2 !h-8 !w-8">
+          <span className="sr-only">
+            {searchOpen ? "Close search" : "Open search"}
+          </span>
+          {
+            searchOpen ? <XMarkIcon className="w-5 h-5" /> : <MagnifyingGlassIcon className="w-5 h-5" />
+          }
+        </Button>
+        {
+          searchOpen && (
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              type="search"
+              className="bg-transparent w-full border-none outline-none ring-0"
+              placeholder="Search snapshots..."
+            />
+          )
+        }
+        {
+          !searchOpen && (
+            <h3 className="font-medium text-md w-full">Snapshots</h3>
+          )
+        }
+      </header>
+
+      <nav className="grow mt-2 flex pb-12 border-t border-outline-variant w-full">
         <Accordion
           type="single"
           value={accordionValue}
