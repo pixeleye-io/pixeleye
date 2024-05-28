@@ -1,5 +1,11 @@
 # @pixeleye/cli-install
 
+## 0.4.8
+
+### Patch Changes
+
+- [#311](https://github.com/pixeleye-io/pixeleye/pull/311) [`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Upgrading core deps
+
 ## 0.4.7
 
 ### Patch Changes

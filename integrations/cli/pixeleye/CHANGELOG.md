@@ -1,5 +1,18 @@
 # pixeleye
 
+## 0.8.6
+
+### Patch Changes
+
+- [#311](https://github.com/pixeleye-io/pixeleye/pull/311) [`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Upgrading core deps
+
+- Updated dependencies [[`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4), [`8a6e366`](https://github.com/pixeleye-io/pixeleye/commit/8a6e3662715cb4f9a584bdb21b19b2c9776a9fa4)]:
+  - @pixeleye/cli-devices@0.4.8
+  - @pixeleye/cli-install@0.4.8
+  - @pixeleye/cli-booth@0.6.6
+  - @pixeleye/storybook@0.6.7
+  - @pixeleye/cli-config@0.6.9
+
 ## 0.8.5
 
 ### Patch Changes
