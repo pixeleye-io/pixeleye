@@ -45,70 +45,6 @@ func getConclusion(build models.Build) string {
 	return "neutral"
 }
 
-var mediaTypeCheckRunsPreview = "application/vnd.github.antiope-preview+json"
-
-type CreateCheckRunOptions struct {
-	Name        string                   `json:"name"`                   // The name of the check (e.g., "code-coverage"). (Required.)
-	HeadSHA     string                   `json:"head_sha"`               // The SHA of the commit. (Required.)
-	DetailsURL  *string                  `json:"details_url,omitempty"`  // The URL of the integrator's site that has the full details of the check. (Optional.)
-	ExternalID  *string                  `json:"external_id,omitempty"`  // A reference for the run on the integrator's system. (Optional.)
-	Status      *string                  `json:"status,omitempty"`       // The current status. Can be one of "queued", "in_progress", or "completed". Default: "queued". (Optional.)
-	Conclusion  *string                  `json:"conclusion,omitempty"`   // Can be one of "success", "failure", "neutral", "cancelled", "skipped", "timed_out", or "action_required". (Optional. Required if you provide a status of "completed".)
-	StartedAt   *github.Timestamp        `json:"started_at,omitempty"`   // The time that the check run began. (Optional.)
-	CompletedAt *github.Timestamp        `json:"completed_at,omitempty"` // The time the check completed. (Optional. Required if you provide conclusion.)
-	Output      *github.CheckRunOutput   `json:"output,omitempty"`       // Provide descriptive details about the run. (Optional)
-	Actions     []*github.CheckRunAction `json:"actions,omitempty"`      // Possible further actions the integrator can perform, which a user may trigger. (Optional.)
-	HtmlURL     *string                  `json:"html_url,omitempty"`     // URL of the check run. (Optional.)
-}
-
-func (s *GithubAppClient) createCheckRunRequest(ctx context.Context, owner, repo string, opts CreateCheckRunOptions) (*github.CheckRun, *github.Response, error) {
-	u := fmt.Sprintf("repos/%v/%v/check-runs", owner, repo)
-	req, err := s.Client.NewRequest("POST", u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req.Header.Set("Accept", mediaTypeCheckRunsPreview)
-
-	checkRun := new(github.CheckRun)
-	resp, err := s.Client.Do(ctx, req, checkRun)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return checkRun, resp, nil
-}
-
-type UpdateCheckRunOptions struct {
-	Name        string                   `json:"name"`                   // The name of the check (e.g., "code-coverage"). (Required.)
-	DetailsURL  *string                  `json:"details_url,omitempty"`  // The URL of the integrator's site that has the full details of the check. (Optional.)
-	ExternalID  *string                  `json:"external_id,omitempty"`  // A reference for the run on the integrator's system. (Optional.)
-	Status      *string                  `json:"status,omitempty"`       // The current status. Can be one of "queued", "in_progress", or "completed". Default: "queued". (Optional.)
-	Conclusion  *string                  `json:"conclusion,omitempty"`   // Can be one of "success", "failure", "neutral", "cancelled", "skipped", "timed_out", or "action_required". (Optional. Required if you provide a status of "completed".)
-	CompletedAt *github.Timestamp        `json:"completed_at,omitempty"` // The time the check completed. (Optional. Required if you provide conclusion.)
-	Output      *github.CheckRunOutput   `json:"output,omitempty"`       // Provide descriptive details about the run. (Optional)
-	Actions     []*github.CheckRunAction `json:"actions,omitempty"`      // Possible further actions the integrator can perform, which a user may trigger. (Optional.)
-	HtmlURL     *string                  `json:"html_url,omitempty"`     // URL of the check run. (Optional.)
-}
-
-func (s *GithubAppClient) updateCheckRunInternal(ctx context.Context, owner, repo string, checkRunID int64, opts UpdateCheckRunOptions) (*github.CheckRun, *github.Response, error) {
-	u := fmt.Sprintf("repos/%v/%v/check-runs/%v", owner, repo, checkRunID)
-	req, err := s.Client.NewRequest("PATCH", u, opts)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req.Header.Set("Accept", mediaTypeCheckRunsPreview)
-
-	checkRun := new(github.CheckRun)
-	resp, err := s.Client.Do(ctx, req, checkRun)
-	if err != nil {
-		return nil, resp, err
-	}
-
-	return checkRun, resp, nil
-}
-
 func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Project, build models.Build) error {
 
 	if project.Source != "github" {
@@ -129,21 +65,26 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, project models.Pro
 
 	status := getStatus(build.Status)
 
-	opts := CreateCheckRunOptions{
-		Name:       "Pixeleye — " + project.Name,
+	startedAt := github.Timestamp{Time: build.CreatedAt}
+
+	title := "Pixeleye — " + project.Name
+
+	opts := github.CreateCheckRunOptions{
+		Name:       title,
 		HeadSHA:    build.Sha,
 		DetailsURL: &detailsURL,
 		ExternalID: &build.ID,
 		Status:     &status,
-		HtmlURL:    &detailsURL,
+		StartedAt:  &startedAt,
 	}
 
 	if status == "completed" {
 		conclusion := getConclusion(build)
+
 		opts.Conclusion = &conclusion
 	}
 
-	checkRun, _, err := c.createCheckRunRequest(ctx, repo.Owner.GetLogin(), repo.GetName(), opts)
+	checkRun, _, err := c.Checks.CreateCheckRun(ctx, repo.Owner.GetLogin(), repo.GetName(), opts)
 	if err != nil {
 		return err
 	}
@@ -186,12 +127,13 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 
 	detailsURL := getDetailsURL(build)
 
-	opts := UpdateCheckRunOptions{
+	title := "Pixeleye — " + project.Name
+
+	opts := github.UpdateCheckRunOptions{
 		Status:     &status,
 		ExternalID: &build.ID,
-		Name:       "Pixeleye — " + project.Name,
+		Name:       title,
 		DetailsURL: &detailsURL,
-		HtmlURL:    &detailsURL,
 	}
 
 	if status == "completed" {
@@ -204,7 +146,7 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, project models.Pro
 		return err
 	}
 
-	_, _, err = c.updateCheckRunInternal(ctx, repo.Owner.GetLogin(), repo.GetName(), checkRunID, opts)
+	_, _, err = c.Checks.UpdateCheckRun(ctx, repo.Owner.GetLogin(), repo.GetName(), checkRunID, opts)
 	if err != nil {
 		return err
 	}
