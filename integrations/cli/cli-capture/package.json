@@ -36,7 +36,7 @@
     "@pixeleye/cli-devices": "workspace:*",
     "@pixeleye/cli-logger": "workspace:*",
     "object-hash": "^3.0.0",
-    "playwright-core": "^1.44.0",
-    "rrweb-snapshot": "2.0.0-alpha.13"
+    "playwright-core": "^1.44.1",
+    "rrweb-snapshot": "2.0.0-alpha.14"
   }
 }

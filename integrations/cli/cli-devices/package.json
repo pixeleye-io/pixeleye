@@ -31,6 +31,6 @@
     "rimraf": "^5.0.7"
   },
   "dependencies": {
-    "playwright-core": "^1.44.0"
+    "playwright-core": "^1.44.1"
   }
 }

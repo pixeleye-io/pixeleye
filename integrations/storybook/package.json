@@ -28,8 +28,8 @@
     "@pixeleye/cli-logger": "workspace:*",
     "@pixeleye/playwright": "workspace:*",
     "@storybook/addons": "^7.6.17",
-    "playwright-core": "^1.44.0",
-    "rrweb-snapshot": "2.0.0-alpha.13"
+    "playwright-core": "^1.44.1",
+    "rrweb-snapshot": "2.0.0-alpha.14"
   },
   "devDependencies": {
     "@pixeleye/esbuild": "workspace:*",

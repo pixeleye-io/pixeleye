@@ -29,8 +29,8 @@
     "@pixeleye/cli-booth": "workspace:*",
     "@pixeleye/cli-config": "workspace:*",
     "@pixeleye/cli-devices": "workspace:*",
-    "playwright-core": "^1.44.0",
-    "rrweb-snapshot": "2.0.0-alpha.13",
+    "playwright-core": "^1.44.1",
+    "rrweb-snapshot": "2.0.0-alpha.14",
     "undici": "^6.18.1"
   },
   "devDependencies": {

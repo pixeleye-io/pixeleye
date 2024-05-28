@@ -72,6 +72,13 @@ export function startServer(options: BoothServerOptions) {
       })
     );
 
+    // This disables playwrights built in font loading mechanism
+    // We already wait for fonts to be loaded in the browser
+    // For some reason on certain environments page.screenshot will hang waiting for fonts
+    // TODO: This should be removed once we have a better solution
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    process.env["PW_TEST_SCREENSHOT_NO_FONTS_READY"] = "true";
+
     // pre load the browsers we know we will use
     warmUpBrowsers();
 

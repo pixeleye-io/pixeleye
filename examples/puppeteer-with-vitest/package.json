@@ -7,7 +7,7 @@
   "dependencies": {
     "@pixeleye/puppeteer": "workspace:*",
     "pixeleye": "workspace:*",
-    "playwright": "^1.44.0",
+    "playwright": "^1.44.1",
     "puppeteer": "^22.9.0",
     "vitest": "^1.6.0"
   },
