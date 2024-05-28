@@ -46,14 +46,24 @@ export async function captureStories({
 
   await Promise.race([
     page
-      .waitForFunction(() => (window as SBWindow).__STORYBOOK_CLIENT_API__, {
-        timeout: 60_000,
-      })
+      .waitForFunction(
+        () =>
+          (window as SBWindow).__STORYBOOK_CLIENT_API__._storyStore!
+            .cacheAllCSFFiles,
+        {
+          timeout: 60_000,
+        }
+      )
       .catch(() => {}),
     page
-      .waitForFunction(() => (window as SBWindow).__STORYBOOK_PREVIEW__, {
-        timeout: 60_000,
-      })
+      .waitForFunction(
+        () =>
+          (window as SBWindow).__STORYBOOK_PREVIEW__.storyStoreValue!
+            .cacheAllCSFFiles,
+        {
+          timeout: 60_000,
+        }
+      )
       .catch(() => {}),
   ]);
 
