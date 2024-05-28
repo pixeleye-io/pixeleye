@@ -6,7 +6,7 @@ require (
 	github.com/aws/smithy-go v1.20.1
 	github.com/bradleyfalzon/ghinstallation/v2 v2.9.0
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/google/go-github/v59 v59.0.0
+	github.com/google/go-github/v62 v62.0.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
