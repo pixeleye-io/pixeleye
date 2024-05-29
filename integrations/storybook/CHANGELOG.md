@@ -1,5 +1,11 @@
 # @pixeleye/storybook
 
+## 0.6.8
+
+### Patch Changes
+
+- [`d1da2c3`](https://github.com/pixeleye-io/pixeleye/commit/d1da2c325cd2bc75fbde4368609946ed18751918) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Adding wait for stories to be ready
+
 ## 0.6.7
 
 ### Patch Changes
