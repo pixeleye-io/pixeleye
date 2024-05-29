@@ -30,6 +30,7 @@ interface Channel {
 export type SBWindow = typeof window & {
   __STORYBOOK_CLIENT_API__: API;
   __STORYBOOK_PREVIEW__: {
+    ready: () => boolean;
     channel: Channel;
     storyStoreValue?: {
       cacheAllCSFFiles: () => Promise<void>;
