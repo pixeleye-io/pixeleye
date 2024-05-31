@@ -6,7 +6,7 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY ./cmd/ingest/main.go ./
+COPY ./cmd/ingest-rabbit/main.go ./
 COPY ./app ./app
 COPY ./pkg ./pkg
 COPY ./platform ./platform

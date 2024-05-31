@@ -41,6 +41,40 @@ func StartIngestServer() {
 	startIngestServer(quit)
 }
 
+func HandleMessage(ctx context.Context, msg []byte) error {
+	snapshotIDs := []string{}
+
+	if err := json.Unmarshal(msg, &snapshotIDs); err != nil {
+		log.Error().Err(err).Msg("Error while unmarshalling message")
+		return err
+	}
+
+	if err := processors.IngestSnapshots(ctx, snapshotIDs); err != nil {
+		log.Error().Err(err).Msg("Error while ingesting snapshots")
+
+		// we want to blanket fail the build
+
+		db, err := database.OpenDBConnection()
+		if err != nil {
+			log.Error().Err(err).Msg("Error while opening db connection")
+			return err
+		}
+
+		build, err := db.GetSnapshotsBuild(context.Background(), snapshotIDs[0])
+		if err != nil {
+			log.Error().Err(err).Msg("Error while getting build")
+			return err
+		}
+
+		if err := statuses_build.FailBuild(context.Background(), &build); err != nil {
+			log.Error().Err(err).Msg("Error while failing build")
+			return err
+		}
+	}
+
+	return nil
+}
+
 // StartIngestServer starts the ingest server.
 func startIngestServer(quit chan bool) {
 	// Create rabbitmq
@@ -67,37 +101,7 @@ func startIngestServer(quit chan bool) {
 
 			log.Info().Msgf("Received a message: %s", string(msg))
 
-			snapshotIDs := []string{}
-
-			if err := json.Unmarshal(msg, &snapshotIDs); err != nil {
-				log.Error().Err(err).Msg("Error while unmarshalling message")
-				return nil
-			}
-
-			if err := processors.IngestSnapshots(ctx, snapshotIDs); err != nil {
-				log.Error().Err(err).Msg("Error while ingesting snapshots")
-
-				// we want to blanket fail the build
-
-				db, err := database.OpenDBConnection()
-				if err != nil {
-					log.Fatal().Err(err).Msg("Error while opening db connection")
-					return nil
-				}
-
-				build, err := db.GetSnapshotsBuild(context.Background(), snapshotIDs[0])
-				if err != nil {
-					log.Fatal().Err(err).Msg("Error while getting build")
-					return nil
-				}
-
-				if err := statuses_build.FailBuild(context.Background(), &build); err != nil {
-					log.Fatal().Err(err).Msg("Error while failing build")
-					return nil
-				}
-			}
-
-			return nil
+			return HandleMessage(ctx, msg)
 		}, 50, quit)
 
 		if err != nil {
