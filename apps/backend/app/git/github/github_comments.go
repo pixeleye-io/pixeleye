@@ -50,58 +50,15 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 
 	status := getStatus(build.Status)
 
-	description := fmt.Sprintf("Pixeleye — %s/%s: %s %s", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
+	description := fmt.Sprintf("Pixeleye — %s/%s: %s", team.Name, project.Name, getBuildStatusTitle(build.Status))
 
-	commitStatus, _, err := c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
+	_, _, err = c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
 		TargetURL:   &detailsURL,
 		State:       &status,
 		Description: &description,
 	})
-	if err != nil {
-		return err
-	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	build.CheckRunID = strconv.FormatInt(commitStatus.GetID(), 10)
-
-	if err := db.UpdateBuildCheckRunID(ctx, build); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getStatusEmoji(status string) string {
-	switch status {
-	case models.BUILD_STATUS_APPROVED:
-		return "🟢"
-	case models.BUILD_STATUS_REJECTED:
-		return "🟠"
-	case models.BUILD_STATUS_UNREVIEWED:
-		return "🟡"
-	case models.BUILD_STATUS_FAILED:
-		return "🔴"
-	case models.BUILD_STATUS_ORPHANED:
-		return "⚪️"
-	case models.BUILD_STATUS_UNCHANGED:
-		return "🟢"
-	case models.BUILD_STATUS_ABORTED:
-		return "🔴"
-	case models.BUILD_STATUS_PROCESSING:
-		return "🔵"
-	case models.BUILD_STATUS_QUEUED_PROCESSING:
-		return "🔵"
-	case models.BUILD_STATUS_QUEUED_UPLOADING:
-		return "🔵"
-	case models.BUILD_STATUS_UPLOADING:
-		return "🔵"
-	default:
-		return "🔵"
-	}
+	return err
 }
 
 func getBuildStatusTitle(status string) string {
@@ -137,40 +94,6 @@ func getDetailsURL(build models.Build) string {
 	return os.Getenv("FRONTEND_URL") + "/builds/" + build.ID
 }
 
-func (c *GithubAppClient) updateCheckRun(ctx context.Context, team models.Team, project models.Project, build models.Build) error {
-
-	if project.Source != "github" {
-		return fmt.Errorf("project source is not from github")
-	}
-
-	repoID, err := strconv.ParseInt(project.SourceID, 10, 64)
-	if err != nil {
-		return err
-	}
-
-	repo, _, err := c.Repositories.GetByID(ctx, repoID)
-	if err != nil {
-		return err
-	}
-
-	status := getStatus(build.Status)
-
-	detailsURL := getDetailsURL(build)
-
-	description := fmt.Sprintf("Pixeleye — %s/%s: %s %s", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
-
-	_, _, err = c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
-		TargetURL:   &detailsURL,
-		State:       &status,
-		Description: &description,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, build models.Build) error {
 
 	if project.Source != "github" {
@@ -197,17 +120,11 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return err
 	}
 
-	if build.CheckRunID == "" {
-		err := githubAppClient.createCheckRun(ctx, team, project, build)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to create check run")
-		}
+	if err := githubAppClient.createCheckRun(ctx, team, project, build); err != nil {
+		log.Error().Err(err).Msg("Failed to create check run")
+
 		return err
 	}
 
-	err = githubAppClient.updateCheckRun(ctx, team, project, build)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to update check run")
-	}
-	return err
+	return nil
 }
