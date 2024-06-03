@@ -2,7 +2,6 @@ package queries
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -179,10 +178,6 @@ func (q *ProjectQueries) GetProjectAsUser(id string, userID string) (models.Proj
 	)`
 
 	err := q.Get(&project, query, id, userID)
-
-	if err == sql.ErrNoRows {
-		return project, fmt.Errorf("project not found")
-	}
 
 	return project, err
 }

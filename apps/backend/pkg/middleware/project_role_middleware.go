@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"database/sql"
 	"net/http"
 
 	"slices"
@@ -37,7 +38,7 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 		log.Debug().Msgf("project id: %s", projectID)
 
 		if !utils.ValidateNanoid(projectID) {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid project ID")
+			return echo.NewHTTPError(http.StatusNotFound, "project not found")
 		}
 
 		user, err := GetUser(c)
@@ -52,6 +53,9 @@ func (p *ProjectPermissionsRequired) ProjectRoleAccess(next echo.HandlerFunc) ec
 
 		project, err := db.GetProjectAsUser(projectID, user.ID)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return echo.NewHTTPError(404, "project not found")
+			}
 			return err
 		}
 
