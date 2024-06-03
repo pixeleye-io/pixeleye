@@ -25,8 +25,10 @@ This docker file requires the files found in this [config folder](https://github
 
 ### Quick start
 
-1. Copy `docker-compose-self-hosting.yml` & `config` folder to your server.
+1. Copy [`docker-compose-self-hosting.yml`](https://github.com/pixeleye-io/pixeleye/tree/main/docker/docker-compose-self-hosting.yml) & everything from [`./config`](https://github.com/pixeleye-io/pixeleye/tree/main/docker/config) to your server.
 2. run `docker compose -f docker-compose-self-hosting.yml up`
+
+> Make sure you have the [./config folder](https://github.com/pixeleye-io/pixeleye/tree/main/docker/config) folder in the same directory as the docker-compose file.
 
 ### Changing secrets
 
