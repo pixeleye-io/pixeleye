@@ -1,0 +1,4 @@
+from postgres:16
+
+# Copy the Init script
+COPY ./init-user-db.sh /docker-entrypoint-initdb.d/

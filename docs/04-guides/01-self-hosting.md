@@ -26,7 +26,8 @@ This docker file requires the files found in this [config folder](https://github
 ### Quick start
 
 1. Copy `docker-compose-self-hosting.yml` & `config` folder to your server.
-2. run `docker compose -f docker-compose-self-hosting.yml up`
+2. Run `docker compose -f docker-compose-self-hosting.yml up`.
+3. After docker has started, you can access Pixeleye at `http://localhost:3000`.
 
 ### Changing secrets
 

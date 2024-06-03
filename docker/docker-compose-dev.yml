@@ -21,7 +21,9 @@ services:
       - MINIO_ROOT_PASSWORD=CHANGEME
       - MINIO_DEFAULT_BUCKETS=pixeleye
   postgres:
-    image: postgres:latest
+    build:
+      context: ./config
+      dockerfile: ./Dockerfile.psql
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
