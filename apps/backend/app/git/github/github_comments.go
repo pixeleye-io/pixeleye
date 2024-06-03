@@ -52,27 +52,13 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 
 	description := fmt.Sprintf("Pixeleye — %s/%s: %s %s", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
 
-	commitStatus, _, err := c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
+	_, _, err = c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
 		TargetURL:   &detailsURL,
 		State:       &status,
 		Description: &description,
 	})
-	if err != nil {
-		return err
-	}
 
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return err
-	}
-
-	build.CheckRunID = strconv.FormatInt(commitStatus.GetID(), 10)
-
-	if err := db.UpdateBuildCheckRunID(ctx, build); err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func getStatusEmoji(status string) string {
@@ -197,17 +183,10 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return err
 	}
 
-	if build.CheckRunID == "" {
-		err := githubAppClient.createCheckRun(ctx, team, project, build)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to create check run")
-		}
+	if err := githubAppClient.createCheckRun(ctx, team, project, build); err != nil {
+		log.Error().Err(err).Msg("Failed to create check run")
 		return err
 	}
 
-	err = githubAppClient.updateCheckRun(ctx, team, project, build)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to update check run")
-	}
-	return err
+	return nil
 }
