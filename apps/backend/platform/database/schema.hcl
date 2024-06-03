@@ -577,12 +577,6 @@ table "build" {
     default = "uploading"
   }
 
-  column "check_run_id" {
-    type    = varchar(255)
-    null    = false
-    default = ""
-  }
-
   column "sharding_id" {
     type    = varchar(255)
     null    = false
