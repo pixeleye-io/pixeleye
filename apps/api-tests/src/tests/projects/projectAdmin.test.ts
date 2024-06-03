@@ -95,11 +95,11 @@ describe("Team admin projects", () => {
   });
 
   it("Jekyll should not be able to generate a token for Hyde's project when not in his project/team", async (ctx) => {
-    await projectAPI.regenerateToken(hydesProject.id, IDs.jekyll, 500);
+    await projectAPI.regenerateToken(hydesProject.id, IDs.jekyll, 404);
   });
 
   it("Hyde should not be able to generate a token for Jekyll's project when not in his project/team", async (ctx) => {
-    await projectAPI.regenerateToken(jekyllsProject.id, IDs.hyde, 500);
+    await projectAPI.regenerateToken(jekyllsProject.id, IDs.hyde, 404);
   });
 
   it("Jekyll should not be able to delete Hyde's project when not in his project/team", async (ctx) => {
@@ -107,7 +107,7 @@ describe("Team admin projects", () => {
       hydesProject.id,
       hydesProject.name,
       IDs.jekyll,
-      500
+      404
     );
   });
 
@@ -116,7 +116,7 @@ describe("Team admin projects", () => {
       jekyllsProject.id,
       jekyllsProject.name,
       IDs.hyde,
-      500
+      404
     );
   });
 
@@ -129,7 +129,7 @@ describe("Team admin projects", () => {
       session.identity.userID,
       "viewer",
       IDs.jekyll,
-      500
+      404
     );
   });
 

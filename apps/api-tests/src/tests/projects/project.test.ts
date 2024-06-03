@@ -139,7 +139,7 @@ describe("Team projects", () => {
       (team) => team.type === "user" && team.role === "owner"
     )!;
 
-    await projectAPI.getProject(userTeam.id, IDs.jekyll, 500);
+    await projectAPI.getProject(userTeam.id, IDs.jekyll, 404);
   });
 
   it("Hyde should not be able to access Jekyll's project", async (ctx) => {
@@ -147,6 +147,6 @@ describe("Team projects", () => {
       (team) => team.type === "user" && team.role === "owner"
     )!;
 
-    await projectAPI.getProject(userTeam.id, IDs.hyde, 500);
+    await projectAPI.getProject(userTeam.id, IDs.hyde, 404);
   });
 });
