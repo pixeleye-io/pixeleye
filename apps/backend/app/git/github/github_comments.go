@@ -14,38 +14,23 @@ import (
 )
 
 func getStatus(status string) string {
+
+	if models.IsBuildFailedOrAborted(status) {
+		return "error"
+	}
+
 	if models.IsBuildPostProcessing(status) {
-		return "completed"
+		if status == models.BUILD_STATUS_ORPHANED || status == models.BUILD_STATUS_UNCHANGED || status == models.BUILD_STATUS_APPROVED {
+			return "success"
+		} else {
+			return "failure"
+		}
 	}
 
-	if models.IsBuildQueued(status) {
-		return "queued"
-	}
-
-	return "in_progress"
+	return "pending"
 }
 
-func getConclusion(build models.Build) string {
-	if build.Status == models.BUILD_STATUS_FAILED || build.Status == models.BUILD_STATUS_REJECTED {
-		return "failure"
-	}
-
-	if build.Status == models.BUILD_STATUS_ABORTED {
-		return "cancelled"
-	}
-
-	if build.Status == models.BUILD_STATUS_UNREVIEWED {
-		return "action_required"
-	}
-
-	if build.Status == models.BUILD_STATUS_APPROVED || build.Status == models.BUILD_STATUS_UNCHANGED || build.Status == models.BUILD_STATUS_ORPHANED {
-		return "success"
-	}
-
-	return "neutral"
-}
-
-func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, project models.Project, build models.Build, snapshots []models.Snapshot) error {
+func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, project models.Project, build models.Build) error {
 
 	if project.Source != "github" {
 		return fmt.Errorf("project source is not from github")
@@ -65,34 +50,13 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 
 	status := getStatus(build.Status)
 
-	startedAt := github.Timestamp{Time: build.CreatedAt}
+	description := fmt.Sprintf("Pixeleye — %s/%s: %s %s", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
 
-	summary := "Build status: " + build.Status
-	title := "Pixeleye — " + project.Name
-
-	content := buildContent(team, project, build, snapshots)
-
-	opts := github.CreateCheckRunOptions{
-		Name:       title,
-		HeadSHA:    build.Sha,
-		DetailsURL: &detailsURL,
-		ExternalID: &build.ID,
-		Status:     &status,
-		StartedAt:  &startedAt,
-		Output: &github.CheckRunOutput{
-			Title:   &summary,
-			Summary: &summary,
-			Text:    &content,
-		},
-	}
-
-	if status == "completed" {
-		conclusion := getConclusion(build)
-
-		opts.Conclusion = &conclusion
-	}
-
-	checkRun, _, err := c.Checks.CreateCheckRun(ctx, repo.Owner.GetLogin(), repo.GetName(), opts)
+	commitStatus, _, err := c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
+		TargetURL:   &detailsURL,
+		State:       &status,
+		Description: &description,
+	})
 	if err != nil {
 		return err
 	}
@@ -102,7 +66,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 		return err
 	}
 
-	build.CheckRunID = strconv.FormatInt(checkRun.GetID(), 10)
+	build.CheckRunID = strconv.FormatInt(commitStatus.GetID(), 10)
 
 	if err := db.UpdateBuildCheckRunID(ctx, build); err != nil {
 		return err
@@ -173,113 +137,7 @@ func getDetailsURL(build models.Build) string {
 	return os.Getenv("FRONTEND_URL") + "/builds/" + build.ID
 }
 
-func buildContent(team models.Team, project models.Project, build models.Build, snapshots []models.Snapshot) string {
-	content := fmt.Sprintf("# %s/%s — %s %s\n\n", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
-	content += fmt.Sprintf("## Statuses of %d Snapshots\n", len(snapshots))
-
-	queued := 0
-	processing := 0
-	failed := 0
-	approved := 0
-	rejected := 0
-	unreviewed := 0
-	unchanged := 0
-	orphaned := 0
-	missing_baseline := 0
-
-	for _, snapshot := range snapshots {
-		switch snapshot.Status {
-		case models.SNAPSHOT_STATUS_QUEUED:
-			queued++
-		case models.SNAPSHOT_STATUS_PROCESSING:
-			processing++
-		case models.SNAPSHOT_STATUS_FAILED:
-			failed++
-		case models.SNAPSHOT_STATUS_APPROVED:
-			approved++
-		case models.SNAPSHOT_STATUS_REJECTED:
-			rejected++
-		case models.SNAPSHOT_STATUS_UNREVIEWED:
-			unreviewed++
-		case models.SNAPSHOT_STATUS_UNCHANGED:
-			unchanged++
-		case models.SNAPSHOT_STATUS_ORPHANED:
-			orphaned++
-		case models.SNAPSHOT_STATUS_MISSING_BASELINE:
-			missing_baseline++
-		}
-	}
-
-	headers := ""
-	columns := ""
-	counts := ""
-
-	if queued > 0 {
-		headers += "| Queued |"
-		columns += "|:------:|"
-		counts += fmt.Sprintf("| %d |", queued)
-	}
-
-	if processing > 0 {
-		headers += "| Processing |"
-		columns += "|:----------:|"
-		counts += fmt.Sprintf("| %d |", processing)
-	}
-
-	if failed > 0 {
-		headers += "| Failed |"
-		columns += "|:------:|"
-		counts += fmt.Sprintf("| %d |", failed)
-	}
-
-	if approved > 0 {
-		headers += "| Approved |"
-		columns += "|:--------:|"
-		counts += fmt.Sprintf("| %d |", approved)
-	}
-
-	if rejected > 0 {
-		headers += "| Rejected |"
-		columns += "|:--------:|"
-		counts += fmt.Sprintf("| %d |", rejected)
-	}
-
-	if unreviewed > 0 {
-		headers += "| Unreviewed |"
-		columns += "|:----------:|"
-		counts += fmt.Sprintf("| %d |", unreviewed)
-	}
-
-	if unchanged > 0 {
-		headers += "| Unchanged |"
-		columns += "|:----------:|"
-		counts += fmt.Sprintf("| %d |", unchanged)
-	}
-
-	if orphaned > 0 {
-		headers += "| Orphaned |"
-		columns += "|:--------:|"
-		counts += fmt.Sprintf("| %d |", orphaned)
-	}
-
-	if missing_baseline > 0 {
-		headers += "| Missing Baseline |"
-		columns += "|:----------------:|"
-		counts += fmt.Sprintf("| %d |", missing_baseline)
-	}
-
-	if headers != "" {
-		content += headers + "\n"
-		content += columns + "\n"
-		content += counts + "\n"
-	}
-
-	content += fmt.Sprintf("\n> View the full [build](%s) on Pixeleye\n", getDetailsURL(build))
-
-	return content
-}
-
-func (c *GithubAppClient) updateCheckRun(ctx context.Context, team models.Team, project models.Project, build models.Build, snapshots []models.Snapshot) error {
+func (c *GithubAppClient) updateCheckRun(ctx context.Context, team models.Team, project models.Project, build models.Build) error {
 
 	if project.Source != "github" {
 		return fmt.Errorf("project source is not from github")
@@ -299,34 +157,13 @@ func (c *GithubAppClient) updateCheckRun(ctx context.Context, team models.Team, 
 
 	detailsURL := getDetailsURL(build)
 
-	title := "Pixeleye — " + project.Name
-	summary := "Build status: " + build.Status
+	description := fmt.Sprintf("Pixeleye — %s/%s: %s %s", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
 
-	content := buildContent(team, project, build, snapshots)
-
-	opts := github.UpdateCheckRunOptions{
-		Status:     &status,
-		ExternalID: &build.ID,
-		Name:       title,
-		DetailsURL: &detailsURL,
-		Output: &github.CheckRunOutput{
-			Title:   &summary,
-			Summary: &summary,
-			Text:    &content,
-		},
-	}
-
-	if status == "completed" {
-		conclusion := getConclusion(build)
-		opts.Conclusion = &conclusion
-	}
-
-	checkRunID, err := strconv.ParseInt(build.CheckRunID, 10, 64)
-	if err != nil {
-		return err
-	}
-
-	_, _, err = c.Checks.UpdateCheckRun(ctx, repo.Owner.GetLogin(), repo.GetName(), checkRunID, opts)
+	_, _, err = c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
+		TargetURL:   &detailsURL,
+		State:       &status,
+		Description: &description,
+	})
 	if err != nil {
 		return err
 	}
@@ -360,20 +197,15 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 		return err
 	}
 
-	snapshots, err := db.GetSnapshotsByBuild(ctx, build.ID)
-	if err != nil {
-		return err
-	}
-
 	if build.CheckRunID == "" {
-		err := githubAppClient.createCheckRun(ctx, team, project, build, snapshots)
+		err := githubAppClient.createCheckRun(ctx, team, project, build)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to create check run")
 		}
 		return err
 	}
 
-	err = githubAppClient.updateCheckRun(ctx, team, project, build, snapshots)
+	err = githubAppClient.updateCheckRun(ctx, team, project, build)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to update check run")
 	}
