@@ -29,14 +29,14 @@ func LoadBuild(next echo.HandlerFunc) echo.HandlerFunc {
 		if buildID == "" {
 			snapshot, err := GetSnapshot(c)
 			if err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
+				return echo.NewHTTPError(http.StatusNotFound, "build not found")
 			}
 
 			buildID = snapshot.BuildID
 		}
 
 		if !utils.ValidateNanoid(buildID) {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid build ID")
+			return echo.NewHTTPError(http.StatusNotFound, "build not found")
 		}
 
 		db, err := database.OpenDBConnection()
