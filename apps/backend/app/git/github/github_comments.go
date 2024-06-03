@@ -50,7 +50,7 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 
 	status := getStatus(build.Status)
 
-	description := fmt.Sprintf("Pixeleye — %s/%s: %s %s", team.Name, project.Name, getStatusEmoji(build.Status), getBuildStatusTitle(build.Status))
+	description := fmt.Sprintf("Pixeleye — %s/%s: %s", team.Name, project.Name, getBuildStatusTitle(build.Status))
 
 	_, _, err = c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
 		TargetURL:   &detailsURL,
@@ -59,35 +59,6 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 	})
 
 	return err
-}
-
-func getStatusEmoji(status string) string {
-	switch status {
-	case models.BUILD_STATUS_APPROVED:
-		return "🟢"
-	case models.BUILD_STATUS_REJECTED:
-		return "🟠"
-	case models.BUILD_STATUS_UNREVIEWED:
-		return "🟡"
-	case models.BUILD_STATUS_FAILED:
-		return "🔴"
-	case models.BUILD_STATUS_ORPHANED:
-		return "⚪️"
-	case models.BUILD_STATUS_UNCHANGED:
-		return "🟢"
-	case models.BUILD_STATUS_ABORTED:
-		return "🔴"
-	case models.BUILD_STATUS_PROCESSING:
-		return "🔵"
-	case models.BUILD_STATUS_QUEUED_PROCESSING:
-		return "🔵"
-	case models.BUILD_STATUS_QUEUED_UPLOADING:
-		return "🔵"
-	case models.BUILD_STATUS_UPLOADING:
-		return "🔵"
-	default:
-		return "🔵"
-	}
 }
 
 func getBuildStatusTitle(status string) string {
