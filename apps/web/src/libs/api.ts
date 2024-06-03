@@ -34,7 +34,10 @@ export const createAPI = (extraHeaders: Record<string, string> = {}) =>
         return res.json().catch(() => undefined);
       }
 
-      return Promise.reject(await res.json().catch(() => res));
+      const error = await res.json().catch(() => res);
+      error.status = res.status;
+
+      return Promise.reject(error);
     })
   );
 
