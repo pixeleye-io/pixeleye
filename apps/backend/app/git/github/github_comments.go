@@ -50,9 +50,9 @@ func (c *GithubAppClient) createCheckRun(ctx context.Context, team models.Team, 
 
 	status := getStatus(build.Status)
 
-	description := fmt.Sprintf("Pixeleye — %s/%s", team.Name, project.Name)
+	context := fmt.Sprintf("Pixeleye – %s/%s", team.Name, project.Name)
 
-	context := fmt.Sprintf("Build status: %s", getBuildStatusTitle(build.Status))
+	description := fmt.Sprintf("Build status: %s", getBuildStatusTitle(build.Status))
 
 	_, _, err = c.Repositories.CreateStatus(ctx, repo.Owner.GetLogin(), repo.GetName(), build.Sha, &github.RepoStatus{
 		TargetURL:   &detailsURL,
