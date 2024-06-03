@@ -151,6 +151,7 @@ func SyncBuildStatusWithGithub(ctx context.Context, project models.Project, buil
 
 	if err := githubAppClient.createCheckRun(ctx, team, project, build); err != nil {
 		log.Error().Err(err).Msg("Failed to create check run")
+
 		return err
 	}
 
