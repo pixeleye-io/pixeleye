@@ -40,11 +40,9 @@ const maskId = "pixeleye-mask" + Math.random().toString(36).slice(2);
     const y = event.clientY;
 
     eyes.forEach((eye) => {
-      const { left, top, width, height } = eye.getBoundingClientRect();
-      const centerX = left + 32;
-      const centerY = top + 25;
-
-      console.log({ x, y, centerX, centerY });
+      const { left, top } = eye.getBoundingClientRect();
+      const centerX = left;
+      const centerY = top;
 
       const angle = Math.atan2(y - centerY, x - centerX);
       const distance = Math.min(

@@ -2,6 +2,8 @@
 import { Image } from "astro:assets";
 import DashLightBase from "./assets/dash-light-base-lg.png";
 import DashLightOffset from "./assets/dash-light-offset-lg.png";
+import DashDarkOffset from "./assets/dash-dark-offset-lg.png";
+import DashDarkBase from "./assets/dash-dark-base-lg.png";
 ---
 
 <div class="relative z-0 mt-32">
@@ -33,24 +35,36 @@ import DashLightOffset from "./assets/dash-light-offset-lg.png";
   >
     <div id="swiper-zone" class="relative z-10">
       <div
-        class="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10"
+        class="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container shadow-2xl ring-1 ring-gray-900/10"
       >
         <Image
           loading="eager"
           src={DashLightOffset}
           alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-fill w-full h-full select-none"
+          class="absolute inset-0 object-fill w-full h-full select-none dark:hidden block"
+        />
+        <Image
+          loading="eager"
+          src={DashDarkOffset}
+          alt="After Demo dashboard with UI elements misaligned"
+          class="absolute inset-0 object-fill w-full h-full select-none dark:block hidden"
         />
       </div>
       <div id="swiper-reveal" class="absolute inset-0 will-change-[clip] z-10">
         <div
-          class="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container-lowest shadow-2xl ring-1 ring-gray-900/10"
+          class="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container shadow-2xl ring-1 ring-gray-900/10"
         >
           <Image
             loading="eager"
             src={DashLightBase}
             alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-fill w-full h-full select-none"
+            class="absolute inset-0 object-fill w-full h-full select-none dark:hidden block"
+          />
+          <Image
+            loading="eager"
+            src={DashDarkBase}
+            alt="Before Demo dashboard with UI elements aligned"
+            class="absolute inset-0 object-fill w-full h-full select-none dark:block hidden"
           />
         </div>
       </div>
@@ -88,6 +102,8 @@ import DashLightOffset from "./assets/dash-light-offset-lg.png";
 </div>
 
 <script>
+  import { animate } from "motion";
+
   const swiperZone = document.getElementById("swiper-zone")!;
   const swiperHandle = document.getElementById("swiper-handle")!;
   const swiperReveal = document.getElementById("swiper-reveal")!;
@@ -134,5 +150,9 @@ import DashLightOffset from "./assets/dash-light-offset-lg.png";
     document.body.style.cursor = "";
     swiperHandle.style.cursor = "grab";
     document.removeEventListener("mousemove", onDrag);
+  });
+
+  animate(swiperHandle, {
+    x: 75,
   });
 </script>

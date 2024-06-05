@@ -4,6 +4,7 @@ import { cx } from "class-variance-authority";
 import Button from "./button.astro";
 import { Logo } from "@pixeleye/ui/src/logo";
 import Bars3Icon from "@heroicons/react/24/solid/Bars3Icon";
+import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -16,8 +17,7 @@ const navigation = [
   { name: "Playground", href: "/playground" },
 ];
 
-const isSuccess = true;
-const isPending = false;
+const isLoggedIn = false;
 ---
 
 <header
@@ -60,7 +60,6 @@ const isPending = false;
         href="https://github.com/pixeleye-io/pixeleye"
         class="text-sm hidden lg:block font-semibold leading-6 text-tertiary"
         target="_blank"
-
       >
         Star us on Github
       </a>
@@ -72,107 +71,133 @@ const isPending = false;
       <Button
         as="a"
         variant="outline"
-        class="hidden lg:block w-28"
-        href={isSuccess ? "/dashboard" : "/registration"}
+        class="w-28 lg:[[data-logged-in='true']_&]:block hidden"
+        href="/dashboard"
       >
-        {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
+        Dashboard
+      </Button>
+      <!-- @ts-ignore -->
+      <Button
+        as="a"
+        variant="outline"
+        class="hidden w-28 lg:[[data-logged-in='false']_&]:block"
+        href="/registration"
+      >
+        Get started
       </Button>
 
-    <!-- @ts-ignore -->
-    <Button type="button" variant="link" class="h-8 lg:hidden inline-flex items-center justify-center">
+      <!-- @ts-ignore -->
+      <Button
+        type="button"
+        variant="ghost"
+        id="sidebar-button"
+        class="h-8 lg:hidden inline-flex items-center justify-center"
+      >
         <span class="sr-only">Open main menu</span>
-  
         <Bars3Icon className="h-6 w-6" aria-hidden="true" />
       </Button>
     </div>
-
-
   </nav>
 </header>
-<!-- 
-  <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
 
-    <Dialog.Portal>
-      <div class="fixed inset-0 z-10"></div>
-
-      <Dialog.Content
-        className="fixed lg:hidden inset-y-0 right-0 z-50 w-full overflow-y-auto bg-surface-container px-6 py-4 sm:max-w-sm sm:ring-1 sm:ring-outline-variant shadow"
+<dialog
+  id="navbar-sidebar"
+  class="lg:hidden w-full max-w-full max-h-full sm:max-w-sm h-screen ml-auto fixed m-0 z-50 shadow inset-y-0"
+>
+  <div
+    class="h-full overflow-y-auto px-6 py-4 w-full sm:ring-1 bg-surface-container sm:ring-outline-variant"
+  >
+    <div class="flex items-center justify-between -mt-0.5">
+      <a
+        href="/home"
+        class={cx(
+          "-mx-1.5 -mt-1 p-1.5",
+          pathname.startsWith("/home") && "!text-tertiary"
+        )}
       >
-        <div className="flex items-center justify-between -mt-0.5">
+        <span class="sr-only">Pixeleye</span>
+        <Logo className="h-8 w-auto" />
+      </a>
+      <form method="dialog">
+        <!-- @ts-ignore -->
+        <Button variant="ghost" autofocus>
+          <span class="sr-only">Close menu</span>
+          <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+        </Button>
+      </form>
+    </div>
+    <div class="mt-6 flow-root">
+      <div class="-my-6 divide-y divide-outline-variant">
+        <div class="space-y-2 py-6">
+          {
+            navigation.map((item) => (
+              <a
+                href={item.href}
+                class={cx(
+                  "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
+                  pathname.startsWith(item.selector || item.href) &&
+                    "!text-tertiary"
+                )}
+              >
+                {item.name}
+              </a>
+            ))
+          }
+        </div>
+        <div class="py-6 flex flex-col space-y-2">
           <a
-            onClick={() => setMobileMenuOpen(false)}
-            href="/home"
-            className={cx(
-              "-mx-1.5 -mt-1 p-1.5",
-              pathname.startsWith("/home") && "!text-tertiary"
-            )}
+            href="https://github.com/pixeleye-io/pixeleye"
+            class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
           >
-            <span className="sr-only">Pixeleye</span>
-            <Logo className="h-8 w-auto" />
+            Star us on Github
           </a>
 
-          <Button
-            type="button"
-            variant="link"
-            onClick={() => setMobileMenuOpen(false)}
+          <a
+            href={"/dashboard"}
+            class="-mx-3 rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high [[data-logged-in='true']_&]:block hidden"
           >
-            <span className="sr-only">Close menu</span>
-            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-          </Button>
-        </div>
-        <div className="mt-6 flow-root">
-          <div className="-my-6 divide-y divide-outline-variant">
-            <div className="space-y-2 py-6">
-              {
-                navigation.map((item) => (
-                  <a
-                    onClick={() => setMobileMenuOpen(false)}
-                    key={item.name}
-                    href={item.href}
-                    className={cx(
-                      "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
-                      pathname.startsWith(item.selector || item.href) &&
-                        "!text-tertiary"
-                    )}
-                  >
-                    {item.name}
-                  </a>
-                ))
-              }
-            </div>
-            <div className="py-6 flex flex-col space-y-2">
-              <a
-                href="https://github.com/pixeleye-io/pixeleye"
-                className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
-              >
-                Star us on Github
-              </a>
-              {
-                !isPending && (
-                  <a
-                    href={isSuccess ? "/dashboard" : "/registration"}
-                    className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
-                  >
-                    {isSuccess ? "Dashboard" : "Get started"}
-                  </a>
-                )
-              }
-            </div>
-          </div>
-        </div>
-      </Dialog.Content>
-    </Dialog.Portal>
-  </Dialog.Root> -->
+            Dashboard
+            <span class="[[data-logged-in='false']_&]:block hidden">
+              Get started
+            </span>
+          </a>
 
+          <a
+            href={"/registration"}
+            class="-mx-3 rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high [[data-logged-in='false']_&]:block hidden"
+          >
+            Get started
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
 
-  <script>
-    import docsearch from "@docsearch/js";
-  
-    docsearch({
-      container: "#docsearch",
-      appId: "DVHY2LO2GG",
-      indexName: "pixeleye",
-      apiKey: "b0c6d1ff6949bf05c049abe4209ad481",
-    });
-  </script>
-  
+<script>
+  import docsearch from "@docsearch/js";
+
+  docsearch({
+    container: "#docsearch",
+    appId: "DVHY2LO2GG",
+    indexName: "pixeleye",
+    apiKey: "b0c6d1ff6949bf05c049abe4209ad481",
+  });
+</script>
+
+<script>
+  const sidebar = document.getElementById(
+    "navbar-sidebar"
+  )! as HTMLDialogElement;
+  const sidebarButton = document.getElementById("sidebar-button")!;
+
+  sidebarButton.addEventListener("click", () => {
+    sidebar.showModal();
+  });
+
+  sidebar.addEventListener("click", (event) => {
+    if (event.target === sidebar) {
+      sidebar.close();
+    }
+  });
+</script>

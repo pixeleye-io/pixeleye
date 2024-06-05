@@ -6,9 +6,10 @@ import Footer from "../components/footer.astro";
 
 interface Props {
   title: string;
+  description: string;
 }
 
-const { title } = Astro.props;
+const { title, description } = Astro.props;
 ---
 
 <html lang="en" class="bg-surface text-on-surface">
@@ -16,9 +17,35 @@ const { title } = Astro.props;
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
+    <script is:inline>
+      const prefersDarkScheme = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      );
+      const currentTheme = localStorage.getItem("theme");
+      if (
+        currentTheme === "dark" ||
+        (prefersDarkScheme.matches && currentTheme !== "light")
+      ) {
+        document.documentElement.classList.add("dark");
+        document.documentElement.style["color-scheme"] = "dark";
+      } else {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.style["color-scheme"] = "light";
+      }
+
+      prefersDarkScheme.addEventListener("change", (e) => {
+        const newColorScheme = e.matches ? "dark" : "light";
+        if (newColorScheme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      });
+    </script>
     <title>
       {title}
     </title>
+    <meta name="description" content={description} />
   </head>
   <body
     class="font-sans min-h-screen bg-surface text-on-surface dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50"
@@ -160,3 +187,15 @@ const { title } = Astro.props;
   }
 </style>
 
+<script>
+  fetch( "https://auth.pixeleye.io/sessions/whoami", {
+    credentials: "include",
+  })
+    .then((res) => !res.ok && Promise.reject(res))
+    .then(() => {
+      document.documentElement.setAttribute("data-logged-in", "true");
+    })
+    .catch(() => {
+      document.documentElement.setAttribute("data-logged-in", "false");
+    });
+</script>
