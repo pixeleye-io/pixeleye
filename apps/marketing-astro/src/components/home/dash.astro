@@ -3,13 +3,10 @@ import {
   ChartBarSquareIcon,
   Cog6ToothIcon,
   FolderIcon,
-  GlobeAltIcon,
   ServerIcon,
   SignalIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Bars3Icon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-
 import { cx } from "class-variance-authority";
 import { Logo } from "@pixeleye/ui/src/logo";
 import ProfilePicture from "./assets/profile-picture.png";
@@ -81,13 +78,8 @@ const activityItems = [
 ---
 
 <Root title="test">
-  <div
-    class="h-[45rem] w-[76rem] relative z-0"
-  >
-    <div
-      class="h-full relative"
-      aria-hidden
-    >
+  <div class="h-[45rem] w-[76rem] relative z-0">
+    <div class="h-full relative" aria-hidden>
       {/* Static sidebar for desktop */}
       <div
         class="hidden xl:absolute xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col"
