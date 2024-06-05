@@ -1,0 +1,161 @@
+---
+const pathname = "/home";
+import { cx } from "class-variance-authority";
+import Button from "./button.astro";
+import { Logo } from "@pixeleye/ui/src/logo";
+import Bars3Icon from "@heroicons/react/24/solid/Bars3Icon";
+
+const navigation = [
+  { name: "Home", href: "/home" },
+  {
+    name: "Docs",
+    href: "/docs/getting-started/introduction",
+    selector: "/docs",
+  },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Playground", href: "/playground" },
+];
+
+const isSuccess = true;
+const isPending = false;
+---
+
+<header
+  class="bg-surface/90 backdrop-blur-sm fixed z-30 w-full border-b border-b-outline-variant"
+>
+  <nav
+    class="mx-auto flex max-w-8xl items-center justify-between px-6 py-4 lg:px-8"
+    aria-label="Global"
+  >
+    <div class="flex items-center gap-x-12">
+      <a
+        href="/home"
+        class={cx(
+          "-m-1.5 p-1.5",
+          pathname.startsWith("/home") && "!text-tertiary"
+        )}
+      >
+        <span class="sr-only">Pixeleye</span>
+        <Logo className="h-8 w-auto hover:text-tertiary transition-colors" />
+      </a>
+      <div class="hidden lg:flex lg:gap-x-12">
+        {
+          navigation.map((item) => (
+            <a
+              href={item.href}
+              class={cx(
+                "text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors",
+                pathname.startsWith(item.selector || item.href) &&
+                  "!text-tertiary"
+              )}
+            >
+              {item.name}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <a
+        href="https://github.com/pixeleye-io/pixeleye"
+        class="text-sm hidden lg:block font-semibold leading-6 text-tertiary"
+      >
+        Star us on Github
+      </a>
+
+      {/* DOC SEARCH */}
+      <div id="docsearch"></div>
+
+      <!-- @ts-ignore -->
+      <Button
+        as="a"
+        variant="outline"
+        class="hidden lg:block w-28"
+        href={isSuccess ? "/dashboard" : "/registration"}
+      >
+        {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
+      </Button>
+    </div>
+
+    <!-- @ts-ignore -->
+    <Button type="button" variant="link" class="h-8 lg:hidden">
+      <span class="sr-only">Open main menu</span>
+
+      <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+    </Button>
+  </nav>
+</header>
+<!-- 
+  <Dialog.Root open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+
+    <Dialog.Portal>
+      <div class="fixed inset-0 z-10"></div>
+
+      <Dialog.Content
+        className="fixed lg:hidden inset-y-0 right-0 z-50 w-full overflow-y-auto bg-surface-container px-6 py-4 sm:max-w-sm sm:ring-1 sm:ring-outline-variant shadow"
+      >
+        <div className="flex items-center justify-between -mt-0.5">
+          <a
+            onClick={() => setMobileMenuOpen(false)}
+            href="/home"
+            className={cx(
+              "-mx-1.5 -mt-1 p-1.5",
+              pathname.startsWith("/home") && "!text-tertiary"
+            )}
+          >
+            <span className="sr-only">Pixeleye</span>
+            <Logo className="h-8 w-auto" />
+          </a>
+
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span className="sr-only">Close menu</span>
+            <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+          </Button>
+        </div>
+        <div className="mt-6 flow-root">
+          <div className="-my-6 divide-y divide-outline-variant">
+            <div className="space-y-2 py-6">
+              {
+                navigation.map((item) => (
+                  <a
+                    onClick={() => setMobileMenuOpen(false)}
+                    key={item.name}
+                    href={item.href}
+                    className={cx(
+                      "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
+                      pathname.startsWith(item.selector || item.href) &&
+                        "!text-tertiary"
+                    )}
+                  >
+                    {item.name}
+                  </a>
+                ))
+              }
+            </div>
+            <div className="py-6 flex flex-col space-y-2">
+              <a
+                href="https://github.com/pixeleye-io/pixeleye"
+                className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
+              >
+                Star us on Github
+              </a>
+              {
+                !isPending && (
+                  <a
+                    href={isSuccess ? "/dashboard" : "/registration"}
+                    className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
+                  >
+                    {isSuccess ? "Dashboard" : "Get started"}
+                  </a>
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </Dialog.Content>
+    </Dialog.Portal>
+  </Dialog.Root> -->
