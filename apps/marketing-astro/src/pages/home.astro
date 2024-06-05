@@ -1,0 +1,420 @@
+---
+import Link from "../components/link.astro";
+import Root from "../layouts/root.astro";
+import { LogoWatching } from "@pixeleye/ui/src/logoWatching";
+import Swiper from "../components/home/swiper.astro";
+import {
+  ChromiumLogo,
+  EdgeLogo,
+  FirefoxLogo,
+  WebkitLogo,
+} from "@pixeleye/device-logos";
+import {
+  ArrowsPointingOutIcon,
+  BookOpenIcon,
+  CameraIcon,
+  CloudArrowUpIcon,
+  Square2StackIcon,
+  UsersIcon,
+} from "@heroicons/react/24/solid";
+
+import {
+  ChevronRightIcon,
+  LockClosedIcon,
+  ServerIcon,
+  WindowIcon,
+} from "@heroicons/react/20/solid";
+import LogoOrbit from "../components/home/logoOrbit";
+import Button from "../components/button.astro";
+import ButtonTag from "../components/button.astro";
+
+const browserLogos = [
+  {
+    name: "Chrome",
+    logo: ChromiumLogo,
+  },
+  {
+    name: "Firefox",
+    logo: FirefoxLogo,
+  },
+  {
+    name: "Safari",
+    logo: WebkitLogo,
+  },
+  {
+    name: "Edge",
+    logo: EdgeLogo,
+  },
+];
+
+const features = [
+  {
+    name: "Cross-browser testing.",
+    description:
+      "Capture screenshots across multiple browsers and devices. Pixeleye allows you to increase your test converge over alternative solutions.",
+    icon: WindowIcon,
+  },
+  {
+    name: "Responsive testing.",
+    description:
+      "Capture screenshots across multiple browsers and devices. UI adapts to screen sizes, why shouldn't your tests?",
+    icon: ArrowsPointingOutIcon,
+  },
+  {
+    name: "Self-hostable.",
+    description:
+      "We have an awesome cloud solution, but if you want to keep your data in-house, Pixeleye is self-hostable.",
+    icon: ServerIcon,
+  },
+  {
+    name: "Role syncing.",
+    description:
+      "You've already setup your roles in your vcs, why do it again? Pixeleye syncs your roles from your vcs.",
+    icon: UsersIcon,
+  },
+  {
+    name: "UI reviews.",
+    description:
+      "Pixeleye boasts a powerful diff reviewer, allowing you to easily spot visual regressions and approving valid changes.",
+    icon: Square2StackIcon,
+  },
+  {
+    name: "Open-source.",
+    description:
+      "Pixeleye is open-source, meaning you can contribute to the project and help shape the future of visual testing.",
+    icon: BookOpenIcon,
+  },
+];
+
+const integrations = [
+  {
+    name: "VCS integration.",
+    description:
+      "Pixeleye integrates with any git VCS! We also offer extra functionality like permission syncing or PR comments for supported VCSs (Currently only Github).",
+    icon: CloudArrowUpIcon,
+  },
+  {
+    name: "CI integration.",
+    description:
+      "We've built our tools to support your CI. We want you're experience to be as seamless as possible.",
+    icon: ServerIcon,
+  },
+  {
+    name: "Framework integration.",
+    description:
+      "We have many options for taking our screenshots (Storybook, Cypress, Puppeteer, ...etc). And if we don't have an official integration, our CLI tool more than likely has you covered.",
+    icon: CameraIcon,
+  },
+];
+
+const faqs = [
+  {
+    id: 1,
+    question: "What's a snapshot?",
+    answer:
+      "A snapshot is a picture. You can take snapshots of individual components or even of your entire application. We use these snapshots to compare changes in your ui.",
+  },
+  {
+    id: 2,
+    question: "Do you integrate with GitHub, GitLab or Bitbucket?",
+    answer:
+      "Pixeleye will work with any VCS! We currently offer extra functionality for Github (permission syncing, pr comments, ...etc), but have plans to support GitLab and Bitbucket in the future.",
+  },
+  {
+    id: 3,
+    question: "Is there any vendor lock-in?",
+    answer:
+      "No, Pixeleye is open-source and self-hostable. Whilst we're confident you'll love our cloud solution, you can always run Pixeleye yourself.",
+  },
+  {
+    id: 4,
+    question: "What devices can I test on?",
+    answer:
+      "We currently support the Chromium, Firefox and Webkit rendering engines. We offer a range of preset settings for desktop, tablet and mobile devices as well as the ability to create your own.",
+  },
+  {
+    id: 5,
+    question: "Why should I use visual testing?",
+    answer:
+      "Browsers render your UI differently, CSS can have unintended side effects and your UI is constantly changing. Visual testing allows you to catch these issues before they reach production.",
+  },
+  {
+    id: 6,
+    question: "Why should I use your cloud solution?",
+    answer: "Convenience and support. We handle the hosting, maintenance, scaling as well as ensuring you're on the latest version. Plus you'd be supporting Open Source!",
+  },
+];
+
+---
+
+<Root title="index">
+  <!-- ====================== Hero ========================= -->
+
+  <main>
+    <div class="relative isolate overflow-hidden bg-surface">
+      <svg
+        class="absolute inset-0 -z-10 h-full w-full stroke-outline-variant/50 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="0787a7c5-978c-4f66-83c7-11c213f99cb7"
+            width={200}
+            height={200}
+            x="50%"
+            y={-1}
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M.5 200V.5H200" fill="none"></path>
+          </pattern>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          stroke-width={0}
+          fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)"></rect>
+      </svg>
+      <div
+        class="absolute top-[35rem] left-10 -z-10 transform-gpu blur-3xl lg:top-[calc(50%-30rem)] lg:left-1/2"
+        aria-hidden="true"
+      >
+        <div
+          class="aspect-[1108/632] w-[69.25rem] bg-gradient-to-r from-tertiary to-secondary opacity-20"
+          style={{
+            clipPath:
+              "polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)",
+          }}
+        >
+        </div>
+      </div>
+      <div
+        class="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-32"
+      >
+        <div
+          class="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 pt-8"
+        >
+          <div class="flex text-on-surface">
+            <LogoWatching className="w-16" client:load />
+            <h3 class="pt-1 text-4xl font-bold">
+              <span class="sr-only">P</span>ixeleye
+            </h3>
+          </div>
+          <h1
+            class="mt-10 text-5xl font-semibold tracking-tight pb-2 text-on-surface sm:text-6xl"
+          >
+            Open-source <span class="text-tertiary font-bold"
+              >visual review & testing</span
+            > platform
+          </h1>
+          <p class="mt-4 text-lg leading-8 text-on-surface-variant">
+            The batteries-included platform for visually testing and reviewing
+            your UI; it&apos;s even self-hostable! Connect your codebase with
+            our many integrations and dramatically increase your test coverage
+            in minutes.
+          </p>
+          <div class="mt-10 flex items-center gap-x-6">
+            <!-- <Button asChild
+            ><NextLink href="/registration">Sign up for free</NextLink></Button
+          > -->
+            <Link
+              size="sm"
+              href="/docs/getting-started/introduction"
+              class="flex items-center justify-center group"
+            >
+              Read our docs
+            </Link>
+          </div>
+        </div>
+        <div
+          class="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32"
+        >
+          <div class="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
+            <Swiper />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================== Browser Cloud ========================= -->
+    <div class="bg-surface-container py-24 sm:py-32 border-y border-outline/20">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <h3 class="text-2xl font-semibold text-center mb-12">
+          Capture screenshots across multiple browsers and devices
+        </h3>
+        <div
+          class="mx-auto grid max-w-lg grid-cols-2 sm:grid-cols-4 items-center gap-x-8 gap-y-12 sm:max-w-xl sm:gap-x-10 sm:gap-y-14 lg:mx-0 lg:max-w-none"
+        >
+          {
+            browserLogos.map(({ name, logo: Logo }) => (
+              <div class="flex justify-center">
+                <div class="flex flex-col text-on-surface-variant transition lg:flex-row hover:text-on-surface lg:space-x-4 lg:space-y-0 space-y-4 justify-center items-center w-56">
+                  <Logo className="h-12 w-auto" />
+                  <h4 class="font-bold text-lg">{name}</h4>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div class="mt-16 flex justify-center">
+          <p
+            class="relative rounded-full bg-tertiary-container text-sm leading-6 py-1.5 text-on-surface ring-1 ring-inset ring-tertiary/50"
+          >
+            <a
+              href="/playground"
+              class="text-on-tertiary-container space-x-1 py-4 px-4"
+            >
+              Give it a go with our <span class="font-bold">Playground</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================== Features ========================= -->
+    <div class="py-24 sm:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:mx-0">
+          <h2 class="text-base font-semibold leading-7 text-tertiary">
+            All in one platform
+          </h2>
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl"
+          >
+            Pixel perfect UIs made easy
+          </p>
+          <p class="mt-6 text-lg leading-8 text-on-surface-variant">
+            Pixeleye is stuffed with features and hosts multiple integrations
+            across the entire development pipeline. It&apos;s a vital tool for
+            delivering a consistent user experience.
+          </p>
+        </div>
+        <dl
+          class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 text-base leading-7 text-on-surface-variant sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:gap-x-16"
+        >
+          {
+            features.map((feature) => (
+              <div class="relative pl-9">
+                <dt class="inline font-semibold text-on-surface">
+                  <feature.icon
+                    className="absolute left-1 top-1 h-5 w-5 text-tertiary"
+                    aria-hidden="true"
+                  />
+                  {feature.name}
+                </dt>{" "}
+                <dd class="inline">{feature.description}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+
+    <!-- ====================== Integrations ========================= -->
+    <div class="overflow-hidden py-24 sm:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div
+          class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2"
+        >
+          <div class="lg:ml-auto lg:pl-4 lg:pt-4">
+            <div class="lg:max-w-lg">
+              <h2 class="text-base font-semibold leading-7 text-tertiary">
+                Seamless integration
+              </h2>
+              <p
+                class="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl"
+              >
+                Integrate with your existing workflow
+              </p>
+              <p class="mt-6 text-lg leading-8 text-on-surface-variant">
+                We built Pixeleye from the ground up focusing on developer
+                experience. Our goal is for Pixeleye to add huge value whilst
+                being as unobtrusive as possible.
+              </p>
+              <dl
+                class="mt-10 max-w-xl space-y-8 text-base leading-7 text-on-surface-variant lg:max-w-none"
+              >
+                {
+                  integrations.map((integration) => (
+                    <div class="relative pl-9">
+                      <dt class="inline font-semibold text-on-surface">
+                        <integration.icon
+                          className="absolute left-1 top-1 h-5 w-5 text-tertiary"
+                          aria-hidden="true"
+                        />
+                        {integration.name}
+                      </dt>{" "}
+                      <dd class="inline">{integration.description}</dd>
+                    </div>
+                  ))
+                }
+              </dl>
+            </div>
+          </div>
+          <div class="flex items-center justify-end lg:order-first">
+            <LogoOrbit />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Call to action -->
+    <div class="bg-surface-container border-y border-outline/20">
+      <div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <div class="mx-auto max-w-2xl text-center">
+          <h2
+            class="text-3xl font-bold tracking-tight text-on-surface sm:text-4xl"
+          >
+            <span class="text-tertiary">Maximize your coverage.</span>
+            <br />
+            Start for free or try our playground.
+          </h2>
+          <p
+            class="mx-auto mt-6 max-w-xl text-lg leading-8 text-on-surface-variant"
+          >
+            We offer a massive free tier as well as an option to self-host. Try
+            our playground to see if Pixeleye is right for you.
+          </p>
+          <div class="mt-10 flex items-center justify-center gap-x-6">
+            <!-- @ts-ignore -->
+            <Button as="a" href="/registration">Get started for free</Button>
+            <Link
+              href="/playground"
+              class="flex items-center justify-center group"
+            >
+              Try our playground
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ====================== FAQ ========================= -->
+    <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 border-t border-outline-variant">
+      <h2 class="text-2xl font-bold leading-10 tracking-tight text-on-surface">
+        Frequently asked questions
+      </h2>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-on-surface-variant">
+        Have a different question and can’t find the answer you’re looking
+        for? Reach out to our support team by{" "}
+        <Link href="mailto:support@pixeleye.io">sending us an email</Link> and we’ll get back to you as
+        soon as we can.
+      </p>
+      <div class="mt-20">
+        <dl class="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10">
+          {faqs.map((faq) => (
+            <div>
+              <dt class="text-base font-semibold leading-7 text-on-surface">
+                {faq.question}
+              </dt>
+              <dd class="mt-2 text-base leading-7 text-on-surface-variant">
+                {faq.answer}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </main>
+</Root>

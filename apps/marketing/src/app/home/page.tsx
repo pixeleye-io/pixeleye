@@ -1,9 +1,4 @@
-import {
-  ChevronRightIcon,
-  LockClosedIcon,
-  ServerIcon,
-  WindowIcon,
-} from "@heroicons/react/20/solid";
+
 import { Button, LogoWatching, Link, Input } from "@pixeleye/ui";
 import { Swiper } from "./swiper";
 import NextLink from "next/link";
@@ -20,6 +15,10 @@ import {
   CloudArrowUpIcon,
   Square2StackIcon,
   UsersIcon,
+  ChevronRightIcon,
+  LockClosedIcon,
+  ServerIcon,
+  WindowIcon,
 } from "@heroicons/react/24/solid";
 import { Widget } from "./turnstile";
 import { HighlightedDiff } from "./highlightedDiff";
