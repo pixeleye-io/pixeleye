@@ -1,4 +1,4 @@
-import { Logo } from "@pixeleye/ui";
+import { Logo } from "@pixeleye/ui/src/logo";
 import { cx } from "class-variance-authority";
 import { BitBucketLogo, CypressLogo, GithubLogo, GitlabLogo, PlaywrightLogo, PuppeteerLogo, StorybookLogo } from "./assets/logos";
 import { ChromiumLogo, EdgeLogo, WebkitLogo, FirefoxLogo } from "@pixeleye/device-logos";
