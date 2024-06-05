@@ -1,5 +1,8 @@
 ---
 import "@fontsource-variable/inter";
+import Header from "../components/header.astro";
+import "./search.css";
+
 interface Props {
   title: string;
 }
@@ -17,9 +20,13 @@ const { title } = Astro.props;
     </title>
   </head>
   <body
-    class="lg:pt-[4.5rem] font-sans pt-16 min-h-screen bg-surface text-on-surface dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50"
+    class="font-sans min-h-screen bg-surface text-on-surface dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50"
   >
-    <slot />
+    <Header />
+
+    <div class="lg:pt-[4.5rem] pt-16">
+      <slot />
+    </div>
   </body>
 </html>
 
@@ -149,3 +156,16 @@ const { title } = Astro.props;
     background-color: #121212;
   }
 </style>
+
+<script>
+  import docsearch from "@docsearch/js";
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  docsearch({
+    container: "#docsearch",
+    appId: "DVHY2LO2GG",
+    indexName: "pixeleye",
+    apiKey: "b0c6d1ff6949bf05c049abe4209ad481",
+  });
+</script>
