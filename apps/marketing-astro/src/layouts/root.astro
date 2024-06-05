@@ -2,6 +2,7 @@
 import "@fontsource-variable/inter";
 import Header from "../components/header.astro";
 import "./search.css";
+import Footer from "../components/footer.astro";
 
 interface Props {
   title: string;
@@ -27,6 +28,8 @@ const { title } = Astro.props;
     <div class="lg:pt-[4.5rem] pt-16">
       <slot />
     </div>
+
+    <Footer />
   </body>
 </html>
 
