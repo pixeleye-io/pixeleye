@@ -1,7 +1,8 @@
 ---
 import Link from "../components/link.astro";
 import Root from "../layouts/root.astro";
-import { LogoWatching } from "@pixeleye/ui/src/logoWatching";
+// import { LogoWatching } from "@pixeleye/ui/src/logoWatching";
+import LogoWatching from "../components/home/logoWatching.astro";
 import Swiper from "../components/home/swiper.astro";
 import {
   ChromiumLogo,
@@ -189,7 +190,7 @@ const faqs = [
           class="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 pt-8"
         >
           <div class="flex text-on-surface">
-            <LogoWatching className="w-16" client:load />
+            <LogoWatching class="w-16" />
             <h3 class="pt-1 text-4xl font-bold">
               <span class="sr-only">P</span>ixeleye
             </h3>

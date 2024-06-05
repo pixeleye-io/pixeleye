@@ -1,0 +1,62 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"svg"> {}
+
+const props = Astro.props;
+
+const maskId = "pixeleye-mask" + Math.random().toString(36).slice(2);
+---
+
+<svg
+  viewBox="0 0 24 24"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+  aria-label="Pixeleye logo"
+  {...props}
+>
+  <defs>
+    <mask id={maskId}>
+      <rect width="24" height="24" fill="#fff"></rect>
+      <path data-follow-eye d="M12 9A1 1 0 0114.5 9 1 1 0 0112 9" fill="#000"
+      ></path>
+    </mask>
+  </defs>
+  <path
+    mask={`url(#${maskId})`}
+    d="M2 22V15Q2 2 15 2L14 5.5Q5.5 5.5 5.5 15V22ZM22 2Q22 17 9 17L10 13.5Q18.5 13.5 18.5 2ZM9.5 9.5A1 1 0 0014.5 9.5 1 1 0 009.5 9.5"
+    fill="currentColor"></path>
+</svg>
+
+<script>
+  import { animate } from "motion";
+
+  const eyes = document.querySelectorAll("[data-follow-eye]")!;
+
+  window.addEventListener("mousemove", (event) => {
+    const x = event.clientX;
+    const y = event.clientY;
+
+    eyes.forEach((eye) => {
+      const { left, top, width, height } = eye.getBoundingClientRect();
+      const centerX = left + 32;
+      const centerY = top + 25;
+
+      console.log({ x, y, centerX, centerY });
+
+      const angle = Math.atan2(y - centerY, x - centerX);
+      const distance = Math.min(
+        1.7,
+        Math.hypot(x - centerX, y - centerY) * 0.25
+      );
+
+      const eyeX = Math.cos(angle) * distance;
+      const eyeY = Math.sin(angle) * distance;
+
+      animate(eye, {
+        transform: `translate(${eyeX - 1.25}px, ${eyeY}px)`,
+      });
+
+    });
+  });
+</script>
