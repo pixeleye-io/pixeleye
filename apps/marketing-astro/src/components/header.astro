@@ -64,7 +64,7 @@ const isPending = false;
       </a>
 
       {/* DOC SEARCH */}
-      <div id="docsearch" class="w-9"></div>
+      <div id="docsearch" class="lg:w-9 w-8"></div>
 
       <!-- @ts-ignore -->
       <Button
@@ -75,14 +75,16 @@ const isPending = false;
       >
         {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
       </Button>
-    </div>
 
     <!-- @ts-ignore -->
-    <Button type="button" variant="link" class="h-8 lg:hidden">
-      <span class="sr-only">Open main menu</span>
+    <Button type="button" variant="link" class="h-8 lg:hidden inline-flex items-center justify-center">
+        <span class="sr-only">Open main menu</span>
+  
+        <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+      </Button>
+    </div>
 
-      <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-    </Button>
+
   </nav>
 </header>
 <!-- 
