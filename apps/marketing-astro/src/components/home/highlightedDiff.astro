@@ -1,0 +1,100 @@
+---
+import DarkScreenshot from "./assets/dark-screenshot.png";
+import LightScreenshot from "./assets/light-screenshot.png";
+import DarkDiff from "./assets/dark-diff.png";
+import LightDiff from "./assets/light-diff.png";
+import Toggle from "../toggle.astro";
+---
+
+<div class="bg-surface py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl sm:text-center">
+      <h2 class="text-base font-semibold leading-7 text-tertiary">
+        Highlighted Visual Regressions
+      </h2>
+      <p
+        class="mt-2 text-3xl font-bold tracking-tight text-on-surface sm:text-4xl"
+      >
+        Catch unintended visual changes
+      </p>
+      <p class="mt-6 text-lg leading-8 text-on-surface-variant">
+        Ever changed a line of css only to have a completely different part of
+        your app break? Pixeleye catches these changes making it easier for you
+        and your team to review and approve changes.
+      </p>
+    </div>
+  </div>
+  <div
+    class="flex max-w-7xl items-center justify-end mx-auto space-x-4 px-6 lg:px-8 mt-12"
+  >
+    <label
+      class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      for="diffSwitch">Difference overlay</label
+    >
+    <Toggle initialChecked id="diffSwitch" />
+  </div>
+  <div class="relative overflow-hidden pt-4">
+    <div id="diff-example-container" class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div
+        class="relative z-0 dark:hidden"
+        style={{
+          aspectRatio: LightScreenshot.width / LightScreenshot.height,
+        }}
+      >
+        <img
+          src={LightScreenshot.src}
+          alt="Light screenshot"
+          class="z-0 absolute inset-0"
+        />
+        <img
+          src={LightDiff.src}
+          alt="Light difference overlay"
+          class="absolute inset-0 z-20 [.hide-diff_&]:hidden"
+        />
+        <span class="absolute inset-0 z-10 bg-black/5 rounded ml-0.5"></span>
+      </div>
+      <div
+        class="relative z-0 dark:block hidden"
+        style={{
+          aspectRatio: DarkScreenshot.width / DarkScreenshot.height,
+        }}
+      >
+        <img
+          src={DarkScreenshot.src}
+          alt="Dark screenshot"
+          class="z-0 absolute inset-0"
+        />
+
+        <img
+          src={DarkDiff.src}
+          alt="Dark difference overlay"
+          class="absolute inset-0 z-20"
+        />
+        <span class="absolute inset-0 z-10 bg-black/20 rounded ml-0.5"></span>
+      </div>
+      <div class="relative" aria-hidden="true">
+        <div
+          class="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-surface pt-[7%]"
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="mt-12 text-center text-lg text-tertiary">
+    How many did you spot? <span class="text-on-surface-variant"
+      >Imagine manually doing this across your entire app after every change!</span
+    >
+  </p>
+</div>
+
+<script>
+  const diffSwitch = document.getElementById("diffSwitch")!;
+  const diffExampleContainer = document.getElementById(
+    "diff-example-container"
+  )!;
+
+  diffSwitch.addEventListener("click", () => {
+    const state = diffSwitch.getAttribute("aria-checked") === "true";
+    diffExampleContainer.classList.toggle("hide-diff", state);
+  });
+</script>

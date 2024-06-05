@@ -1,0 +1,57 @@
+---
+import {  cx } from "class-variance-authority";
+
+interface Props {
+  id?: string;
+  class?: string;
+  initialChecked?: boolean;
+}
+
+const {
+  class: className,
+  initialChecked,
+  ...props
+} = Astro.props;
+---
+
+<button
+  type="button"
+  role="switch"
+  aria-checked={initialChecked}
+  data-state={initialChecked ? "checked" : "unchecked"}
+  value={initialChecked ? "on" : "off"}
+  class={cx(
+    "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-container-high",
+    className
+  )}
+  data-toggle-btn
+  {...props}
+>
+  <span
+    data-state={initialChecked ? "checked" : "unchecked"}
+    class="pointer-events-none block h-5 w-5 rounded-full bg-surface shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+  ></span>
+</button>
+
+<script>
+  const buttons = document.querySelectorAll("[data-toggle-btn]");
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const btn = e.currentTarget as HTMLButtonElement;
+      const btnToggle = btn.querySelector("span")!;
+
+      const state = btn.getAttribute("data-state");
+      const newState = state === "checked" ? "unchecked" : "checked";
+
+      btn.setAttribute("data-state", newState);
+      btn.setAttribute("value", newState === "checked" ? "on" : "off");
+      btn.setAttribute(
+        "aria-checked",
+        newState === "checked" ? "true" : "false"
+      );
+      btnToggle.setAttribute("data-state", newState);
+    });
+  });
+</script>
