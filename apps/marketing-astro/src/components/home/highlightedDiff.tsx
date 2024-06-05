@@ -29,9 +29,11 @@ export function HighlightedDiff() {
                 </div>
             </div>
             <div className=" flex  max-w-7xl  items-center justify-end mx-auto space-x-4 px-6 lg:px-8 mt-12">
+                {/* @ts-ignore */}
                 <Label htmlFor="diffSwitch">
                     Difference overlay
                 </Label>
+                {/* @ts-ignore */}
                 <Switch id="diffSwitch" checked={showDiff} onCheckedChange={setShowDiff} />
             </div>
             <div className="relative overflow-hidden pt-4">
