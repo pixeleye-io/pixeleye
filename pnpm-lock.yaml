@@ -235,9 +235,6 @@ importers:
       '@docsearch/js':
         specifier: '3'
         version: 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.14.0)
-      '@docsearch/react':
-        specifier: ^3.6.0
-        version: 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.14.0)
       '@fontsource-variable/inter':
         specifier: ^5.0.18
         version: 5.0.18
