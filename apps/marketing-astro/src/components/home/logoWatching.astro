@@ -13,6 +13,7 @@ const maskId = "pixeleye-mask" + Math.random().toString(36).slice(2);
   xmlns="http://www.w3.org/2000/svg"
   aria-hidden="true"
   aria-label="Pixeleye logo"
+  data-follow-logo
   {...props}
 >
   <defs>
@@ -29,11 +30,12 @@ const maskId = "pixeleye-mask" + Math.random().toString(36).slice(2);
 </svg>
 
 <script>
-  import { animate } from "motion";
+  import { animate, inView } from "motion";
 
   const eyes = document.querySelectorAll("[data-follow-eye]")!;
+  const eyesContainer = document.querySelector("[data-follow-logo]")!;
 
-  window.addEventListener("mousemove", (event) => {
+  const handleMousMove = (event: MouseEvent) => {
     const x = event.clientX;
     const y = event.clientY;
 
@@ -56,7 +58,14 @@ const maskId = "pixeleye-mask" + Math.random().toString(36).slice(2);
       animate(eye, {
         transform: `translate(${eyeX - 1.25}px, ${eyeY}px)`,
       });
-
     });
+  };
+
+  inView(eyesContainer, () => {
+    window.addEventListener("mousemove", handleMousMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMousMove);
+    };
   });
 </script>
