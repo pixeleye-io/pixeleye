@@ -4,6 +4,7 @@ import LightScreenshot from "./assets/light-screenshot.png";
 import DarkDiff from "./assets/dark-diff.png";
 import LightDiff from "./assets/light-diff.png";
 import Toggle from "../toggle.astro";
+import Image from "astro/components/Image.astro";
 ---
 
 <div class="bg-surface py-24 sm:py-32">
@@ -28,10 +29,11 @@ import Toggle from "../toggle.astro";
     class="flex max-w-7xl items-center justify-end mx-auto space-x-4 px-6 lg:px-8 mt-12"
   >
     <label
+      id="diffSwitch-label"
       class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       for="diffSwitch">Difference overlay</label
     >
-    <Toggle initialChecked id="diffSwitch" />
+    <Toggle initialChecked id="diffSwitch" aria-labelledby="diffSwitch-label" />
   </div>
   <div class="relative overflow-hidden pt-4">
     <div id="diff-example-container" class="mx-auto max-w-7xl px-6 lg:px-8">
@@ -41,13 +43,13 @@ import Toggle from "../toggle.astro";
           aspectRatio: LightScreenshot.width / LightScreenshot.height,
         }}
       >
-        <img
-          src={LightScreenshot.src}
+        <Image
+          src={LightScreenshot}
           alt="Light screenshot"
           class="z-0 absolute inset-0"
         />
-        <img
-          src={LightDiff.src}
+        <Image
+          src={LightDiff}
           alt="Light difference overlay"
           class="absolute inset-0 z-20 [.hide-diff_&]:hidden"
         />
@@ -59,14 +61,14 @@ import Toggle from "../toggle.astro";
           aspectRatio: DarkScreenshot.width / DarkScreenshot.height,
         }}
       >
-        <img
-          src={DarkScreenshot.src}
+        <Image
+          src={DarkScreenshot}
           alt="Dark screenshot"
           class="z-0 absolute inset-0"
         />
 
-        <img
-          src={DarkDiff.src}
+        <Image
+          src={DarkDiff}
           alt="Dark difference overlay"
           class="absolute inset-0 z-20"
         />
