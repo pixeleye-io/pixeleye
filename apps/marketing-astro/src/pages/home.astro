@@ -27,6 +27,7 @@ import {
 import LogoOrbit from "../components/home/logoOrbit";
 import Button from "../components/button.astro";
 import ButtonTag from "../components/button.astro";
+import { HighlightedDiff } from "../components/home/highlightedDiff";
 
 const browserLogos = [
   {
@@ -141,10 +142,10 @@ const faqs = [
   {
     id: 6,
     question: "Why should I use your cloud solution?",
-    answer: "Convenience and support. We handle the hosting, maintenance, scaling as well as ensuring you're on the latest version. Plus you'd be supporting Open Source!",
+    answer:
+      "Convenience and support. We handle the hosting, maintenance, scaling as well as ensuring you're on the latest version. Plus you'd be supporting Open Source!",
   },
 ];
-
 ---
 
 <Root title="index">
@@ -213,9 +214,8 @@ const faqs = [
             in minutes.
           </p>
           <div class="mt-10 flex items-center gap-x-6">
-            <!-- <Button asChild
-            ><NextLink href="/registration">Sign up for free</NextLink></Button
-          > -->
+            <!-- @ts-ignore -->
+            <Button as="a" href="/registration"> Sign up for free </Button>
             <Link
               size="sm"
               href="/docs/getting-started/introduction"
@@ -270,6 +270,8 @@ const faqs = [
         </div>
       </div>
     </div>
+
+    <HighlightedDiff client:visible />
 
     <!-- ====================== Features ========================= -->
     <div class="py-24 sm:py-32">
@@ -389,30 +391,35 @@ const faqs = [
       </div>
     </div>
 
-
     <!-- ====================== FAQ ========================= -->
-    <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 border-t border-outline-variant">
+    <div
+      class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 border-t border-outline-variant"
+    >
       <h2 class="text-2xl font-bold leading-10 tracking-tight text-on-surface">
         Frequently asked questions
       </h2>
       <p class="mt-6 max-w-2xl text-base leading-7 text-on-surface-variant">
-        Have a different question and can’t find the answer you’re looking
-        for? Reach out to our support team by{" "}
-        <Link href="mailto:support@pixeleye.io">sending us an email</Link> and we’ll get back to you as
-        soon as we can.
+        Have a different question and can’t find the answer you’re looking for?
+        Reach out to our support team by{" "}
+        <Link href="mailto:support@pixeleye.io">sending us an email</Link> and we’ll
+        get back to you as soon as we can.
       </p>
       <div class="mt-20">
-        <dl class="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10">
-          {faqs.map((faq) => (
-            <div>
-              <dt class="text-base font-semibold leading-7 text-on-surface">
-                {faq.question}
-              </dt>
-              <dd class="mt-2 text-base leading-7 text-on-surface-variant">
-                {faq.answer}
-              </dd>
-            </div>
-          ))}
+        <dl
+          class="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10"
+        >
+          {
+            faqs.map((faq) => (
+              <div>
+                <dt class="text-base font-semibold leading-7 text-on-surface">
+                  {faq.question}
+                </dt>
+                <dd class="mt-2 text-base leading-7 text-on-surface-variant">
+                  {faq.answer}
+                </dd>
+              </div>
+            ))
+          }
         </dl>
       </div>
     </div>
