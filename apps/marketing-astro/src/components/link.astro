@@ -1,0 +1,37 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import { cva, cx, type VariantProps } from "class-variance-authority";
+
+const linkVariants = cva("transition", {
+  variants: {
+    intent: {
+      base: "text-blue-700 hover:text-blue-600 dark:text-blue-300 dark:hover:text-blue-400",
+      text: "text-on-surface-variant hover:text-on-surface",
+    },
+    size: {
+      sm: "text-sm",
+      md: "text-base",
+      lg: "text-lg",
+    },
+  },
+  defaultVariants: {
+    intent: "base",
+    size: "md",
+  },
+});
+
+type LinkVariants = VariantProps<typeof linkVariants>;
+
+interface Props extends HTMLAttributes<"a"> {
+  variant?: LinkVariants["intent"];
+  size?: LinkVariants["size"];
+}
+
+const { variant: intent, size, class: className, ...props } = Astro.props;
+
+const classes = cx(linkVariants({ intent, size }), className);
+---
+
+<a {...props} class={classes}>
+  <slot />
+</a>

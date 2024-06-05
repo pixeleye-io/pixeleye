@@ -1,7 +1,6 @@
-"use client"
 
 import { useEffect, useId, useRef } from "react";
-import { m, useMotionValue, useTransform } from "framer-motion"
+import { motion, useMotionValue, useTransform } from "framer-motion"
 
 export interface LogoWatchingProps {
     className?: string;
@@ -31,7 +30,7 @@ export default function LogoWatching(props: LogoWatchingProps) {
                 window.removeEventListener('mousemove', update)
             }
         },
-        []
+        [x, y]
     )
 
     return (
@@ -45,7 +44,7 @@ export default function LogoWatching(props: LogoWatchingProps) {
             <defs>
                 <mask id={maskId}>
                     <rect width="24" height="24" fill="#fff" />
-                    <m.path ref={ref} style={{
+                    <motion.path ref={ref} style={{
                         translateX, translateY
                     }} d="M12 9A1 1 0 0114.5 9 1 1 0 0112 9" fill="#000" />
                 </mask>
