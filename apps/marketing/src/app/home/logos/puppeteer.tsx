@@ -1,4 +1,4 @@
-import { LogoProps } from "./types";
+import type { LogoProps } from "./types";
 
 
 export function PuppeteerLogo({ className }: LogoProps) {
