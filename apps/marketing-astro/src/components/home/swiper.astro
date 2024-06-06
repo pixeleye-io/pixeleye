@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import DashLightBaseLg from "./assets/dash-light-base-lg.png";
 import DashLightBaseSm from "./assets/dash-light-base-sm.png";
 
@@ -11,6 +10,8 @@ import DashDarkOffsetSm from "./assets/dash-dark-offset-sm.png";
 
 import DashDarkBaseLg from "./assets/dash-dark-base-lg.png";
 import DashDarkBaseSm from "./assets/dash-dark-base-sm.png";
+
+import Picture from "./picture.astro";
 ---
 
 <div class="relative z-0 mt-32">
@@ -44,58 +45,72 @@ import DashDarkBaseSm from "./assets/dash-dark-base-sm.png";
       <div
         class="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container shadow-2xl ring-1 ring-gray-900/10"
       >
-        <Image
-          loading="eager"
-          src={DashLightOffsetLg}
-          alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden lg:block hidden"
+        <Picture
+          alt="After Demo dashboard with UI elements aligned"
+          class="dark:hidden"
+          images={[
+            {
+              minWidth: 1024,
+              src: DashLightOffsetLg,
+            },
+            {
+              minWidth: 0,
+              src: DashLightOffsetSm,
+            },
+          ]}
+          alt="test"
+          formats={["webp", "png"]}
         />
-        <Image
-          loading="eager"
-          src={DashDarkOffsetLg}
-          alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-cover object-left-top w-full h-full select-none lg:dark:block hidden"
-        />
-        <Image
-          loading="eager"
-          src={DashDarkOffsetSm}
-          alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:block hidden dark:lg:hidden"
-        />
-        <Image
-          loading="eager"
-          src={DashLightOffsetSm}
-          alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden block lg:dark:hidden"
+        <Picture
+          class="dark:block hidden"
+          images={[
+            {
+              minWidth: 1024,
+              src: DashDarkOffsetLg,
+            },
+            {
+              minWidth: 0,
+              src: DashDarkOffsetSm,
+            },
+          ]}
+          alt="test"
+          formats={["webp", "png"]}
         />
       </div>
       <div id="swiper-reveal" class="absolute inset-0 will-change-[clip] z-10">
         <div
           class="h-[45rem] w-[76rem] relative z-0 rounded-xl lg:rounded-2xl [&>*]:pointer-events-none overflow-hidden bg-surface-container shadow-2xl ring-1 ring-gray-900/10"
         >
-          <Image
-            loading="eager"
-            src={DashLightBaseLg}
+          <Picture
+            class="dark:hidden"
             alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden lg:block hidden"
+            images={[
+              {
+                minWidth: 1024,
+                src: DashLightBaseLg,
+              },
+              {
+                minWidth: 0,
+                src: DashLightBaseSm,
+              },
+            ]}
+            alt="test"
+            formats={["webp", "png"]}
           />
-          <Image
-            loading="eager"
-            src={DashLightBaseSm}
-            alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden block lg:hidden"
-          />
-          <Image
-            loading="eager"
-            src={DashDarkBaseLg}
-            alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-cover object-left-top w-full h-full select-none lg:dark:block hidden"
-          />
-          <Image
-            loading="eager"
-            src={DashDarkBaseSm}
-            alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:block lg:dark:hidden hidden"
+          <Picture
+            class="dark:block hidden"
+            images={[
+              {
+                minWidth: 1024,
+                src: DashDarkBaseLg,
+              },
+              {
+                minWidth: 0,
+                src: DashDarkBaseSm,
+              },
+            ]}
+            alt="test"
+            formats={["webp", "png"]}
           />
         </div>
       </div>

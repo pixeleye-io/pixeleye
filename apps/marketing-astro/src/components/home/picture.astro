@@ -1,0 +1,52 @@
+---
+import { getImage } from "astro:assets";
+
+interface Image {
+  src: ImageMetadata;
+  minWidth: number;
+}
+
+interface Props {
+  images: Image[];
+  formats: string[];
+  alt: string;
+  loading?: "lazy" | "eager";
+  class?: string;
+}
+
+const {
+  images,
+  formats,
+  alt,
+  loading = "lazy",
+  class: className,
+} = Astro.props;
+
+const optimizedImages = await Promise.all(
+  images.flatMap(({ src, minWidth }) =>
+    formats.map(async (format) => {
+      const optimised = await getImage({ src, format });
+      return { format, optimised, minWidth };
+    })
+  )
+);
+---
+
+<picture class={className}>
+  {
+    optimizedImages.map(({ format, optimised, minWidth }) => (
+      <source
+        srcset={optimised.src}
+        type={`image/${format}`}
+        media={`(min-width: ${minWidth}px)`}
+      />
+    ))
+  }
+
+  <img
+    src={optimizedImages[0].optimised.src}
+    alt={alt}
+    decoding="async"
+    loading={loading}
+  />
+</picture>
