@@ -1,9 +1,16 @@
 ---
 import { Image } from "astro:assets";
-import DashLightBase from "./assets/dash-light-base-lg.png";
-import DashLightOffset from "./assets/dash-light-offset-lg.png";
-import DashDarkOffset from "./assets/dash-dark-offset-lg.png";
-import DashDarkBase from "./assets/dash-dark-base-lg.png";
+import DashLightBaseLg from "./assets/dash-light-base-lg.png";
+import DashLightBaseSm from "./assets/dash-light-base-sm.png";
+
+import DashLightOffsetLg from "./assets/dash-light-offset-lg.png";
+import DashLightOffsetSm from "./assets/dash-light-offset-sm.png";
+
+import DashDarkOffsetLg from "./assets/dash-dark-offset-lg.png";
+import DashDarkOffsetSm from "./assets/dash-dark-offset-sm.png";
+
+import DashDarkBaseLg from "./assets/dash-dark-base-lg.png";
+import DashDarkBaseSm from "./assets/dash-dark-base-sm.png";
 ---
 
 <div class="relative z-0 mt-32">
@@ -39,15 +46,27 @@ import DashDarkBase from "./assets/dash-dark-base-lg.png";
       >
         <Image
           loading="eager"
-          src={DashLightOffset}
+          src={DashLightOffsetLg}
           alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-fill w-full h-full select-none dark:hidden block"
+          class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden lg:block hidden"
         />
         <Image
           loading="eager"
-          src={DashDarkOffset}
+          src={DashDarkOffsetLg}
           alt="After Demo dashboard with UI elements misaligned"
-          class="absolute inset-0 object-fill w-full h-full select-none dark:block hidden"
+          class="absolute inset-0 object-cover object-left-top w-full h-full select-none lg:dark:block hidden"
+        />
+        <Image
+          loading="eager"
+          src={DashDarkOffsetSm}
+          alt="After Demo dashboard with UI elements misaligned"
+          class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:block hidden dark:lg:hidden"
+        />
+        <Image
+          loading="eager"
+          src={DashLightOffsetSm}
+          alt="After Demo dashboard with UI elements misaligned"
+          class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden block lg:dark:hidden"
         />
       </div>
       <div id="swiper-reveal" class="absolute inset-0 will-change-[clip] z-10">
@@ -56,15 +75,27 @@ import DashDarkBase from "./assets/dash-dark-base-lg.png";
         >
           <Image
             loading="eager"
-            src={DashLightBase}
+            src={DashLightBaseLg}
             alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-fill w-full h-full select-none dark:hidden block"
+            class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden lg:block hidden"
           />
           <Image
             loading="eager"
-            src={DashDarkBase}
+            src={DashLightBaseSm}
             alt="Before Demo dashboard with UI elements aligned"
-            class="absolute inset-0 object-fill w-full h-full select-none dark:block hidden"
+            class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:hidden block lg:hidden"
+          />
+          <Image
+            loading="eager"
+            src={DashDarkBaseLg}
+            alt="Before Demo dashboard with UI elements aligned"
+            class="absolute inset-0 object-cover object-left-top w-full h-full select-none lg:dark:block hidden"
+          />
+          <Image
+            loading="eager"
+            src={DashDarkBaseSm}
+            alt="Before Demo dashboard with UI elements aligned"
+            class="absolute inset-0 object-cover object-left-top w-full h-full select-none dark:block lg:dark:hidden hidden"
           />
         </div>
       </div>

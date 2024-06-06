@@ -12,9 +12,9 @@ import { Logo } from "@pixeleye/ui/src/logo";
 import ProfilePicture from "./assets/profile-picture.png";
 import ManPicture from "./assets/man-graffity.jpg";
 import WomanPicture from "./assets/woman-smiling.jpg";
-import Root from "../../layouts/root.astro";
+import "@fontsource-variable/inter";
 
-const offset = false;
+const offset = true;
 
 const navigation: {
   name: string;
@@ -77,345 +77,488 @@ const activityItems = [
 ];
 ---
 
-<Root title="test" description="test">
-  <div class="h-[45rem] w-[76rem] relative z-0">
-    <div class="h-full relative" aria-hidden>
-      {/* Static sidebar for desktop */}
-      <div
-        class="hidden xl:absolute xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col"
-      >
-        {
-          /* Sidebar component, swap this element with another sidebar if you like */
-        }
+<html lang="en" class="bg-surface text-on-surface">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body
+    class="font-sans  p-16 min-h-screen bg-surface text-on-surface dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50"
+  >
+    <div class="h-[45rem] lg:w-[76rem] w-[55rem] overflow-hidden relative z-0">
+      <div class="h-full relative" aria-hidden>
+        {/* Static sidebar for desktop */}
         <div
-          class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface-container-low px-6 ring-1 ring-white/5 border border-r border-outline-variant"
+          class="hidden xl:absolute xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col"
         >
-          <div class="flex h-16 shrink-0 items-center">
-            <Logo className="h-8 w-auto text-tertiary" />
+          {
+            /* Sidebar component, swap this element with another sidebar if you like */
+          }
+          <div
+            class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface-container-low px-6 ring-1 ring-white/5 border border-r border-outline-variant"
+          >
+            <div class="flex h-16 shrink-0 items-center">
+              <Logo className="h-8 w-auto text-tertiary" />
+            </div>
+            <nav class="flex flex-1 flex-col">
+              <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                <li class={offset ? "ml-4 mt-1" : ""}>
+                  <ul role="list" class="-mx-2 space-y-1">
+                    {
+                      navigation.map((item) => (
+                        <li>
+                          <a
+                            href={item.href}
+                            class={cx(
+                              item.current
+                                ? "bg-surface-container-low text-on-surface"
+                                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container",
+                              "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            )}
+                          >
+                            <item.icon
+                              className="h-6 w-6 shrink-0"
+                              aria-hidden="true"
+                            />
+                            {item.name}
+                          </a>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </li>
+                <li>
+                  <div
+                    class="text-xs font-semibold leading-6 text-on-surface-variant"
+                  >
+                    Your teams
+                  </div>
+                  <ul role="list" class="-mx-2 mt-2 space-y-1">
+                    {
+                      teams.map((team) => (
+                        <li>
+                          <a
+                            href={team.href}
+                            class={
+                              "text-on-surface-variant group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            }
+                          >
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-high text-[0.625rem] font-medium text-on-surface group-hover:texst-on-surface">
+                              {team.initial}
+                            </span>
+                            <span class="truncate">{team.name}</span>
+                          </a>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                </li>
+                <li class="-mx-6 mt-auto">
+                  <a
+                    href="#"
+                    class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-on-surface hover:bg-surface-container"
+                  >
+                    <img
+                      class="h-8 w-8 rounded-full bg-surface-container-highest"
+                      src={ProfilePicture.src}
+                      alt="Alfie's profile picture"
+                    />
+                    <span class="sr-only">Your profile</span>
+                    <span aria-hidden="true">Alfie Jones</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
-          <nav class="flex flex-1 flex-col">
-            <ul role="list" class="flex flex-1 flex-col gap-y-7">
-              <li class={offset ? "ml-4 mt-1" : ""}>
-                <ul role="list" class="-mx-2 space-y-1">
+        </div>
+
+        <div class="xl:pl-72 h-full">
+          {/* Sticky search header */}
+          <div
+            class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-outline-variant bg-surface-container-low/50 px-4 shadow-sm sm:px-6 lg:px-8"
+          >
+            <button
+              type="button"
+              class="-m-2.5 p-2.5 text-on-surface xl:hidden"
+            >
+              <span class="sr-only">Open sidebar</span>
+              <Bars3Icon className="h-5 w-5" aria-hidden="true" />
+            </button>
+
+            <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
+              <form class="flex flex-1" action="#" method="GET">
+                <label
+                  html-for={offset ? "search-field" : "search-field2"}
+                  class="sr-only"
+                >
+                  Search
+                </label>
+                <div class="relative w-full">
+                  <MagnifyingGlassIcon
+                    className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-on-surface-variant"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id={offset ? "search-field" : "search-field2"}
+                    class="block h-full w-full border-0 bg-transparent py-0 pl-8 pr-0 text-on-surface focus:ring-0 sm:text-sm placeholder-on-surface-variant"
+                    placeholder="Search..."
+                    type="search"
+                    name="search"
+                  />
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <main class="h-full">
+            <header>
+              {/* Secondary navigation */}
+              <nav
+                class="flex overflow-x-auto border-b border-outline-variant py-4 bg-surface-container-low/50"
+              >
+                <ul
+                  role="list"
+                  class={cx(
+                    "flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-on-surface-variant sm:px-6 lg:px-8",
+                    offset && "odd:mt-1 even:mb-1"
+                  )}
+                >
                   {
-                    navigation.map((item) => (
-                      <li>
+                    secondaryNavigation.map((item) => (
+                      <li class={cx(offset && "even:-mt-1 odd:-mb-1")}>
                         <a
                           href={item.href}
-                          class={cx(
-                            item.current
-                              ? "bg-surface-container-low text-on-surface"
-                              : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                          )}
+                          class={cx(item.current && "text-tertiary")}
                         >
-                          <item.icon
-                            className="h-6 w-6 shrink-0"
-                            aria-hidden="true"
-                          />
                           {item.name}
                         </a>
                       </li>
                     ))
                   }
                 </ul>
-              </li>
-              <li>
-                <div
-                  class="text-xs font-semibold leading-6 text-on-surface-variant"
-                >
-                  Your teams
-                </div>
-                <ul role="list" class="-mx-2 mt-2 space-y-1">
-                  {
-                    teams.map((team) => (
-                      <li>
-                        <a
-                          href={team.href}
-                          class={
-                            "text-on-surface-variant group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                          }
-                        >
-                          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-outline-variant bg-surface-container-high text-[0.625rem] font-medium text-on-surface group-hover:texst-on-surface">
-                            {team.initial}
-                          </span>
-                          <span class="truncate">{team.name}</span>
-                        </a>
-                      </li>
-                    ))
-                  }
-                </ul>
-              </li>
-              <li class="-mx-6 mt-auto">
-                <a
-                  href="#"
-                  class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-on-surface hover:bg-surface-container"
-                >
-                  <img
-                    class="h-8 w-8 rounded-full bg-surface-container-highest"
-                    src={ProfilePicture.src}
-                    alt="Alfie's profile picture"
-                  />
-                  <span class="sr-only">Your profile</span>
-                  <span aria-hidden="true">Alfie Jones</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
+              </nav>
 
-      <div class="xl:pl-72 h-full">
-        {/* Sticky search header */}
-        <div
-          class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-outline-variant bg-surface-container-low/50 px-4 shadow-sm sm:px-6 lg:px-8"
-        >
-          <button type="button" class="-m-2.5 p-2.5 text-on-surface xl:hidden">
-            <span class="sr-only">Open sidebar</span>
-            <Bars3Icon className="h-5 w-5" aria-hidden="true" />
-          </button>
-
-          <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-            <form class="flex flex-1" action="#" method="GET">
-              <label
-                html-for={offset ? "search-field" : "search-field2"}
-                class="sr-only"
-              >
-                Search
-              </label>
-              <div class="relative w-full">
-                <MagnifyingGlassIcon
-                  className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-on-surface-variant"
-                  aria-hidden="true"
-                />
-                <input
-                  id={offset ? "search-field" : "search-field2"}
-                  class="block h-full w-full border-0 bg-transparent py-0 pl-8 pr-0 text-on-surface focus:ring-0 sm:text-sm placeholder-on-surface-variant"
-                  placeholder="Search..."
-                  type="search"
-                  name="search"
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <main class="h-full">
-          <header>
-            {/* Secondary navigation */}
-            <nav
-              class="flex overflow-x-auto border-b border-outline-variant py-4 bg-surface-container-low/50"
-            >
-              <ul
-                role="list"
-                class={cx(
-                  "flex min-w-full flex-none gap-x-6 px-4 text-sm font-semibold leading-6 text-on-surface-variant sm:px-6 lg:px-8",
-                  offset && "odd:mt-1 even:mb-1"
-                )}
-              >
-                {
-                  secondaryNavigation.map((item) => (
-                    <li class={cx(offset && "even:-mt-1 odd:-mb-1")}>
-                      <a
-                        href={item.href}
-                        class={cx(item.current && "text-tertiary")}
-                      >
-                        {item.name}
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </nav>
-
-            {/* Heading */}
-            <div
-              class="flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-surface px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8"
-            >
-              <div>
-                <div class="flex items-center gap-x-3">
-                  <div
-                    class="flex-none rounded-full bg-green-400/10 p-1 text-green-400"
-                  >
-                    <div class="h-2 w-2 rounded-full bg-current"></div>
-                  </div>
-                  <h1 class="flex gap-x-3 text-base leading-7">
-                    <span class="font-semibold texst-on-surface"
-                      >Pixeleye-io</span
-                    >
-                    <span class="text-outline">/</span>
-                    <span class="font-semibold texst-on-surface">pixeleye</span>
-                  </h1>
-                </div>
-                <p
-                  class={cx(
-                    "mt-2 text-xs leading-6 text-on-surface-variant",
-                    offset && "font-semibold"
-                  )}
-                >
-                  Deploys from GitHub via main branch
-                </p>
-              </div>
+              {/* Heading */}
               <div
-                class="order-first flex-none rounded-full bg-tertiary/10 px-2 py-1 text-xs font-medium text-tertiary ring-1 ring-inset ring-tertiary sm:order-none"
+                class="flex flex-col items-start justify-between gap-x-8 gap-y-4 bg-surface px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8"
               >
-                Production
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div
-              class="grid grid-cols-1 bg-surface gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
-            >
-              {
-                stats.map((stat, statIdx) => (
-                  <div
+                <div>
+                  <div class="flex items-center gap-x-3">
+                    <div
+                      class="flex-none rounded-full bg-green-400/10 p-1 text-green-400"
+                    >
+                      <div class="h-2 w-2 rounded-full bg-current"></div>
+                    </div>
+                    <h1 class="flex gap-x-3 text-base leading-7">
+                      <span class="font-semibold texst-on-surface"
+                        >Pixeleye-io</span
+                      >
+                      <span class="text-outline">/</span>
+                      <span class="font-semibold texst-on-surface"
+                        >pixeleye</span
+                      >
+                    </h1>
+                  </div>
+                  <p
                     class={cx(
-                      statIdx % 2 === 1
-                        ? "sm:border-l"
-                        : statIdx === 2
-                          ? "lg:border-l"
-                          : "",
-                      "border-t border-outline-variant py-6 px-4 sm:px-6 rounded bg-tertiary-container",
-                      offset && statIdx === 0 && "mt-1"
+                      "mt-2 text-xs leading-6 text-on-surface-variant",
+                      offset && "font-semibold"
                     )}
                   >
-                    <p class="text-sm font-medium leading-6 text-on-tertiary-container">
-                      {stat.name}
-                    </p>
-                    <p class="mt-2 flex items-baseline gap-x-2">
-                      <span class="text-4xl font-semibold tracking-tight texst-on-surface">
-                        {stat.value}
-                      </span>
-                      {stat.unit ? (
-                        <span class="text-sm text-on-surface-variant">
-                          {stat.unit}
-                        </span>
-                      ) : null}
-                    </p>
-                  </div>
-                ))
-              }
-            </div>
-          </header>
+                    Deploys from GitHub via main branch
+                  </p>
+                </div>
+                <div
+                  class="order-first flex-none rounded-full bg-tertiary/10 px-2 py-1 text-xs font-medium text-tertiary ring-1 ring-inset ring-tertiary sm:order-none"
+                >
+                  Production
+                </div>
+              </div>
 
-          {/* Activity list */}
-          <div class="border-t border-outline-variant pt-11 bg-surface h-full">
-            <h2
-              class="px-4 text-base font-semibold leading-7 texst-on-surface sm:px-6 lg:px-8"
-            >
-              Latest activity
-            </h2>
-            <table class="mt-6 w-full whitespace-nowrap text-left">
-              <colgroup>
-                <col class="w-full sm:w-4/12" />
-                <col class="lg:w-4/12" />
-                <col class="lg:w-2/12" />
-                <col class="lg:w-1/12" />
-                <col class="lg:w-1/12" />
-              </colgroup>
-              <thead
-                class="border-b border-outline-variant text-sm leading-6 texst-on-surface"
+              {/* Stats */}
+              <div
+                class="grid grid-cols-1 bg-surface gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
               >
-                <tr>
-                  <th
-                    scope="col"
-                    class="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8"
-                  >
-                    User
-                  </th>
-                  <th
-                    scope="col"
-                    class="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell"
-                  >
-                    Commit
-                  </th>
-                  <th
-                    scope="col"
-                    class="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20"
-                  >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    class="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20"
-                  >
-                    Duration
-                  </th>
-                  <th
-                    scope="col"
-                    class="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8"
-                  >
-                    Deployed at
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-white/5">
                 {
-                  activityItems.map((item) => (
-                    <tr>
-                      <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
-                        <div
-                          class={cx(
-                            "flex items-center gap-x-4",
-                            offset && "space-x-1"
-                          )}
-                        >
-                          <img
-                            src={item.user.imageUrl.src}
-                            alt="Profile picture"
-                            class="h-8 w-8 rounded-full bg-surface-container object-cover"
-                          />
-                          <div class="truncate text-sm font-medium leading-6 texst-on-surface">
-                            {item.user.name}
-                          </div>
-                        </div>
-                      </td>
-                      <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
-                        <div class="flex gap-x-3">
-                          <div class="font-mono text-sm leading-6 text-on-surface-variant">
-                            {item.commit}
-                          </div>
-                          <span class="inline-flex items-center rounded-md bg-surface-container px-2 py-1 text-xs font-medium text-on-surface-variant ring-1 ring-inset ring-outline">
-                            {item.branch}
+                  stats.map((stat, statIdx) => (
+                    <div
+                      class={cx(
+                        statIdx % 2 === 1
+                          ? "sm:border-l"
+                          : statIdx === 2
+                            ? "lg:border-l"
+                            : "",
+                        "border-t border-outline-variant py-6 px-4 sm:px-6 rounded bg-tertiary-container",
+                        offset && statIdx === 0 && "mt-1"
+                      )}
+                    >
+                      <p class="text-sm font-medium leading-6 text-on-tertiary-container">
+                        {stat.name}
+                      </p>
+                      <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight texst-on-surface">
+                          {stat.value}
+                        </span>
+                        {stat.unit ? (
+                          <span class="text-sm text-on-surface-variant">
+                            {stat.unit}
                           </span>
-                        </div>
-                      </td>
-                      <td class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20">
-                        <div class="flex items-center justify-end gap-x-2 sm:justify-start">
-                          <time
-                            class="text-on-surface-variant sm:hidden"
-                            date-time={item.dateTime}
-                          >
-                            {item.date}
-                          </time>
-                          <div
-                            class={cx(
-                              statuses[item.status as keyof typeof statuses],
-                              "flex-none rounded-full p-1"
-                            )}
-                          >
-                            <div class="h-1.5 w-1.5 rounded-full bg-current" />
-                          </div>
-                          <div class="hidden texst-on-surface sm:block">
-                            {item.status}
-                          </div>
-                        </div>
-                      </td>
-                      <td class="hidden py-4 pl-0 pr-8 text-sm leading-6 text-on-surface-variant md:table-cell lg:pr-20">
-                        {item.duration}
-                      </td>
-                      <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-on-surface-variant sm:table-cell sm:pr-6 lg:pr-8">
-                        <time date-time={item.dateTime}>{item.date}</time>
-                      </td>
-                    </tr>
+                        ) : null}
+                      </p>
+                    </div>
                   ))
                 }
-              </tbody>
-            </table>
-          </div>
-        </main>
+              </div>
+            </header>
+
+            {/* Activity list */}
+            <div
+              class="border-t border-outline-variant pt-11 bg-surface h-full"
+            >
+              <h2
+                class="px-4 text-base font-semibold leading-7 texst-on-surface sm:px-6 lg:px-8"
+              >
+                Latest activity
+              </h2>
+              <table class="mt-6 w-full whitespace-nowrap text-left">
+                <colgroup>
+                  <col class="w-full sm:w-4/12" />
+                  <col class="lg:w-4/12" />
+                  <col class="lg:w-2/12" />
+                  <col class="lg:w-1/12" />
+                  <col class="lg:w-1/12" />
+                </colgroup>
+                <thead
+                  class="border-b border-outline-variant text-sm leading-6 texst-on-surface"
+                >
+                  <tr>
+                    <th
+                      scope="col"
+                      class="py-2 pl-4 pr-8 font-semibold sm:pl-6 lg:pl-8"
+                    >
+                      User
+                    </th>
+                    <th
+                      scope="col"
+                      class="hidden py-2 pl-0 pr-8 font-semibold sm:table-cell"
+                    >
+                      Commit
+                    </th>
+                    <th
+                      scope="col"
+                      class="py-2 pl-0 pr-4 text-right font-semibold sm:pr-8 sm:text-left lg:pr-20"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      class="hidden py-2 pl-0 pr-8 font-semibold md:table-cell lg:pr-20"
+                    >
+                      Duration
+                    </th>
+                    <th
+                      scope="col"
+                      class="hidden py-2 pl-0 pr-4 text-right font-semibold sm:table-cell sm:pr-6 lg:pr-8"
+                    >
+                      Deployed at
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  {
+                    activityItems.map((item) => (
+                      <tr>
+                        <td class="py-4 pl-4 pr-8 sm:pl-6 lg:pl-8">
+                          <div
+                            class={cx(
+                              "flex items-center gap-x-4",
+                              offset && "space-x-1"
+                            )}
+                          >
+                            <img
+                              src={item.user.imageUrl.src}
+                              alt="Profile picture"
+                              class="h-8 w-8 rounded-full bg-surface-container object-cover"
+                            />
+                            <div class="truncate text-sm font-medium leading-6 texst-on-surface">
+                              {item.user.name}
+                            </div>
+                          </div>
+                        </td>
+                        <td class="hidden py-4 pl-0 pr-4 sm:table-cell sm:pr-8">
+                          <div class="flex gap-x-3">
+                            <div class="font-mono text-sm leading-6 text-on-surface-variant">
+                              {item.commit}
+                            </div>
+                            <span class="inline-flex items-center rounded-md bg-surface-container px-2 py-1 text-xs font-medium text-on-surface-variant ring-1 ring-inset ring-outline">
+                              {item.branch}
+                            </span>
+                          </div>
+                        </td>
+                        <td class="py-4 pl-0 pr-4 text-sm leading-6 sm:pr-8 lg:pr-20">
+                          <div class="flex items-center justify-end gap-x-2 sm:justify-start">
+                            <time
+                              class="text-on-surface-variant sm:hidden"
+                              date-time={item.dateTime}
+                            >
+                              {item.date}
+                            </time>
+                            <div
+                              class={cx(
+                                statuses[item.status as keyof typeof statuses],
+                                "flex-none rounded-full p-1"
+                              )}
+                            >
+                              <div class="h-1.5 w-1.5 rounded-full bg-current" />
+                            </div>
+                            <div class="hidden texst-on-surface sm:block">
+                              {item.status}
+                            </div>
+                          </div>
+                        </td>
+                        <td class="hidden py-4 pl-0 pr-8 text-sm leading-6 text-on-surface-variant md:table-cell lg:pr-20">
+                          {item.duration}
+                        </td>
+                        <td class="hidden py-4 pl-0 pr-4 text-right text-sm leading-6 text-on-surface-variant sm:table-cell sm:pr-6 lg:pr-8">
+                          <time date-time={item.dateTime}>{item.date}</time>
+                        </td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
-  </div>
-</Root>
+  </body>
+
+  <style is:global>
+    :root {
+      --color-primary-light: 24 24 27;
+      --color-on-primary-light: 250 250 250;
+      --color-primary-container-light: 233 221 255;
+      --color-on-primary-container-light: 35 0 92;
+      --color-secondary-light: 98 91 112;
+      --color-on-secondary-light: 255 255 255;
+      --color-secondary-container-light: 232 222 248;
+      --color-on-secondary-container-light: 30 25 43;
+      --color-tertiary-light: 230 121 151;
+      --color-on-tertiary-light: 255 255 255;
+      --color-tertiary-container-light: 245 184 202;
+      --color-on-tertiary-container-light: 135 49 74;
+      --color-error-light: 186 26 26;
+      --color-on-error-light: 255 255 255;
+      --color-error-container-light: 255 218 214;
+      --color-on-error-container-light: 65 0 2;
+      --color-surface-light: 253 248 253;
+      --color-on-surface-light: 28 27 30;
+      --color-surface-container-lowest-light: 255 255 255;
+      --color-surface-container-low-light: 247 242 247;
+      --color-surface-container-light: 242 236 241;
+      --color-surface-container-high-light: 236 231 235;
+      --color-surface-container-highest-light: 230 225 230;
+      --color-on-surface-variant-light: 94 87 91;
+      --color-outline-light: 179 170 174;
+      --color-outline-variant-light: 217 208 212;
+
+      --color-primary-dark: 250 250 250;
+      --color-on-primary-dark: 43 43 43;
+      --color-primary-container-dark: 85 22 190;
+      --color-on-primary-container-dark: 233 221 255;
+      --color-secondary-dark: 204 194 219;
+      --color-on-secondary-dark: 51 45 65;
+      --color-secondary-container-dark: 74 68 88;
+      --color-on-secondary-container-dark: 232 222 248;
+      --color-tertiary-dark: 239 184 199;
+      --color-on-tertiary-dark: 74 37 49;
+      --color-tertiary-container-dark: 99 59 72;
+      --color-on-tertiary-container-dark: 255 217 226;
+      --color-error-dark: 255 180 171;
+      --color-on-error-dark: 105 0 5;
+      --color-error-container-dark: 147 0 10;
+      --color-on-error-container-dark: 255 218 214;
+      --color-surface-dark: 17 17 17;
+      --color-on-surface-dark: 250 250 250;
+      --color-surface-container-lowest-dark: 15 14 17;
+      --color-surface-container-low-dark: 28 27 30;
+      --color-surface-container-dark: 33 31 34;
+      --color-surface-container-high-dark: 43 41 45;
+      --color-surface-container-highest-dark: 54 52 56;
+      --color-on-surface-variant-dark: 161 161 161;
+      --color-outline-dark: 148 143 153;
+      --color-outline-variant-dark: 73 69 78;
+    }
+
+    :root {
+      --color-primary: var(--color-primary-light);
+      --color-on-primary: var(--color-on-primary-light);
+      --color-primary-container: var(--color-primary-container-light);
+      --color-on-primary-container: var(--color-on-primary-container-light);
+      --color-secondary: var(--color-secondary-light);
+      --color-on-secondary: var(--color-on-secondary-light);
+      --color-secondary-container: var(--color-secondary-container-light);
+      --color-on-secondary-container: var(--color-on-secondary-container-light);
+      --color-tertiary: var(--color-tertiary-light);
+      --color-on-tertiary: var(--color-on-tertiary-light);
+      --color-tertiary-container: var(--color-tertiary-container-light);
+      --color-on-tertiary-container: var(--color-on-tertiary-container-light);
+      --color-error: var(--color-error-light);
+      --color-error-container: var(--color-error-container-light);
+      --color-on-error: var(--color-on-error-light);
+      --color-on-error-container: var(--color-on-error-container-light);
+      --color-surface: var(--color-surface-light);
+      --color-on-surface: var(--color-on-surface-light);
+      --color-surface-variant: var(--color-surface-variant-light);
+      --color-on-surface-variant: var(--color-on-surface-variant-light);
+      --color-outline: var(--color-outline-light);
+      --color-outline-variant: var(--color-outline-variant-light);
+      --color-surface-container-lowest: var(
+        --color-surface-container-lowest-light
+      );
+      --color-surface-container-low: var(--color-surface-container-low-light);
+      --color-surface-container: var(--color-surface-container-light);
+      --color-surface-container-high: var(--color-surface-container-high-light);
+      --color-surface-container-highest: var(
+        --color-surface-container-highest-light
+      );
+    }
+    .dark {
+      --color-primary: var(--color-primary-dark);
+      --color-on-primary: var(--color-on-primary-dark);
+      --color-primary-container: var(--color-primary-container-dark);
+      --color-on-primary-container: var(--color-on-primary-container-dark);
+      --color-secondary: var(--color-secondary-dark);
+      --color-on-secondary: var(--color-on-secondary-dark);
+      --color-secondary-container: var(--color-secondary-container-dark);
+      --color-on-secondary-container: var(--color-on-secondary-container-dark);
+      --color-tertiary: var(--color-tertiary-dark);
+      --color-on-tertiary: var(--color-on-tertiary-dark);
+      --color-tertiary-container: var(--color-tertiary-container-dark);
+      --color-on-tertiary-container: var(--color-on-tertiary-container-dark);
+      --color-error: var(--color-error-dark);
+      --color-error-container: var(--color-error-container-dark);
+      --color-on-error: var(--color-on-error-dark);
+      --color-on-error-container: var(--color-on-error-container-dark);
+      --color-surface: var(--color-surface-dark);
+      --color-on-surface: var(--color-on-surface-dark);
+      --color-surface-variant: var(--color-surface-variant-dark);
+      --color-on-surface-variant: var(--color-on-surface-variant-dark);
+      --color-outline: var(--color-outline-dark);
+      --color-outline-variant: var(--color-outline-variant-dark);
+      --color-surface-container-lowest: var(
+        --color-surface-container-lowest-dark
+      );
+      --color-surface-container-low: var(--color-surface-container-low-dark);
+      --color-surface-container: var(--color-surface-container-dark);
+      --color-surface-container-high: var(--color-surface-container-high-dark);
+      --color-surface-container-highest: var(
+        --color-surface-container-highest-dark
+      );
+
+      background-color: #121212;
+    }
+  </style>
+</html>
