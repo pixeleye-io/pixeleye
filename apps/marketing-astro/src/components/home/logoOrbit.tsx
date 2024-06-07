@@ -36,18 +36,18 @@ function Ring({ children, className }: RingProps) {
   return (
     <li
       className={cx(
-        "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 peer-hover:scale-75 transition rounded-full",
+        "absolute top-1/2 left-1/2 -translate-x-1/2  group -translate-y-1/2 peer-hover:scale-75 transition rounded-full",
         className
       )}
     >
+      <span className="absolute rounded-full inset-0 group-hover:border-tertiary border-2 transition border-outline" />
       <ul
         style={{
           animationDuration: `${Math.random() * 20 + 25}s`,
           animationDelay: `-${Math.random() * 10}s`,
         }}
-        className="w-full h-full animate-spin group transition relative"
+        className="w-full h-full animate-spin  transition relative"
       >
-        <span className="absolute rounded-full inset-0 group-hover:border-tertiary border-2 transition border-outline" />
         {children}
       </ul>
     </li>
