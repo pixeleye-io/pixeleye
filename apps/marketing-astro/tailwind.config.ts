@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 import sharedConfig from "@pixeleye/tailwind";
+import scrollbar from "tailwind-scrollbar";
 
 const config: Config = {
   presets: [sharedConfig],
@@ -16,7 +17,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [scrollbar],
 };
 
 export default config;

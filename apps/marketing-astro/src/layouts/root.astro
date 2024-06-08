@@ -190,6 +190,7 @@ const { title, description } = Astro.props;
 <script>
   fetch( "https://auth.pixeleye.io/sessions/whoami", {
     credentials: "include",
+    
   })
     .then((res) => !res.ok && Promise.reject(res))
     .then(() => {
