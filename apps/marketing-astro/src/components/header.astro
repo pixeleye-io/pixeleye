@@ -85,6 +85,15 @@ const isLoggedIn = false;
       >
         Get started
       </Button>
+      <!-- @ts-ignore -->
+      <Button
+        as="span"
+        variant="outline"
+        aria-hidden
+        class="hidden w-28 lg:[[data-logged-in='false']_&]:hidden lg:[[data-logged-in='true']_&]:hidden lg:block !text-transparent"
+      >
+        Get started
+      </Button>
 
       <!-- @ts-ignore -->
       <Button
