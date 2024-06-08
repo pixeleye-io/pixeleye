@@ -185,12 +185,15 @@ const { title, description } = Astro.props;
 
     background-color: #121212;
   }
+
+  * {
+    font-display: optional;
+  }
 </style>
 
 <script>
-  fetch( "https://auth.pixeleye.io/sessions/whoami", {
+  fetch("https://auth.pixeleye.io/sessions/whoami", {
     credentials: "include",
-    
   })
     .then((res) => !res.ok && Promise.reject(res))
     .then(() => {
