@@ -19,31 +19,7 @@ const { title, description, viewTransitions } = Astro.props;
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
-    <script is:inline data-astro-rerun>
-      const prefersDarkScheme = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      );
-      const currentTheme = localStorage.getItem("theme");
-      if (
-        currentTheme === "dark" ||
-        (prefersDarkScheme.matches && currentTheme !== "light")
-      ) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.style["color-scheme"] = "dark";
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.style["color-scheme"] = "light";
-      }
 
-      prefersDarkScheme.addEventListener("change", (e) => {
-        const newColorScheme = e.matches ? "dark" : "light";
-        if (newColorScheme === "dark") {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-      });
-    </script>
     <title>
       {title}
     </title>
@@ -189,6 +165,32 @@ const { title, description, viewTransitions } = Astro.props;
     background-color: #121212;
   }
 </style>
+
+<script is:inline data-astro-rerun>
+  const prefersDarkScheme = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  );
+  const currentTheme = localStorage.getItem("theme");
+  if (
+    currentTheme === "dark" ||
+    (prefersDarkScheme.matches && currentTheme !== "light")
+  ) {
+    document.documentElement.classList.add("dark");
+    document.documentElement.style["color-scheme"] = "dark";
+  } else {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.style["color-scheme"] = "light";
+  }
+
+  prefersDarkScheme.addEventListener("change", (e) => {
+    const newColorScheme = e.matches ? "dark" : "light";
+    if (newColorScheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  });
+</script>
 
 <script data-astro-rerun>
   fetch("https://auth.pixeleye.io/sessions/whoami", {
