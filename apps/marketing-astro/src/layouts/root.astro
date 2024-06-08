@@ -19,7 +19,7 @@ const { title, description, viewTransitions } = Astro.props;
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
-    <script is:inline>
+    <script is:inline data-astro-rerun>
       const prefersDarkScheme = window.matchMedia(
         "(prefers-color-scheme: dark)"
       );
@@ -190,7 +190,7 @@ const { title, description, viewTransitions } = Astro.props;
   }
 </style>
 
-<script>
+<script data-astro-rerun>
   fetch("https://auth.pixeleye.io/sessions/whoami", {
     credentials: "include",
   })
