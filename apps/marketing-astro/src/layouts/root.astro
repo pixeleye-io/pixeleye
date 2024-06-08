@@ -166,8 +166,10 @@ const { title, description, viewTransitions } = Astro.props;
   }
 </style>
 
+
 <script data-astro-rerun>
-  const prefersDarkScheme = window.matchMedia(
+
+const prefersDarkScheme = window.matchMedia(
     "(prefers-color-scheme: dark)"
   );
   const currentTheme = localStorage.getItem("theme");
@@ -190,9 +192,6 @@ const { title, description, viewTransitions } = Astro.props;
       document.documentElement.classList.remove("dark");
     }
   });
-</script>
-
-<script data-astro-rerun>
   fetch("https://auth.pixeleye.io/sessions/whoami", {
     credentials: "include",
   })
