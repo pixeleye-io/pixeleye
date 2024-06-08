@@ -14,7 +14,7 @@ interface Props {
 const { title, description, viewTransitions } = Astro.props;
 ---
 
-<html lang="en" class="bg-surface text-on-surface">
+<html lang="en" class="bg-surface text-on-surface" transition:persist="">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -166,7 +166,7 @@ const { title, description, viewTransitions } = Astro.props;
   }
 </style>
 
-<script data-astro-rerun>
+<script is:inline>
   const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
   const currentTheme = localStorage.getItem("theme");
   if (
