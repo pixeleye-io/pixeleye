@@ -166,12 +166,8 @@ const { title, description, viewTransitions } = Astro.props;
   }
 </style>
 
-
 <script data-astro-rerun>
-
-const prefersDarkScheme = window.matchMedia(
-    "(prefers-color-scheme: dark)"
-  );
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
   const currentTheme = localStorage.getItem("theme");
   if (
     currentTheme === "dark" ||
@@ -187,9 +183,11 @@ const prefersDarkScheme = window.matchMedia(
   prefersDarkScheme.addEventListener("change", (e) => {
     const newColorScheme = e.matches ? "dark" : "light";
     if (newColorScheme === "dark") {
-      document.documentElement.classList.add("dark");
+      document.documentElement.classList.add(newColorScheme);
+      document.documentElement.style["color-scheme"] = "dark";
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.remove(newColorScheme);
+      document.documentElement.style["color-scheme"] = "light";
     }
   });
   fetch("https://auth.pixeleye.io/sessions/whoami", {
