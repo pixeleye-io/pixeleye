@@ -3,13 +3,15 @@ import "@fontsource-variable/inter";
 import Header from "../components/header.astro";
 import "./search.css";
 import Footer from "../components/footer.astro";
+import { ViewTransitions } from "astro:transitions";
 
 interface Props {
   title: string;
   description: string;
+  viewTransitions?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, viewTransitions } = Astro.props;
 ---
 
 <html lang="en" class="bg-surface text-on-surface">
@@ -46,6 +48,7 @@ const { title, description } = Astro.props;
       {title}
     </title>
     <meta name="description" content={description} />
+    {viewTransitions && <ViewTransitions />}
   </head>
   <body
     class="font-sans min-h-screen bg-surface text-on-surface dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50"
