@@ -20,29 +20,37 @@ const { title, description, viewTransitions } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <script is:inline>
-      const prefersDarkScheme = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      );
-      const currentTheme = localStorage.getItem("theme");
-      if (
-        currentTheme === "dark" ||
-        (prefersDarkScheme.matches && currentTheme !== "light")
-      ) {
-        document.documentElement.classList.add("dark");
-        document.documentElement.style["color-scheme"] = "dark";
-      } else {
-        document.documentElement.classList.remove("dark");
-        document.documentElement.style["color-scheme"] = "light";
-      }
-
-      prefersDarkScheme.addEventListener("change", (e) => {
-        const newColorScheme = e.matches ? "dark" : "light";
-        if (newColorScheme === "dark") {
+      function handleTheme() {
+        const prefersDarkScheme = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        );
+        const currentTheme = localStorage.getItem("theme");
+        if (
+          currentTheme === "dark" ||
+          (prefersDarkScheme.matches && currentTheme !== "light")
+        ) {
           document.documentElement.classList.add("dark");
+          document.documentElement.style["color-scheme"] = "dark";
         } else {
           document.documentElement.classList.remove("dark");
+          document.documentElement.style["color-scheme"] = "light";
         }
-      });
+
+        prefersDarkScheme.addEventListener("change", (e) => {
+          const newColorScheme = e.matches ? "dark" : "light";
+          if (newColorScheme === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.style["color-scheme"] = "dark";
+          } else {
+            document.documentElement.classList.remove("dark");
+            document.documentElement.style["color-scheme"] = "light";
+          }
+        });
+      }
+
+      handleTheme();
+
+      document.addEventListener("astro:after-swap", handleTheme);
     </script>
     <title>
       {title}
