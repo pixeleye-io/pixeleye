@@ -39,7 +39,6 @@ import ChevronDownIcon from "@heroicons/react/24/solid/ChevronDownIcon";
       const newState =
         dialog.getAttribute("data-state") === "open" ? "closed" : "open";
       dialog.setAttribute("data-state", newState);
-
       btn.setAttribute("aria-expanded", newState === "open" ? "true" : "false");
     });
   }
