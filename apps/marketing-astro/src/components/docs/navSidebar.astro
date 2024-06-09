@@ -1,0 +1,51 @@
+---
+import { cx } from "class-variance-authority";
+
+interface Props {
+  sections: {
+    title: string;
+    links: {
+      title: string;
+      href: string;
+    }[];
+  }[];
+  path: string;
+  mobile?: boolean;
+}
+
+const { sections, path, mobile } = Astro.props;
+---
+
+<nav class="text-base md:text-sm -ml-0.5 pl-0.5">
+  <ul role="list" class={cx("space-y-9", mobile && "mb-20")}>
+    {
+      sections.map((section) => (
+        <li>
+          <h2 class="font-display capitalize font-medium text-on-surface">
+            {section.title}
+          </h2>
+          <ul
+            role="list"
+            class="mt-2 space-y-2 border-l-2 md:mt-4 md:space-y-4 border-outline-variant"
+          >
+            {section.links.map((link) => (
+              <li class="relative">
+                <a
+                  href={link.href}
+                  class={cx(
+                    "block w-full capitalize pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full",
+                    link.href === `/docs/${path}`
+                      ? "before:bg-tertiary font-semibold text-tertiary"
+                      : "before:hidden before:bg-on-surface-variant hover:text-on-surface hover:before:block text-on-surface-variant"
+                  )}
+                >
+                  {link.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

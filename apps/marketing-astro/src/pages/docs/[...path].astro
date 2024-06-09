@@ -13,6 +13,8 @@ import { PageNavigation } from "./nextPage";
 import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
 import { cx } from "class-variance-authority";
 import "./docs.css";
+import NavSidebar from "../../components/docs/navSidebar.astro";
+import MobileNavSidebar from "../../components/docs/mobileNavSidebar.astro";
 
 export const prerender = true;
 
@@ -68,49 +70,18 @@ const sections = await getFiles();
       class="relative mx-auto flex w-full flex-auto justify-center sm:px-2 md:px-8"
     >
       <div class="md:hidden">
-        <!-- <DocsNavMobile sections={sections} /> -->
+        <!-- <DocsNavMobile sections={sections} client:load /> -->
+        <MobileNavSidebar>
+          <div id="docs-sidebar-nav">
+            <NavSidebar path={path} sections={sections} mobile />
+          </div>
+        </MobileNavSidebar>
       </div>
       <div class="hidden md:relative md:block md:flex-none">
         <div
-          class="sticky top-[4.5rem] border-r border-outline-variant md:w-56 lg:w-60"
+          class="sticky top-[4.5rem] border-r border-outline-variant md:w-56 lg:w-60 h-[calc(100vh-4.5rem)] overflow-y-auto overflow-x-hidden -ml-1 pl-1 scrollbar-thin py-16"
         >
-          <!-- DESKTOP NAVIGATION -->
-          <nav
-            class="text-base md:text-sm h-[calc(100vh-4.5rem)] overflow-x-hidden -ml-0.5 py-16 pl-0.5 scrollbar-thin"
-            id="docs-sidebar-nav"
-          >
-            <ul role="list" class="space-y-9">
-              {
-                sections.map((section) => (
-                  <li>
-                    <h2 class="font-display capitalize font-medium text-on-surface">
-                      {section.title}
-                    </h2>
-                    <ul
-                      role="list"
-                      class="mt-2 space-y-2 border-l-2 md:mt-4 md:space-y-4 border-outline-variant"
-                    >
-                      {section.links.map((link) => (
-                        <li class="relative">
-                          <a
-                            href={link.href}
-                            class={cx(
-                              "block w-full capitalize pl-3.5 before:pointer-events-none before:absolute before:-left-1 before:top-1/2 before:h-1.5 before:w-1.5 before:-translate-y-1/2 before:rounded-full",
-                              link.href === `/docs/${path}`
-                                ? "before:bg-tertiary font-semibold text-tertiary"
-                                : "before:hidden before:bg-on-surface-variant hover:text-on-surface hover:before:block text-on-surface-variant"
-                            )}
-                          >
-                            {link.title}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))
-              }
-            </ul>
-          </nav>
+          <NavSidebar path={path} sections={sections} />
         </div>
       </div>
 

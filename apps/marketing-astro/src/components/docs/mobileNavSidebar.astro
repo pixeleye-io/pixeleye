@@ -1,0 +1,44 @@
+---
+import ChevronDownIcon from "@heroicons/react/24/solid/ChevronDownIcon";
+---
+
+<div
+  data-state="closed"
+  id="docs-nav-menu-dialog"
+  class="fixed w-full inset-x-0 top-16 group data-[state='open']:bottom-0 z-40 bg-surface/90 backdrop-blur-sm mt-px"
+>
+  <button
+    id="docs-nav-menu-btn"
+    aria-expanded="false"
+    aria-controls="docs-nav-menu-dialog"
+    class="flex py-3.5 h-12 border-b group-data-[state='open']:border-none border-outline-variant px-6 items-center text-on-surface text-sm w-full"
+  >
+    <ChevronDownIcon
+      className="h-4 w-4 mr-2 group-data-[state=open]:rotate-180"
+    />
+    <span>Menu</span>
+  </button>
+
+  <div
+    class="max-w-full fixed hidden group-data-[state='open']:block lg:hidden w-full max-h-[calc(100vh-7rem)] overflow-y-auto overflow-x-hidden scrollbar-thin"
+  >
+    <div class="px-6 py-4">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById("docs-nav-menu-btn")!;
+  const dialog = document.getElementById("docs-nav-menu-dialog")!;
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const newState =
+      dialog.getAttribute("data-state") === "open" ? "closed" : "open";
+    dialog.setAttribute("data-state", newState);
+
+    btn.setAttribute("aria-expanded", newState === "open" ? "true" : "false");
+  });
+</script>
