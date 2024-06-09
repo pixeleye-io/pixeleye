@@ -10,10 +10,9 @@ import Markdoc from "@markdoc/markdoc";
 import Root from "../../layouts/root.astro";
 import { Feedback } from "./feedback";
 import { PageNavigation } from "./nextPage";
-import { HeadingNav } from "./heading-nav";
-import Link from "../../components/link.astro";
 import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
 import { cx } from "class-variance-authority";
+import "./docs.css";
 
 export const prerender = true;
 
@@ -75,14 +74,7 @@ const sections = await getFiles();
         <div
           class="sticky top-[4.5rem] border-r border-outline-variant md:w-56 lg:w-60"
         >
-          <!-- <ScrollArea
-            className="h-[calc(100vh-4.5rem)] overflow-x-hidden -ml-0.5 py-16 pl-0.5 "
-          >
-            <DocsNavDesktop sections={sections} />
-          </ScrollArea> -->
-
           <!-- DESKTOP NAVIGATION -->
-
           <nav
             class="text-base md:text-sm h-[calc(100vh-4.5rem)] overflow-x-hidden -ml-0.5 py-16 pl-0.5 scrollbar-thin"
             id="docs-sidebar-nav"
