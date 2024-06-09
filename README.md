@@ -1,5 +1,5 @@
 <div align="center">
-<h1>Pixeleye</h1>
+<h1>Pixeleye - Visual testing platform</h1>
 <p>The batteries-included platform for visually testing and reviewing your UI; it's even self-hostable! Connect your codebase with our many integrations and dramatically increase your test coverage in minutes.</p>  
 </p>
 <div align="center">
@@ -36,7 +36,6 @@ Pixeleye provides a seamless experience for visually testing and reviewing your 
 
 - **Simple and powerful review process**: Pixeleye boasts an excellent review experience, from our superb web app to VCS integration. Have a go with our [playground](https://pixeleye.io/playground)
 
-
 ## Why use Pixeleye Cloud? (hint: it's not just our fair pricing)
 
 The best way to use Pixeleye is through our [cloud offering](https://pixeleye.io/home). Plus, by using our service, you'll promote a sustainable open-source ecosystem and support us in developing and improving our open-source offerings.
@@ -49,14 +48,13 @@ The best way to use Pixeleye is through our [cloud offering](https://pixeleye.io
 - **Latest features** Our Cloud follows a rolling release cycle, whereas our official self-hosted releases are more long-term. Enjoy our latest features with Cloud!
 - **Premium support** We offer fantastic support for our Cloud customers. While we'll fix any bugs you find self-hosting, we can't help you with onboarding or setup.
 
-
 Want to get started? Head over [to our](https://pixeleye.io/home) website to begin.
 
 ## Self-hosting
 
 The easiest way to self-host Pixeye is with Docker. Check out our [guide](https://pixeleye.io/docs/guides/self-hosting) to get started quickly.
 
-Our Docker images follow a stable release pattern, whereas our Cloud follows a rolling release cycle. The latest features/bug fixes may not yet be present in our docker images. We follow this pattern to reduce the overhead of constantly requiring you to update your infra whilst ensuring we only ship stable products. We don't have dates for our releases, but they typically come after new features are stable or significant security issues arise. 
+Our Docker images follow a stable release pattern, whereas our Cloud follows a rolling release cycle. The latest features/bug fixes may not yet be present in our docker images. We follow this pattern to reduce the overhead of constantly requiring you to update your infra whilst ensuring we only ship stable products. We don't have dates for our releases, but they typically come after new features are stable or significant security issues arise.
 
 ### Required services
 
@@ -81,9 +79,3 @@ For more info, please check out our [contributing guide](https://pixeleye.io/doc
 ## Disclosing security issues
 
 If you think you've found a security vulnerability, please refrain from posting it publicly on the forums, the chat, or GitHub. You can find all the info for responsible disclosure in our [SECURITY.md](https://github.com/pixeleye-io/pixeleye/blob/main/SECURITY.md)
-
-
-
-
-
-
