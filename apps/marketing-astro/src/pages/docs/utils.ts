@@ -64,7 +64,7 @@ export const getAllFiles = async () => {
   const gitFiles = await octokit.graphql<GitFiles>(
     `{
       repository(owner: "pixeleye-io", name: "pixeleye") {
-        object(expression: "HEAD:docs") {
+        object(expression: "${import.meta.env.VERCEL_GIT_COMMIT_SHA || "HEAD"}:docs") {
           ... on Tree {
             entries {
               name
