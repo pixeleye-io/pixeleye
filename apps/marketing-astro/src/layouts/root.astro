@@ -198,15 +198,21 @@ const { title, description, viewTransitions } = Astro.props;
   }
 </style>
 
-<script data-astro-rerun>
-  fetch("https://auth.pixeleye.io/sessions/whoami", {
+<script>
+  const loggedIn = await fetch("https://auth.pixeleye.io/sessions/whoami", {
     credentials: "include",
   })
     .then((res) => !res.ok && Promise.reject(res))
     .then(() => {
       document.documentElement.setAttribute("data-logged-in", "true");
+      return "true";
     })
     .catch(() => {
       document.documentElement.setAttribute("data-logged-in", "false");
+      return "false";
     });
+
+  document.addEventListener("astro:after-swap", () => {
+    document.documentElement.setAttribute("data-logged-in", loggedIn);
+  });
 </script>
