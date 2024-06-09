@@ -1,5 +1,4 @@
 import { Link } from "@pixeleye/ui/src/link";
-import { getFiles } from "./utils";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
 
@@ -40,7 +39,7 @@ function PageLink({
 
 
 
-export async function PageNavigation(
+export function PageNavigation(
     {
         currentPageURL
     }: {
@@ -49,7 +48,12 @@ export async function PageNavigation(
     }
 ) {
 
-    const sections = (await getFiles()).flatMap((group) => group.links)
+    // const sections = (await getFiles()).flatMap((group) => group.links)
+
+    const sections: {
+        title: string;
+        href: string;
+    }[] = []
 
     let currentPageIndex = sections.findIndex((page) => page.href === currentPageURL)
 

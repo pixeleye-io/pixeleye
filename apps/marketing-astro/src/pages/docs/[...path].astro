@@ -83,9 +83,10 @@ const sections = await getFiles();
 
           <!-- DESKTOP NAVIGATION -->
 
-
-
-          <nav class="text-base md:text-sm h-[calc(100vh-4.5rem)] overflow-x-hidden -ml-0.5 py-16 pl-0.5 scrollbar-thin">
+          <nav
+            class="text-base md:text-sm h-[calc(100vh-4.5rem)] overflow-x-hidden -ml-0.5 py-16 pl-0.5 scrollbar-thin"
+            id="docs-sidebar-nav"
+          >
             <ul role="list" class="space-y-9">
               {
                 sections.map((section) => (
@@ -223,3 +224,22 @@ const sections = await getFiles();
     </div>
   </div>
 </Root>
+
+<script>
+  document.addEventListener("astro:before-swap", () => {
+    sessionStorage.setItem(
+      "docs-sidebar-nav-scroll",
+      document.getElementById("docs-sidebar-nav")!.scrollTop.toString()
+    );
+  });
+
+  document.addEventListener("astro:after-swap", () => {
+    const scroll = sessionStorage.getItem("docs-sidebar-nav-scroll");
+    if (scroll) {
+      document.getElementById("docs-sidebar-nav")!.scrollTo({
+        top: parseInt(scroll),
+        behavior: "instant",
+      });
+    }
+  });
+</script>
