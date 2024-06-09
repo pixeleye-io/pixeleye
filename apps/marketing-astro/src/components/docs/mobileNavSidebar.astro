@@ -29,16 +29,21 @@ import ChevronDownIcon from "@heroicons/react/24/solid/ChevronDownIcon";
 </div>
 
 <script>
-  const btn = document.getElementById("docs-nav-menu-btn")!;
-  const dialog = document.getElementById("docs-nav-menu-dialog")!;
+  function setButton() {
+    const btn = document.getElementById("docs-nav-menu-btn")!;
+    const dialog = document.getElementById("docs-nav-menu-dialog")!;
 
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
 
-    const newState =
-      dialog.getAttribute("data-state") === "open" ? "closed" : "open";
-    dialog.setAttribute("data-state", newState);
+      const newState =
+        dialog.getAttribute("data-state") === "open" ? "closed" : "open";
+      dialog.setAttribute("data-state", newState);
 
-    btn.setAttribute("aria-expanded", newState === "open" ? "true" : "false");
-  });
+      btn.setAttribute("aria-expanded", newState === "open" ? "true" : "false");
+    });
+  }
+
+  setButton();
+  document.addEventListener("astro:after-swap", setButton);
 </script>
