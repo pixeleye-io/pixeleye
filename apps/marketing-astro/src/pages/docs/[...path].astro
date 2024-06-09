@@ -71,13 +71,14 @@ const sections = await getFiles();
     >
       <div class="md:hidden">
         <MobileNavSidebar>
-          <div id="docs-sidebar-nav">
+          <div >
             <NavSidebar path={path} sections={sections} mobile />
           </div>
         </MobileNavSidebar>
       </div>
       <div class="hidden md:relative md:block md:flex-none">
         <div
+        id="docs-sidebar-nav"
           class="sticky top-[4.5rem] border-r border-outline-variant md:w-56 lg:w-60 h-[calc(100vh-4.5rem)] overflow-y-auto overflow-x-hidden -ml-1 pl-1 scrollbar-thin py-16"
         >
           <NavSidebar path={path} sections={sections} />
