@@ -24,7 +24,7 @@ Pixeleye provides a seamless experience for visually testing and reviewing your 
 
 - **Clean git repo**: Unlike alternatives, we don't store your comparisons directly in the git repo. We keep your commits clean and avoid scenarios where failing tests are lazily approved with a hand-wavy command
 
-- **Self-Hostable**: You can host pixeleye on your infrastructure. We provide a docker-compose file to get you started. [read more](https://pixeleye.io/docs/guides/self-hosting)
+- **Self-Hostable**: You can host pixeleye on your infrastructure. We provide a docker-compose file to get you started [read more](https://pixeleye.io/docs/guides/self-hosting).
 
 - **Responsive Testing**: We also support different device sizes and browsers. You can capture screenshots for mobile, tablet, and desktop.
 
