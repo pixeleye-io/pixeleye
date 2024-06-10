@@ -57,18 +57,22 @@ const { code, lang, title } = Astro.props;
 </div>
 
 <script>
-  const btns = document.querySelectorAll("[data-clipboard-text]");
+  function initCopy() {
+    const btns = document.querySelectorAll("[data-clipboard-text]");
 
-  btns.forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const text = btn.getAttribute("data-clipboard-text")!;
-      await navigator.clipboard.writeText(text);
-      btn.setAttribute("data-coppied", "true");
-      setTimeout(() => {
-        btn.setAttribute("data-coppied", "false");
-      }, 3000);
+    btns.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const text = btn.getAttribute("data-clipboard-text")!;
+        await navigator.clipboard.writeText(text);
+        btn.setAttribute("data-coppied", "true");
+        setTimeout(() => {
+          btn.setAttribute("data-coppied", "false");
+        }, 3000);
+      });
     });
-  });
+  }
+  initCopy();
+  document.addEventListener("astro:after-swap", initCopy);
 </script>
 
 <style is:global>
