@@ -40,6 +40,7 @@
     "typescript": "^5.4.5"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "tailwind-scrollbar": "^3.1.0"
   }
 }

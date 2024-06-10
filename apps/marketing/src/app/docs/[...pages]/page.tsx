@@ -125,12 +125,12 @@ export default async function Page({
   return (
     <>
       <div className="min-w-0 max-w-4xl flex-auto prose px-4 py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full">
-          {renderers.react(content, React, {
-            components: {
-              Tabs: TabsRender,
-              Tab: TabRender,
-            }
-          })}
+        {renderers.react(content, React, {
+          components: {
+            Tabs: TabsRender,
+            Tab: TabRender,
+          }
+        })}
         <div className="flex justify-between items-center flex-col lg:flex-row mt-24 space-y-6">
           <Feedback page={file.url} />
           {lastModified && (
