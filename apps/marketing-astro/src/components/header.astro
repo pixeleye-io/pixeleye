@@ -195,18 +195,24 @@ const isLoggedIn = false;
 </script>
 
 <script>
-  const sidebar = document.getElementById(
-    "navbar-sidebar"
-  )! as HTMLDialogElement;
-  const sidebarButton = document.getElementById("sidebar-button")!;
+  function initSidebar() {
+    const sidebar = document.getElementById(
+      "navbar-sidebar"
+    )! as HTMLDialogElement;
+    const sidebarButton = document.getElementById("sidebar-button")!;
 
-  sidebarButton.addEventListener("click", () => {
-    sidebar.showModal();
-  });
+    sidebarButton.addEventListener("click", () => {
+      sidebar.showModal();
+    });
 
-  sidebar.addEventListener("click", (event) => {
-    if (event.target === sidebar) {
-      sidebar.close();
-    }
-  });
+    sidebar.addEventListener("click", (event) => {
+      if (event.target === sidebar) {
+        sidebar.close();
+      }
+    });
+  }
+
+  initSidebar();
+
+  document.addEventListener("astro:after-swap", initSidebar);
 </script>
