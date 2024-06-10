@@ -1,10 +1,13 @@
 ---
-const pathname = "/home";
 import { cx } from "class-variance-authority";
 import Button from "./button.astro";
 import { Logo } from "@pixeleye/ui/src/logo";
 import Bars3Icon from "@heroicons/react/24/solid/Bars3Icon";
 import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
+
+interface Props {
+  activeNav: "Home" | "Docs" | "Playground";
+}
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -16,6 +19,8 @@ const navigation = [
   { name: "Pricing", href: "/pricing" },
   { name: "Playground", href: "/playground" },
 ];
+
+const { activeNav } = Astro.props;
 
 const isLoggedIn = false;
 ---
@@ -30,10 +35,7 @@ const isLoggedIn = false;
     <div class="flex items-center gap-x-12">
       <a
         href="/home"
-        class={cx(
-          "-m-1.5 p-1.5",
-          pathname.startsWith("/home") && "!text-tertiary"
-        )}
+        class={cx("-m-1.5 p-1.5", activeNav === "Home" && "!text-tertiary")}
       >
         <span class="sr-only">Pixeleye</span>
         <Logo className="h-8 w-auto hover:text-tertiary transition-colors" />
@@ -45,8 +47,7 @@ const isLoggedIn = false;
               href={item.href}
               class={cx(
                 "text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors",
-                pathname.startsWith(item.selector || item.href) &&
-                  "!text-tertiary"
+                activeNav === item.name && "!text-tertiary"
               )}
             >
               {item.name}
@@ -65,7 +66,7 @@ const isLoggedIn = false;
       </a>
 
       {/* DOC SEARCH */}
-      <div id="docsearch" class="lg:w-9 w-8"  transition:persist></div>
+      <div id="docsearch" class="lg:w-9 w-8" transition:persist></div>
 
       <!-- @ts-ignore -->
       <Button
@@ -121,7 +122,7 @@ const isLoggedIn = false;
         href="/home"
         class={cx(
           "-mx-1.5 -mt-1 p-1.5",
-          pathname.startsWith("/home") && "!text-tertiary"
+          activeNav === "Home" && "!text-tertiary"
         )}
       >
         <span class="sr-only">Pixeleye</span>
@@ -144,8 +145,7 @@ const isLoggedIn = false;
                 href={item.href}
                 class={cx(
                   "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
-                  pathname.startsWith(item.selector || item.href) &&
-                    "!text-tertiary"
+                  activeNav === item.name && "!text-tertiary"
                 )}
               >
                 {item.name}

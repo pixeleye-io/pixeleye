@@ -9,9 +9,10 @@ interface Props {
   title: string;
   description: string;
   viewTransitions?: boolean;
+  activeNav: "Home" | "Docs" | "Playground";
 }
 
-const { title, description, viewTransitions } = Astro.props;
+const { title, description, viewTransitions, activeNav } = Astro.props;
 ---
 
 <html lang="en" class="bg-surface text-on-surface">
@@ -61,7 +62,7 @@ const { title, description, viewTransitions } = Astro.props;
   <body
     class="font-sans min-h-screen bg-surface text-on-surface dark:selection:bg-teal-950 dark:selection:text-teal-50 selection:bg-teal-600 selection:text-teal-50"
   >
-    <Header />
+    <Header {activeNav} />
 
     <div class="lg:pt-[4.5rem] pt-16">
       <slot />
