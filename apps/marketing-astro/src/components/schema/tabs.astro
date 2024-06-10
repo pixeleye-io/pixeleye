@@ -40,35 +40,41 @@ const { labels, idSuffix, ...props } = Astro.props;
 </div>
 
 <script>
-  const tabs = document.querySelectorAll("[data-tabs]");
+  function initTabs() {
+    const tabs = document.querySelectorAll("[data-tabs]");
 
-  tabs.forEach((tab) => {
-    const triggers = tab.querySelectorAll("button[role=tab]");
+    tabs.forEach((tab) => {
+      const triggers = tab.querySelectorAll("button[role=tab]");
 
-    let activeTrigger = triggers[0];
-    let activePanel: Element = document.getElementById(
-      activeTrigger.getAttribute("aria-controls")!
-    )!;
+      let activeTrigger = triggers[0];
+      let activePanel: Element = document.getElementById(
+        activeTrigger.getAttribute("aria-controls")!
+      )!;
 
-    triggers.forEach((trigger) => {
-      trigger.addEventListener("click", () => {
-        activeTrigger.setAttribute("aria-selected", "false");
-        activeTrigger.setAttribute("tabindex", "-1");
+      triggers.forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+          activeTrigger.setAttribute("aria-selected", "false");
+          activeTrigger.setAttribute("tabindex", "-1");
 
-        trigger.setAttribute("aria-selected", "true");
-        trigger.setAttribute("tabindex", "0");
+          trigger.setAttribute("aria-selected", "true");
+          trigger.setAttribute("tabindex", "0");
 
-        const tabId = trigger.getAttribute("aria-controls")!;
+          const tabId = trigger.getAttribute("aria-controls")!;
 
-        if (activePanel) {
-          activePanel.setAttribute("hidden", "");
-        }
+          if (activePanel) {
+            activePanel.setAttribute("hidden", "");
+          }
 
-        activePanel = document.getElementById(tabId)!;
-        activePanel.removeAttribute("hidden");
+          activePanel = document.getElementById(tabId)!;
+          activePanel.removeAttribute("hidden");
 
-        activeTrigger = trigger;
+          activeTrigger = trigger;
+        });
       });
     });
-  });
+  }
+
+  initTabs();
+
+  document.addEventListener("astro:after-swap", initTabs);
 </script>
