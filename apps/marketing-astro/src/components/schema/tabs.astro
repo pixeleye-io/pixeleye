@@ -76,13 +76,27 @@ const group = labels.sort().toString();
         activePanel = document.getElementById(tabId)!;
         activePanel.removeAttribute("hidden");
 
-        localStorage.setItem(`tabs-${groupID}-active`, String(index));
+        if (localStorage.getItem(`tabs-${groupID}-active`) !== String(index)) {
+          localStorage.setItem(`tabs-${groupID}-active`, String(index));
+
+          const event = new CustomEvent(`tabs-${groupID}-change`);
+          document.dispatchEvent(event);
+        }
 
         activeTrigger = trigger;
       }
 
       triggers.forEach((trigger, i) => {
         trigger.addEventListener("click", () => setActiveTab(trigger, i));
+      });
+      document.addEventListener(`tabs-${groupID}-change`, () => {
+        const index = localStorage.getItem(`tabs-${groupID}-active`);
+        setActiveTab(
+          triggers.item(index ? parseInt(index) : 0),
+          parseInt(index || "0")
+        );
+
+        console.log("adsf");
       });
       const index = localStorage.getItem(`tabs-${groupID}-active`);
       setActiveTab(
