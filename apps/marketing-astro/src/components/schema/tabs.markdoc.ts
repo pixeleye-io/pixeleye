@@ -1,6 +1,4 @@
 import Markdoc, { type Config, type Node } from "@markdoc/markdoc";
-import Tabs from "./tabs.astro";
-import Tab from "./tab.astro";
 
 export const tab = {
   attributes: {},
@@ -22,6 +20,9 @@ export const tabs = {
     const labels = node
       .transformChildren(config)
       .filter((child) => child && (child as any).name === "tab")
+      .sort((a: any, b: any) =>
+        a.attributes.label.localeCompare(b.attributes.label)
+      )
       .map((tab, i) => {
         (tab as any).attributes.id = `tab-${i}--${idSuffix}`;
         if (i === 0) {
@@ -34,7 +35,11 @@ export const tabs = {
     return new Markdoc.Tag(
       "tabs",
       { labels, idSuffix },
-      node.transformChildren(config)
+      node
+        .transformChildren(config)
+        .sort((a: any, b: any) =>
+          a.attributes.label.localeCompare(b.attributes.label)
+        )
     );
   },
 };

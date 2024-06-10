@@ -8,9 +8,11 @@ interface Props extends HTMLAttributes<"div"> {
 }
 
 const { labels, idSuffix, ...props } = Astro.props;
+
+const group = labels.sort().toString();
 ---
 
-<div {...props} data-tabs>
+<div {...props} data-tabs data-tabs-id={group}>
   <div
     role="tablist"
     class="inline-flex relative h-10 items-center justify-center rounded-md bg-surface-container-highest dark:bg-surface-container p-1 text-on-surface-variant"
@@ -52,26 +54,41 @@ const { labels, idSuffix, ...props } = Astro.props;
         activeTrigger.getAttribute("aria-controls")!
       )!;
 
-      triggers.forEach((trigger) => {
-        trigger.addEventListener("click", () => {
-          activeTrigger.setAttribute("aria-selected", "false");
-          activeTrigger.setAttribute("tabindex", "-1");
+      const groupID = tab.getAttribute("data-tabs-id");
 
-          trigger.setAttribute("aria-selected", "true");
-          trigger.setAttribute("tabindex", "0");
+      function setActiveTab(trigger: Element, index: number) {
+        if (trigger === activeTrigger) {
+          return;
+        }
 
-          const tabId = trigger.getAttribute("aria-controls")!;
+        activeTrigger.setAttribute("aria-selected", "false");
+        activeTrigger.setAttribute("tabindex", "-1");
 
-          if (activePanel) {
-            activePanel.setAttribute("hidden", "");
-          }
+        trigger.setAttribute("aria-selected", "true");
+        trigger.setAttribute("tabindex", "0");
 
-          activePanel = document.getElementById(tabId)!;
-          activePanel.removeAttribute("hidden");
+        const tabId = trigger.getAttribute("aria-controls")!;
 
-          activeTrigger = trigger;
-        });
+        if (activePanel) {
+          activePanel.setAttribute("hidden", "");
+        }
+
+        activePanel = document.getElementById(tabId)!;
+        activePanel.removeAttribute("hidden");
+
+        localStorage.setItem(`tabs-${groupID}-active`, String(index));
+
+        activeTrigger = trigger;
+      }
+
+      triggers.forEach((trigger, i) => {
+        trigger.addEventListener("click", () => setActiveTab(trigger, i));
       });
+      const index = localStorage.getItem(`tabs-${groupID}-active`);
+      setActiveTab(
+        triggers.item(index ? parseInt(index) : 0),
+        parseInt(index || "0")
+      );
     });
   }
 
