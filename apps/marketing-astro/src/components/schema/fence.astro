@@ -1,0 +1,86 @@
+---
+import { Code } from "astro:components";
+import Button from "../button.astro";
+import ClipboardDocumentCheckIcon from "@heroicons/react/24/solid/ClipboardDocumentCheckIcon";
+import ClipboardDocumentIcon from "@heroicons/react/24/solid/ClipboardDocumentIcon";
+
+interface Props {
+  code: string;
+  lang: any;
+  title: string;
+}
+
+const { code, lang, title } = Astro.props;
+---
+
+<div class="flex flex-col rounded-lg overflow-hidden mt-4">
+  <div
+    class="flex items-center py-0.5 justify-between w-full text-sm text-on-surface bg-surface-container-high"
+  >
+    <div class="flex gap-1 ml-2 w-12">
+      {
+        Array.from({ length: 3 }).map((_, i) => (
+          <div class="bg-on-surface-variant/20 w-3 rounded-full h-3" />
+        ))
+      }
+    </div>
+    <span>{title}</span>
+    <div class="w-12 flex items-end justify-center">
+      <!-- @ts-ignore -->
+      <Button
+        data-clipboard-text={code}
+        size="icon"
+        variant="ghost"
+        aria-label="Copy code"
+        data-coppied="false"
+        class="relative group !w-8 !h-8 mr-1 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
+      >
+        <ClipboardDocumentIcon
+          className="w-6 h-6 group-data-[coppied='true']:hidden"
+        />
+
+        <ClipboardDocumentCheckIcon
+          className="w-6 h-6 text-green-500 group-data-[coppied='false']:hidden"
+        />
+      </Button>
+    </div>
+  </div>
+  <Code
+    themes={{
+      light: "light-plus",
+      dark: "dark-plus",
+    }}
+    class="px-4 pt-4 pb-10"
+    {code}
+    {lang}
+  />
+</div>
+
+<script>
+  const btns = document.querySelectorAll("[data-clipboard-text]");
+
+  btns.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const text = btn.getAttribute("data-clipboard-text")!;
+      await navigator.clipboard.writeText(text);
+      btn.setAttribute("data-coppied", "true");
+      setTimeout(() => {
+        btn.setAttribute("data-coppied", "false");
+      }, 3000);
+    });
+  });
+</script>
+
+<style is:global>
+  .astro-code {
+    background-color: rgba(var(--color-surface-container-low) / 1) !important;
+  }
+  .dark .astro-code,
+  .dark .astro-code span {
+    color: var(--shiki-dark) !important;
+    /* Optional, if you also want font styles */
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
+</style>

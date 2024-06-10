@@ -1,0 +1,74 @@
+---
+import { Tabs as TabRoot, TabsList, TabsTrigger } from "@pixeleye/ui/src/tabs";
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+  labels: string[];
+  idSuffix: string;
+}
+
+const { labels, idSuffix, ...props } = Astro.props;
+---
+
+<div {...props} data-tabs>
+  <div
+    class="inline-flex relative h-10 items-center justify-center rounded-md bg-surface-container-highest dark:bg-surface-container p-1 text-on-surface-variant"
+  >
+    {
+      labels.map((label, i) => {
+        return (
+          <button
+            class="inline-flex relative  group items-center z-10 justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-surface transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-selected:text-on-surface"
+            role="tab"
+            type="button"
+            aria-selected={i === 0 ? "true" : "false"}
+            aria-controls={`tab-${i}--${idSuffix}`}
+            id={`tab-btn-${i}--${idSuffix}`}
+            tabindex={i === 0 ? "0" : "-1"}
+          >
+            <span class="bg-surface-container-lowest hidden group-aria-selected:block shadow-sm absolute -z-10 inset-0 rounded-sm" />
+            {label}
+          </button>
+        );
+      })
+    }
+  </div>
+
+  <div>
+    <slot />
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll("[data-tabs]");
+
+  tabs.forEach((tab) => {
+    const triggers = tab.querySelectorAll("button[role=tab]");
+
+    let activeTrigger = triggers[0];
+    let activePanel: Element = document.getElementById(
+      activeTrigger.getAttribute("aria-controls")!
+    )!;
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        activeTrigger.setAttribute("aria-selected", "false");
+        activeTrigger.setAttribute("tabindex", "-1");
+
+        trigger.setAttribute("aria-selected", "true");
+        trigger.setAttribute("tabindex", "0");
+
+        const tabId = trigger.getAttribute("aria-controls")!;
+
+        if (activePanel) {
+          activePanel.setAttribute("hidden", "");
+        }
+
+        activePanel = document.getElementById(tabId)!;
+        activePanel.removeAttribute("hidden");
+
+        activeTrigger = trigger;
+      });
+    });
+  });
+</script>

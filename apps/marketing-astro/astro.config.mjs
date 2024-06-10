@@ -10,5 +10,10 @@ export default defineConfig({
   // output: "hybrid",
   adapter: vercel({
     imageService: true,
-  })
+  }),
+  markdown: {
+    shikiConfig: {
+      theme: ''
+    }
+  }
 });

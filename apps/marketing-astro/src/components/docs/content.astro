@@ -1,0 +1,58 @@
+---
+import type { RenderableTreeNodes } from "@markdoc/markdoc";
+import Markdoc from "@markdoc/markdoc";
+import DocsElement, { type Component, type Element } from "./element.astro";
+import { HTMLString, isHTMLString } from "astro/runtime/server/index.js";
+
+interface Props {
+  node: RenderableTreeNodes;
+  components?: Record<string, Component>;
+}
+
+const { node, components } = Astro.props;
+
+function renderer(node: RenderableTreeNodes): Element[] {
+  if (isHTMLString(node)) {
+    return [{ type: "text", content: node as HTMLString }];
+  } else if (typeof node === "string" || typeof node === "number") {
+    return [{ type: "text", content: String(node) }];
+  } else if (
+    node === null ||
+    typeof node !== "object" ||
+    !Markdoc.Tag.isTag(node)
+  ) {
+    return [{ type: "text", content: "" }];
+  }
+
+  const children = node.children.flatMap((child) => {
+    return renderer(child);
+  });
+
+  if (node.name in (components || {}))
+    return [
+      {
+        type: "component",
+        Component: components![node.name],
+        props: node.attributes,
+        children,
+      },
+    ];
+
+  return [
+    {
+      type: "component",
+      Component: node.name,
+      props: node.attributes,
+      children,
+    },
+  ];
+}
+
+const elements: Element[] = renderer(node);
+---
+
+{
+  elements.map((element) => {
+    return <DocsElement {element} />;
+  })
+}

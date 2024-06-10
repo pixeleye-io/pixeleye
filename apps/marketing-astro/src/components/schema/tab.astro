@@ -1,0 +1,21 @@
+---
+import { Tabs as TabRoot, TabsList, TabsTrigger } from "@pixeleye/ui/src/tabs";
+
+interface Props {
+  labeledByID: string;
+  id: string;
+  initial?: boolean;
+}
+
+const { labeledByID, id, initial } = Astro.props;
+---
+
+<div
+  role="tabpanel"
+  id={id}
+  aria-labelledby={labeledByID}
+  hidden={!initial}
+  class="mt-2 ring-offset-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+>
+  <slot />
+</div>

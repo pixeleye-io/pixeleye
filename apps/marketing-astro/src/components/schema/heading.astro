@@ -1,0 +1,39 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"h1"> {
+  level: number;
+}
+
+const { level, id, ...rest } = Astro.props;
+
+const Component = `h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+---
+
+<Component class="scroll-mt-20" {id} {...rest}>
+  <a
+    href={`#${id}`}
+    class="group text-inherit no-underline hover:text-inherit not-prose"
+  >
+    <div
+      class="absolute -ml-7 mt-1 hidden w-10 opacity-0 transition group-hover:opacity-100 md:block lg:z-10 xl:-ml-9"
+    >
+      <div
+        class="group/anchor block h-5 w-5 rounded-lg ring-1 ring-inset bg-surface-container-high ring-outline hover:bg-surface-container-highest"
+      >
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke-linecap="round"
+          aria-hidden="true"
+          class="h-5 w-5 stroke-on-surface-variant transition group-hover/anchor:stroke-on-surface"
+        >
+          <path
+            d="m6.5 11.5-.964-.964a3.535 3.535 0 1 1 5-5l.964.964m2 2 .964.964a3.536 3.536 0 0 1-5 5L8.5 13.5m0-5 3 3"
+          ></path>
+        </svg>
+      </div>
+    </div>
+    <slot />
+  </a>
+</Component>

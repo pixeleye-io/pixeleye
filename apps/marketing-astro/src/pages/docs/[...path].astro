@@ -6,7 +6,8 @@ import {
   collectHeadings,
   getFiles,
 } from "./utils";
-import Markdoc from "@markdoc/markdoc";
+import Markdoc, { type RenderableTreeNodes } from "@markdoc/markdoc";
+import { defineMarkdocConfig, component } from "@astrojs/markdoc/config";
 import Root from "../../layouts/root.astro";
 import { Feedback } from "./feedback";
 import { PageNavigation } from "./nextPage";
@@ -15,6 +16,15 @@ import { cx } from "class-variance-authority";
 import "./docs.css";
 import NavSidebar from "../../components/docs/navSidebar.astro";
 import MobileNavSidebar from "../../components/docs/mobileNavSidebar.astro";
+import { tab, tabs } from "../../components/schema/tabs.markdoc";
+import callout from "../../components/schema/callout.markdoc";
+import heading from "../../components/schema/heading.markdoc";
+import fence from "../../components/schema/fence.markdoc";
+import Content from "../../components/docs/content.astro";
+import Heading from "../../components/schema/heading.astro";
+import Tabs from "../../components/schema/tabs.astro";
+import Tab from "../../components/schema/tab.astro";
+import Fence from "../../components/schema/fence.astro";
 
 export const prerender = true;
 
@@ -30,18 +40,27 @@ export async function getStaticPaths() {
 
 const config: any = {
   tags: {
-    // tabs,
-    // tab,
-    // callout,
+    tabs,
+    tab,
+    callout,
   },
   nodes: {
-    // heading,
-    // link,
-    // fence,
-    // code,
+    heading,
+    fence,
   },
   variables: {},
 };
+
+const components = {
+  h2: Heading,
+  h3: Heading,
+  h4: Heading,
+  h5: Heading,
+  h6: Heading,
+  tabs: Tabs,
+  tab: Tab,
+  fence: Fence
+} as Record<string, any>;
 
 const { path } = Astro.params;
 
@@ -51,9 +70,7 @@ const lastModified = await getCommitDate(file.path);
 
 const ast = Markdoc.parse(file.text);
 
-const content = Markdoc.transform(ast, config);
-
-const html = Markdoc.renderers.html(content);
+const content = Markdoc.transform(ast, config) as any;
 
 const headings = collectHeadings(ast);
 
@@ -71,14 +88,14 @@ const sections = await getFiles();
     >
       <div class="md:hidden">
         <MobileNavSidebar>
-          <div >
+          <div>
             <NavSidebar path={path} sections={sections} mobile />
           </div>
         </MobileNavSidebar>
       </div>
       <div class="hidden md:relative md:block md:flex-none">
         <div
-        id="docs-sidebar-nav"
+          id="docs-sidebar-nav"
           class="sticky top-[4.5rem] border-r border-outline-variant md:w-56 lg:w-60 h-[calc(100vh-4.5rem)] overflow-y-auto overflow-x-hidden -ml-1 pl-1 scrollbar-thin py-16"
         >
           <NavSidebar path={path} sections={sections} />
@@ -88,7 +105,7 @@ const sections = await getFiles();
       <div
         class="min-w-0 max-w-4xl flex-auto prose px-4 pt-24 pb-16 md:py-16 lg:pl-8 lg:pr-0 xl:px-12 h-full"
       >
-        <Fragment set:html={html} />
+        <Content node={content} components={components} />
 
         <div
           class="flex justify-between items-center flex-col lg:flex-row mt-24 space-y-6"
@@ -189,7 +206,6 @@ const sections = await getFiles();
 </Root>
 
 <script>
-  
   document.addEventListener("astro:before-swap", () => {
     sessionStorage.setItem(
       "docs-sidebar-nav-scroll",
@@ -206,4 +222,16 @@ const sections = await getFiles();
       });
     }
   });
+</script>
+
+<script is:inline>
+  // Define the behaviour for our new type of HTML element.
+  class Tabs extends HTMLElement {
+    constructor() {
+      super();
+    }
+  }
+
+  // Tell the browser to use our AstroHeart class for <astro-heart> elements.
+  customElements.define("doc-tabs", Tabs);
 </script>
