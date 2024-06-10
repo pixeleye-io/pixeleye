@@ -25,6 +25,7 @@ import Heading from "../../components/schema/heading.astro";
 import Tabs from "../../components/schema/tabs.astro";
 import Tab from "../../components/schema/tab.astro";
 import Fence from "../../components/schema/fence.astro";
+import yaml from "js-yaml";
 
 export const prerender = true;
 
@@ -59,7 +60,7 @@ const components = {
   h6: Heading,
   tabs: Tabs,
   tab: Tab,
-  fence: Fence
+  fence: Fence,
 } as Record<string, any>;
 
 const { path } = Astro.params;
@@ -78,10 +79,18 @@ function isActive(section: any) {
   return false;
 }
 
+const frontmatter = ast.attributes.frontmatter
+  ? (yaml.load(ast.attributes.frontmatter) as Record<string, string>)
+  : {};
+
 const sections = await getFiles();
 ---
 
-<Root title="" description="" viewTransitions>
+<Root
+  title={frontmatter["title"] + " | Pixeleye"}
+  description={frontmatter["description"]}
+  viewTransitions
+>
   <div class="mx-auto px-4">
     <div
       class="relative mx-auto flex w-full flex-auto justify-center sm:px-2 md:px-8"
