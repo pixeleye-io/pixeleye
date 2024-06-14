@@ -19,6 +19,7 @@ import MobileNavSidebar from "../../components/docs/mobileNavSidebar.astro";
 import { tab, tabs } from "../../components/schema/tabs.markdoc";
 import callout from "../../components/schema/callout.markdoc";
 import heading from "../../components/schema/heading.markdoc";
+import code from "../../components/schema/code.astro";
 import fence from "../../components/schema/fence.markdoc";
 import Content from "../../components/docs/content.astro";
 import Heading from "../../components/schema/heading.astro";
@@ -26,6 +27,7 @@ import Tabs from "../../components/schema/tabs.astro";
 import Tab from "../../components/schema/tab.astro";
 import Fence from "../../components/schema/fence.astro";
 import yaml from "js-yaml";
+import Code from "../../components/schema/code.astro";
 
 export const prerender = true;
 
@@ -61,6 +63,7 @@ const components = {
   tabs: Tabs,
   tab: Tab,
   fence: Fence,
+  code: Code
 } as Record<string, any>;
 
 const { path } = Astro.params;
