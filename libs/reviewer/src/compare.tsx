@@ -1,16 +1,18 @@
+import { Toggle } from "@pixeleye/ui/src/toggle";
 import {
   Button,
+
+} from "@pixeleye/ui/src/button"
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuTrigger,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-  Toggle,
-} from "@pixeleye/ui";
+} from "@pixeleye/ui/src/dropdown";
+import {
+  Tabs, TabsContent, TabsList, TabsTrigger
+} from "@pixeleye/ui/src/tabs";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CompareTab, DiffGroupedSnapshotTargetGroups, StoreContext } from "./store";
 import { FC, useCallback, useContext, useMemo, useRef } from "react";
@@ -18,7 +20,7 @@ import { ArrowsPointingInIcon, ChevronDownIcon, EyeIcon } from "@heroicons/react
 import { Double, DraggableImageRef, Single } from "./comparisons";
 import { ExtendedSnapshotPair } from "./reviewer";
 import { ChromiumLogo, EdgeLogo, FirefoxLogo, WebkitLogo } from "@pixeleye/device-logos";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
 import { cx } from "class-variance-authority";
@@ -418,7 +420,7 @@ function TargetTabs({
 
                 {
                   isActive && (
-                    <m.hr layoutId={
+                    <motion.hr layoutId={
                       "target-switcher-" + targetGroup.name + "-" + targetGroup.status + "-" + targetGroup.variant + "-" + targetGroup.viewport
                     } className="border-t border-on-surface w-full absolute" />
                   )

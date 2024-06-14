@@ -1,33 +1,30 @@
 import 'reactflow/dist/style.css';
 
-import { StaticImageData } from "next/image";
 import {
-  forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState,
+  forwardRef, useCallback, useContext, useEffect, useImperativeHandle, useRef, useState,
 } from "react";
 import ReactFlow, { OnNodesChange, applyNodeChanges, Node, useReactFlow, OnMove, Viewport } from 'reactflow';
 import { useStore } from "zustand";
 import Background from "./background";
 import { ImageNode } from './imageNode';
-import { ChatNode } from './chatNode';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuPortal, ContextMenuTrigger } from '@pixeleye/ui';
 import { StoreContext } from '../store';
 
 
 interface ImageProps {
   base: {
-    src: string | StaticImageData;
+    src: string;
     alt: string;
     width: number;
     height: number;
   };
   secondBase?: {
-    src: string | StaticImageData;
+    src: string;
     alt: string;
     width: number;
     height: number;
   };
   overlay?: {
-    src: string | StaticImageData;
+    src: string;
     alt: string;
     width: number;
     height: number;
@@ -42,7 +39,7 @@ export type DraggableImageRef = {
 };
 
 
-const nodeTypes = { image: ImageNode, chat: ChatNode }
+const nodeTypes = { image: ImageNode }
 
 export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   function DraggableImage(
@@ -58,6 +55,11 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
   ) {
     const store = useContext(StoreContext)!
 
+
+    const [dragging, setDragging] = useState(false);
+
+    const fitted = useRef(false);
+
     const [nodes, setNodes] = useState<Node[]>([{ id: id, position: { x: 0, y: 0 }, data: { base, overlay, secondBase }, type: 'image' }]);
 
 
@@ -69,7 +71,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
     );
 
 
-    const { fitView, setViewport, getViewport, screenToFlowPosition, addNodes } = useReactFlow();
+    const { fitView, setViewport, getViewport } = useReactFlow();
 
     const onNodesChange = useCallback<OnNodesChange>(
       (changes) => {
@@ -83,6 +85,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
         setNodes((nds) => applyNodeChanges(changes, nds))
 
         if (updateImages.current) {
+          fitted.current = true;
           fitView();
           updateImages.current = false;
         }
@@ -92,6 +95,7 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
 
     const center = useCallback(() => {
+      fitted.current = true;
       fitView();
 
     }, [fitView]);
@@ -103,10 +107,10 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
 
     useEffect(() => {
-      if (viewport) {
+      if (viewport && !dragging) {
         setViewport(viewport)
       }
-    }, [setViewport, viewport]);
+    }, [dragging, setViewport, viewport]);
 
     const onClick = useCallback((e: MouseEvent) => {
       e.preventDefault();
@@ -133,69 +137,50 @@ export const DraggableImage = forwardRef<DraggableImageRef, ImageProps>(
 
     return (
       <div className="h-full w-full flex-col flex items-center bg-surface-container-low rounded border border-outline-variant">
-        <ContextMenu>
-          <ContextMenuTrigger disabled className='w-full h-full'>
-            <ReactFlow
-              proOptions={{
-                hideAttribution: true
-              }}
-              onPaneClick={onClick as any}
-              minZoom={0.1}
-              onWheelCapture={(e) => {
-                if (e.shiftKey) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const vp = getViewport();
-
-                  setViewport({
-                    x: vp.x - e.deltaX,
-                    y: vp.y - e.deltaY,
-                    zoom: vp.zoom,
-                  })
-                }
-              }}
-              nodesFocusable={false}
-              zoomOnDoubleClick={false}
-              nodesDraggable={false}
-              nodes={nodes}
-              nodeTypes={nodeTypes}
-              onNodeClick={onClick as any}
-              onContextMenu={(e) => {
-                contextMenuCoords.current = { x: e.clientX, y: e.clientY };
-              }}
-              maxZoom={10}
-              onNodesChange={onNodesChange}
-              onMove={onMove} >
-              <Background />
-            </ReactFlow>
-          </ContextMenuTrigger>
-          <ContextMenuPortal >
-            <ContextMenuContent >
-              <ContextMenuItem onClick={(e) => {
-
-                const pos = screenToFlowPosition(contextMenuCoords.current);
-
-                const randID = Math.random().toString(36).substring(7); // TODO - make this use the convo id after the convo is created
+        <div className='w-full h-full'>
 
 
-                addNodes([
-                  {
-                    id: randID,
-                    type: 'chat',
-                    position: pos,
-                    data: { text: "" },
-                    zIndex: 100
-                  }
-                ])
+          <ReactFlow
+            proOptions={{
+              hideAttribution: true
+            }}
+            onPaneClick={onClick as any}
+            minZoom={0.1}
+            onWheelCapture={(e) => {
+              if (e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                const vp = getViewport();
 
-
-
-              }}>
-                Comment
-              </ContextMenuItem>
-            </ContextMenuContent>
-          </ContextMenuPortal>
-        </ContextMenu>
+                setViewport({
+                  x: vp.x - e.deltaX,
+                  y: vp.y - e.deltaY,
+                  zoom: vp.zoom,
+                })
+              }
+            }}
+            nodesFocusable={false}
+            zoomOnDoubleClick={false}
+            nodesDraggable={false}
+            nodes={nodes}
+            nodeTypes={nodeTypes}
+            onNodeClick={onClick as any}
+            onContextMenu={(e) => {
+              contextMenuCoords.current = { x: e.clientX, y: e.clientY };
+            }}
+            maxZoom={10}
+            onNodesChange={onNodesChange}
+            onPaneMouseEnter={() => { setDragging(true); }}
+            onPaneMouseLeave={() => { setDragging(false); }}
+            onMove={(...e) => {
+              if (dragging || fitted.current) {
+                onMove?.(...e);
+                fitted.current = false;
+              }
+            }} >
+            <Background />
+          </ReactFlow>
+        </div>
       </div >
     );
   }

@@ -11,9 +11,8 @@ import {
   useContext,
   useState,
   useEffect,
-  useLayoutEffect,
 } from "react";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 
 const TabsContext = createContext<{
   layoutId?: string;
@@ -80,9 +79,9 @@ const TabsList = forwardRef<
     asChild
     {...props}
   >
-    <m.div layoutRoot layout>
+    <motion.div layoutRoot layout>
       {children}
-    </m.div>
+    </motion.div>
   </TabsPrimitive.List>
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
@@ -103,7 +102,7 @@ const TabsTrigger = forwardRef<
         {...props}
       />
       {selected === props.value && (
-        <m.span
+        <motion.span
           layoutId={layoutId}
           className="bg-surface-container-lowest shadow-sm absolute -z-10 inset-0 rounded-sm"
         />

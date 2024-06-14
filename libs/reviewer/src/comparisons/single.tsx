@@ -4,7 +4,7 @@ import { useStore } from "zustand";
 import { StoreContext } from "../store";
 import { ReactFlowProvider } from "reactflow";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
-import { Button } from "@pixeleye/ui";
+import { Button } from "@pixeleye/ui/src/button";
 
 interface SingleProps {
   draggableImageRef?: RefObject<DraggableImageRef>;

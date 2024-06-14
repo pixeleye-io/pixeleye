@@ -12,9 +12,9 @@ import { Sidebar } from "./sidebar";
 import { BuildAPI, DiffGroupedSnapshotTargetGroups, SnapshotTargetGroup, StoreContext, createStore } from "./store";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Compare } from "./compare";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+// import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { cx } from "class-variance-authority";
-import { StaticImageData } from "next/image";
+// import { StaticImageData } from "next/image";
 import { useStore } from "zustand";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels"
 
@@ -23,9 +23,9 @@ export type ExtendedSnapshotPair = Omit<
   SnapshotPair,
   "baselineURL" | "snapURL" | "diffURL"
 > & {
-  baselineURL?: StaticImageData | string;
-  snapURL?: StaticImageData | string;
-  diffURL?: StaticImageData | string;
+  baselineURL?: string;
+  snapURL?: string;
+  diffURL?: string;
   diffID?: string;
 };
 
@@ -51,6 +51,9 @@ export interface ReviewerProps {
   buildAPI?: BuildAPI;
   userRole?: UserOnProjectRole;
   isUpdatingSnapshotStatus?: boolean;
+  useSearchParams: () => URLSearchParams;
+  navigate: (url: string) => void;
+  usePathname: () => string;
 }
 
 const groupBy = <T, K extends keyof any>(list: T[], getKey: (item: T) => K) =>
@@ -72,7 +75,10 @@ function ReviewerInternal({
   userRole,
   defaultSidebarWidth = 20,
   isUpdatingSnapshotStatus,
-  snapshotTargetGroups
+  snapshotTargetGroups,
+  navigate,
+  useSearchParams,
+  usePathname
 }: ReviewerProps & {
   snapshotTargetGroups: DiffGroupedSnapshotTargetGroups[];
 }) {
@@ -93,11 +99,10 @@ function ReviewerInternal({
 
 
   const searchParams = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    const params = searchParams;
     if (currentSnapshot) {
       if (!snapshots.some((snapshot) => snapshot.id === currentSnapshot.id)) {
         setCurrentSnapshot(snapshotTargetGroups[0]?.targetGroups[0].snapshots[0]);
@@ -106,8 +111,8 @@ function ReviewerInternal({
       params.set("s", currentSnapshot.id);
     }
 
-    router.replace(pathname + "?" + params.toString());
-  }, [currentSnapshot, pathname, router, searchParams, setCurrentSnapshot, snapshotTargetGroups, snapshots]);
+    navigate(pathname + "?" + params.toString());
+  }, [currentSnapshot, pathname, navigate, searchParams, setCurrentSnapshot, snapshotTargetGroups, snapshots]);
 
   const currentSnapshotIndex = useMemo(() => {
     const index = snapshotTargetGroups.findIndex((group) => group.targetGroups.some((targetGroup) => targetGroup.snapshots.some((snap) => snap.id === currentSnapshot?.id)));
@@ -229,7 +234,7 @@ export function Reviewer(props: ReviewerProps) {
   const getGroupID = (snapshot: Snapshot) => `${snapshot.name}:${snapshot.variant}:${snapshot.viewport}`
 
 
-  const searchParams = useSearchParams();
+  const searchParams = props.useSearchParams();
 
   const snapshotTargetGroups = useMemo(
     () => {

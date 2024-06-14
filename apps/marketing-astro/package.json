@@ -22,6 +22,8 @@
     "@markdoc/markdoc": "^0.4.0",
     "@octokit/core": "^6.1.2",
     "@pixeleye/device-logos": "workspace:*",
+    "@pixeleye/reviewer": "workspace:*",
+    "@pixeleye/api": "workspace:*",
     "@pixeleye/tailwind": "workspace:*",
     "@pixeleye/ui": "workspace:*",
     "@radix-ui/react-dialog": "^1.0.5",

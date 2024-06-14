@@ -1,9 +1,11 @@
 import { SnapshotTargetGroup, StoreContext } from "../store";
 import { cx } from "class-variance-authority";
 import { useRef, useEffect, useState, useContext, useMemo } from "react";
-import Image from "next/image";
 import { ExtendedSnapshotPair } from "../reviewer";
-import { Accordion, Button, Status } from "@pixeleye/ui";
+import { Accordion } from "@pixeleye/ui/src/accordion";
+import { Status } from "@pixeleye/ui/src/status";
+import { Button } from "@pixeleye/ui/src/button";
+
 import { useStore } from "zustand";
 import { Snapshot } from "@pixeleye/api";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/20/solid";
@@ -111,9 +113,7 @@ function SnapButton({
         active && "lg:bg-surface-container-low bg-surface-container !border-outline"
       )}
     >
-      <Image
-        quality={50}
-        unoptimized={!optimize}
+      <img
         src={snapshot.snapURL || ""}
         width={snapshot.snapWidth}
         height={snapshot.snapHeight}

@@ -1,26 +1,27 @@
+/* eslint-disable @next/next/no-img-element */
 import { cx } from "class-variance-authority";
-import { StaticImageData } from "next/image";
+// import { StaticImageData } from "next/image";
 import { useContext } from "react";
 import { NodeProps } from "reactflow";
 import { useStore } from "zustand";
 import { StoreContext } from "../store";
-import NextImage from "next/image";
+// import NextImage from "next/image";
 
 export interface ImageNodeData {
     base: {
-        src: string | StaticImageData;
+        src: string;
         alt: string;
         width: number;
         height: number;
     };
     overlay?: {
-        src: string | StaticImageData;
+        src: string;
         alt: string;
         width: number;
         height: number;
     };
     secondBase?: {
-        src: string | StaticImageData;
+        src: string;
         alt: string;
         width: number;
         height: number;
@@ -55,15 +56,13 @@ export function ImageNode({ data: {
     }
 
 
+
     return (
         <div className="active:cursor-grabbing relative" style={type === "double" ? doubleStyle : singleStyle}>
-            <NextImage
+            <img
                 key={`base - ${base.src.toString()}`}
-                quality={optimize ? 75 : 100}
-                fill
-                priority
                 className={cx(
-                    "pointer-events-none select-none",
+                    "pointer-events-none select-none absolute inset-0",
                     singleSnapshot !== "head" && type === "single" && "hidden",
                     showOverlay && overlay && "brightness-[50%]",
                 )}
@@ -71,40 +70,31 @@ export function ImageNode({ data: {
                 draggable={false}
                 alt={base.alt}
                 src={base.src}
-                unoptimized={!optimize}
             />
             {secondBase && (
-                <NextImage
+                <img
                     key={`second - base - ${secondBase.src.toString()}`}
-                    quality={optimize ? 75 : 100}
-                    priority
-                    fill
                     sizes="(min-width: 640px) 50vw, 100vw"
                     className={cx(
-                        "pointer-events-none select-none",
+                        "pointer-events-none select-none absolute inset-0",
                         singleSnapshot === "head" && type === "single" && "hidden",
                     )}
                     draggable={false}
                     alt={secondBase.alt}
                     src={secondBase.src}
-                    unoptimized={!optimize}
                 />
             )}
             {overlay && (
-                <NextImage
+                <img
                     key={`overlay - ${overlay.src.toString()}`}
-                    priority
-                    fill
                     sizes="(min-width: 640px) 50vw, 100vw"
-                    quality={optimize ? 75 : 100}
                     className={cx(
                         (!showOverlay || (singleSnapshot !== "head" && type === "single")) && "opacity-0",
-                        "pointer-events-none select-none",
+                        "pointer-events-none select-none absolute inset-0",
                     )}
                     draggable={false}
                     alt={overlay.alt}
                     src={overlay.src}
-                    unoptimized={!optimize}
                 />
             )}
         </div>

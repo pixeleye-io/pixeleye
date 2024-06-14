@@ -250,9 +250,15 @@ importers:
       '@octokit/core':
         specifier: ^6.1.2
         version: 6.1.2
+      '@pixeleye/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@pixeleye/device-logos':
         specifier: workspace:*
         version: link:../../libs/device-logos
+      '@pixeleye/reviewer':
+        specifier: workspace:*
+        version: link:../../libs/reviewer
       '@pixeleye/tailwind':
         specifier: workspace:*
         version: link:../../configs/tailwind

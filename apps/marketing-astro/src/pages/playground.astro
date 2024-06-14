@@ -1,0 +1,37 @@
+---
+import type { Build } from "@pixeleye/api";
+import InteractiveReviewer from "../../src/components/interactiveReviewer";
+
+import { snaps } from "../../src/components/snaps";
+import Root from "../layouts/root.astro";
+
+// const metadata: Metadata = {
+//   title: "Playground | Pixeleye",
+//   description:
+//     "Try out the Pixeleye Reviewer component. This is what it looks like when you review a build.",
+//   alternates: {
+//     canonical: "https://pixeleye.io/playground",
+//   },
+// };
+
+const dummyBuild: Build = {
+  title: "Playground build",
+  id: "Wl_wlIKwdpEqo6sJJ56Dy",
+  createdAt: new Date().toUTCString(),
+  updatedAt: new Date().toUTCString(),
+  projectID: "Iog0lwMCso2OJmMa4Y_32",
+  buildNumber: 11,
+  isLatest: true,
+  sha: "9f78910a545867c4825b939d82398c08e272a3e5",
+  branch: "main",
+  status: "unreviewed",
+};
+---
+
+<Root
+  title="Playground | Pixeleye"
+  description="Try out the Pixeleye Reviewer component. This is what it looks like when you review a build."
+  activeNav="Playground"
+>
+  <InteractiveReviewer build={dummyBuild} initialSnaps={snaps} client:only="react" />
+</Root>

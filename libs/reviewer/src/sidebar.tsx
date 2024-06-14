@@ -2,17 +2,21 @@
 
 import {
   Button,
+} from "@pixeleye/ui/src/button";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuTrigger,
+} from "@pixeleye/ui/src/dropdown";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@pixeleye/ui";
+} from "@pixeleye/ui/src/tooltip";
 import {
   InformationCircleIcon,
   QueueListIcon,
