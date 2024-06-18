@@ -1,5 +1,11 @@
 # pixeleye
 
+## 0.8.8
+
+### Patch Changes
+
+- [`6343b8a`](https://github.com/pixeleye-io/pixeleye/commit/6343b8a812c7ce648c58d07f3a526e6f9bad01d1) Thanks [@AlfieJones](https://github.com/AlfieJones)! - Improving exec cleanup
+
 ## 0.8.7
 
 ### Patch Changes
