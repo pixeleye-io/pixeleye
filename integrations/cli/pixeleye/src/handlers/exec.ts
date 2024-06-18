@@ -68,7 +68,10 @@ export async function execHandler(
   });
 
   onExitFns.push(async () => {
-    child.kill();
+    child.stdin?.end();
+    child.stdout?.destroy();
+    child.stderr?.destroy();
+    child.kill("SIGKILL");
   });
 
   fileSpinner.succeed("Successfully started local snapshot server.");
@@ -166,7 +169,7 @@ export async function execHandler(
     console.log(`\nBuild status: ${finalStatus}`);
   }
 
-  child.kill();
+  await Promise.all(onExitFns.map((fn) => fn()));
 
   process.exit(0);
 }
