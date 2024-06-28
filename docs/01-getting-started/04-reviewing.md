@@ -3,7 +3,7 @@ title: Reviewing
 description: Pixeleye boasts an awesome review experience. Bulk approve snapshots, itterate on designs and catch issues.
 ---
 
-# Revewing your snapshots
+# Reviewing your snapshots
 
 Any snapshots with detected changes will be surfaced for approval. We aim for the review process to work with your pull-requests rather than against it. When using our offical git integrations, we post comments into the pull requests & commits to ensure you don't miss a detail.
 
