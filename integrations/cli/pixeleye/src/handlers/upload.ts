@@ -49,6 +49,7 @@ function decode(fileName: string) {
 }
 
 export async function uploadHandler(dir: string, options: Config) {
+  let buildFinished = false;
   const api = API({
     endpoint: options.endpoint!,
     token: options.token,
@@ -87,6 +88,7 @@ export async function uploadHandler(dir: string, options: Config) {
   const exitBuild = getExitBuild(api, build.id);
 
   watchExit(async () => {
+    if (buildFinished) return
     console.log(errStr("\nAborting build..."));
     await exitBuild("Interrupted");
   });
@@ -168,6 +170,7 @@ export async function uploadHandler(dir: string, options: Config) {
 
     console.log(`\nBuild status: ${finalStatus}`);
   }
-
+  
+  buildFinished = true;
   process.exit(0);
 }
