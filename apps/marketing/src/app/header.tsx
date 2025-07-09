@@ -21,7 +21,6 @@ const navigation = [
   { name: "Playground", href: "/playground" },
 ];
 
-
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -31,10 +30,11 @@ export default function Header() {
     queryKey: ["user"],
     retry: false,
     // eslint-disable-next-line turbo/no-undeclared-env-vars
-    queryFn: () => fetch(process.env.NEXT_PUBLIC_ORY_URL + "/sessions/whoami", {
-      credentials: "include",
-    }).then((res) => (res.ok) ? res.json() : Promise.reject(res)),
-  })
+    queryFn: () =>
+      fetch(process.env.NEXT_PUBLIC_ORY_URL + "/sessions/whoami", {
+        credentials: "include",
+      }).then((res) => (res.ok ? res.json() : Promise.reject(res))),
+  });
 
   return (
     <header className="bg-surface/90 backdrop-blur-sm fixed z-30 w-full border-b border-b-outline-variant">
@@ -47,7 +47,7 @@ export default function Header() {
             href="/home"
             className={cx(
               "-m-1.5 p-1.5",
-              pathname.startsWith("/home") && "!text-tertiary"
+              pathname.startsWith("/home") && "!text-tertiary",
             )}
           >
             <span className="sr-only">Pixeleye</span>
@@ -61,17 +61,15 @@ export default function Header() {
                 className={cx(
                   "text-sm font-semibold leading-6 text-on-surface hover:text-tertiary transition-colors",
                   pathname.startsWith(item.selector || item.href) &&
-                  "!text-tertiary"
+                    "!text-tertiary",
                 )}
               >
                 {item.name}
               </NextLink>
             ))}
-
           </div>
         </div>
         <div className="flex items-center space-x-4">
-
           <NextLink
             href="https://github.com/pixeleye-io/pixeleye"
             className="text-sm hidden lg:block font-semibold leading-6 text-tertiary"
@@ -82,7 +80,10 @@ export default function Header() {
           <DocSearch />
 
           <Button variant="outline" asChild>
-            <NextLink className="hidden lg:block w-28" href={isSuccess ? "/dashboard" : "/registration"}>
+            <NextLink
+              className="hidden lg:block w-28"
+              href={isSuccess ? "/dashboard" : "/registration"}
+            >
               {isPending ? "" : isSuccess ? "Dashboard" : "Get started"}
             </NextLink>
           </Button>
@@ -108,7 +109,7 @@ export default function Header() {
                 href="/home"
                 className={cx(
                   "-mx-1.5 -mt-1 p-1.5",
-                  pathname.startsWith("/home") && "!text-tertiary"
+                  pathname.startsWith("/home") && "!text-tertiary",
                 )}
               >
                 <span className="sr-only">Pixeleye</span>
@@ -134,7 +135,7 @@ export default function Header() {
                       className={cx(
                         "-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high",
                         pathname.startsWith(item.selector || item.href) &&
-                        "!text-tertiary"
+                          "!text-tertiary",
                       )}
                     >
                       {item.name}
@@ -148,15 +149,15 @@ export default function Header() {
                   >
                     Star us on Github
                   </NextLink>
-                  {
-                    !isPending && (
-                      <NextLink
-                        href={isSuccess ? "/dashboard" : "/registration"}
-                        className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
-                      >
-                        {isSuccess ? "Dashboard" : "Get started"}
-                      </NextLink>
-                    )}
+                  {!isPending && (
+                    <NextLink
+                      // href={isSuccess ? "/dashboard" : "/registration"}
+                      href={"/getting-started"}
+                      className="-mx-3 w-28 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-on-surface-container hover:bg-surface-container-high"
+                    >
+                      {isSuccess ? "Dashboard" : "Get started"}
+                    </NextLink>
+                  )}
                 </div>
               </div>
             </div>
