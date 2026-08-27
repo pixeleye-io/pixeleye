@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	git_bitbucket "github.com/pixeleye-io/pixeleye/app/git/bitbucket"
+	git_bitbucketserver "github.com/pixeleye-io/pixeleye/app/git/bitbucketserver"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/platform/database"
@@ -22,6 +24,20 @@ func SyncProjectMembers(ctx context.Context, team models.Team, project models.Pr
 		{
 			log.Debug().Msgf("Syncing github project members for project %s", project.ID)
 			if err := git_github.SyncGithubProjectMembers(ctx, team, project); err != nil {
+				return err
+			}
+		}
+	case models.SOURCE_BITBUCKET:
+		{
+			log.Debug().Msgf("Syncing bitbucket project members for project %s", project.ID)
+			if err := git_bitbucket.SyncBitbucketProjectMembers(ctx, team, project); err != nil {
+				return err
+			}
+		}
+	case models.SOURCE_BITBUCKET_SERVER:
+		{
+			log.Debug().Msgf("Syncing bitbucket server project members for project %s", project.ID)
+			if err := git_bitbucketserver.SyncBitbucketServerProjectMembers(ctx, team, project); err != nil {
 				return err
 			}
 		}
@@ -65,6 +81,10 @@ func SyncTeamMembers(ctx context.Context, team models.Team) error {
 	switch team.Type {
 	case models.TEAM_TYPE_GITHUB:
 		err = git_github.SyncGithubTeamMembers(ctx, team)
+	case models.TEAM_TYPE_BITBUCKET:
+		err = git_bitbucket.SyncBitbucketTeamMembers(ctx, team)
+	case models.TEAM_TYPE_BITBUCKET_SERVER:
+		err = git_bitbucketserver.SyncBitbucketServerTeamMembers(ctx, team)
 	}
 
 	if err != nil {

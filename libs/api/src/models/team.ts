@@ -6,7 +6,7 @@ export const TeamZod = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 
-  type: z.enum(["github", "gitlab", "bitbucket", "user"]),
+  type: z.enum(["github", "gitlab", "bitbucket", "bitbucket_server", "user"]),
 
   referrals: z.number().optional(),
 

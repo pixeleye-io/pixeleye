@@ -8,6 +8,8 @@ import (
 	"github.com/google/go-github/v62/github"
 	"github.com/labstack/echo/v4"
 	"github.com/pixeleye-io/pixeleye/app/git"
+	git_bitbucket "github.com/pixeleye-io/pixeleye/app/git/bitbucket"
+	git_bitbucketserver "github.com/pixeleye-io/pixeleye/app/git/bitbucketserver"
 	git_github "github.com/pixeleye-io/pixeleye/app/git/github"
 	"github.com/pixeleye-io/pixeleye/app/models"
 	"github.com/pixeleye-io/pixeleye/pkg/middleware"
@@ -339,6 +341,55 @@ func GetRepos(c echo.Context) error {
 
 	log.Debug().Msgf("Installation: %+v", installation)
 
+	// Search/project filter server-side, and only fetch one page per request - teams with
+	// thousands of repos shouldn't have to wait on (or download) a full listing up front.
+	searchQuery := c.QueryParam("q")
+	projectQuery := c.QueryParam("project")
+
+	switch installation.Type {
+	case models.TEAM_TYPE_BITBUCKET:
+		{
+			client, err := git_bitbucket.NewBitbucketCloudClient(c.Request().Context(), installation.InstallationID)
+			if err != nil {
+				return err
+			}
+
+			repos, next, err := client.GetInstallationRepositories(c.Request().Context(), installation.InstallationID, c.QueryParam("next"), searchQuery, projectQuery)
+			if err != nil {
+				return err
+			}
+
+			return c.JSON(http.StatusOK, models.GitRepoPage{Repos: repos, Next: next})
+		}
+	case models.TEAM_TYPE_BITBUCKET_SERVER:
+		{
+			client, err := git_bitbucketserver.NewBitbucketServerClient(c.Request().Context(), team.ID)
+			if err != nil {
+				return err
+			}
+
+			start := 0
+			if s := c.QueryParam("next"); s != "" {
+				start, err = strconv.Atoi(s)
+				if err != nil {
+					return echo.NewHTTPError(http.StatusBadRequest, "Invalid next cursor")
+				}
+			}
+
+			repos, nextStart, hasNext, err := client.GetInstallationRepositories(c.Request().Context(), start, searchQuery, projectQuery)
+			if err != nil {
+				return err
+			}
+
+			next := ""
+			if hasNext {
+				next = strconv.Itoa(nextStart)
+			}
+
+			return c.JSON(http.StatusOK, models.GitRepoPage{Repos: repos, Next: next})
+		}
+	}
+
 	if installation.Type == models.TEAM_TYPE_GITHUB {
 
 		ghClient, err := git_github.NewGithubInstallClient(installation.InstallationID)
@@ -370,12 +421,13 @@ func GetRepos(c echo.Context) error {
 			formattedRepos := make([]models.GitRepo, len(repos.Repositories))
 
 			for i, repo := range repos.Repositories {
+				pushedAt := repo.GetPushedAt().Time
 				formattedRepos[i] = models.GitRepo{
 					ID:            strconv.FormatInt(repo.GetID(), 10),
 					Name:          repo.Name,
 					Private:       repo.Private,
 					URL:           repo.HTMLURL,
-					LastUpdated:   repo.GetPushedAt().Time,
+					LastUpdated:   &pushedAt,
 					Description:   repo.Description,
 					DefaultBranch: repo.DefaultBranch,
 				}
@@ -384,7 +436,7 @@ func GetRepos(c echo.Context) error {
 			allRepos = append(allRepos, formattedRepos...)
 		}
 
-		return c.JSON(http.StatusOK, allRepos)
+		return c.JSON(http.StatusOK, models.GitRepoPage{Repos: allRepos, Next: ""})
 
 	}
 

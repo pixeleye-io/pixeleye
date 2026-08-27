@@ -12,7 +12,7 @@ export const ProjectZod = z.object({
 
   name: z.string(),
   url: z.string().url().optional(),
-  source: z.enum(["github", "gitlab", "bitbucket", "custom"]),
+  source: z.enum(["github", "gitlab", "bitbucket", "bitbucket_server", "custom"]),
   sourceID: z.string().optional(),
   token: z.string().optional(),
 

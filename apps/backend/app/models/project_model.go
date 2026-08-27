@@ -7,10 +7,11 @@ import (
 type GitSource string
 
 const (
-	SOURCE_GITHUB    GitSource = "github"
-	SOURCE_GITLAB    GitSource = "gitlab"
-	SOURCE_BITBUCKET GitSource = "bitbucket"
-	SOURCE_CUSTOM    GitSource = "custom"
+	SOURCE_GITHUB           GitSource = "github"
+	SOURCE_GITLAB           GitSource = "gitlab"
+	SOURCE_BITBUCKET        GitSource = "bitbucket"
+	SOURCE_BITBUCKET_SERVER GitSource = "bitbucket_server"
+	SOURCE_CUSTOM           GitSource = "custom"
 )
 
 type Project struct {
@@ -22,7 +23,7 @@ type Project struct {
 
 	Name       string    `db:"name" json:"name" validate:"required"`
 	URL        string    `db:"url" json:"url,omitempty" validate:"omitempty,url"`
-	Source     GitSource `json:"source" db:"source" validate:"required,oneof=github gitlab bitbucket custom"`
+	Source     GitSource `json:"source" db:"source" validate:"required,oneof=github gitlab bitbucket bitbucket_server custom"`
 	SourceID   string    `json:"sourceID,omitempty" db:"source_id"`
 	BuildCount int       `db:"build_count" json:"buildCount"`
 

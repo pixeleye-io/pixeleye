@@ -4,7 +4,15 @@ import { Installation } from "../models/installation";
 
 type GET = Method<{
   "/v1/teams/{teamID}/repos": {
-    res: Repo[];
+    res: {
+      repos: Repo[];
+      next: string;
+    };
+    queries?: {
+      q?: string;
+      project?: string;
+      next?: string;
+    };
   };
   "/v1/teams/{teamID}/installations": {
     res: Installation[];

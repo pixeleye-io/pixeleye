@@ -12,7 +12,7 @@ async function Repos({ team }: { team: Team; }) {
   const cookie = cookies().toString();
 
 
-  const repos = await
+  const repoPage = await
     API.get("/v1/teams/{teamID}/repos", {
       params: {
         teamID: team.id,
@@ -28,11 +28,11 @@ async function Repos({ team }: { team: Team; }) {
       }
 
       console.log("test", err)
-      return [];
+      return { repos: [], next: "" };
     })
 
 
-  if (repos === 1) {
+  if (repoPage === 1) {
     return (
       <div className="max-w-4xl mx-auto mt-8">
         <p className="text-error">
@@ -58,7 +58,7 @@ async function Repos({ team }: { team: Team; }) {
       </p>
     </div>
 
-    <RepoList repos={repos} team={team} source="github" /></>
+    <RepoList initialRepos={repoPage.repos} initialNext={repoPage.next} team={team} source="github" /></>
   )
 }
 

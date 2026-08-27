@@ -6,7 +6,7 @@ import { getTeam } from "@/serverLibs";
 import { redirect } from "next/navigation";
 import { API } from "@/libs";
 import { cookies } from "next/headers";
-import { env } from "@/env";
+import { env, BACKEND_URL } from "@/env";
 
 interface ImportCardProps {
   name: string;
@@ -31,6 +31,32 @@ let defaultSources: ImportCardProps[] = [
     },
   },
 ];
+
+defaultSources = [
+  {
+    name: "Bitbucket Server",
+    type: "bitbucket_server",
+    installUrl: `/add/bitbucket_server`,
+    connected: false,
+    imageUrl: {
+      light: "/bitbucket-mark.svg",
+      dark: "/bitbucket-mark.svg",
+    },
+  },
+  ...defaultSources,
+];
+
+if (env.NEXT_PUBLIC_BITBUCKET_OAUTH_CLIENT_ID)
+  defaultSources = [{
+    name: "Bitbucket",
+    type: "bitbucket",
+    installUrl: `${BACKEND_URL}/v1/git/bitbucket`,
+    connected: false,
+    imageUrl: {
+      light: "/bitbucket-mark.svg",
+      dark: "/bitbucket-mark.svg",
+    },
+  }, ...defaultSources];
 
 if (env.NEXT_PUBLIC_GITHUB_APP_NAME)
   defaultSources = [{

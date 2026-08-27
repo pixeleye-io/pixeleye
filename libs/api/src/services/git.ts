@@ -12,6 +12,17 @@ type POST = Method<{
       installation_id: string;
     };
   };
+  "/v1/git/bitbucket-server": {
+    res: {
+      installation: Installation;
+      team: Team;
+    };
+    req: {
+      teamName: string;
+      baseURL: string;
+      accessToken: string;
+    };
+  };
 }>;
 
 export interface GitAPI {

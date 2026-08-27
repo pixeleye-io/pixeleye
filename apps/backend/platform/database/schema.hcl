@@ -52,7 +52,7 @@ table "users" {
 
 enum "account_provider" {
   schema = schema.public
-  values = ["github", "gitlab", "bitbucket"]
+  values = ["github", "gitlab", "bitbucket", "bitbucket_server"]
 }
 
 table "account" {
@@ -192,7 +192,7 @@ table "oauth_account_refresh" {
 
 enum "team_type" {
   schema = schema.public
-  values = ["github", "gitlab", "bitbucket", "user"]
+  values = ["github", "gitlab", "bitbucket", "bitbucket_server", "user"]
 }
 
 enum "billing_status" {
@@ -296,7 +296,7 @@ table "team" {
 
 enum "git_installation_type" {
   schema = schema.public
-  values = ["github", "gitlab", "bitbucket"]
+  values = ["github", "gitlab", "bitbucket", "bitbucket_server"]
 }
 
 table "git_installation" {
@@ -336,9 +336,35 @@ table "git_installation" {
     null = false
   }
 
+  # Numeric GitHub App installation ID, or a provider-defined identifier (e.g. Bitbucket
+  # workspace slug) for providers without a numeric installation concept.
   column "installation_id" {
-    type = integer
+    type = text
     null = false
+  }
+
+  # Bitbucket Cloud OAuth tokens / Bitbucket Server access token. Unused for GitHub, which
+  # uses short-lived App installation tokens minted on demand instead of a stored token.
+  column "access_token" {
+    type = text
+    null = true
+  }
+
+  column "refresh_token" {
+    type = text
+    null = true
+  }
+
+  column "token_expires_at" {
+    type = timestamptz
+    null = true
+  }
+
+  # Self-hosted server base URL (Bitbucket Server / Data Center). Unused for GitHub and
+  # Bitbucket Cloud.
+  column "base_url" {
+    type = text
+    null = true
   }
 
 }
@@ -401,7 +427,7 @@ table "team_users" {
 
 enum "project_source" {
   schema = schema.public
-  values = ["github", "gitlab", "bitbucket", "custom"]
+  values = ["github", "gitlab", "bitbucket", "bitbucket_server", "custom"]
 }
 
 

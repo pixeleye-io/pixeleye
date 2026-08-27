@@ -20,4 +20,11 @@ func GitRoutes(e *echo.Echo) {
 		v1.POST("/github", controllers.GithubAppInstallation)
 		v1.GET("/github/callback", controllers.GithubAccountCallback)
 	}
+
+	if os.Getenv("BITBUCKET_OAUTH_CLIENT_ID") != "" {
+		v1.GET("/bitbucket", controllers.BitbucketAuthorize)
+		v1.GET("/bitbucket/callback", controllers.BitbucketCallback)
+	}
+
+	v1.POST("/bitbucket-server", controllers.BitbucketServerConnect)
 }

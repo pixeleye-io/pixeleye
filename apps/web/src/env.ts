@@ -7,6 +7,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PIXELEYE_HOSTING: z.string().optional(),
     NEXT_PUBLIC_BACKEND_URL: z.string().optional(),
     NEXT_PUBLIC_GITHUB_APP_NAME: z.string().optional(),
+    NEXT_PUBLIC_BITBUCKET_OAUTH_CLIENT_ID: z.string().optional(),
   },
   experimental__runtimeEnv: {
     // eslint-disable-next-line turbo/no-undeclared-env-vars
@@ -15,6 +16,8 @@ export const env = createEnv({
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     // eslint-disable-next-line turbo/no-undeclared-env-vars
     NEXT_PUBLIC_GITHUB_APP_NAME: process.env.NEXT_PUBLIC_GITHUB_APP_NAME,
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    NEXT_PUBLIC_BITBUCKET_OAUTH_CLIENT_ID: process.env.NEXT_PUBLIC_BITBUCKET_OAUTH_CLIENT_ID,
   },
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",

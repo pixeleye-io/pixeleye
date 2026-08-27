@@ -3,9 +3,10 @@ package models
 import "time"
 
 const (
-	ACCOUNT_PROVIDER_GITHUB    = "github"
-	ACCOUNT_PROVIDER_GITLAB    = "gitlab"
-	ACCOUNT_PROVIDER_BITBUCKET = "bitbucket"
+	ACCOUNT_PROVIDER_GITHUB           = "github"
+	ACCOUNT_PROVIDER_GITLAB           = "gitlab"
+	ACCOUNT_PROVIDER_BITBUCKET        = "bitbucket"
+	ACCOUNT_PROVIDER_BITBUCKET_SERVER = "bitbucket_server"
 )
 
 type Account struct {
@@ -13,7 +14,7 @@ type Account struct {
 	CreatedAt             time.Time `db:"created_at" json:"createdAt"`
 	UpdatedAt             time.Time `db:"updated_at" json:"updatedAt"`
 	UserID                string    `db:"user_id" json:"userID" validate:"required"`
-	Provider              string    `db:"provider" json:"provider" validate:"required,oneof=github gitlab bitbucket"`
+	Provider              string    `db:"provider" json:"provider" validate:"required,oneof=github gitlab bitbucket bitbucket_server"`
 	ProviderAccountID     string    `db:"provider_account_id" json:"providerAccountID" validate:"required"`
 	RefreshToken          string    `db:"refresh_token" json:"refreshToken" validate:"required"`
 	AccessToken           string    `db:"access_token" json:"accessToken" validate:"required"`

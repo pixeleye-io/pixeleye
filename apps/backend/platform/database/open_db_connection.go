@@ -3,6 +3,7 @@ package database
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pixeleye-io/pixeleye/app/queries"
+	bitbucket_queries "github.com/pixeleye-io/pixeleye/app/queries/bitbucket"
 	build_queries "github.com/pixeleye-io/pixeleye/app/queries/build"
 	conversation_queries "github.com/pixeleye-io/pixeleye/app/queries/conversation"
 	github_queries "github.com/pixeleye-io/pixeleye/app/queries/github"
@@ -16,6 +17,7 @@ type Queries struct {
 	*build_queries.BuildQueries
 	*snapshot_queries.SnapshotQueries
 	*github_queries.GithubQueries
+	*bitbucket_queries.BitbucketQueries
 	*team_queries.TeamQueries
 	*queries.ProjectQueries
 	*queries.SnapImageQueries
@@ -50,6 +52,7 @@ func OpenDBConnection() (*Queries, error) {
 		UserQueries:         &queries.UserQueries{DB: db},
 		TeamQueries:         &team_queries.TeamQueries{DB: db},
 		GithubQueries:       &github_queries.GithubQueries{DB: db},
+		BitbucketQueries:    &bitbucket_queries.BitbucketQueries{DB: db},
 		ConversationQueries: &conversation_queries.ConversationQueries{DB: db},
 	}, nil
 }

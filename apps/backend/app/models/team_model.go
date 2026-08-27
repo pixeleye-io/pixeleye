@@ -6,10 +6,11 @@ import (
 
 // status enum
 const (
-	TEAM_TYPE_GITHUB    = "github"
-	TEAM_TYPE_GITLAB    = "gitlab"
-	TEAM_TYPE_BITBUCKET = "bitbucket"
-	TEAM_TYPE_USER      = "user"
+	TEAM_TYPE_GITHUB           = "github"
+	TEAM_TYPE_GITLAB           = "gitlab"
+	TEAM_TYPE_BITBUCKET        = "bitbucket"
+	TEAM_TYPE_BITBUCKET_SERVER = "bitbucket_server"
+	TEAM_TYPE_USER             = "user"
 )
 
 const (
@@ -34,7 +35,7 @@ type Team struct {
 
 	Status string `db:"status" json:"status" validate:"required,oneof=active suspended"`
 
-	Type string `db:"type" json:"type" validate:"required,oneof=github gitlab bitbucket user"`
+	Type string `db:"type" json:"type" validate:"required,oneof=github gitlab bitbucket bitbucket_server user"`
 
 	Name      string `db:"name" json:"name" validate:"required"`
 	AvatarURL string `db:"avatar_url" json:"avatarURL" validate:"omitempty,url"`
